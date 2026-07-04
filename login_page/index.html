@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计程·职道 - 用户登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #475569;
+            font-size: 15px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 50px;
+            gap: 80px;
+        }
+
+        /* 左侧图片卡片 */
+        .image-card {
+            width: 620px;
+            height: 350px;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 40px rgba(30, 58, 138, 0.2);
+            transform: perspective(1000px) rotateY(2deg);
+            transition: all 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: perspective(1000px) rotateY(0deg) translateY(-5px);
+            box-shadow: 0 35px 60px rgba(0, 0, 0, 0.35), 0 0 60px rgba(30, 58, 138, 0.3);
+        }
+
+        .card-bg {
+            width: 100%;
+            height: 100%;
+            background: url('background.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* 右侧登录卡片 */
+        .login-card {
+            width: 420px;
+            background: white;
+            border-radius: 16px;
+            padding: 45px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 0 30px rgba(30, 58, 138, 0.1);
+            transform: perspective(1000px) rotateY(-2deg);
+            transition: all 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: perspective(1000px) rotateY(0deg) translateY(-5px);
+            box-shadow: 0 35px 60px rgba(0, 0, 0, 0.25), 0 0 40px rgba(30, 58, 138, 0.2);
+        }
+
+        .login-tabs {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 35px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            color: #3b82f6;
+        }
+
+        .tab.active::after {
+            content: '';
+            display: block;
+            width: 30px;
+            height: 3px;
+            background: #3b82f6;
+            margin: 12px auto 0;
+            border-radius: 2px;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+
+        /* 记住我和忘记密码 */
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .remember-me input {
+            margin-right: 8px;
+        }
+
+        .remember-me label {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        /* 登录按钮 */
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 25px;
+        }
+
+        /* 分隔线 */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .divider-text {
+            font-size: 13px;
+            color: #94a3b8;
+            padding: 0 15px;
+        }
+
+        /* 社交登录 */
+        .social-login {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+        }
+
+        .social-btn.wechat {
+            color: #07c160;
+        }
+
+        .social-btn.qq {
+            color: #12b7f5;
+        }
+
+        .social-btn.weibo {
+            color: #e6162d;
+        }
+
+        /* 底部页脚 */
+        .footer {
+            background: #1e3a8a;
+            padding: 50px;
+            display: flex;
+            justify-content: space-around;
+            color: white;
+        }
+
+        .footer-section {
+            max-width: 250px;
+        }
+
+        .footer-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .contact-info {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 2;
+        }
+
+        /* 版权信息 */
+        .copyright {
+            background: #1e3a8a;
+            padding: 15px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
+
+        /* 动态星空背景 */
+        #starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态星空背景 -->
+    <canvas id="starCanvas"></canvas>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-logo">计程·职道</div>
+        <div class="nav-links">
+            <a href="#">首页</a>
+            <a href="#">发现</a>
+            <a href="#">服务</a>
+            <a href="#">更多</a>
+            <a href="#">加入我们</a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 左侧图片卡片 -->
+        <div class="image-card">
+            <div class="card-bg"></div>
+        </div>
+
+        <!-- 右侧登录卡片 -->
+        <div class="login-card">
+            <div class="login-tabs">
+                <div class="tab active">登录</div>
+                <div class="tab">注册</div>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" placeholder="请输入用户名" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <label for="remember">记住我</label>
+                    </div>
+                    <a href="#" class="forgot-link">忘记密码?</a>
+                </div>
+
+                <button type="submit" class="login-btn">登录</button>
+
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">社交账号登录</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn wechat">微信</button>
+                    <button type="button" class="social-btn qq">QQ</button>
+                    <button type="button" class="social-btn weibo">微博</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-section">
+            <h3 class="footer-title">计程·职道</h3>
+            <p class="footer-desc">致力于为IT从业者提供最优质的职业发展服务，连接人才与机遇。</p>
+        </div>
+
+        <div class="footer-section">
+            <h3 class="footer-title">快速链接</h3>
+            <ul class="footer-links">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">发现</a></li>
+                <li><a href="#">服务</a></li>
+                <li><a href="#">更多</a></li>
+                <li><a href="#">用户反馈</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h3 class="footer-title">服务分类</h3>
+            <ul class="footer-links">
+                <li><a href="#">职位搜索</a></li>
+                <li><a href="#">数据分析</a></li>
+                <li><a href="#">职业规划</a></li>
+                <li><a href="#">学习资源</a></li>
+                <li><a href="#">行业报告</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h3 class="footer-title">联系我们</h3>
+            <div class="contact-info">
+                <p>地址：北京市海淀区中关村科技园</p>
+                <p>电话：+86 10 8888 8888</p>
+                <p>邮箱：contact@jichengzhidao.com</p>
+                <p>服务时间：周一至周日 9:00-18:00</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 版权信息 -->
+    <div class="copyright">
+        © 2024 计程·职道 版权所有 | 京ICP备12345678号
+    </div>
+
+    <script>
+        // 动态星空背景 - 星系效果
+        function initStars() {
+            const canvas = document.getElementById('starCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+            
+            // 星星数组
+            const stars = [];
+            const starCount = 120;
+            
+            // 初始化星星
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2.5 + 0.5,
+                    alpha: Math.random() * 0.5 + 0.5,
+                    alphaChange: (Math.random() - 0.5) * 0.015,
+                    speedX: (Math.random() - 0.5) * 0.2,
+                    speedY: (Math.random() - 0.5) * 0.2,
+                    hue: Math.random() * 40 + 200 // 蓝色到紫色范围
+                });
+            }
+            
+            // 主动画循环
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制星星之间的连线（星系效果）
+                stars.forEach((star, i) => {
+                    stars.forEach((otherStar, j) => {
+                        if (i < j) {
+                            const dx = star.x - otherStar.x;
+                            const dy = star.y - otherStar.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            // 如果星星足够近，绘制连线
+                            if (distance < 150) {
+                                const opacity = (1 - distance / 150) * 0.4;
+                                ctx.beginPath();
+                                ctx.moveTo(star.x, star.y);
+                                ctx.lineTo(otherStar.x, otherStar.y);
+                                
+                                // 根据距离渐变色
+                                const gradient = ctx.createLinearGradient(star.x, star.y, otherStar.x, otherStar.y);
+                                gradient.addColorStop(0, `hsla(${star.hue}, 80%, 70%, ${opacity})`);
+                                gradient.addColorStop(1, `hsla(${otherStar.hue}, 80%, 70%, ${opacity})`);
+                                ctx.strokeStyle = gradient;
+                                ctx.lineWidth = 0.8;
+                                ctx.stroke();
+                            }
+                        }
+                    });
+                });
+                
+                // 绘制星星
+                stars.forEach(star => {
+                    // 更新位置
+                    star.x += star.speedX;
+                    star.y += star.speedY;
+                    
+                    // 边界检测
+                    if (star.x < 0) star.x = canvas.width;
+                    if (star.x > canvas.width) star.x = 0;
+                    if (star.y < 0) star.y = canvas.height;
+                    if (star.y > canvas.height) star.y = 0;
+                    
+                    // 更新透明度
+                    star.alpha += star.alphaChange;
+                    if (star.alpha <= 0.3 || star.alpha >= 1) {
+                        star.alphaChange = -star.alphaChange;
+                    }
+                    
+                    // 绘制星星光晕
+                    const gradient = ctx.createRadialGradient(
+                        star.x, star.y, 0,
+                        star.x, star.y, star.radius * 4
+                    );
+                    gradient.addColorStop(0, `hsla(${star.hue}, 80%, 90%, ${star.alpha})`);
+                    gradient.addColorStop(0.3, `hsla(${star.hue}, 80%, 70%, ${star.alpha * 0.6})`);
+                    gradient.addColorStop(1, `hsla(${star.hue}, 80%, 50%, 0)`);
+                    
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // 绘制星星核心
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `hsla(${star.hue}, 60%, 95%, ${star.alpha})`;
+                    ctx.fill();
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+        
+        // 页面加载完成后初始化星空
+        window.addEventListener('DOMContentLoaded', initStars);
+        
+        // 登录表单处理
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            if (username && password) {
+                alert('登录成功！欢迎使用计程·职道');
+            }
+        });
+    </script>
+</body>
+</html>

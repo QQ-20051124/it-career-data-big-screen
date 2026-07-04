@@ -1,0 +1,13 @@
+.venv/
+**/node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.idea/
+.vscode/
+*.log
+*.db
+job_crawler/job51_userdata/
+job_crawler/liepin_userdata/
+job_crawler/zhaopin_userdata/
