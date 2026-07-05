@@ -257,12 +257,122 @@ function drawStarBackground() {
     })
   }
 
+  // ============ 可连接的星星（较大较亮的星星）============
+  const connectableStars = stars.filter(s => s.r > 1.2).slice(0, 80)
+
+  // ============ 流星 ============
+  const meteors = []
+  let lastMeteorTime = 0
+
+  function spawnMeteor() {
+    const now = Date.now()
+    const minInterval = 800 + Math.random() * 1200
+    if (now - lastMeteorTime < minInterval) return
+
+    const startX = Math.random() * canvas.width
+    const startY = -50 - Math.random() * 100
+
+    meteors.push({
+      x: startX,
+      y: startY,
+      length: 80 + Math.random() * 120,
+      speed: 8 + Math.random() * 12,
+      angle: 20 + Math.random() * 30,
+      opacity: 0.8 + Math.random() * 0.2,
+      trailOpacity: 0.3 + Math.random() * 0.3
+    })
+
+    lastMeteorTime = now
+  }
+
+  function updateMeteors() {
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      const m = meteors[i]
+      const rad = (m.angle * Math.PI) / 180
+      m.x += Math.cos(rad) * m.speed
+      m.y += Math.sin(rad) * m.speed
+
+      if (m.x > canvas.width + 100 || m.y > canvas.height + 100) {
+        meteors.splice(i, 1)
+      }
+    }
+  }
+
+  function drawMeteor(m) {
+    const rad = (m.angle * Math.PI) / 180
+    const tailX = m.x - Math.cos(rad) * m.length
+    const tailY = m.y - Math.sin(rad) * m.length
+
+    const gradient = ctx.createLinearGradient(tailX, tailY, m.x, m.y)
+    gradient.addColorStop(0, 'transparent')
+    gradient.addColorStop(0.5, `rgba(200, 220, 255, ${m.trailOpacity * 0.5})`)
+    gradient.addColorStop(0.8, `rgba(220, 240, 255, ${m.trailOpacity})`)
+    gradient.addColorStop(1, `rgba(255, 255, 255, ${m.opacity})`)
+
+    ctx.beginPath()
+    ctx.moveTo(tailX, tailY)
+    ctx.lineTo(m.x, m.y)
+    ctx.strokeStyle = gradient
+    ctx.lineWidth = 2
+    ctx.lineCap = 'round'
+    ctx.stroke()
+
+    const headGlow = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, 10)
+    headGlow.addColorStop(0, `rgba(255, 255, 255, ${m.opacity})`)
+    headGlow.addColorStop(0.3, `rgba(200, 230, 255, ${m.opacity * 0.5})`)
+    headGlow.addColorStop(1, 'transparent')
+    ctx.beginPath()
+    ctx.arc(m.x, m.y, 10, 0, Math.PI * 2)
+    ctx.fillStyle = headGlow
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.arc(m.x, m.y, 2, 0, Math.PI * 2)
+    ctx.fillStyle = `rgba(255, 255, 255, ${m.opacity})`
+    ctx.fill()
+  }
+
+  // ============ 星星连线 ============
+  function drawStarConnections() {
+    const connectionDistance = 120
+    connectableStars.forEach((s1, i) => {
+      for (let j = i + 1; j < connectableStars.length; j++) {
+        const s2 = connectableStars[j]
+        const x1 = s1.x * canvas.width
+        const y1 = s1.y * canvas.height
+        const x2 = s2.x * canvas.width
+        const y2 = s2.y * canvas.height
+        const dx = x2 - x1
+        const dy = y2 - y1
+        const distance = Math.sqrt(dx * dx + dy * dy)
+
+        if (distance < connectionDistance) {
+          const twinkle1 = Math.sin(Date.now() * s1.twinkleSpeed + s1.twinkleOffset) * 0.25 + 0.75
+          const twinkle2 = Math.sin(Date.now() * s2.twinkleSpeed + s2.twinkleOffset) * 0.25 + 0.75
+          const avgTwinkle = (twinkle1 + twinkle2) / 2
+          const alpha = (1 - distance / connectionDistance) * 0.12 * avgTwinkle
+
+          const color = [200, 220, 255]
+          ctx.beginPath()
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
+          ctx.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`
+          ctx.lineWidth = 1
+          ctx.stroke()
+        }
+      }
+    })
+  }
+
   function animate() {
     ctx.fillStyle = '#010308'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     // 画星云
     nebulas.forEach(n => drawNebula(n))
+
+    // 画星星连线（在星星之前绘制，形成层次感）
+    drawStarConnections()
 
     // 画星星
     stars.forEach(s => {
@@ -287,6 +397,11 @@ function drawStarBackground() {
       ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
       ctx.fill()
     })
+
+    // 生成和更新流星
+    spawnMeteor()
+    updateMeteors()
+    meteors.forEach(m => drawMeteor(m))
 
     starAnimation = requestAnimationFrame(animate)
   }
