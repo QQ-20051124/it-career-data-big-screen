@@ -13,6 +13,7 @@
     "echarts": "^5.4.3",
     "echarts-gl": "^2.0.9",
     "echarts-wordcloud": "^2.1.0",
+    "three": "^0.130.0",
     "vue": "^3.2.13",
     "vue-router": "^4.6.4"
   },
@@ -37,7 +38,9 @@
     "parserOptions": {
       "parser": "@babel/eslint-parser"
     },
-    "rules": {}
+    "rules": {
+      "vue/multi-word-component-names": "off"
+    }
   },
   "browserslist": [
     "> 1%",
