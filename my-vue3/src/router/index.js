@@ -3,6 +3,7 @@ import BigScreen from '@/components/BigScreen.vue'
 import LoginView from '@/components/LoginView.vue'
 import Dashboard from '@/components/Dashboard.vue'
 import JobRecommend from '@/components/JobRecommend.vue'
+import AIResume from '@/components/AIResume.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/job-recommend',
     name: 'JobRecommend',
     component: JobRecommend
+  },
+  {
+    path: '/ai-resume',
+    name: 'AIResume',
+    component: AIResume
   }
 ]
 
