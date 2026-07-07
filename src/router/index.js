@@ -1,36 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BigScreen from '@/components/BigScreen.vue'
-import Login from '@/components/Login.vue'
+import LoginView from '@/components/LoginView.vue'
+import Dashboard from '@/components/Dashboard.vue'
+import JobRecommend from '@/components/JobRecommend.vue'
+import AIResume from '@/components/AIResume.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Dashboard',
-    component: BigScreen,
-    meta: { requiresAuth: true }
+    name: 'Login',
+    component: LoginView
   },
   {
-    path: '/login',
-    name: 'Login',
-    component: Login
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard
+  },
+  {
+    path: '/analytics',
+    name: 'Analytics',
+    component: BigScreen
+  },
+  {
+    path: '/job-recommend',
+    name: 'JobRecommend',
+    component: JobRecommend
+  },
+  {
+    path: '/ai-resume',
+    name: 'AIResume',
+    component: AIResume
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
-
-router.beforeEach((to, from, next) => {
-  const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true'
-  
-  if (to.meta.requiresAuth && !isLoggedIn) {
-    next('/login')
-  } else if (to.path === '/login' && isLoggedIn) {
-    next('/')
-  } else {
-    next()
-  }
 })
 
 export default router

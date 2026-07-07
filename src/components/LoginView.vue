@@ -156,93 +156,134 @@
 
       <div class="right-panel">
         <div ref="loginCard" class="login-card" @mousemove="handleCardMouseMove" @mouseleave="handleCardMouseLeave">
-          <div class="card-glow-effect"></div>
-          <div class="card-top-glow"></div>
-          <div class="card-particles">
-            <span class="particle" v-for="n in 15" :key="'p'+n" :style="{ '--i': n }"></span>
+          <div class="card-corner top-left"></div>
+          <div class="card-corner top-right"></div>
+          <div class="card-corner bottom-left"></div>
+          <div class="card-corner bottom-right"></div>
+
+          <div class="ai-network-bg">
+            <svg class="network-svg" viewBox="0 0 400 500">
+              <line v-for="link in networkLinks" :key="link.id" 
+                :x1="link.x1" :y1="link.y1" :x2="link.x2" :y2="link.y2" 
+                class="network-line" :style="{ '--delay': link.delay }"/>
+              <circle v-for="node in networkNodes" :key="node.id" 
+                :cx="node.x" :cy="node.y" :r="node.r" 
+                class="network-node" :style="{ '--delay': node.delay }"/>
+            </svg>
           </div>
-          <div class="card-floating-nodes">
-            <span class="floating-node" v-for="n in 5" :key="'fn'+n" :style="{ '--i': n }"></span>
+
+          <div class="career-tag-cloud">
+            <span v-for="tag in careerTags" :key="tag.name" 
+              class="career-tag" :style="{ 
+                '--x': tag.x + '%', 
+                '--y': tag.y + '%', 
+                '--delay': tag.delay + 's',
+                '--color': tag.color
+              }">
+              {{ tag.name }}
+            </span>
+          </div>
+
+          <div class="data-flow-lines">
+            <div class="flow-line line-1"></div>
+            <div class="flow-line line-2"></div>
+            <div class="flow-line line-3"></div>
           </div>
 
           <div class="card-content">
             <div class="card-header">
-            <h2>欢迎回来</h2>
-            <p>登录您的智能工作空间</p>
-          </div>
-
-          <form class="login-form" @submit.prevent="handleLogin">
-            <div class="input-group" @focus="focusedInput = 'username'" @blur="focusedInput = null">
-              <div class="input-border"></div>
-              <div class="input-icon">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
+              <div class="header-icon">
+                <svg viewBox="0 0 40 40" width="40" height="40">
+                  <circle cx="20" cy="20" r="18" fill="none" stroke="url(#iconGradient)" stroke-width="2"/>
+                  <path d="M12 20h6m-3-6v12m8-6l-4-4m4 4l-4 4" stroke="url(#iconGradient)" stroke-width="2" stroke-linecap="round"/>
+                  <defs>
+                    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#4a9eff"/>
+                      <stop offset="100%" style="stop-color:#00d4aa"/>
+                    </linearGradient>
+                  </defs>
                 </svg>
               </div>
-              <input type="text" v-model="form.username" placeholder="账号" required />
+              <h2>欢迎回来</h2>
+              <p>登录您的AI职业导航空间</p>
             </div>
 
-            <div class="input-group" @focus="focusedInput = 'password'" @blur="focusedInput = null">
-              <div class="input-border"></div>
-              <div class="input-icon">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
+            <form class="login-form" @submit.prevent="handleLogin">
+              <div class="input-group" @focus="focusedInput = 'username'" @blur="focusedInput = null">
+                <div class="input-glow"></div>
+                <div class="input-ring"></div>
+                <div class="input-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+                <input type="text" v-model="form.username" placeholder="账号" required />
+                <div class="input-status-dot"></div>
               </div>
-              <input :type="showPassword ? 'text' : 'password'" v-model="form.password" placeholder="密码" required />
-              <div class="toggle-pwd" @click="showPassword = !showPassword">
-                <svg v-if="!showPassword" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.58 18.58 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.58 18.58 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1 4.24 4.24"/>
-                </svg>
+
+              <div class="input-group" @focus="focusedInput = 'password'" @blur="focusedInput = null">
+                <div class="input-glow"></div>
+                <div class="input-ring"></div>
+                <div class="input-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+                <input :type="showPassword ? 'text' : 'password'" v-model="form.password" placeholder="密码" required />
+                <div class="toggle-pwd" @click="showPassword = !showPassword">
+                  <svg v-if="!showPassword" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg v-else viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.58 18.58 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.58 18.58 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1 4.24 4.24"/>
+                  </svg>
+                </div>
               </div>
+
+              <div class="form-options">
+                <label class="checkbox">
+                  <input type="checkbox" v-model="form.remember"/>
+                  <span class="check-icon"></span>
+                  <span>记住我</span>
+                </label>
+                <a href="#" class="forgot-link">忘记密码?</a>
+              </div>
+
+              <button type="submit" class="login-btn" :disabled="loading">
+                <span class="btn-pulse"></span>
+                <span class="btn-wave"></span>
+                <span v-if="loading" class="spinner"></span>
+                {{ loading ? 'AI认证中...' : '智能登录' }}
+              </button>
+            </form>
+
+            <div class="divider">
+              <span class="divider-line"></span>
+              <span class="divider-text">快捷登录</span>
+              <span class="divider-line"></span>
             </div>
 
-            <div class="form-options">
-              <label class="checkbox">
-                <input type="checkbox" v-model="form.remember"/>
-                <span class="check-icon"></span>
-                <span>记住我</span>
-              </label>
-              <a href="#" class="forgot-link">忘记密码?</a>
+            <div class="social-buttons">
+              <button class="social-btn wechat" @click="handleSocialLogin('wechat')">
+                <div class="social-ring"></div>
+                <i class="fa-brands fa-weixin"></i>
+              </button>
+              <button class="social-btn qq" @click="handleSocialLogin('qq')">
+                <div class="social-ring"></div>
+                <i class="fa-brands fa-qq"></i>
+              </button>
+              <button class="social-btn email" @click="handleEmailLogin">
+                <div class="social-ring"></div>
+                <i class="fa-solid fa-envelope"></i>
+              </button>
             </div>
 
-            <button type="submit" class="login-btn" :disabled="loading">
-              <span class="btn-glow"></span>
-              <span v-if="loading" class="spinner"></span>
-              {{ loading ? '登录中...' : '立即登录' }}
-            </button>
-          </form>
-
-          <div class="divider">
-            <span class="divider-line"></span>
-            <span class="divider-text">或使用以下快捷登录</span>
-            <span class="divider-line"></span>
-          </div>
-
-          <div class="social-buttons">
-            <button class="social-btn wechat" @click="handleSocialLogin('wechat')" @mouseenter="hoveredSocial = 'wechat'" @mouseleave="hoveredSocial = null">
-              <div class="social-glow"></div>
-              <i class="fa-brands fa-weixin"></i>
-            </button>
-            <button class="social-btn qq" @click="handleSocialLogin('qq')" @mouseenter="hoveredSocial = 'qq'" @mouseleave="hoveredSocial = null">
-              <div class="social-glow"></div>
-              <i class="fa-brands fa-qq"></i>
-            </button>
-            <button class="social-btn email" @click="handleEmailLogin" @mouseenter="hoveredSocial = 'email'" @mouseleave="hoveredSocial = null">
-              <div class="social-glow"></div>
-              <i class="fa-solid fa-envelope"></i>
-            </button>
-          </div>
-
-          <div class="register-link">
-            还没有账号? <a href="#" @click.prevent="handleRegister">立即注册</a>
-          </div>
+            <div class="register-link">
+              还没有账号? <a href="#" @click.prevent="handleRegister">立即注册</a>
+            </div>
           </div>
         </div>
       </div>
@@ -260,7 +301,6 @@ const bgCanvas = ref(null)
 const globeContainer = ref(null)
 const loginCard = ref(null)
 const focusedInput = ref(null)
-const hoveredSocial = ref(null)
 let bgAnimationId = null
 let globeAnimationId = null
 let mouseX = 0
@@ -272,18 +312,63 @@ const form = reactive({
   remember: false
 })
 
+const careerTags = ref([
+  { name: '前端开发', x: 10, y: 15, delay: 0, color: '#4a9eff' },
+  { name: 'AI工程师', x: 85, y: 20, delay: 0.3, color: '#00d4aa' },
+  { name: 'Java', x: 20, y: 40, delay: 0.6, color: '#ff6b6b' },
+  { name: '数据分析师', x: 75, y: 50, delay: 0.9, color: '#a855f7' },
+  { name: '产品经理', x: 15, y: 65, delay: 1.2, color: '#f59e0b' },
+  { name: 'Python', x: 80, y: 75, delay: 1.5, color: '#3b82f6' },
+  { name: '全栈开发', x: 30, y: 85, delay: 1.8, color: '#06b6d4' },
+  { name: '算法', x: 70, y: 30, delay: 0.5, color: '#8b5cf6' },
+])
+
+const networkNodes = ref([
+  { id: 1, x: 50, y: 80, r: 3, delay: 0 },
+  { id: 2, x: 150, y: 120, r: 4, delay: 0.2 },
+  { id: 3, x: 250, y: 60, r: 3, delay: 0.4 },
+  { id: 4, x: 320, y: 140, r: 4, delay: 0.6 },
+  { id: 5, x: 80, y: 200, r: 3, delay: 0.8 },
+  { id: 6, x: 200, y: 220, r: 5, delay: 1 },
+  { id: 7, x: 300, y: 200, r: 3, delay: 1.2 },
+  { id: 8, x: 100, y: 320, r: 4, delay: 1.4 },
+  { id: 9, x: 250, y: 340, r: 3, delay: 1.6 },
+  { id: 10, x: 350, y: 280, r: 4, delay: 1.8 },
+  { id: 11, x: 60, y: 400, r: 3, delay: 2 },
+  { id: 12, x: 180, y: 420, r: 4, delay: 2.2 },
+  { id: 13, x: 300, y: 400, r: 3, delay: 2.4 },
+])
+
+const networkLinks = ref([
+  { id: 1, x1: 50, y1: 80, x2: 150, y2: 120, delay: 0 },
+  { id: 2, x1: 150, y1: 120, x2: 250, y2: 60, delay: 0.3 },
+  { id: 3, x1: 250, y1: 60, x2: 320, y2: 140, delay: 0.6 },
+  { id: 4, x1: 150, y1: 120, x2: 200, y2: 220, delay: 0.9 },
+  { id: 5, x1: 80, y1: 200, x2: 200, y2: 220, delay: 1.2 },
+  { id: 6, x1: 200, y1: 220, x2: 300, y2: 200, delay: 1.5 },
+  { id: 7, x1: 320, y1: 140, x2: 300, y2: 200, delay: 1.8 },
+  { id: 8, x1: 80, y1: 200, x2: 100, y2: 320, delay: 2.1 },
+  { id: 9, x1: 200, y1: 220, x2: 100, y2: 320, delay: 2.4 },
+  { id: 10, x1: 200, y1: 220, x2: 250, y2: 340, delay: 2.7 },
+  { id: 11, x1: 300, y1: 200, x2: 350, y2: 280, delay: 3 },
+  { id: 12, x1: 100, y1: 320, x2: 180, y2: 420, delay: 3.3 },
+  { id: 13, x1: 250, y1: 340, x2: 180, y2: 420, delay: 3.6 },
+  { id: 14, x1: 250, y1: 340, x2: 300, y2: 400, delay: 3.9 },
+  { id: 15, x1: 60, y1: 400, x2: 180, y2: 420, delay: 4.2 },
+])
+
 const handleLogin = async () => {
   loading.value = true
   await new Promise(resolve => setTimeout(resolve, 1500))
   sessionStorage.setItem('isLoggedIn', 'true')
   loading.value = false
-  window.location.href = '/'
+  window.location.href = '/dashboard'
 }
 
 const handleGuest = () => {
   sessionStorage.setItem('isLoggedIn', 'true')
   sessionStorage.setItem('isGuest', 'true')
-  window.location.href = '/'
+  window.location.href = '/dashboard'
 }
 
 const handleSocialLogin = (type) => {
@@ -292,7 +377,7 @@ const handleSocialLogin = (type) => {
     sessionStorage.setItem('isLoggedIn', 'true')
     sessionStorage.setItem('loginType', type)
     loading.value = false
-    window.location.href = '/'
+    window.location.href = '/dashboard'
   }, 1500)
 }
 
@@ -302,7 +387,7 @@ const handleEmailLogin = () => {
     sessionStorage.setItem('isLoggedIn', 'true')
     sessionStorage.setItem('loginType', 'email')
     loading.value = false
-    window.location.href = '/'
+    window.location.href = '/dashboard'
   }, 1500)
 }
 
@@ -556,8 +641,10 @@ const initBackground = () => {
         if (dist < 250) {
           const opacity = (250 - dist) / 250 * 0.28
           const lineGradient = ctx.createLinearGradient(x1, y1, x2, y2)
-          lineGradient.addColorStop(0, node1.color + opacity + ')')
-          lineGradient.addColorStop(1, node2.color + opacity + ')')
+          const color1 = node1.color === '#60a5fa' ? 'rgba(96, 165, 250, ' : 'rgba(167, 139, 250, '
+          const color2 = node2.color === '#60a5fa' ? 'rgba(96, 165, 250, ' : 'rgba(167, 139, 250, '
+          lineGradient.addColorStop(0, color1 + opacity + ')')
+          lineGradient.addColorStop(1, color2 + opacity + ')')
           ctx.beginPath()
           ctx.moveTo(x1, y1)
           ctx.lineTo(x2, y2)
@@ -882,6 +969,17 @@ onUnmounted(() => {
   position: relative;
   overflow: hidden;
   background: transparent;
+}
+
+.login-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(8, 5, 35, 0.85);
+  z-index: -2;
 }
 
 .bg-canvas {
@@ -1747,18 +1845,17 @@ onUnmounted(() => {
 
 .login-card {
   width: 100%;
-  background: rgba(10, 20, 50, 0.65);
+  background: rgba(15, 20, 50, 0.5);
   backdrop-filter: blur(40px) saturate(150%);
   border-radius: 28px;
-  border: 1px solid rgba(96, 165, 250, 0.08);
+  border: 1px solid rgba(74, 158, 255, 0.3);
   box-shadow: 
-    0 0 60px rgba(96, 165, 250, 0.12),
-    0 0 100px rgba(167, 139, 250, 0.06),
-    0 25px 60px rgba(0, 0, 0, 0.6),
-    0 15px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.25);
-  padding: 55px;
+    0 0 60px rgba(74, 158, 255, 0.2),
+    0 0 100px rgba(167, 139, 250, 0.1),
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  padding: 50px;
   position: relative;
   overflow: hidden;
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s ease;
@@ -1772,65 +1869,226 @@ onUnmounted(() => {
   right: 0;
   bottom: 0;
   background: 
-    linear-gradient(135deg, rgba(96, 165, 250, 0.06) 0%, transparent 40%),
-    linear-gradient(225deg, rgba(167, 139, 250, 0.04) 0%, transparent 40%),
-    linear-gradient(45deg, transparent 60%, rgba(59, 130, 246, 0.03) 100%);
+    linear-gradient(135deg, rgba(74, 158, 255, 0.08) 0%, transparent 50%),
+    linear-gradient(225deg, rgba(0, 212, 170, 0.05) 0%, transparent 50%),
+    linear-gradient(45deg, transparent 50%, rgba(167, 139, 250, 0.05) 100%);
   pointer-events: none;
-  animation: cardGradientShift 8s ease-in-out infinite;
+  animation: cardGradientShift 10s ease-in-out infinite;
 }
 
 @keyframes cardGradientShift {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.5; transform: rotate(0deg); }
+  50% { opacity: 1; transform: rotate(180deg); }
 }
-
-
 
 .login-card:hover {
   box-shadow: 
-    0 0 80px rgba(96, 165, 250, 0.18),
-    0 0 130px rgba(167, 139, 250, 0.09),
-    0 30px 80px rgba(0, 0, 0, 0.65),
-    0 20px 50px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.28);
-  border-color: rgba(96, 165, 250, 0.15);
+    0 0 80px rgba(74, 158, 255, 0.25),
+    0 0 120px rgba(167, 139, 250, 0.15),
+    0 0 160px rgba(0, 212, 170, 0.08),
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: rgba(74, 158, 255, 0.5);
+  background: rgba(15, 20, 50, 0.6);
 }
 
-.card-glow-effect {
+.card-corner {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 30% 20%, rgba(74, 158, 255, 0.05) 0%, transparent 45%),
-              radial-gradient(circle at 70% 80%, rgba(0, 212, 170, 0.03) 0%, transparent 40%);
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(74, 158, 255, 0.4);
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 
-.card-top-glow {
+.card-corner.top-left {
+  top: 20px;
+  left: 20px;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 8px 0 0 0;
+}
+
+.card-corner.top-right {
+  top: 20px;
+  right: 20px;
+  border-left: none;
+  border-bottom: none;
+  border-radius: 0 8px 0 0;
+}
+
+.card-corner.bottom-left {
+  bottom: 20px;
+  left: 20px;
+  border-right: none;
+  border-top: none;
+  border-radius: 0 0 0 8px;
+}
+
+.card-corner.bottom-right {
+  bottom: 20px;
+  right: 20px;
+  border-left: none;
+  border-top: none;
+  border-radius: 0 0 8px 0;
+}
+
+.card-corner::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: rgba(74, 158, 255, 0.6);
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.8);
+  animation: cornerPulse 2s ease-in-out infinite;
+}
+
+.card-corner.top-left::after {
+  top: -2px;
+  left: -2px;
+  animation-delay: 0s;
+}
+
+.card-corner.top-right::after {
+  top: -2px;
+  right: -2px;
+  animation-delay: 0.5s;
+}
+
+.card-corner.bottom-left::after {
+  bottom: -2px;
+  left: -2px;
+  animation-delay: 1s;
+}
+
+.card-corner.bottom-right::after {
+  bottom: -2px;
+  right: -2px;
+  animation-delay: 1.5s;
+}
+
+@keyframes cornerPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.ai-network-bg {
   position: absolute;
   top: 0;
-  left: 10%;
-  right: 10%;
-  height: 2px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(74, 158, 255, 0.25), 
-    rgba(0, 212, 170, 0.2), 
-    rgba(74, 158, 255, 0.25), 
-    transparent);
-  border-radius: 1px;
-  filter: blur(2px);
-  animation: topGlowPulse 3s ease-in-out infinite;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
   pointer-events: none;
   z-index: 1;
+  overflow: hidden;
 }
 
-@keyframes topGlowPulse {
-  0%, 100% { opacity: 0.6; transform: scaleX(0.95); }
-  50% { opacity: 1; transform: scaleX(1.05); }
+.network-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.network-line {
+  stroke: rgba(74, 158, 255, 0.3);
+  stroke-width: 1;
+  stroke-dasharray: 5, 5;
+  animation: networkLineAnim 2s ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes networkLineAnim {
+  0%, 100% { stroke-dashoffset: 0; opacity: 0.3; }
+  50% { stroke-dashoffset: -10; opacity: 0.8; }
+}
+
+.network-node {
+  fill: rgba(74, 158, 255, 0.6);
+  animation: networkNodeAnim 3s ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes networkNodeAnim {
+  0%, 100% { opacity: 0.4; r: 2; }
+  50% { opacity: 1; r: 4; }
+}
+
+.career-tag-cloud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.career-tag {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  font-size: 11px;
+  color: var(--color);
+  font-weight: 600;
+  opacity: 0;
+  animation: tagFloat 8s ease-in-out infinite;
+  animation-delay: var(--delay);
+  white-space: nowrap;
+  text-shadow: 0 0 15px currentColor;
+  letter-spacing: 1px;
+}
+
+@keyframes tagFloat {
+  0%, 100% { opacity: 0; transform: translateY(0) scale(0.8); }
+  25% { opacity: 0.4; }
+  50% { opacity: 0.6; transform: translateY(-10px) scale(1); }
+  75% { opacity: 0.3; }
+}
+
+.data-flow-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.flow-line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, 
+    transparent 0%, 
+    rgba(74, 158, 255, 0.2) 20%, 
+    rgba(0, 212, 170, 0.3) 50%, 
+    rgba(74, 158, 255, 0.2) 80%, 
+    transparent 100%);
+  animation: flowLineAnim 10s linear infinite;
+}
+
+.flow-line.line-1 {
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.flow-line.line-2 {
+  left: 50%;
+  animation-delay: -3s;
+}
+
+.flow-line.line-3 {
+  left: 90%;
+  animation-delay: -6s;
+}
+
+@keyframes flowLineAnim {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
 }
 
 .card-content {
@@ -1953,19 +2211,79 @@ onUnmounted(() => {
 
 .card-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 50px;
+  position: relative;
+}
+
+.header-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 0 30px rgba(74, 158, 255, 0.2),
+    inset 0 0 20px rgba(74, 158, 255, 0.05);
+  animation: iconPulse 4s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(74, 158, 255, 0.2); }
+  50% { transform: scale(1.05); box-shadow: 0 0 45px rgba(74, 158, 255, 0.35); }
+}
+
+.card-header::before {
+  content: '';
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.8), rgba(0, 212, 170, 0.6), rgba(74, 158, 255, 0.8), transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
 }
 
 .card-header h2 {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 2.3rem;
+  font-weight: 800;
   color: #fff;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 0%, rgba(74, 158, 255, 0.95) 40%, rgba(0, 212, 170, 0.9) 70%, rgba(74, 158, 255, 0.95) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 50px rgba(74, 158, 255, 0.4);
+  position: relative;
+  letter-spacing: 2px;
+}
+
+.card-header h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.9), rgba(0, 212, 170, 0.7), rgba(74, 158, 255, 0.9), transparent);
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 2px;
+}
+
+.login-card:hover .card-header h2::after {
+  width: 90%;
 }
 
 .card-header p {
-  font-size: 0.9rem;
-  color: rgba(150, 180, 220, 0.4);
+  font-size: 0.95rem;
+  color: rgba(150, 180, 220, 0.5);
+  letter-spacing: 2px;
 }
 
 .login-form {
@@ -1976,10 +2294,10 @@ onUnmounted(() => {
 
 .input-group {
   position: relative;
-  background: rgba(5, 12, 30, 0.6);
-  border: 1px solid rgba(96, 165, 250, 0.1);
-  border-radius: 16px;
-  transition: all 0.3s ease;
+  background: rgba(10, 15, 40, 0.5);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 20px;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   overflow: hidden;
 }
 
@@ -1990,66 +2308,106 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: 16px;
+  border-radius: 24px;
   padding: 2px;
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.4), rgba(167, 139, 250, 0.2), rgba(96, 165, 250, 0.4));
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.6), rgba(167, 139, 250, 0.4), rgba(0, 212, 170, 0.3), rgba(167, 139, 250, 0.4), rgba(74, 158, 255, 0.6));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  opacity: 0.4;
-  transition: opacity 0.3s ease, padding 0.3s ease;
+  opacity: 0.3;
+  transition: opacity 0.5s ease, padding 0.5s ease;
   pointer-events: none;
+}
+
+.input-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(74, 158, 255, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+
+.input-group:focus-within .input-glow {
+  width: 300px;
+  height: 300px;
+}
+
+.input-ring {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 22px;
+  border: 2px solid transparent;
+  background: linear-gradient(rgba(10, 15, 40, 0.5), rgba(10, 15, 40, 0.5)) padding-box,
+              linear-gradient(135deg, rgba(74, 158, 255, 0), rgba(0, 212, 170, 0), rgba(74, 158, 255, 0)) border-box;
+  transition: background 0.5s ease;
+  pointer-events: none;
+}
+
+.input-group:focus-within .input-ring {
+  background: linear-gradient(rgba(10, 15, 40, 0.5), rgba(10, 15, 40, 0.5)) padding-box,
+              linear-gradient(135deg, rgba(74, 158, 255, 0.7), rgba(0, 212, 170, 0.5), rgba(74, 158, 255, 0.7)) border-box;
 }
 
 .input-group:focus-within::before {
   opacity: 1;
-  padding: 3px;
+  padding: 4px;
 }
 
 .input-group:focus-within {
   box-shadow: 
-    0 0 50px rgba(96, 165, 250, 0.4),
-    0 0 80px rgba(167, 139, 250, 0.2),
-    inset 0 0 25px rgba(96, 165, 250, 0.12);
-  transform: translateY(-3px);
-  border-color: rgba(96, 165, 250, 0.3);
-}
-
-.input-border {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #4a9eff, #00d4aa, #4a9eff, transparent);
-  transition: left 0.6s ease;
-  border-radius: 2px;
-  pointer-events: none;
-}
-
-.input-group:focus-within .input-border {
-  left: 0;
+    0 0 80px rgba(74, 158, 255, 0.5),
+    0 0 120px rgba(167, 139, 250, 0.3),
+    0 0 160px rgba(0, 212, 170, 0.15),
+    inset 0 0 35px rgba(74, 158, 255, 0.18);
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(74, 158, 255, 0.5);
 }
 
 .input-icon {
   position: absolute;
-  left: 22px;
+  left: 24px;
   top: 50%;
   transform: translateY(-50%);
   color: rgba(100, 140, 200, 0.4);
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 0 8px rgba(74, 158, 255, 0.3));
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.3));
   pointer-events: none;
 }
 
 .input-group:focus-within .input-icon {
   color: #4a9eff;
-  filter: drop-shadow(0 0 12px rgba(74, 158, 255, 0.6));
+  filter: drop-shadow(0 0 15px rgba(74, 158, 255, 0.8));
+  transform: translateY(-50%) scale(1.1);
+}
+
+.input-status-dot {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(100, 140, 200, 0.3);
+  transition: all 0.4s ease;
+}
+
+.input-group:focus-within .input-status-dot {
+  background: rgba(0, 212, 170, 0.8);
+  box-shadow: 0 0 15px rgba(0, 212, 170, 0.8);
 }
 
 .input-group input {
   width: 100%;
-  padding: 17px 20px 17px 58px;
+  padding: 18px 60px 18px 62px;
   background: transparent;
   border: none;
   color: #fff;
@@ -2133,42 +2491,65 @@ onUnmounted(() => {
 }
 
 .login-btn {
-  padding: 18px;
-  margin-top: 12px;
-  background: linear-gradient(135deg, #2575ff 0%, #4a9eff 35%, #00d4aa 100%);
-  background-size: 200% 200%;
-  border: none;
-  border-radius: 16px;
+  padding: 22px;
+  margin-top: 20px;
+  background: linear-gradient(135deg, #1e40af 0%, #4c1d95 25%, #0369a1 50%, #059669 75%, #1e40af 100%);
+  background-size: 500% 500%;
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  border-radius: 24px;
   color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 800;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  transition: all 0.4s ease;
-  animation: buttonGradient 4s ease infinite;
+  gap: 14px;
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: buttonGradient 8s ease infinite;
   position: relative;
   overflow: hidden;
   box-shadow: 
-    0 8px 25px rgba(74, 158, 255, 0.3),
-    0 0 40px rgba(0, 212, 170, 0.15);
+    0 12px 40px rgba(74, 158, 255, 0.4),
+    0 0 60px rgba(0, 212, 170, 0.2),
+    0 0 100px rgba(79, 70, 229, 0.12);
+  letter-spacing: 1px;
 }
 
 @keyframes buttonGradient {
   0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  20% { background-position: 100% 0%; }
+  40% { background-position: 100% 100%; }
+  60% { background-position: 0% 100%; }
+  80% { background-position: 50% 0%; }
 }
 
-.btn-glow {
+.btn-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  border-radius: 24px;
+  opacity: 0;
+  animation: btnPulse 3s ease-in-out infinite;
+}
+
+@keyframes btnPulse {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.btn-wave {
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: btnShine 3s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: btnShine 2s ease-in-out infinite;
 }
 
 @keyframes btnShine {
@@ -2183,17 +2564,36 @@ onUnmounted(() => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+              radial-gradient(circle at 70% 70%, rgba(0, 212, 170, 0.15) 0%, transparent 50%);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
+}
+
+.login-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 24px;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(74, 158, 255, 0.3), rgba(0, 212, 170, 0.25), rgba(74, 158, 255, 0.3), rgba(255, 255, 255, 0.4));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .login-btn:hover:not(:disabled) {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
   box-shadow: 
-    0 15px 45px rgba(74, 158, 255, 0.5),
-    0 0 50px rgba(0, 212, 170, 0.3),
-    inset 0 0 20px rgba(255, 255, 255, 0.1);
+    0 20px 60px rgba(74, 158, 255, 0.5),
+    0 0 80px rgba(0, 212, 170, 0.35),
+    0 0 120px rgba(79, 70, 229, 0.15),
+    inset 0 0 30px rgba(255, 255, 255, 0.15);
 }
 
 .login-btn:hover:not(:disabled)::before {
@@ -2221,21 +2621,37 @@ onUnmounted(() => {
 .divider {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin: 28px 0;
+  gap: 20px;
+  margin: 32px 0;
+  position: relative;
 }
 
 .divider-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(150, 180, 220, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.3), rgba(167, 139, 250, 0.2), rgba(96, 165, 250, 0.3), transparent);
+  position: relative;
+}
+
+.divider-line::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
 .divider-text {
   font-size: 0.85rem;
-  color: rgba(150, 180, 220, 0.4);
-  background: rgba(15, 20, 35, 0.8);
-  padding: 0 10px;
+  color: rgba(150, 180, 220, 0.5);
+  background: rgba(10, 15, 35, 0.9);
+  padding: 6px 15px;
+  border-radius: 20px;
+  border: 1px solid rgba(96, 165, 250, 0.15);
+  box-shadow: 0 0 15px rgba(96, 165, 250, 0.08);
+  letter-spacing: 1px;
 }
 
 .social-buttons {
@@ -2245,21 +2661,24 @@ onUnmounted(() => {
 }
 
 .social-btn {
-  width: 52px;
-  height: 52px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  border: 1px solid rgba(74, 158, 255, 0.4);
-  background: rgba(5, 12, 30, 0.6);
-  color: rgba(120, 160, 220, 0.6);
-  font-size: 22px;
+  border: 1px solid rgba(74, 158, 255, 0.5);
+  background: rgba(5, 12, 30, 0.9);
+  color: rgba(120, 160, 220, 0.7);
+  font-size: 26px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 20px rgba(74, 158, 255, 0.1);
+  box-shadow: 
+    0 0 30px rgba(74, 158, 255, 0.2),
+    0 0 50px rgba(167, 139, 250, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .social-btn::before {
@@ -2270,29 +2689,36 @@ onUnmounted(() => {
   right: 0;
   bottom: 0;
   border-radius: 50%;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(74, 158, 255, 0.5), rgba(0, 212, 170, 0.3));
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.7), rgba(167, 139, 250, 0.5), rgba(0, 212, 170, 0.4));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0.6;
+  transition: opacity 0.4s ease;
 }
 
-.social-glow {
+.social-ring {
   position: absolute;
   top: 50%;
   left: 50%;
+  transform: translate(-50%, -50%);
   width: 0;
   height: 0;
-  background: radial-gradient(circle, rgba(74, 158, 255, 0.5) 0%, transparent 70%);
+  border: 2px solid rgba(74, 158, 255, 0.6);
   border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.4s ease, height 0.4s ease;
+  animation: socialRingAnim 2s ease-out forwards;
+  animation-delay: 0.5s;
 }
 
-.social-btn:hover .social-glow {
-  width: 140px;
-  height: 140px;
+@keyframes socialRingAnim {
+  0% { width: 0; height: 0; opacity: 1; }
+  100% { width: 100px; height: 100px; opacity: 0; }
+}
+
+.social-btn:hover .social-ring {
+  animation: socialRingAnim 1.5s ease-out infinite;
+  animation-delay: 0s;
 }
 
 .social-btn:hover {

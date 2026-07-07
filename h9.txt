@@ -1,1 +1,0 @@
-﻿.right {flex:1;display:flex;justify-content:center;} .card {width:100%;max-width:420px;background:var(--card-bg);border-radius:16px;padding:50px 45px;position:relative;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.05);}

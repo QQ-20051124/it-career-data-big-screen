@@ -1,1 +1,0 @@
-﻿.divider {display:flex;align-items:center;gap:15px;margin:30px 0;} .line {flex:1;height:1px;background:rgba(255,255,255,0.08);position:relative;} .line:after {content:'';position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent);} .divider-text {font-size:12px;color:rgba(255,255,255,0.4);}

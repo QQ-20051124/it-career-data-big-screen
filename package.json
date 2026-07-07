@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^1.16.0",
     "core-js": "^3.8.3",
+    "docx": "^9.7.1",
     "echarts": "^5.4.3",
     "echarts-gl": "^2.0.9",
     "echarts-wordcloud": "^2.1.0",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@babel/plugin-transform-class-static-block": "^7.29.7",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
