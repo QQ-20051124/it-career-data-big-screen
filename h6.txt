@@ -1,0 +1,1 @@
+﻿.globe-box {margin-bottom:50px;} .globe {width:280px;height:280px;}

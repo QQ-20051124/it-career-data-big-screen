@@ -1,0 +1,1 @@
+﻿:root {--blue: #00d4ff; --purple: #a855f7; --bg: #0a061a; --card-bg: rgba(30,20,60,0.6);} * {margin:0;padding:0;box-sizing:border-box;} body {min-height:100vh;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:hidden;}
