@@ -4,6 +4,9 @@ import LoginView from '@/components/LoginView.vue'
 import Dashboard from '@/components/Dashboard.vue'
 import JobRecommend from '@/components/JobRecommend.vue'
 import AIResume from '@/components/AIResume.vue'
+import IndustryPrediction from '@/components/IndustryPrediction.vue'
+import JobCommunity from '@/components/JobCommunity.vue'
+import TalentStatistics from '@/components/TalentStatistics.vue'
 
 const routes = [
   {
@@ -30,6 +33,21 @@ const routes = [
     path: '/ai-resume',
     name: 'AIResume',
     component: AIResume
+  },
+  {
+    path: '/industry-prediction',
+    name: 'IndustryPrediction',
+    component: IndustryPrediction
+  },
+  {
+    path: '/job-community',
+    name: 'JobCommunity',
+    component: JobCommunity
+  },
+  {
+    path: '/talent-statistics',
+    name: 'TalentStatistics',
+    component: TalentStatistics
   }
 ]
 

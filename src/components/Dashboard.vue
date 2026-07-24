@@ -4,6 +4,21 @@
 
     <div class="dashboard-glow-bg"></div>
 
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <span class="logo-icon">◆</span>
+        <span class="logo-text">IT学习与就业数据可视化导航系统</span>
+      </div>
+      <button class="logout-btn" @click="logout">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 16l4-4-4-4"/>
+          <path d="M7 16l-4-4 4-4"/>
+          <path d="M12 19V5"/>
+        </svg>
+        <span>退出登录</span>
+      </button>
+    </div>
+
     <div class="top-modules">
       <div 
         class="module-card function-module" 
@@ -87,71 +102,9 @@
             <span>求职社区</span>
           </div>
           <div class="community-posts">
-            <div class="post-item" v-for="(post, index) in communityPosts" :key="index">
+            <div class="post-item" v-for="(post, index) in communityPosts" :key="index" @click="router.push('/job-community')">
               <div class="post-avatar">
-                <svg v-if="post.avatarType === 'male1'" viewBox="0 0 60 60" width="36" height="36">
-                  <circle cx="30" cy="30" r="28" fill="#a7f3d0"/>
-                  <path d="M15 18 Q20 8 30 8 Q40 8 45 18 Q48 22 48 28 Q48 35 42 40 Q35 42 30 42 Q25 42 18 40 Q12 35 12 28 Q12 22 15 18" fill="#1f2937"/>
-                  <circle cx="22" cy="28" r="3" fill="#1f2937"/>
-                  <circle cx="38" cy="28" r="3" fill="#1f2937"/>
-                  <circle cx="21" cy="27" r="1" fill="white"/>
-                  <circle cx="37" cy="27" r="1" fill="white"/>
-                  <circle cx="30" cy="35" r="2" fill="#ef4444"/>
-                  <path d="M24 40 Q30 44 36 40" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/>
-                  <rect x="18" y="44" width="24" height="10" rx="2" fill="#3b82f6"/>
-                </svg>
-                <svg v-else-if="post.avatarType === 'female1'" viewBox="0 0 60 60" width="36" height="36">
-                  <circle cx="30" cy="30" r="28" fill="#c7d2fe"/>
-                  <path d="M10 15 Q15 5 25 5 Q30 5 35 5 Q45 5 50 15 Q55 20 55 30 Q55 42 48 48 Q30 55 12 48 Q5 42 5 30 Q5 20 10 15" fill="#6366f1"/>
-                  <path d="M20 8 Q15 18 20 28" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                  <path d="M40 8 Q45 18 40 28" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                  <circle cx="23" cy="29" r="3" fill="#1f2937"/>
-                  <circle cx="37" cy="29" r="3" fill="#1f2937"/>
-                  <circle cx="22" cy="28" r="1" fill="white"/>
-                  <circle cx="36" cy="28" r="1" fill="white"/>
-                  <circle cx="30" cy="36" r="2" fill="#ef4444"/>
-                  <path d="M25 41 Q30 45 35 41" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/>
-                  <ellipse cx="18" cy="34" rx="3" ry="1.5" fill="#fda4af" opacity="0.7"/>
-                  <ellipse cx="42" cy="34" rx="3" ry="1.5" fill="#fda4af" opacity="0.7"/>
-                  <rect x="18" y="46" width="24" height="10" rx="2" fill="#8b5cf6"/>
-                </svg>
-                <svg v-else-if="post.avatarType === 'male2'" viewBox="0 0 60 60" width="36" height="36">
-                  <circle cx="30" cy="30" r="28" fill="#fef3c7"/>
-                  <path d="M12 20 Q16 10 25 10 Q30 10 35 10 Q44 10 48 20 Q52 25 52 32 Q52 40 45 45 Q30 50 15 45 Q8 40 8 32 Q8 25 12 20" fill="#7c3aed"/>
-                  <circle cx="22" cy="29" r="3" fill="#1f2937"/>
-                  <circle cx="38" cy="29" r="3" fill="#1f2937"/>
-                  <circle cx="21" cy="28" r="1" fill="white"/>
-                  <circle cx="37" cy="28" r="1" fill="white"/>
-                  <circle cx="30" cy="36" r="2" fill="#ef4444"/>
-                  <path d="M24 41 Q30 45 36 41" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/>
-                  <rect x="18" y="45" width="24" height="10" rx="2" fill="#f59e0b"/>
-                </svg>
-                <svg v-else-if="post.avatarType === 'female2'" viewBox="0 0 60 60" width="36" height="36">
-                  <circle cx="30" cy="30" r="28" fill="#fed7aa"/>
-                  <path d="M12 12 Q18 3 30 3 Q42 3 48 12 Q54 18 54 30 Q54 45 45 52 Q30 58 15 52 Q6 45 6 30 Q6 18 12 12" fill="#f59e0b"/>
-                  <path d="M22 5 Q16 15 22 25" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                  <path d="M38 5 Q44 15 38 25" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                  <circle cx="23" cy="28" r="3" fill="#1f2937"/>
-                  <circle cx="37" cy="28" r="3" fill="#1f2937"/>
-                  <circle cx="22" cy="27" r="1" fill="white"/>
-                  <circle cx="36" cy="27" r="1" fill="white"/>
-                  <circle cx="30" cy="35" r="2" fill="#ef4444"/>
-                  <path d="M25 40 Q30 44 35 40" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/>
-                  <ellipse cx="18" cy="33" rx="3" ry="1.5" fill="#fda4af" opacity="0.7"/>
-                  <ellipse cx="42" cy="33" rx="3" ry="1.5" fill="#fda4af" opacity="0.7"/>
-                  <rect x="18" y="45" width="24" height="10" rx="2" fill="#ec4899"/>
-                </svg>
-                <svg v-else viewBox="0 0 60 60" width="36" height="36">
-                  <circle cx="30" cy="30" r="28" fill="#cffafe"/>
-                  <path d="M15 18 Q20 8 30 8 Q40 8 45 18 Q48 22 48 28 Q48 35 42 40 Q35 42 30 42 Q25 42 18 40 Q12 35 12 28 Q12 22 15 18" fill="#06b6d4"/>
-                  <circle cx="22" cy="28" r="3" fill="#1f2937"/>
-                  <circle cx="38" cy="28" r="3" fill="#1f2937"/>
-                  <circle cx="21" cy="27" r="1" fill="white"/>
-                  <circle cx="37" cy="27" r="1" fill="white"/>
-                  <circle cx="30" cy="35" r="2" fill="#ef4444"/>
-                  <path d="M24 40 Q30 44 36 40" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/>
-                  <rect x="18" y="44" width="24" height="10" rx="2" fill="#0891b2"/>
-                </svg>
+                <img :src="post.avatar" :alt="post.author"/>
               </div>
               <div class="post-content">
                 <div class="post-title">{{ post.title }}</div>
@@ -164,7 +117,7 @@
               <div class="post-badge" v-if="post.hot">🔥</div>
             </div>
           </div>
-          <div class="panel-footer">
+          <div class="panel-footer" @click="router.push('/job-community')">
             <span>查看更多</span>
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 18l6-6-6-6"/>
@@ -380,6 +333,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import jobData from '../assets/all_cleaned_jobs.json'
 
 const router = useRouter()
 const bgCanvas = ref(null)
@@ -392,62 +346,73 @@ const goToVisualization = () => {
   router.push('/analytics')
 }
 
-const communityPosts = ref([
+const generateAvatar = (name) => {
+  const colors = ['#4a9eff', '#00d4aa', '#a855f7', '#f59e0b', '#ec4899', '#ef4444', '#10b981', '#3b82f6']
+  const color = colors[name.length % colors.length]
+  const initial = name.charAt(0)
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="${color}"/><text x="20" y="26" text-anchor="middle" fill="white" font-size="18" font-weight="600">${initial}</text></svg>`
+  const utf8Bytes = new TextEncoder().encode(svg)
+  const base64String = btoa(String.fromCharCode(...utf8Bytes))
+  return `data:image/svg+xml;base64,${base64String}`
+}
+
+const communitySourceData = [
   { 
-    title: '字节跳动后端开发内推，base北京', 
+    title: '分享计算机技术员面试经验', 
+    author: '求职者小王', 
     time: '5分钟前', 
-    color: '#4a9eff', 
-    hot: true, 
-    author: '小李', 
-    comments: 128,
-    avatarType: 'male1'
+    comments: 29, 
+    hot: false 
   },
   { 
-    title: '三年前端经验，拿到阿里P6 offer分享', 
+    title: '急招普工/操作工，薪资优厚', 
+    author: '技术达人', 
     time: '12分钟前', 
-    color: '#00d4aa', 
-    hot: false, 
-    author: '前端达人', 
-    comments: 86,
-    avatarType: 'female1'
+    comments: 148, 
+    hot: true 
   },
   { 
-    title: '数据分析岗薪资到底怎么样？', 
+    title: '计算机老师薪资待遇怎么样', 
+    author: 'HR小姐姐', 
     time: '28分钟前', 
-    color: '#a855f7', 
-    hot: false, 
-    author: '数据小白', 
-    comments: 45,
-    avatarType: 'male2'
+    comments: 91, 
+    hot: true 
   },
   { 
-    title: 'AI大模型方向求职避坑指南', 
+    title: '在计算机硬件维护工作是一种什么体验', 
+    author: '应届生小李', 
     time: '45分钟前', 
-    color: '#f59e0b', 
-    hot: true, 
-    author: 'AI研究员', 
-    comments: 203,
-    avatarType: 'female2'
+    comments: 210, 
+    hot: false 
   },
   { 
-    title: '2024届校招薪资汇总贴', 
+    title: '计算机编程老师岗位推荐', 
+    author: '转行程序员', 
     time: '1小时前', 
-    color: '#06b6d4', 
-    hot: false, 
-    author: '校招选手', 
-    comments: 156,
-    avatarType: 'male3'
-  },
-])
+    comments: 197, 
+    hot: true 
+  }
+]
+
+const communityPosts = ref(
+  communitySourceData.map((post) => ({
+    ...post,
+    avatar: generateAvatar(post.author)
+  }))
+)
+
+const totalJobs = jobData.length
+const avgSalary = Math.round(jobData.reduce((sum, job) => sum + (job.salary_avg || 0), 0) / totalJobs)
+const cities = [...new Set(jobData.map(j => j.city))].length
 
 const carouselSlides = ref([
   {
     icon: '📊',
     title: '实时有效岗位',
     desc: '当前市场最新岗位动态与趋势分析',
-    data1: { value: '12,580', label: '有效岗位' },
-    data2: { value: '23.5%', label: '增长率' },
-    data3: { value: '856', label: '新增岗位' },
+    data1: { value: totalJobs.toLocaleString(), label: '有效岗位' },
+    data2: { value: cities, label: '覆盖城市' },
+    data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' },
   },
   {
     icon: '🎯',
@@ -463,7 +428,7 @@ const carouselSlides = ref([
     desc: 'IT行业人才供需数据实时监控',
     data1: { value: '56,230', label: '人才储备' },
     data2: { value: '45.8%', label: '就业率' },
-    data3: { value: '¥15.8K', label: '平均薪资' },
+    data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' },
   },
 ])
 
@@ -515,9 +480,19 @@ const navigateTo = (module) => {
     router.push('/job-recommend')
   } else if (module === 'ai-resume') {
     router.push('/ai-resume')
+  } else if (module === 'industry-prediction') {
+    router.push('/industry-prediction')
+  } else if (module === 'job-community') {
+    router.push('/job-community')
+  } else if (module === 'talent-stat') {
+    router.push('/talent-statistics')
   } else {
     alert(`进入${module}模块，功能开发中`)
   }
+}
+
+const logout = () => {
+  router.push('/')
 }
 
 const initBackground = () => {
@@ -666,6 +641,55 @@ onUnmounted(() => {
     radial-gradient(ellipse at 80% 80%, rgba(0, 212, 170, 0.05) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 50%, rgba(167, 139, 250, 0.03) 0%, transparent 60%);
   z-index: 0;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 20px;
+  color: #4a9eff;
+}
+
+.logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 10px;
+  color: rgba(239, 68, 68, 0.8);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
 }
 
 .top-modules {
@@ -909,11 +933,17 @@ onUnmounted(() => {
 
 .post-avatar {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   overflow: hidden;
   background: rgba(74, 158, 255, 0.1);
+}
+
+.post-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .post-content {

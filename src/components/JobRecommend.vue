@@ -2,6 +2,16 @@
   <div class="job-recommend-page">
     <canvas ref="bgCanvas" class="bg-canvas"></canvas>
     
+    <div class="top-bar">
+      <button class="back-btn" @click="goBack">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        <span>返回</span>
+      </button>
+      <span class="page-title">智能岗位推荐</span>
+    </div>
+    
     <div class="search-bar">
       <div class="search-input-wrapper">
         <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20">
@@ -115,6 +125,13 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const goBack = () => {
+  router.push('/dashboard')
+}
 
 const searchKeyword = ref('')
 const activeCategory = ref(1)
@@ -312,6 +329,43 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   z-index: 0;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(74, 158, 255, 0.08);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 10px;
+  color: rgba(74, 158, 255, 0.8);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-btn:hover {
+  background: rgba(74, 158, 255, 0.12);
+  border-color: rgba(74, 158, 255, 0.3);
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .search-bar {
