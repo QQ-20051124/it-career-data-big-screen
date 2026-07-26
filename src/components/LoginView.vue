@@ -451,12 +451,12 @@ const initBackground = () => {
 
   const shootingStars = []
   const createShootingStar = () => {
-    if (shootingStars.length < 3) {
+    if (shootingStars.length < 5) {
       shootingStars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height * 0.4,
         length: Math.random() * 180 + 100,
-        speed: Math.random() * 0.002 + 0.001,
+        speed: Math.random() * 8 + 6,
         angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
         opacity: 1,
         life: 1
@@ -560,9 +560,9 @@ const initBackground = () => {
     }
 
     shootingStars.forEach((star, index) => {
-      star.x += Math.cos(star.angle) * star.speed * 20
-      star.y += Math.sin(star.angle) * star.speed * 20
-      star.life -= star.speed * 0.05
+      star.x += Math.cos(star.angle) * star.speed
+      star.y += Math.sin(star.angle) * star.speed
+      star.life -= star.speed * 0.003
       star.opacity = Math.max(0, star.life)
 
       if (star.life <= 0 || star.x > canvas.width || star.y > canvas.height) {
