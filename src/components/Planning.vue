@@ -1,0 +1,2384 @@
+<template>
+  <div class="planning-page">
+    <canvas ref="bgCanvas" class="bg-canvas"></canvas>
+
+    <div class="page-header">
+      <div class="header-left">
+        <button class="back-btn" @click="goBack">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>返回</span>
+        </button>
+        <h1 class="page-title">学业-就业双向联动规划</h1>
+        <span class="page-subtitle">基于学业数据与就业市场的智能联动规划系统</span>
+      </div>
+      <div class="header-nav">
+        <span class="nav-item">学习路线</span>
+        <span class="nav-item">资源推送</span>
+        <span class="nav-item">AI答疑</span>
+        <span class="nav-item">个人中心</span>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="section-label">功能导航</div>
+          <div 
+            v-for="item in navItems" 
+            :key="item.key" 
+            class="nav-item"
+            :class="{ active: currentNav === item.key }"
+            @click="handleNavClick(item.key)"
+          >
+            <span class="nav-icon" v-html="item.icon"></span>
+            <span class="nav-text">{{ item.label }}</span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="content-area">
+        <div class="content-header">
+          <h2>为你推荐的学习资源</h2>
+          <p class="content-desc">根据你的目标岗位、学习进度和薄弱技能，系统自动推送资源</p>
+        </div>
+
+        <div class="job-selector">
+          <div class="selector-label">
+            <span class="label-icon">🎯</span>
+            <span>选择目标岗位</span>
+          </div>
+          <div class="selector-wrapper">
+            <select v-model="selectedPosition" class="position-select">
+              <option value="">-- 请选择目标就业岗位 --</option>
+              <optgroup v-for="group in positionGroups" :key="group.name" :label="group.name">
+                <option v-for="pos in group.positions" :key="pos.key" :value="pos.key">{{ pos.label }}</option>
+              </optgroup>
+            </select>
+            <div class="select-arrow">▼</div>
+          </div>
+        </div>
+
+        <section class="top-section" v-if="selectedPosition && currentSkills.length > 0">
+          <div class="section-block-header">
+            <div class="section-block-title">
+              <span class="block-icon">📋</span>
+              <span>岗位技能清单</span>
+              <span class="block-divider"></span>
+              <span class="block-subtitle">{{ selectedPositionLabel }} · 共 {{ currentSkills.length }} 项技能要求</span>
+            </div>
+            <div class="section-block-deco"></div>
+          </div>
+          <div class="skill-categories">
+            <div v-for="category in categorizedSkills" :key="category.name" class="skill-category">
+              <h4 class="category-title">{{ category.name }}</h4>
+              <div class="skill-tags">
+                <span 
+                  v-for="skill in category.skills" 
+                  :key="skill.name" 
+                  class="skill-tag"
+                  :class="'level-' + skill.level"
+                >
+                  {{ skill.name }}
+                  <span class="level-badge">{{ levelLabels[skill.level] }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bottom-section">
+          <div class="section-block-header">
+            <div class="section-block-title">
+              <span class="block-icon">🎓</span>
+              <span>学习资源推送</span>
+              <span class="block-divider"></span>
+              <span class="block-subtitle">系统主动推送 · 每项技能至少匹配1份权威资源</span>
+            </div>
+            <div class="section-block-deco"></div>
+          </div>
+          <div class="resource-cards">
+            <div
+              v-for="(card, idx) in resourceCards"
+              :key="card.id || idx"
+              class="resource-card"
+              :class="{ 'featured': card.featured }"
+            >
+              <div class="card-header">
+                <div class="card-header-left">
+                  <span class="push-badge">
+                    <span class="push-icon">⚡</span>
+                    <span>系统推送</span>
+                  </span>
+                  <span class="card-type">{{ card.typeLabel }}</span>
+                </div>
+                <div class="card-rating" v-if="card.rating">
+                  <span class="rating-star">★</span>
+                  <span>{{ card.rating }}</span>
+                </div>
+              </div>
+              <h3 class="card-title">{{ card.title }}</h3>
+              <p class="card-desc">{{ card.desc }}</p>
+              <div class="card-meta-row">
+                <span class="meta-item" v-if="card.matchedSkills && card.matchedSkills.length > 0">
+                  <span class="meta-icon">🎯</span>
+                  匹配技能：{{ card.matchedSkills.slice(0, 2).map(s => s.name).join('、') }}{{ card.matchedSkills.length > 2 ? ` 等${card.matchedSkills.length}项` : '' }}
+                </span>
+              </div>
+              <div class="card-footer">
+                <span class="time-label">⏱ {{ card.durationText }}</span>
+                <span class="level-label" :class="'level-' + card.difficulty">{{ card.difficulty }}</span>
+                <span class="source-label" v-if="card.provider">{{ card.provider }}</span>
+              </div>
+              <button
+                class="card-action-btn"
+                v-if="card.url || card.externalUrl"
+                @click.stop="openResource(card)"
+              >
+                🚀 前往学习
+              </button>
+              <div class="card-collapse-toggle" @click="toggleCardExpand(card.id || idx)">
+                <span class="toggle-icon" :class="{ expanded: expandedCards[card.id || idx] }">▼</span>
+                <span class="toggle-text">{{ expandedCards[card.id || idx] ? '收起详情' : '展开实践方案与工具' }}</span>
+              </div>
+              <div class="card-collapse-panel" v-if="expandedCards[card.id || idx]">
+                <div class="collapse-section" v-if="card.practicePlan && card.practicePlan.length > 0">
+                  <h5 class="collapse-title">
+                    <span class="collapse-icon">💪</span> 实践练习方案
+                  </h5>
+                  <ol class="practice-list">
+                    <li v-for="(step, sIdx) in card.practicePlan" :key="sIdx">{{ step }}</li>
+                  </ol>
+                </div>
+                <div class="collapse-section" v-if="card.recommendedTools && card.recommendedTools.length > 0">
+                  <h5 class="collapse-title">
+                    <span class="collapse-icon">🛠</span> 配套推荐工具
+                  </h5>
+                  <ul class="tools-list">
+                    <li v-for="(tool, tIdx) in card.recommendedTools" :key="tIdx">{{ tool }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="action-area">
+          <button class="action-btn primary">立即学习</button>
+        </div>
+
+        <div class="rules-section">
+          <div class="rules-column">
+            <h4 class="rules-title">🎯 推送规则</h4>
+            <ul class="rules-list">
+              <li><span class="rule-icon">📌</span> 目标岗位：{{ selectedPositionLabel }}</li>
+              <li><span class="rule-icon">⚙️</span> 匹配算法：JD技能 + 进度加权</li>
+              <li><span class="rule-icon">📊</span> 资源类型：视频/课程/图书</li>
+            </ul>
+          </div>
+          <div class="rules-column">
+            <h4 class="rules-title">📈 推送机制</h4>
+            <ul class="rules-list">
+              <li><span class="rule-icon">🔝</span> 必备技能权重10分/项</li>
+              <li><span class="rule-icon">🔸</span> 优先技能权重5分/项</li>
+              <li><span class="rule-icon">📐</span> 覆盖率 + 类型多样性</li>
+            </ul>
+          </div>
+        </div>
+      </main>
+
+      <aside class="ai-sidebar">
+        <div class="ai-card">
+          <div class="ai-header">
+            <div class="ai-avatar">
+              <svg viewBox="0 0 24 24" width="24" height="24">
+                <path d="M12 2a3 3 0 0 1 3 3v1h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3V5a3 3 0 0 1 3-3zm0 2a1 1 0 0 0-1 1v1h2V5a1 1 0 0 0-1-1z" fill="#4a9eff"/>
+              </svg>
+            </div>
+            <h3>AI学习顾问</h3>
+          </div>
+          <div class="ai-messages">
+            <div class="ai-message">
+              <span class="msg-icon">⚡</span>
+              <p>已基于{{ selectedPositionLabel }}技能图谱，智能推送6项学习资源</p>
+            </div>
+            <div class="ai-message highlight">
+              <span class="msg-icon">🎯</span>
+              <p>核心技能匹配度92%，建议优先学习必备技能课程</p>
+            </div>
+          </div>
+          <div class="ai-input-area">
+            <input type="text" v-model="aiInput" placeholder="问问技能、岗位或学习方法..." />
+            <button class="ai-send-btn">提问</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { findMatchingResources, typeLabels } from '@/data/resources.js'
+
+const router = useRouter()
+const bgCanvas = ref(null)
+const currentNav = ref('dashboard')
+const aiInput = ref('')
+const selectedPosition = ref('')
+
+// 折叠面板状态：key为卡片id/索引，value为是否展开
+const expandedCards = ref({})
+
+const toggleCardExpand = (key) => {
+  expandedCards.value = {
+    ...expandedCards.value,
+    [key]: !expandedCards.value[key]
+  }
+}
+
+const levelLabels = {
+  must: '必备',
+  prefer: '优先',
+  bonus: '加分'
+}
+
+const positionGroups = [
+  {
+    name: '前端开发',
+    positions: [
+      { key: 'frontend', label: '前端开发工程师' },
+      { key: 'vue-developer', label: 'Vue开发工程师' },
+      { key: 'react-developer', label: 'React开发工程师' },
+      { key: 'mobile-h5', label: '移动端H5开发' },
+      { key: 'web-frontend', label: 'Web前端工程师' }
+    ]
+  },
+  {
+    name: '后端开发',
+    positions: [
+      { key: 'backend-java', label: 'Java后端开发工程师' },
+      { key: 'backend-python', label: 'Python后端开发工程师' },
+      { key: 'backend-go', label: 'Go后端开发工程师' },
+      { key: 'backend-node', label: 'Node.js后端工程师' },
+      { key: 'php-developer', label: 'PHP开发工程师' },
+      { key: 'ruby-developer', label: 'Ruby开发工程师' }
+    ]
+  },
+  {
+    name: '全栈开发',
+    positions: [
+      { key: 'fullstack', label: '全栈开发工程师' },
+      { key: 'fullstack-web', label: 'Web全栈工程师' },
+      { key: 'fullstack-mobile', label: '移动全栈工程师' }
+    ]
+  },
+  {
+    name: '算法与AI',
+    positions: [
+      { key: 'algorithm', label: '算法工程师' },
+      { key: 'ml-engineer', label: '机器学习工程师' },
+      { key: 'ai-engineer', label: '人工智能工程师' },
+      { key: 'nlp-engineer', label: 'NLP算法工程师' },
+      { key: 'cv-engineer', label: '计算机视觉工程师' },
+      { key: '推荐算法', label: '推荐算法工程师' }
+    ]
+  },
+  {
+    name: '大数据',
+    positions: [
+      { key: 'bigdata', label: '大数据开发工程师' },
+      { key: 'data-engineer', label: '数据工程师' },
+      { key: 'data-analyst', label: '数据分析师' },
+      { key: 'etl-engineer', label: 'ETL工程师' },
+      { key: 'spark-developer', label: 'Spark开发工程师' }
+    ]
+  },
+  {
+    name: '芯片与硬件',
+    positions: [
+      { key: 'ic-engineer', label: '集成电路工程师' },
+      { key: 'ic-design', label: 'IC设计工程师' },
+      { key: 'ic-verification', label: 'IC验证工程师' },
+      { key: 'fpga-engineer', label: 'FPGA工程师' },
+      { key: 'embedded', label: '嵌入式开发工程师' },
+      { key: 'hardware', label: '硬件工程师' },
+      { key: 'soc-engineer', label: 'SoC设计工程师' }
+    ]
+  },
+  {
+    name: '移动端开发',
+    positions: [
+      { key: 'android', label: 'Android开发工程师' },
+      { key: 'ios-developer', label: 'iOS开发工程师' },
+      { key: 'flutter', label: 'Flutter开发工程师' },
+      { key: 'rn-developer', label: 'React Native工程师' }
+    ]
+  },
+  {
+    name: '运维与安全',
+    positions: [
+      { key: 'devops', label: 'DevOps工程师' },
+      { key: 'sre', label: 'SRE工程师' },
+      { key: 'cloud', label: '云计算工程师' },
+      { key: 'k8s-engineer', label: 'Kubernetes工程师' },
+      { key: 'security', label: '安全工程师' },
+      { key: 'penetration', label: '渗透测试工程师' },
+      { key: 'network', label: '网络工程师' }
+    ]
+  },
+  {
+    name: '测试与质量',
+    positions: [
+      { key: 'qa-engineer', label: '测试工程师' },
+      { key: 'autotest', label: '自动化测试工程师' },
+      { key: 'perf-test', label: '性能测试工程师' },
+      { key: 'test-dev', label: '测试开发工程师' }
+    ]
+  },
+  {
+    name: '其他方向',
+    positions: [
+      { key: 'game-dev', label: '游戏开发工程师' },
+      { key: 'game-client', label: '游戏客户端开发' },
+      { key: 'game-server', label: '游戏服务器开发' },
+      { key: 'blockchain', label: '区块链开发工程师' },
+      { key: 'robotics', label: '机器人工程师' },
+      { key: 'database', label: '数据库工程师' },
+      { key: 'dba', label: 'DBA工程师' },
+      { key: 'tech-lead', label: '技术负责人' },
+      { key: 'architect', label: '系统架构师' }
+    ]
+  }
+]
+
+const positionSkillMap = {
+  'frontend': {
+    '前端核心': [
+      { name: 'HTML5/CSS3', level: 'must' },
+      { name: 'JavaScript/ES6+', level: 'must' },
+      { name: 'DOM操作', level: 'must' },
+      { name: '浏览器兼容性', level: 'prefer' }
+    ],
+    '框架与工具': [
+      { name: 'Vue.js', level: 'must' },
+      { name: 'React', level: 'must' },
+      { name: 'Webpack/Vite', level: 'prefer' },
+      { name: 'Git', level: 'must' }
+    ],
+    '样式与UI': [
+      { name: 'CSS预处理器(Sass/Less)', level: 'must' },
+      { name: '响应式设计', level: 'prefer' },
+      { name: 'Element UI/Ant Design', level: 'prefer' },
+      { name: 'Figma/Sketch', level: 'bonus' }
+    ],
+    '工程化': [
+      { name: 'TypeScript', level: 'prefer' },
+      { name: 'Vite/Rollup', level: 'prefer' },
+      { name: 'ESLint/Prettier', level: 'prefer' },
+      { name: 'npm/yarn/pnpm', level: 'must' }
+    ]
+  },
+  'vue-developer': {
+    'Vue核心': [
+      { name: 'Vue3 Composition API', level: 'must' },
+      { name: 'Vue3响应式原理', level: 'must' },
+      { name: '虚拟DOM', level: 'prefer' },
+      { name: 'Vuex/Pinia', level: 'must' }
+    ],
+    'Vue生态': [
+      { name: 'Vue Router', level: 'must' },
+      { name: 'Vue CLI/Vite', level: 'must' },
+      { name: 'Element Plus', level: 'must' },
+      { name: 'Nuxt.js', level: 'bonus' }
+    ],
+    '前端基础': [
+      { name: 'JavaScript/ES6+', level: 'must' },
+      { name: 'HTML5/CSS3', level: 'must' },
+      { name: 'CSS3动画', level: 'prefer' }
+    ]
+  },
+  'react-developer': {
+    'React核心': [
+      { name: 'React Hooks', level: 'must' },
+      { name: 'React组件化', level: 'must' },
+      { name: 'Context/Redux', level: 'must' },
+      { name: 'React Router', level: 'must' }
+    ],
+    'React生态': [
+      { name: 'Next.js', level: 'prefer' },
+      { name: 'Material UI/Ant Design', level: 'must' },
+      { name: 'React Query/SWR', level: 'prefer' },
+      { name: 'Jest/React Testing', level: 'prefer' }
+    ],
+    '前端基础': [
+      { name: 'JavaScript/ES6+', level: 'must' },
+      { name: 'TypeScript', level: 'must' },
+      { name: 'Webpack/Vite', level: 'prefer' }
+    ]
+  },
+  'mobile-h5': {
+    '移动端核心': [
+      { name: 'HTML5/CSS3适配', level: 'must' },
+      { name: '移动端事件(touch)', level: 'must' },
+      { name: '响应式布局', level: 'must' },
+      { name: 'Rem/Vw/Vh', level: 'must' }
+    ],
+    '框架与混合': [
+      { name: 'Vue/React', level: 'must' },
+      { name: 'Vant/Element Mobile', level: 'must' },
+      { name: 'Cordova/Capacitor', level: 'bonus' },
+      { name: '小程序开发', level: 'prefer' }
+    ]
+  },
+  'web-frontend': {
+    '前端核心': [
+      { name: 'HTML5/CSS3', level: 'must' },
+      { name: 'JavaScript/ES6+', level: 'must' },
+      { name: 'DOM/BOM', level: 'must' },
+      { name: 'Ajax/Fetch', level: 'must' }
+    ],
+    '框架工具': [
+      { name: 'Vue/React', level: 'must' },
+      { name: 'Webpack/Vite', level: 'prefer' },
+      { name: 'Git', level: 'must' }
+    ]
+  },
+  'backend-java': {
+    'Java核心': [
+      { name: 'Java基础与集合', level: 'must' },
+      { name: 'JVM原理', level: 'must' },
+      { name: '多线程与并发', level: 'must' },
+      { name: 'IO与NIO', level: 'prefer' }
+    ],
+    'Spring生态': [
+      { name: 'Spring Boot', level: 'must' },
+      { name: 'Spring Cloud', level: 'must' },
+      { name: 'Spring Security', level: 'prefer' },
+      { name: 'MyBatis/JPA', level: 'must' }
+    ],
+    '数据库': [
+      { name: 'MySQL', level: 'must' },
+      { name: 'Redis', level: 'must' },
+      { name: 'MongoDB', level: 'prefer' }
+    ],
+    '中间件': [
+      { name: 'Nginx', level: 'must' },
+      { name: 'Kafka/RabbitMQ', level: 'prefer' },
+      { name: 'Docker/K8s', level: 'prefer' }
+    ]
+  },
+  'backend-python': {
+    'Python核心': [
+      { name: 'Python基础', level: 'must' },
+      { name: 'Python高级特性', level: 'must' },
+      { name: '异步编程(异步io)', level: 'must' },
+      { name: '装饰器/生成器', level: 'prefer' }
+    ],
+    'Web框架': [
+      { name: 'Django', level: 'must' },
+      { name: 'Flask', level: 'must' },
+      { name: 'FastAPI', level: 'prefer' },
+      { name: 'Tornado', level: 'bonus' }
+    ],
+    '数据库与ORM': [
+      { name: 'MySQL/PostgreSQL', level: 'must' },
+      { name: 'SQLAlchemy', level: 'must' },
+      { name: 'Redis', level: 'must' },
+      { name: 'MongoDB', level: 'prefer' }
+    ]
+  },
+  'backend-go': {
+    'Go核心': [
+      { name: 'Go基础语法', level: 'must' },
+      { name: 'Goroutine/Channel', level: 'must' },
+      { name: '并发编程', level: 'must' },
+      { name: 'GC与内存管理', level: 'prefer' }
+    ],
+    'Web框架': [
+      { name: 'Gin', level: 'must' },
+      { name: 'Echo/Beego', level: 'prefer' },
+      { name: 'gRPC', level: 'prefer' },
+      { name: 'Kitex', level: 'prefer' }
+    ],
+    '基础设施': [
+      { name: 'MySQL/PostgreSQL', level: 'must' },
+      { name: 'Redis', level: 'must' },
+      { name: 'Docker/K8s', level: 'prefer' },
+      { name: 'Prometheus/Grafana', level: 'bonus' }
+    ]
+  },
+  'backend-node': {
+    'Node核心': [
+      { name: 'Node.js基础', level: 'must' },
+      { name: '事件循环', level: 'must' },
+      { name: 'Stream/Buffer', level: 'prefer' },
+      { name: '模块系统(CommonJS/ESM)', level: 'must' }
+    ],
+    '框架': [
+      { name: 'Express/Koa', level: 'must' },
+      { name: 'NestJS', level: 'prefer' },
+      { name: 'Egg.js', level: 'prefer' },
+      { name: 'Socket.IO', level: 'prefer' }
+    ],
+    '数据库': [
+      { name: 'MongoDB/Mongoose', level: 'must' },
+      { name: 'MySQL/Sequelize', level: 'must' },
+      { name: 'Redis', level: 'must' }
+    ]
+  },
+  'php-developer': {
+    'PHP核心': [
+      { name: 'PHP基础语法', level: 'must' },
+      { name: 'OOP编程', level: 'must' },
+      { name: 'Composer', level: 'must' },
+      { name: 'PHP 8.x新特性', level: 'prefer' }
+    ],
+    '框架': [
+      { name: 'Laravel', level: 'must' },
+      { name: 'ThinkPHP', level: 'must' },
+      { name: 'Symfony', level: 'prefer' },
+      { name: 'CodeIgniter', level: 'bonus' }
+    ],
+    '数据库': [
+      { name: 'MySQL', level: 'must' },
+      { name: 'Redis', level: 'prefer' },
+      { name: 'MongoDB', level: 'bonus' }
+    ]
+  },
+  'ruby-developer': {
+    'Ruby核心': [
+      { name: 'Ruby基础', level: 'must' },
+      { name: 'Ruby元编程', level: 'prefer' },
+      { name: 'Bundler', level: 'must' },
+      { name: 'RSpec', level: 'prefer' }
+    ],
+    '框架': [
+      { name: 'Ruby on Rails', level: 'must' },
+      { name: 'Sinatra', level: 'bonus' }
+    ]
+  },
+  'fullstack': {
+    '前端技术': [
+      { name: 'Vue.js/React', level: 'must' },
+      { name: 'JavaScript/TypeScript', level: 'must' },
+      { name: 'HTML5/CSS3', level: 'must' }
+    ],
+    '后端技术': [
+      { name: 'Node.js/Python/Java', level: 'must' },
+      { name: 'RESTful API', level: 'must' },
+      { name: 'GraphQL', level: 'prefer' }
+    ],
+    '数据库与运维': [
+      { name: 'MySQL/PostgreSQL', level: 'must' },
+      { name: 'Redis', level: 'must' },
+      { name: 'Docker/K8s', level: 'prefer' },
+      { name: 'AWS/阿里云', level: 'prefer' }
+    ]
+  },
+  'fullstack-web': {
+    '前端': [
+      { name: 'Vue/React', level: 'must' },
+      { name: 'Webpack/Vite', level: 'prefer' }
+    ],
+    '后端': [
+      { name: 'Node.js', level: 'must' },
+      { name: 'Express/NestJS', level: 'must' },
+      { name: 'MySQL', level: 'must' }
+    ],
+    '全栈工具': [
+      { name: 'Next.js/Nuxt', level: 'prefer' },
+      { name: 'SSR/SSG', level: 'prefer' },
+      { name: 'CI/CD', level: 'prefer' }
+    ]
+  },
+  'fullstack-mobile': {
+    '移动端': [
+      { name: 'Flutter/React Native', level: 'must' },
+      { name: 'iOS/Android原生', level: 'prefer' }
+    ],
+    '后端': [
+      { name: 'Node.js/Go', level: 'must' },
+      { name: 'Firebase/后端即服务', level: 'prefer' }
+    ]
+  },
+  'algorithm': {
+    '算法基础': [
+      { name: '数据结构与算法', level: 'must' },
+      { name: '动态规划', level: 'must' },
+      { name: '图论算法', level: 'prefer' },
+      { name: '复杂度分析', level: 'must' }
+    ],
+    '编程': [
+      { name: 'C++/Java', level: 'must' },
+      { name: 'Python', level: 'must' },
+      { name: 'LeetCode刷题', level: 'must' }
+    ],
+    '数学基础': [
+      { name: '线性代数', level: 'must' },
+      { name: '概率论与数理统计', level: 'must' },
+      { name: '离散数学', level: 'prefer' }
+    ]
+  },
+  'ml-engineer': {
+    'ML基础': [
+      { name: '机器学习算法', level: 'must' },
+      { name: '深度学习(DNN/CNN/RNN)', level: 'must' },
+      { name: '特征工程', level: 'must' },
+      { name: '模型调优', level: 'prefer' }
+    ],
+    '框架工具': [
+      { name: 'TensorFlow/PyTorch', level: 'must' },
+      { name: 'Scikit-learn', level: 'must' },
+      { name: 'Keras', level: 'prefer' },
+      { name: 'XGBoost/LightGBM', level: 'must' }
+    ],
+    '工程能力': [
+      { name: 'Python', level: 'must' },
+      { name: '数据处理(Pandas/NumPy)', level: 'must' },
+      { name: 'MLflow', level: 'prefer' },
+      { name: 'Docker', level: 'prefer' }
+    ]
+  },
+  'ai-engineer': {
+    'AI核心': [
+      { name: '大语言模型(LLM)', level: 'must' },
+      { name: 'Transformer架构', level: 'must' },
+      { name: 'Prompt Engineering', level: 'must' },
+      { name: 'RAG/微调', level: 'prefer' }
+    ],
+    'AI框架': [
+      { name: 'PyTorch/TensorFlow', level: 'must' },
+      { name: 'Hugging Face', level: 'must' },
+      { name: 'LangChain', level: 'prefer' },
+      { name: 'FastAPI', level: 'must' }
+    ],
+    '工程化': [
+      { name: 'Python', level: 'must' },
+      { name: 'CUDA/GPU编程', level: 'prefer' },
+      { name: 'Docker/K8s', level: 'prefer' }
+    ]
+  },
+  'nlp-engineer': {
+    'NLP核心': [
+      { name: '文本预处理', level: 'must' },
+      { name: '词向量/BERT', level: 'must' },
+      { name: 'Transformer', level: 'must' },
+      { name: 'LLM应用', level: 'prefer' }
+    ],
+    'NLP任务': [
+      { name: '命名实体识别', level: 'must' },
+      { name: '文本分类/情感分析', level: 'must' },
+      { name: '机器翻译', level: 'prefer' },
+      { name: '对话系统', level: 'prefer' }
+    ],
+    '工具': [
+      { name: 'PyTorch/TensorFlow', level: 'must' },
+      { name: 'Hugging Face', level: 'must' },
+      { name: 'NLTK/spaCy', level: 'prefer' }
+    ]
+  },
+  'cv-engineer': {
+    'CV核心': [
+      { name: '图像处理', level: 'must' },
+      { name: '特征提取', level: 'must' },
+      { name: 'CNN架构', level: 'must' },
+      { name: '目标检测/分割', level: 'must' }
+    ],
+    'CV模型': [
+      { name: 'YOLO/Faster R-CNN', level: 'must' },
+      { name: 'ResNet/EfficientNet', level: 'prefer' },
+      { name: 'Transformer视觉', level: 'prefer' }
+    ],
+    '工具': [
+      { name: 'PyTorch', level: 'must' },
+      { name: 'OpenCV', level: 'must' },
+      { name: 'MMDetection', level: 'prefer' }
+    ]
+  },
+  '推荐算法': {
+    '推荐基础': [
+      { name: '协同过滤', level: 'must' },
+      { name: '矩阵分解', level: 'must' },
+      { name: '内容推荐', level: 'must' },
+      { name: '混合推荐', level: 'prefer' }
+    ],
+    '深度学习推荐': [
+      { name: 'DeepFM/DCN', level: 'prefer' },
+      { name: 'Transformer推荐', level: 'prefer' },
+      { name: '图神经网络(GNN)', level: 'prefer' }
+    ],
+    '工程化': [
+      { name: 'Spark/Flink', level: 'must' },
+      { name: 'TensorFlow/PyTorch', level: 'must' },
+      { name: 'Redis缓存', level: 'must' }
+    ]
+  },
+  'bigdata': {
+    '大数据核心': [
+      { name: 'Hadoop/HDFS', level: 'must' },
+      { name: 'MapReduce', level: 'must' },
+      { name: 'YARN', level: 'prefer' }
+    ],
+    '计算引擎': [
+      { name: 'Spark', level: 'must' },
+      { name: 'Flink', level: 'must' },
+      { name: 'Hive', level: 'must' },
+      { name: 'Presto/Impala', level: 'prefer' }
+    ],
+    '数据存储': [
+      { name: 'HBase', level: 'must' },
+      { name: 'Kafka', level: 'must' },
+      { name: 'ClickHouse/Doris', level: 'prefer' }
+    ],
+    '语言': [
+      { name: 'Java/Scala', level: 'must' },
+      { name: 'Python', level: 'prefer' }
+    ]
+  },
+  'data-engineer': {
+    '数据工程': [
+      { name: 'ETL开发', level: 'must' },
+      { name: '数据仓库设计', level: 'must' },
+      { name: '数据治理', level: 'prefer' },
+      { name: '数据血缘', level: 'prefer' }
+    ],
+    '工具': [
+      { name: 'Airflow/DolphinScheduler', level: 'must' },
+      { name: 'Spark/Flink', level: 'must' },
+      { name: 'Kafka', level: 'must' },
+      { name: 'dbt', level: 'prefer' }
+    ],
+    '存储': [
+      { name: 'Hadoop/HDFS', level: 'must' },
+      { name: 'S3/OSS', level: 'must' },
+      { name: 'Snowflake/BigQuery', level: 'prefer' }
+    ]
+  },
+  'data-analyst': {
+    '数据分析': [
+      { name: 'SQL', level: 'must' },
+      { name: '统计学', level: 'must' },
+      { name: '数据可视化', level: 'must' },
+      { name: '业务分析', level: 'must' }
+    ],
+    '工具': [
+      { name: 'Python(Pandas)', level: 'must' },
+      { name: 'Excel', level: 'must' },
+      { name: 'Tableau/Power BI', level: 'prefer' },
+      { name: 'Superset/Grafana', level: 'prefer' }
+    ]
+  },
+  'etl-engineer': {
+    'ETL工具': [
+      { name: 'Kettle/DataX', level: 'must' },
+      { name: 'Airflow', level: 'must' },
+      { name: 'Spark/Flink', level: 'must' }
+    ],
+    '数据处理': [
+      { name: '数据清洗', level: 'must' },
+      { name: '数据转换', level: 'must' },
+      { name: '数据同步', level: 'must' }
+    ],
+    '存储': [
+      { name: 'MySQL/Hive', level: 'must' },
+      { name: 'Kafka', level: 'prefer' }
+    ]
+  },
+  'spark-developer': {
+    'Spark核心': [
+      { name: 'Spark SQL', level: 'must' },
+      { name: 'Spark Streaming', level: 'must' },
+      { name: 'Spark MLlib', level: 'prefer' },
+      { name: 'RDD/DataFrame/Dataset', level: 'must' }
+    ],
+    '开发语言': [
+      { name: 'Scala', level: 'must' },
+      { name: 'Python(PySpark)', level: 'must' },
+      { name: 'Java', level: 'prefer' }
+    ]
+  },
+  'ic-engineer': {
+    'IC设计': [
+      { name: 'Verilog/VHDL', level: 'must' },
+      { name: 'SystemVerilog', level: 'must' },
+      { name: 'RTL设计', level: 'must' },
+      { name: '逻辑综合', level: 'must' }
+    ],
+    'EDA工具': [
+      { name: 'Synopsys Design Compiler', level: 'must' },
+      { name: 'Cadence Genus', level: 'prefer' },
+      { name: 'Mentor Graphics', level: 'prefer' }
+    ],
+    '验证': [
+      { name: 'UVM验证方法学', level: 'must' },
+      { name: 'SystemC', level: 'prefer' },
+      { name: '覆盖率驱动验证', level: 'prefer' }
+    ]
+  },
+  'ic-design': {
+    '数字IC设计': [
+      { name: 'Verilog/SystemVerilog', level: 'must' },
+      { name: 'RTL编码', level: 'must' },
+      { name: 'FSM设计', level: 'must' },
+      { name: '低功耗设计', level: 'prefer' }
+    ],
+    '模拟IC': [
+      { name: '模拟电路基础', level: 'prefer' },
+      { name: 'Cadence Spectre', level: 'bonus' }
+    ],
+    '实现': [
+      { name: '综合/布局布线', level: 'must' },
+      { name: '时序分析', level: 'must' },
+      { name: '形式验证', level: 'prefer' }
+    ]
+  },
+  'ic-verification': {
+    '验证方法学': [
+      { name: 'UVM', level: 'must' },
+      { name: 'SystemVerilog', level: 'must' },
+      { name: '覆盖率驱动验证', level: 'must' },
+      { name: '断言验证(SVA)', level: 'prefer' }
+    ],
+    '验证流程': [
+      { name: '验证计划制定', level: 'must' },
+      { name: '测试用例编写', level: 'must' },
+      { name: 'Bug管理', level: 'must' },
+      { name: '回归测试', level: 'prefer' }
+    ]
+  },
+  'fpga-engineer': {
+    'FPGA核心': [
+      { name: 'Verilog/VHDL', level: 'must' },
+      { name: 'FPGA架构(Xilinx/Altera)', level: 'must' },
+      { name: '时序约束', level: 'must' },
+      { name: 'IP核使用', level: 'prefer' }
+    ],
+    '开发工具': [
+      { name: 'Vivado/Quartus', level: 'must' },
+      { name: 'ModelSim', level: 'must' },
+      { name: 'Matlab', level: 'prefer' }
+    ],
+    '应用': [
+      { name: '数字信号处理', level: 'must' },
+      { name: '图像处理', level: 'prefer' },
+      { name: '高速接口(PCIe/USB)', level: 'prefer' }
+    ]
+  },
+  'embedded': {
+    '嵌入式核心': [
+      { name: 'C/C++', level: 'must' },
+      { name: '嵌入式Linux', level: 'must' },
+      { name: 'ARM架构', level: 'must' },
+      { name: 'RTOS(FreeRTOS等)', level: 'must' }
+    ],
+    '驱动与系统': [
+      { name: 'Linux驱动开发', level: 'must' },
+      { name: '设备树(DTS)', level: 'prefer' },
+      { name: 'Bootloader(U-Boot)', level: 'must' },
+      { name: '内核裁剪', level: 'prefer' }
+    ],
+    '调试工具': [
+      { name: 'JTAG/SWD调试', level: 'must' },
+      { name: '示波器/逻辑分析仪', level: 'must' },
+      { name: 'GDB', level: 'must' }
+    ]
+  },
+  'hardware': {
+    '硬件设计': [
+      { name: '原理图设计', level: 'must' },
+      { name: 'PCB Layout', level: 'must' },
+      { name: '信号完整性', level: 'prefer' },
+      { name: '电源完整性', level: 'prefer' }
+    ],
+    'EDA工具': [
+      { name: 'Altium Designer', level: 'must' },
+      { name: 'Cadence Allegro', level: 'prefer' },
+      { name: 'KiCad', level: 'prefer' }
+    ],
+    '测试': [
+      { name: '硬件调试', level: 'must' },
+      { name: '示波器/万用表', level: 'must' },
+      { name: 'EMC/EMI测试', level: 'bonus' }
+    ]
+  },
+  'soc-engineer': {
+    'SoC设计': [
+      { name: 'SoC架构设计', level: 'must' },
+      { name: '总线协议(AXI/APB)', level: 'must' },
+      { name: 'IP集成', level: 'must' },
+      { name: '时钟/复位设计', level: 'prefer' }
+    ],
+    '验证': [
+      { name: '子系统验证', level: 'must' },
+      { name: '系统级验证', level: 'prefer' },
+      { name: 'FPGA原型验证', level: 'prefer' }
+    ]
+  },
+  'android': {
+    'Android核心': [
+      { name: 'Java/Kotlin', level: 'must' },
+      { name: 'Android SDK', level: 'must' },
+      { name: '四大组件', level: 'must' },
+      { name: 'Jetpack', level: 'must' }
+    ],
+    'UI与架构': [
+      { name: 'Jetpack Compose', level: 'must' },
+      { name: 'MVVM/MVI架构', level: 'must' },
+      { name: 'Navigation', level: 'prefer' }
+    ],
+    '性能优化': [
+      { name: '内存优化', level: 'must' },
+      { name: '启动优化', level: 'prefer' },
+      { name: '卡顿优化', level: 'prefer' }
+    ]
+  },
+  'ios-developer': {
+    'iOS核心': [
+      { name: 'Swift/Objective-C', level: 'must' },
+      { name: 'UIKit/SwiftUI', level: 'must' },
+      { name: 'GCD/并发编程', level: 'must' },
+      { name: 'CocoaPods/SPM', level: 'must' }
+    ],
+    'iOS开发': [
+      { name: 'iOS生命周期', level: 'must' },
+      { name: 'Core Data/SwiftData', level: 'prefer' },
+      { name: 'Swift Concurrency', level: 'prefer' }
+    ]
+  },
+  'flutter': {
+    'Flutter核心': [
+      { name: 'Dart', level: 'must' },
+      { name: 'Flutter Widget', level: 'must' },
+      { name: '状态管理(Riverpod/Bloc)', level: 'must' },
+      { name: '路由与导航', level: 'prefer' }
+    ],
+    'Flutter进阶': [
+      { name: '自定义Widget', level: 'prefer' },
+      { name: 'Platform Channel', level: 'prefer' },
+      { name: '性能优化', level: 'prefer' }
+    ]
+  },
+  'rn-developer': {
+    'React Native': [
+      { name: 'JavaScript/TypeScript', level: 'must' },
+      { name: 'React Native核心', level: 'must' },
+      { name: '原生模块', level: 'prefer' },
+      { name: 'Expo', level: 'prefer' }
+    ],
+    '相关': [
+      { name: 'Redux/MobX', level: 'must' },
+      { name: '原生iOS/Android', level: 'prefer' }
+    ]
+  },
+  'devops': {
+    'CI/CD': [
+      { name: 'Jenkins/GitLab CI', level: 'must' },
+      { name: 'GitHub Actions', level: 'prefer' },
+      { name: 'SonarQube', level: 'prefer' }
+    ],
+    '容器与编排': [
+      { name: 'Docker', level: 'must' },
+      { name: 'Kubernetes', level: 'must' },
+      { name: 'Helm', level: 'prefer' }
+    ],
+    '基础设施': [
+      { name: 'Linux', level: 'must' },
+      { name: 'Ansible/Puppet', level: 'prefer' },
+      { name: 'Terraform', level: 'prefer' },
+      { name: 'Prometheus/Grafana', level: 'must' }
+    ]
+  },
+  'sre': {
+    'SRE核心': [
+      { name: 'Site Reliability', level: 'must' },
+      { name: 'SLA/SLO/SLI', level: 'must' },
+      { name: '故障排查', level: 'must' },
+      { name: '容量规划', level: 'prefer' }
+    ],
+    '工具': [
+      { name: '监控系统', level: 'must' },
+      { name: '日志系统(ELK/Loki)', level: 'must' },
+      { name: '链路追踪(Jaeger)', level: 'prefer' }
+    ]
+  },
+  'cloud': {
+    '云计算核心': [
+      { name: '虚拟化(KVM/Xen)', level: 'must' },
+      { name: '容器技术', level: 'must' },
+      { name: '微服务架构', level: 'must' }
+    ],
+    '云平台': [
+      { name: '阿里云/腾讯云', level: 'must' },
+      { name: 'AWS', level: 'prefer' },
+      { name: 'OpenStack', level: 'prefer' }
+    ]
+  },
+  'k8s-engineer': {
+    'K8s核心': [
+      { name: 'Kubernetes架构', level: 'must' },
+      { name: 'Pod/Service/Deployment', level: 'must' },
+      { name: 'ConfigMap/Secret', level: 'must' },
+      { name: 'Helm', level: 'must' }
+    ],
+    'K8s进阶': [
+      { name: 'Operator/CRD', level: 'prefer' },
+      { name: 'Service Mesh(Istio)', level: 'prefer' },
+      { name: 'K8s安全', level: 'prefer' },
+      { name: 'K8s性能调优', level: 'prefer' }
+    ]
+  },
+  'security': {
+    '安全基础': [
+      { name: '网络安全', level: 'must' },
+      { name: '密码学基础', level: 'must' },
+      { name: '操作系统安全', level: 'must' },
+      { name: 'Web安全', level: 'must' }
+    ],
+    '安全工具': [
+      { name: 'Burp Suite', level: 'must' },
+      { name: 'Nmap', level: 'must' },
+      { name: 'Wireshark', level: 'must' },
+      { name: 'Metasploit', level: 'prefer' }
+    ],
+    '防御': [
+      { name: 'WAF/IDS/IPS', level: 'prefer' },
+      { name: '代码审计', level: 'prefer' }
+    ]
+  },
+  'penetration': {
+    '渗透测试': [
+      { name: 'Web渗透', level: 'must' },
+      { name: '系统渗透', level: 'must' },
+      { name: 'API渗透', level: 'must' },
+      { name: '移动端渗透', level: 'prefer' }
+    ],
+    '技术栈': [
+      { name: 'Python渗透', level: 'must' },
+      { name: 'Burp Suite', level: 'must' },
+      { name: 'SQL注入/XSS', level: 'must' }
+    ]
+  },
+  'network': {
+    '网络核心': [
+      { name: 'TCP/IP协议', level: 'must' },
+      { name: '路由协议(OSPF/BGP)', level: 'must' },
+      { name: '交换技术', level: 'must' },
+      { name: '网络安全', level: 'prefer' }
+    ],
+    '设备': [
+      { name: '华为/Cisco设备', level: 'must' },
+      { name: 'Linux网络配置', level: 'must' },
+      { name: 'SDN/NFV', level: 'prefer' }
+    ]
+  },
+  'qa-engineer': {
+    '测试核心': [
+      { name: '测试理论', level: 'must' },
+      { name: '测试用例设计', level: 'must' },
+      { name: '缺陷管理', level: 'must' },
+      { name: '需求分析', level: 'must' }
+    ],
+    '工具': [
+      { name: 'JMeter/LoadRunner', level: 'must' },
+      { name: 'Postman', level: 'must' },
+      { name: 'Jira', level: 'must' }
+    ],
+    '自动化': [
+      { name: 'Selenium/Appium', level: 'prefer' },
+      { name: '接口自动化', level: 'prefer' }
+    ]
+  },
+  'autotest': {
+    '自动化框架': [
+      { name: 'Selenium/Cypress', level: 'must' },
+      { name: 'Pytest/TestNG', level: 'must' },
+      { name: 'Playwright', level: 'prefer' },
+      { name: '框架设计', level: 'must' }
+    ],
+    '编程': [
+      { name: 'Python/Java', level: 'must' },
+      { name: 'Git/SVN', level: 'must' }
+    ]
+  },
+  'perf-test': {
+    '性能测试': [
+      { name: 'JMeter', level: 'must' },
+      { name: 'LoadRunner', level: 'prefer' },
+      { name: 'Gatling', level: 'prefer' }
+    ],
+    '性能分析': [
+      { name: '瓶颈定位', level: 'must' },
+      { name: '性能调优', level: 'must' },
+      { name: '监控分析', level: 'prefer' }
+    ]
+  },
+  'test-dev': {
+    '测试开发': [
+      { name: '自动化框架开发', level: 'must' },
+      { name: '平台工具开发', level: 'must' },
+      { name: 'Java/Python', level: 'must' }
+    ],
+    'CI/CD': [
+      { name: 'Jenkins', level: 'must' },
+      { name: 'GitLab CI', level: 'prefer' }
+    ]
+  },
+  'game-dev': {
+    '游戏开发': [
+      { name: '游戏引擎(Unity/Unreal)', level: 'must' },
+      { name: 'C++/C#', level: 'must' },
+      { name: '游戏物理', level: 'prefer' },
+      { name: '游戏AI', level: 'prefer' }
+    ],
+    '游戏服务端': [
+      { name: '网络编程', level: 'must' },
+      { name: '分布式系统', level: 'prefer' }
+    ]
+  },
+  'game-client': {
+    '客户端': [
+      { name: 'Unity/Unreal Engine', level: 'must' },
+      { name: 'C++/C#', level: 'must' },
+      { name: '渲染管线', level: 'prefer' },
+      { name: 'UI/UX实现', level: 'must' }
+    ]
+  },
+  'game-server': {
+    '服务端': [
+      { name: 'C++/Go/Java', level: 'must' },
+      { name: '网络编程', level: 'must' },
+      { name: '高并发', level: 'must' },
+      { name: '游戏逻辑', level: 'must' }
+    ],
+    '分布式': [
+      { name: '分布式架构', level: 'prefer' },
+      { name: 'Redis/MySQL', level: 'must' }
+    ]
+  },
+  'blockchain': {
+    '区块链核心': [
+      { name: '共识算法', level: 'must' },
+      { name: '智能合约', level: 'must' },
+      { name: '密码学', level: 'must' },
+      { name: 'P2P网络', level: 'prefer' }
+    ],
+    '技术栈': [
+      { name: 'Solidity', level: 'must' },
+      { name: 'Go/Rust', level: 'must' },
+      { name: 'Ethereum/Hyperledger', level: 'must' }
+    ]
+  },
+  'robotics': {
+    '机器人核心': [
+      { name: 'ROS/ROS2', level: 'must' },
+      { name: 'C++/Python', level: 'must' },
+      { name: '运动控制', level: 'must' },
+      { name: 'SLAM', level: 'prefer' }
+    ],
+    '感知与决策': [
+      { name: '计算机视觉', level: 'must' },
+      { name: '机器学习', level: 'prefer' },
+      { name: '路径规划', level: 'must' }
+    ]
+  },
+  'database': {
+    '数据库核心': [
+      { name: 'MySQL/PostgreSQL', level: 'must' },
+      { name: '索引优化', level: 'must' },
+      { name: 'SQL调优', level: 'must' },
+      { name: '事务与锁', level: 'must' }
+    ],
+    '分布式': [
+      { name: '分布式数据库', level: 'prefer' },
+      { name: '分库分表', level: 'must' },
+      { name: 'TiDB/CockroachDB', level: 'prefer' }
+    ]
+  },
+  'dba': {
+    'DBA核心': [
+      { name: '数据库安装部署', level: 'must' },
+      { name: '备份恢复', level: 'must' },
+      { name: '性能调优', level: 'must' },
+      { name: '高可用方案', level: 'must' }
+    ],
+    '监控': [
+      { name: '数据库监控', level: 'must' },
+      { name: '慢查询分析', level: 'must' },
+      { name: '空间管理', level: 'prefer' }
+    ]
+  },
+  'tech-lead': {
+    '技术管理': [
+      { name: '技术规划', level: 'must' },
+      { name: '团队管理', level: 'must' },
+      { name: '项目管理', level: 'must' },
+      { name: '技术选型', level: 'must' }
+    ],
+    '技术深度': [
+      { name: '系统架构', level: 'must' },
+      { name: '代码评审', level: 'must' },
+      { name: '技术分享', level: 'prefer' }
+    ]
+  },
+  'architect': {
+    '架构设计': [
+      { name: '分布式架构', level: 'must' },
+      { name: '微服务', level: 'must' },
+      { name: '高可用设计', level: 'must' },
+      { name: '可扩展性设计', level: 'must' }
+    ],
+    '技术视野': [
+      { name: '多技术栈', level: 'must' },
+      { name: '行业理解', level: 'must' },
+      { name: '技术趋势', level: 'prefer' }
+    ]
+  }
+}
+
+const navItems = [
+  { key: 'dashboard', label: '个人学习数据分析', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/></svg>' },
+  { key: 'skill-route', label: '行业技能路线', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2L2 7l10 5 10-5-10-5zm0 13L2 10v5l10 5 10-5v-5l-10 5z" fill="currentColor"/></svg>' },
+  { key: 'study-plan', label: '我的学习计划', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg>' },
+  { key: 'resource-lib', label: '推荐资源库', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0h-4V4h4v2z" fill="currentColor"/></svg>' },
+  { key: 'ai-assistant', label: 'AI学习顾问', icon: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="currentColor"/></svg>' }
+]
+
+const defaultResourceCards = [
+  {
+    id: 'empty',
+    title: '选择岗位以获取智能推荐',
+    desc: '请先选择你的目标就业岗位，系统将基于JD技能要求自动匹配并推送学习资源',
+    typeLabel: '系统通知',
+    difficulty: '-',
+    durationText: '-',
+    provider: '智能推送引擎',
+    matchedSkills: [],
+    url: '',
+    externalUrl: '',
+    practicePlan: [],
+    recommendedTools: [],
+    featured: false
+  }
+]
+
+const formatDuration = (minutes) => {
+  if (minutes < 60) return `${minutes}分钟`
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (hours < 8) return mins > 0 ? `${hours}小时${mins}分钟` : `${hours}小时`
+  const days = Math.floor(hours / 8)
+  return mins > 0 ? `${days}天${hours % 8}小时` : `${days}天`
+}
+
+const resourceCards = computed(() => {
+  if (!selectedPosition.value) {
+    return defaultResourceCards
+  }
+  const userProgress = parseInt(localStorage.getItem('learningProgress_' + selectedPosition.value) || '0', 10)
+  const matched = findMatchingResources(selectedPosition.value, userProgress)
+  if (!matched || matched.length === 0) {
+    return defaultResourceCards
+  }
+  return matched.map((item, idx) => ({
+    id: item.id,
+    title: item.title,
+    desc: item.description,
+    typeLabel: typeLabels[item.type] || item.type,
+    difficulty: item.difficulty,
+    durationText: formatDuration(item.duration),
+    provider: item.provider,
+    matchedSkills: item.matchedSkills.slice(0, 4),
+    rating: item.rating,
+    students: item.students,
+    url: item.url || item.externalUrl,
+    externalUrl: item.externalUrl,
+    practicePlan: item.practicePlan || [],
+    recommendedTools: item.recommendedTools || [],
+    featured: idx === 0
+  }))
+})
+
+const currentSkills = computed(() => {
+  if (!selectedPosition.value) return []
+  const skillData = positionSkillMap[selectedPosition.value]
+  if (!skillData) return []
+  const allSkills = []
+  for (const [, skills] of Object.entries(skillData)) {
+    allSkills.push(...skills)
+  }
+  return allSkills
+})
+
+const categorizedSkills = computed(() => {
+  if (!selectedPosition.value) return []
+  const skillData = positionSkillMap[selectedPosition.value]
+  if (!skillData) return []
+  return Object.entries(skillData).map(([name, skills]) => ({
+    name,
+    skills
+  }))
+})
+
+const selectedPositionLabel = computed(() => {
+  if (!selectedPosition.value) return '未选择'
+  for (const group of positionGroups) {
+    const pos = group.positions.find(p => p.key === selectedPosition.value)
+    if (pos) return pos.label
+  }
+  return '未选择'
+})
+
+const goBack = () => {
+  router.push('/dashboard')
+}
+
+const handleNavClick = (key) => {
+  if (key === 'skill-route') {
+    if (!selectedPosition.value) {
+      alert('请先选择目标岗位')
+      return
+    }
+    router.push('/skill-route')
+  } else {
+    currentNav.value = key
+  }
+}
+
+const openResource = (card) => {
+  // 优先使用url字段（资源页面直达链接），fallback到externalUrl
+  const targetUrl = card.url || card.externalUrl
+  if (!targetUrl) return
+  // 预留接口：后续可对接后端记录学习行为
+  // TODO: POST /api/user/learning-record { resourceId, positionKey }
+  window.open(targetUrl, '_blank', 'noopener')
+}
+
+watch(selectedPosition, (val) => {
+  if (val) {
+    localStorage.setItem('selectedPosition', val)
+  }
+})
+
+const drawBackground = () => {
+  const canvas = bgCanvas.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+
+  const particles = []
+  const particleCount = 80
+  for (let i = 0; i < particleCount; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 2 + 0.5,
+      speedX: (Math.random() - 0.5) * 0.5,
+      speedY: (Math.random() - 0.5) * 0.5,
+      opacity: Math.random() * 0.5 + 0.2
+    })
+  }
+
+  const animate = () => {
+    ctx.fillStyle = 'rgba(10, 15, 25, 0.1)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    particles.forEach(p => {
+      p.x += p.speedX
+      p.y += p.speedY
+      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1
+      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1
+
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(74, 158, 255, ${p.opacity})`
+      ctx.fill()
+    })
+
+    particles.forEach((p1, i) => {
+      particles.slice(i + 1).forEach(p2 => {
+        const dx = p1.x - p2.x
+        const dy = p1.y - p2.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < 120) {
+          ctx.beginPath()
+          ctx.moveTo(p1.x, p1.y)
+          ctx.lineTo(p2.x, p2.y)
+          ctx.strokeStyle = `rgba(74, 158, 255, ${0.15 * (1 - dist / 120)})`
+          ctx.lineWidth = 0.5
+          ctx.stroke()
+        }
+      })
+    })
+
+    requestAnimationFrame(animate)
+  }
+  animate()
+}
+
+let animFrame = null
+
+onMounted(() => {
+  const saved = localStorage.getItem('selectedPosition')
+  if (saved) {
+    selectedPosition.value = saved
+  }
+  drawBackground()
+  window.addEventListener('resize', () => {
+    const canvas = bgCanvas.value
+    if (canvas) {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+  })
+})
+
+onUnmounted(() => {
+  if (animFrame) cancelAnimationFrame(animFrame)
+})
+</script>
+
+<style scoped>
+.planning-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0f19 0%, #111b2e 50%, #0d1525 100%);
+  overflow: hidden;
+  color: #fff;
+}
+
+.bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.page-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: rgba(17, 27, 46, 0.6);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(74, 158, 255, 0.15);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 20px;
+  color: #4a9eff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+}
+
+.back-btn:hover {
+  background: rgba(74, 158, 255, 0.2);
+  border-color: rgba(74, 158, 255, 0.5);
+}
+
+.page-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  background: linear-gradient(90deg, #4a9eff, #00d4aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.header-nav {
+  display: flex;
+  gap: 25px;
+}
+
+.nav-item {
+  padding: 8px 16px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background: rgba(74, 158, 255, 0.15);
+  color: #4a9eff;
+}
+
+.main-layout {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 200px 1fr 280px;
+  gap: 20px;
+  padding: 25px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.sidebar {
+  background: rgba(17, 27, 46, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+  height: fit-content;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-label {
+  font-size: 0.7rem;
+  color: rgba(74, 158, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0 10px 10px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+  margin-bottom: 10px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nav-item:hover {
+  background: rgba(74, 158, 255, 0.1);
+  color: #fff;
+}
+
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.2), rgba(74, 158, 255, 0.05));
+  color: #4a9eff;
+  border-left: 3px solid #4a9eff;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  color: currentColor;
+}
+
+.content-area {
+  background: rgba(17, 27, 46, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 12px;
+  padding: 25px;
+  min-height: calc(100vh - 140px);
+}
+
+.content-header {
+  margin-bottom: 25px;
+}
+
+.content-header h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 6px;
+}
+
+.content-desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+.job-selector {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(0, 212, 170, 0.05));
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.selector-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #fff;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.label-icon {
+  font-size: 1.1rem;
+}
+
+.selector-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+}
+
+.position-select {
+  width: 100%;
+  padding: 10px 38px 10px 14px;
+  background: rgba(10, 15, 25, 0.8);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.88rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.3s;
+}
+
+.position-select:focus {
+  border-color: rgba(74, 158, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.15);
+}
+
+.position-select option,
+.position-select optgroup {
+  background: #0d1525;
+  color: #fff;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(74, 158, 255, 0.6);
+  font-size: 0.7rem;
+  pointer-events: none;
+}
+
+.top-section,
+.bottom-section {
+  margin-bottom: 25px;
+}
+
+.section-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.section-block-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.block-icon {
+  font-size: 1.2rem;
+}
+
+.block-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(74, 158, 255, 0.3);
+  margin: 0 4px;
+}
+
+.block-subtitle {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(74, 158, 255, 0.7);
+}
+
+.section-block-deco {
+  height: 2px;
+  flex: 1;
+  margin-left: 20px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.3), transparent);
+  max-width: 200px;
+}
+
+.top-section {
+  padding: 18px;
+  background: rgba(10, 15, 25, 0.5);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 10px;
+}
+
+.bottom-section {
+  padding: 18px;
+  background: rgba(10, 15, 25, 0.3);
+  border: 1px solid rgba(0, 212, 170, 0.1);
+  border-radius: 10px;
+}
+
+.card-collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(74, 158, 255, 0.08);
+  border: 1px dashed rgba(74, 158, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: rgba(74, 158, 255, 0.8);
+  transition: all 0.25s;
+  user-select: none;
+}
+
+.card-collapse-toggle:hover {
+  background: rgba(74, 158, 255, 0.15);
+  color: #fff;
+  border-color: rgba(74, 158, 255, 0.5);
+}
+
+.toggle-icon {
+  display: inline-block;
+  font-size: 0.65rem;
+  transition: transform 0.3s;
+}
+
+.toggle-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.card-collapse-panel {
+  margin-top: 12px;
+  padding: 14px;
+  background: rgba(10, 15, 25, 0.6);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.collapse-section {
+  margin-bottom: 14px;
+}
+
+.collapse-section:last-child {
+  margin-bottom: 0;
+}
+
+.collapse-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a9eff;
+  margin: 0 0 10px;
+}
+
+.collapse-icon {
+  font-size: 0.95rem;
+}
+
+.practice-list,
+.tools-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.practice-list {
+  counter-reset: practiceCounter;
+}
+
+.practice-list li {
+  counter-increment: practiceCounter;
+  position: relative;
+  padding: 8px 12px 8px 32px;
+  margin-bottom: 6px;
+  background: rgba(74, 158, 255, 0.06);
+  border-left: 2px solid rgba(74, 158, 255, 0.4);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
+.practice-list li::before {
+  content: counter(practiceCounter);
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tools-list li {
+  padding: 6px 12px;
+  margin-bottom: 5px;
+  background: rgba(0, 212, 170, 0.08);
+  border-left: 2px solid rgba(0, 212, 170, 0.4);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
+.tools-list li:last-child {
+  margin-bottom: 0;
+}
+
+.skill-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.skill-category {
+  background: rgba(30, 45, 70, 0.5);
+  border: 1px solid rgba(74, 158, 255, 0.1);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.category-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #4a9eff;
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 14px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.2s;
+}
+
+.skill-tag:hover {
+  background: rgba(74, 158, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.skill-tag.level-must {
+  background: rgba(255, 99, 99, 0.12);
+  border-color: rgba(255, 99, 99, 0.3);
+  color: #ff8a8a;
+}
+
+.skill-tag.level-prefer {
+  background: rgba(74, 158, 255, 0.12);
+  border-color: rgba(74, 158, 255, 0.3);
+  color: #7ab8ff;
+}
+
+.skill-tag.level-bonus {
+  background: rgba(0, 212, 170, 0.12);
+  border-color: rgba(0, 212, 170, 0.3);
+  color: #5eead4;
+}
+
+.level-badge {
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.skill-tag.level-must .level-badge {
+  background: rgba(255, 99, 99, 0.3);
+}
+
+.skill-tag.level-prefer .level-badge {
+  background: rgba(74, 158, 255, 0.3);
+}
+
+.skill-tag.level-bonus .level-badge {
+  background: rgba(0, 212, 170, 0.3);
+}
+
+.card-badge.must {
+  background: rgba(255, 99, 99, 0.15);
+  border-color: rgba(255, 99, 99, 0.4);
+  color: #ff8a8a;
+}
+
+.card-badge.prefer {
+  background: rgba(74, 158, 255, 0.15);
+  border-color: rgba(74, 158, 255, 0.4);
+  color: #7ab8ff;
+}
+
+.card-badge.bonus {
+  background: rgba(0, 212, 170, 0.15);
+  border-color: rgba(0, 212, 170, 0.4);
+  color: #5eead4;
+}
+
+.card-badge.pending {
+  background: rgba(255, 170, 74, 0.15);
+  border-color: rgba(255, 170, 74, 0.3);
+  color: #ffaa4a;
+}
+
+.resource-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.resource-card {
+  background: linear-gradient(145deg, rgba(30, 45, 70, 0.8), rgba(20, 30, 50, 0.8));
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.resource-card.featured {
+  border-color: rgba(0, 212, 170, 0.4);
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.1);
+}
+
+.resource-card.featured::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00d4aa, #4a9eff);
+}
+
+.resource-card:hover {
+  border-color: rgba(74, 158, 255, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(74, 158, 255, 0.15);
+}
+
+.card-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 18px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.15), rgba(0, 212, 170, 0.15));
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  border-radius: 20px;
+  color: #4a9eff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.card-action-btn:hover {
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.3), rgba(0, 212, 170, 0.3));
+  border-color: rgba(74, 158, 255, 0.7);
+  color: #fff;
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.push-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  background: linear-gradient(90deg, rgba(255, 140, 66, 0.2), rgba(255, 99, 99, 0.2));
+  border: 1px solid rgba(255, 140, 66, 0.4);
+  border-radius: 10px;
+  font-size: 0.65rem;
+  color: #ff8c42;
+  font-weight: 600;
+}
+
+.push-icon {
+  font-size: 0.7rem;
+}
+
+.card-type {
+  padding: 3px 8px;
+  background: rgba(74, 158, 255, 0.12);
+  border-radius: 8px;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.75rem;
+  color: #ffd700;
+}
+
+.rating-star {
+  font-size: 0.85rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.card-desc {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.card-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: rgba(74, 158, 255, 0.08);
+  border-radius: 8px;
+  border-left: 2px solid rgba(74, 158, 255, 0.3);
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.meta-icon {
+  font-size: 0.8rem;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  padding-top: 10px;
+  border-top: 1px solid rgba(74, 158, 255, 0.1);
+}
+
+.time-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.level-label {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.level-label.level-入门 {
+  background: rgba(0, 212, 170, 0.15);
+  color: #00d4aa;
+}
+
+.level-label.level-基础 {
+  background: rgba(74, 158, 255, 0.15);
+  color: #4a9eff;
+}
+
+.level-label.level-进阶 {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}
+
+.level-label.level-高级 {
+  background: rgba(255, 99, 99, 0.15);
+  color: #ff6363;
+}
+
+.source-label {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.action-area {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.action-btn {
+  padding: 12px 40px;
+  background: linear-gradient(90deg, #4a9eff, #00d4aa);
+  border: none;
+  border-radius: 25px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(74, 158, 255, 0.4);
+}
+
+.rules-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.rules-column {
+  background: rgba(30, 45, 70, 0.5);
+  border: 1px solid rgba(74, 158, 255, 0.1);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.rules-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #4a9eff;
+  margin: 0 0 12px;
+}
+
+.rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rules-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.rule-icon {
+  font-size: 0.9rem;
+}
+
+.ai-sidebar {
+  background: rgba(17, 27, 46, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 12px;
+  padding: 18px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.ai-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.ai-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.15);
+}
+
+.ai-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(0, 212, 170, 0.3));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.ai-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(74, 158, 255, 0.1);
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
+.ai-message.highlight {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.2), rgba(0, 212, 170, 0.1));
+  border: 1px solid rgba(74, 158, 255, 0.3);
+}
+
+.msg-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.ai-input-area {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ai-input-area input {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(10, 15, 25, 0.6);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.ai-input-area input:focus {
+  border-color: rgba(74, 158, 255, 0.5);
+}
+
+.ai-input-area input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.ai-send-btn {
+  padding: 10px 20px;
+  background: linear-gradient(90deg, #4a9eff, #00d4aa);
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.ai-send-btn:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 1200px) {
+  .main-layout {
+    grid-template-columns: 180px 1fr 240px;
+  }
+  .resource-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+  .resource-cards {
+    grid-template-columns: 1fr;
+  }
+  .rules-section {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
