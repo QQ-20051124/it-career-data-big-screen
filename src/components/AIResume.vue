@@ -533,14 +533,13 @@
                 </div>
                 <p><span class="label">专业：</span>{{ formData.major || '未填写' }}</p>
                 <p><span class="label">学历：</span>{{ formData.education || '未填写' }}（{{ formData.degree || '' }}）</p>
-                <p v-if="formData.honors" class="desc"><span class="label">在校荣誉：</span>{{ formData.honors }}</p>
                 <p v-if="formData.courses" class="desc"><span class="label">主修课程：</span>{{ formData.courses }}</p>
               </div>
             </div>
           </div>
 
           <div class="section">
-            <h3>工作经历</h3>
+            <h3>实习经历</h3>
             <div class="timeline-item">
               <div class="timeline-content">
                 <div class="timeline-header">
@@ -557,13 +556,23 @@
           </div>
 
           <div class="section">
+            <h3>曾获奖项</h3>
+            <div v-if="formData.honors" class="timeline-item">
+              <div class="timeline-content">
+                <p class="desc" v-for="(honor, idx) in formData.honors.split('\n').filter(h => h.trim())" :key="idx">• {{ honor }}</p>
+              </div>
+            </div>
+            <p v-else class="no-data">暂无获奖信息</p>
+          </div>
+
+          <div class="section">
             <h3>项目经历</h3>
             <div v-if="formData.projects && formData.projects.length > 0">
               <div v-for="(project, index) in formData.projects" :key="index" class="timeline-item" v-show="project.name">
                 <div class="timeline-content">
                   <div class="timeline-header">
                     <span class="title">项目{{ index + 1 }}：{{ project.name || '未命名项目' }}</span>
-                    <span class="time">{{ project.period || '' }}</span>
+                    <span class="time">{{ project.duration || '' }}</span>
                   </div>
                   <p><span class="label">角色：</span>{{ project.role || '未填写' }}</p>
                   <p v-if="project.desc" class="desc"><span class="label">项目描述：</span>{{ project.desc }}</p>
@@ -580,15 +589,12 @@
               <span v-for="skill in formData.skills" :key="skill" class="skill-tag">{{ skill }}</span>
             </div>
             <p v-else class="no-data">暂无技能信息</p>
-            <div v-if="formData.skillName" class="skill-detail">
-              <p><span class="label">技能：</span>{{ formData.skillName }} | 熟练度：{{ formData.skillLevel || '未填写' }} | 使用年限：{{ formData.skillYears || '未填写' }}年</p>
-            </div>
           </div>
 
           <div class="section">
-            <h3>个人优势</h3>
+            <h3>自我评价</h3>
             <p v-if="formData.strengths" class="desc">{{ formData.strengths }}</p>
-            <p v-else class="no-data">暂无个人优势描述</p>
+            <p v-else class="no-data">暂无自我评价</p>
           </div>
         </div>
       </div>
@@ -599,7 +605,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, ShadingType } from 'docx'
+import { Document, Packer, Paragraph, TextRun, AlignmentType, Table, TableRow, TableCell, ShadingType, WidthType, BorderStyle, ImageRun, HeightRule } from 'docx'
 
 const router = useRouter()
 
@@ -822,306 +828,403 @@ const closeResume = () => {
 }
 
 const exportWordResume = async () => {
+  try {
   const data = formData.value
   
-  const createSectionTitle = (title) => new Paragraph({
-    spacing: {
-      after: 300,
-      before: 400
-    },
+  const name = data.name || '未填写'
+  const intention = data.intention || '未填写'
+  const gender = data.gender || '未填写'
+  const age = data.age || '未填写'
+  const origin = data.origin || '未填写'
+  const residence = data.residence || '未填写'
+  const phone = data.phone || '未填写'
+  const email = data.email ? `${data.email}@${data.emailType || ''}.com` : '未填写'
+  const school = data.school || '未填写'
+  const major = data.major || '未填写'
+  const education = `${data.education || ''}${data.degree ? `(${data.degree})` : ''}` || '未填写'
+  const schoolTime = `${data.schoolStart || ''} - ${data.schoolEnd || ''}` || '未填写'
+  const courses = data.courses || ''
+  const company = data.company || '未填写'
+  const position = data.position || '未填写'
+  const industry = data.industry || '未填写'
+  const workTime = `${data.workStart || ''} - ${data.workEnd || ''}` || '未填写'
+  const experience = data.experience || '未填写'
+  const responsibilities = data.responsibilities || ''
+  const achievements = data.achievements || ''
+  const honors = data.honors || '暂无获奖信息'
+  const skills = data.skills && data.skills.length > 0 ? data.skills.join('、') : '暂无技能信息'
+  const strengths = data.strengths || '暂无自我评价'
+
+  const children = []
+  
+  const noBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' }
+  const borders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder }
+  
+  const makeP = (txt, opts = {}) => new Paragraph({
+    children: [new TextRun({ text: txt, font: '宋体', size: 22, ...opts })]
+  })
+  
+  const makeLabelP = (label, value) => new Paragraph({
+    spacing: { before: 0, after: 0 },
     children: [
-      new TextRun({
-        text: title,
-        bold: true,
-        size: 22,
-        font: '黑体'
-      })
-    ],
-    heading: HeadingLevel.HEADING_2
+      new TextRun({ text: label, bold: true, font: '宋体', size: 20, color: '333333' }),
+      new TextRun({ text: value || '未填写', font: '宋体', size: 20, color: '555555' })
+    ]
   })
 
-  const createLabelText = (label, value) => new Paragraph({
-    children: [
-      new TextRun({ text: label, bold: true }),
-      new TextRun({ text: value })
-    ]
-  })
-
-  const sectionChildren = []
-
-  sectionChildren.push(new Paragraph({
-    heading: HeadingLevel.HEADING_1,
-    alignment: AlignmentType.CENTER,
-    spacing: {
-      after: 400
-    },
-    children: [
-      new TextRun({
-        text: '个人简历',
-        bold: true,
-        size: 36,
-        font: '黑体'
-      })
-    ]
+  // 顶部标题
+  children.push(new Paragraph({
+    children: [new TextRun({ text: '个人简历', bold: true, size: 48, font: '黑体', color: '2C3E50' })]
   }))
+  
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
 
-  sectionChildren.push(createSectionTitle('基本信息'))
-
-  sectionChildren.push(new Table({
-    rows: [
-      new TableRow({
+  // 创建板块标题（标签样式）
+  const createSectionTitle = (title) => {
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders,
+      rows: [new TableRow({
         children: [
           new TableCell({
-            width: { size: 1500, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '姓名', bold: true })] })]
+            shading: { type: ShadingType.SOLID, color: '2C3E50' },
+            borders,
+            width: { size: 15, type: WidthType.PERCENTAGE },
+            children: [new Paragraph({
+              children: [new TextRun({ text: ` ${title}`, bold: true, size: 24, font: '黑体', color: 'FFFFFF' })]
+            })]
           }),
           new TableCell({
-            width: { size: 3000, type: WidthType.DXA },
-            children: [new Paragraph({ text: data.name || '' })]
-          }),
-          new TableCell({
-            width: { size: 1500, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '性别', bold: true })] })]
-          }),
-          new TableCell({
-            width: { size: 3000, type: WidthType.DXA },
-            children: [new Paragraph({ text: data.gender || '' })]
+            borders,
+            width: { size: 85, type: WidthType.PERCENTAGE },
+            children: [new Paragraph({ children: [new TextRun({ text: ' ' })] })]
           })
         ]
-      }),
-      new TableRow({
-        children: [
-          new TableCell({
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '年龄', bold: true })] })]
-          }),
-          new TableCell({ children: [new Paragraph({ text: data.age || '' })] }),
-          new TableCell({
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '籍贯', bold: true })] })]
-          }),
-          new TableCell({ children: [new Paragraph({ text: data.origin || '' })] })
-        ]
-      }),
-      new TableRow({
-        children: [
-          new TableCell({
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '现居地', bold: true })] })]
-          }),
-          new TableCell({ children: [new Paragraph({ text: data.residence || '' })] }),
-          new TableCell({
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '求职意向', bold: true })] })]
-          }),
-          new TableCell({ children: [new Paragraph({ text: data.intention || '' })] })
-        ]
-      }),
-      new TableRow({
-        children: [
-          new TableCell({
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '联系电话', bold: true })] })]
-          }),
-          new TableCell({ children: [new Paragraph({ text: data.phone || '' })] }),
-          new TableCell({
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '邮箱', bold: true })] })]
-          }),
-          new TableCell({ children: [new Paragraph({ text: data.email ? `${data.email}@${data.emailType || ''}.com` : '' })] })
-        ]
-      })
-    ]
+      })]
+    })
+  }
+
+  // 基本信息（两列布局：左内容 + 右照片框）
+  children.push(createSectionTitle('基本信息'))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Table({
+    width: { size: 10466, type: WidthType.DXA },
+    borders,
+    rows: [new TableRow({
+      height: { value: 1984, rule: HeightRule.EXACT },
+      children: [
+        new TableCell({
+          borders: {
+            top: { style: BorderStyle.SINGLE, size: 6, color: 'CCCCCC' },
+            bottom: { style: BorderStyle.SINGLE, size: 6, color: 'CCCCCC' },
+            left: { style: BorderStyle.SINGLE, size: 6, color: 'CCCCCC' },
+            right: { style: BorderStyle.SINGLE, size: 6, color: 'CCCCCC' }
+          },
+          width: { size: 9049, type: WidthType.DXA },
+          margins: { top: 0, bottom: 0, left: 0, right: 0 },
+          verticalAlign: 'center',
+          children: [
+            new Paragraph({
+              spacing: { before: 0, after: 0 },
+              children: [new TextRun({ text: name, bold: true, size: 28, font: '黑体', color: '2C3E50' })]
+            }),
+            new Paragraph({
+              spacing: { before: 0, after: 0 },
+              children: [new TextRun({ text: intention, size: 22, font: '宋体', color: 'D4A853', bold: true })]
+            }),
+            new Paragraph({ children: [new TextRun({ text: ' ' })] }),
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              borders,
+              rows: [
+                new TableRow({ children: [
+                  new TableCell({ borders, width: { size: 50, type: WidthType.PERCENTAGE }, children: [makeLabelP('性别：', gender)] }),
+                  new TableCell({ borders, width: { size: 50, type: WidthType.PERCENTAGE }, children: [makeLabelP('年龄：', age)] })
+                ]}),
+                new TableRow({ children: [
+                  new TableCell({ borders, width: { size: 50, type: WidthType.PERCENTAGE }, children: [makeLabelP('籍贯：', origin)] }),
+                  new TableCell({ borders, width: { size: 50, type: WidthType.PERCENTAGE }, children: [makeLabelP('现居地：', residence)] })
+                ]}),
+                new TableRow({ children: [
+                  new TableCell({ borders, width: { size: 50, type: WidthType.PERCENTAGE }, children: [makeLabelP('联系电话：', phone)] }),
+                  new TableCell({ borders, width: { size: 50, type: WidthType.PERCENTAGE }, children: [makeLabelP('邮箱：', email)] })
+                ]})
+              ]
+            })
+          ]
+        }),
+        new TableCell({
+          borders: {
+            top: { style: BorderStyle.SINGLE, size: 6, color: 'CCCCCC' },
+            bottom: { style: BorderStyle.SINGLE, size: 6, color: 'CCCCCC' },
+            left: { style: BorderStyle.SINGLE, size: 6, color: 'CCCCCC' },
+            right: { style: BorderStyle.SINGLE, size: 6, color: 'CCCCCC' }
+          },
+          width: { size: 1417, type: WidthType.DXA },
+          margins: { top: 0, bottom: 0, left: 0, right: 0 },
+          verticalAlign: 'top',
+          children: data.photo ? (() => {
+            try {
+              const typeMatch = data.photo.match(/^data:image\/(\w+);base64,/)
+              const imgType = typeMatch ? typeMatch[1] : 'png'
+              const base64Data = data.photo.replace(/^data:image\/\w+;base64,/, '')
+              const binaryString = window.atob(base64Data)
+              const bytes = new Uint8Array(binaryString.length)
+              for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i)
+              }
+              return [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { before: 0, after: 0 },
+                  children: [
+                    new ImageRun({
+                      type: imgType,
+                      data: bytes,
+                      transformation: { width: 95, height: 135 }
+                    })
+                  ]
+                })
+              ]
+            } catch (e) {
+              return [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { before: 0, after: 0 },
+                  children: [new TextRun({ text: '照片位置', size: 20, font: '宋体', color: 'AAAAAA' })]
+                })
+              ]
+            }
+          })() : [
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              spacing: { before: 0, after: 0 },
+              children: [new TextRun({ text: '照片位置', size: 20, font: '宋体', color: 'AAAAAA' })]
+            })
+          ]
+        })
+      ]
+    })]
   }))
+  
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
 
-  sectionChildren.push(createSectionTitle('教育背景'))
-
-  sectionChildren.push(new Table({
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            width: { size: 2000, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '院校', bold: true })] })]
-          }),
-          new TableCell({
-            width: { size: 2000, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '专业', bold: true })] })]
-          }),
-          new TableCell({
-            width: { size: 1500, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '学历', bold: true })] })]
-          }),
-          new TableCell({
-            width: { size: 2500, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '时间', bold: true })] })]
-          })
-        ]
-      }),
-      new TableRow({
-        children: [
-          new TableCell({ children: [new Paragraph({ text: data.school || '' })] }),
-          new TableCell({ children: [new Paragraph({ text: data.major || '' })] }),
-          new TableCell({ children: [new Paragraph({ text: `${data.education || ''}${data.degree ? `(${data.degree})` : ''}` })] }),
-          new TableCell({ children: [new Paragraph({ text: `${data.schoolStart || ''} - ${data.schoolEnd || ''}` })] })
-        ]
-      })
-    ]
+  // 教育背景
+  children.push(createSectionTitle('教育背景'))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders,
+    rows: [new TableRow({
+      children: [
+        new TableCell({
+          borders: { top: noBorder, bottom: noBorder, left: { style: BorderStyle.SINGLE, size: 8, color: '2C3E50' }, right: noBorder },
+          width: { size: 5, type: WidthType.PERCENTAGE },
+          children: [new Paragraph({ children: [new TextRun({ text: ' ' })] })]
+        }),
+        new TableCell({
+          borders,
+          width: { size: 95, type: WidthType.PERCENTAGE },
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({ text: school, bold: true, size: 26, font: '宋体', color: '2C3E50' }),
+                new TextRun({ text: `  |  ${schoolTime}`, size: 22, font: '宋体', color: '888888' })
+              ]
+            }),
+            makeLabelP('专业：', major),
+            makeLabelP('学历：', education),
+            courses ? makeLabelP('主修课程：', courses) : makeP('')
+          ]
+        })
+      ]
+    })]
   }))
+  
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
 
-  if (data.honors) {
-    sectionChildren.push(createLabelText('在校荣誉：', data.honors))
-  }
-  if (data.courses) {
-    sectionChildren.push(createLabelText('主修课程：', data.courses))
-  }
-
-  sectionChildren.push(createSectionTitle('工作经历'))
-
-  sectionChildren.push(new Table({
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            width: { size: 2000, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '公司', bold: true })] })]
-          }),
-          new TableCell({
-            width: { size: 1500, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '职位', bold: true })] })]
-          }),
-          new TableCell({
-            width: { size: 1500, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '行业', bold: true })] })]
-          }),
-          new TableCell({
-            width: { size: 2500, type: WidthType.DXA },
-            shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-            children: [new Paragraph({ children: [new TextRun({ text: '时间', bold: true })] })]
-          })
-        ]
-      }),
-      new TableRow({
-        children: [
-          new TableCell({ children: [new Paragraph({ text: data.company || '' })] }),
-          new TableCell({ children: [new Paragraph({ text: data.position || '' })] }),
-          new TableCell({ children: [new Paragraph({ text: data.industry || '' })] }),
-          new TableCell({ children: [new Paragraph({ text: `${data.workStart || ''} - ${data.workEnd || ''}` })] })
-        ]
-      })
-    ]
+  // 实习经历
+  children.push(createSectionTitle('实习经历'))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders,
+    rows: [new TableRow({
+      children: [
+        new TableCell({
+          borders: { top: noBorder, bottom: noBorder, left: { style: BorderStyle.SINGLE, size: 8, color: '2C3E50' }, right: noBorder },
+          width: { size: 5, type: WidthType.PERCENTAGE },
+          children: [new Paragraph({ children: [new TextRun({ text: ' ' })] })]
+        }),
+        new TableCell({
+          borders,
+          width: { size: 95, type: WidthType.PERCENTAGE },
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({ text: company, bold: true, size: 26, font: '宋体', color: '2C3E50' }),
+                new TextRun({ text: `  |  ${workTime}`, size: 22, font: '宋体', color: '888888' })
+              ]
+            }),
+            makeLabelP('职位：', position),
+            makeLabelP('行业：', industry),
+            makeLabelP('经验：', experience),
+            responsibilities ? makeLabelP('岗位职责：', responsibilities) : makeP(''),
+            achievements ? makeLabelP('工作业绩：', achievements) : makeP('')
+          ]
+        })
+      ]
+    })]
   }))
+  
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
 
-  if (data.responsibilities) {
-    sectionChildren.push(createLabelText('岗位职责：', data.responsibilities))
-  }
-  if (data.achievements) {
-    sectionChildren.push(createLabelText('工作业绩：', data.achievements))
-  }
+  // 曾获奖项
+  children.push(createSectionTitle('曾获奖项'))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  const honorsContent = honors && honors !== '暂无获奖信息' 
+    ? honors.split('\n').filter(h => h.trim()).map(h => makeP('• ' + h.trim()))
+    : [makeP('暂无获奖信息')]
+  children.push(new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders,
+    rows: [new TableRow({
+      children: [
+        new TableCell({
+          borders: { top: noBorder, bottom: noBorder, left: { style: BorderStyle.SINGLE, size: 8, color: '2C3E50' }, right: noBorder },
+          width: { size: 5, type: WidthType.PERCENTAGE },
+          children: [new Paragraph({ children: [new TextRun({ text: ' ' })] })]
+        }),
+        new TableCell({
+          borders,
+          width: { size: 95, type: WidthType.PERCENTAGE },
+          children: honorsContent
+        })
+      ]
+    })]
+  }))
+  
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
 
-  sectionChildren.push(createSectionTitle('项目经历'))
-
-  if (data.projects && data.projects.length > 0) {
-    data.projects.filter(p => p.name).forEach((project, index) => {
-      sectionChildren.push(new Paragraph({
-        spacing: { after: 200 },
-        children: [new TextRun({ text: `项目${index + 1}：${project.name}`, bold: true, size: 20 })]
+  // 项目经历
+  children.push(createSectionTitle('项目经历'))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  const projectContent = []
+  if (data.projects && data.projects.filter(p => p.name).length > 0) {
+    data.projects.filter(p => p.name).forEach((p, i) => {
+      projectContent.push(new Paragraph({
+        children: [
+          new TextRun({ text: `项目${i+1}：${p.name}`, bold: true, size: 26, font: '宋体', color: '2C3E50' }),
+          new TextRun({ text: `  |  ${p.duration || ''}`, size: 22, font: '宋体', color: '888888' })
+        ]
       }))
-      
-      sectionChildren.push(new Table({
-        rows: [
-          new TableRow({
-            children: [
-              new TableCell({
-                width: { size: 1500, type: WidthType.DXA },
-                shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-                children: [new Paragraph({ children: [new TextRun({ text: '角色', bold: true })] })]
-              }),
-              new TableCell({
-                width: { size: 3000, type: WidthType.DXA },
-                children: [new Paragraph({ text: project.role || '' })]
-              }),
-              new TableCell({
-                width: { size: 1500, type: WidthType.DXA },
-                shading: { type: ShadingType.SOLID, color: '#f0f0f0' },
-                children: [new Paragraph({ children: [new TextRun({ text: '周期', bold: true })] })]
-              }),
-              new TableCell({ children: [new Paragraph({ text: project.duration || '' })] })
-            ]
-          })
-        ]
-      }))
-
-      if (project.desc) {
-        sectionChildren.push(createLabelText('项目描述：', project.desc))
-      }
-      if (project.achievements) {
-        sectionChildren.push(createLabelText('项目成果：', project.achievements))
-      }
+      projectContent.push(makeLabelP('角色：', p.role))
+      if (p.desc) projectContent.push(makeLabelP('项目描述：', p.desc))
+      if (p.achievements) projectContent.push(makeLabelP('项目成果：', p.achievements))
+      projectContent.push(makeP(''))
     })
   } else {
-    sectionChildren.push(new Paragraph({
-      text: '暂无项目经历',
-      children: [new TextRun({ text: '暂无项目经历', color: '#999999' })]
-    }))
+    projectContent.push(makeP('暂无项目经历'))
   }
+  children.push(new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders,
+    rows: [new TableRow({
+      children: [
+        new TableCell({
+          borders: { top: noBorder, bottom: noBorder, left: { style: BorderStyle.SINGLE, size: 8, color: '2C3E50' }, right: noBorder },
+          width: { size: 5, type: WidthType.PERCENTAGE },
+          children: [new Paragraph({ children: [new TextRun({ text: ' ' })] })]
+        }),
+        new TableCell({
+          borders,
+          width: { size: 95, type: WidthType.PERCENTAGE },
+          children: projectContent
+        })
+      ]
+    })]
+  }))
+  
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
 
-  sectionChildren.push(createSectionTitle('专业技能'))
+  // 专业技能
+  children.push(createSectionTitle('专业技能'))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders,
+    rows: [new TableRow({
+      children: [
+        new TableCell({
+          borders: { top: noBorder, bottom: noBorder, left: { style: BorderStyle.SINGLE, size: 8, color: '2C3E50' }, right: noBorder },
+          width: { size: 5, type: WidthType.PERCENTAGE },
+          children: [new Paragraph({ children: [new TextRun({ text: ' ' })] })]
+        }),
+        new TableCell({
+          borders,
+          width: { size: 95, type: WidthType.PERCENTAGE },
+          children: [makeP(skills)]
+        })
+      ]
+    })]
+  }))
+  
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
 
-  if (data.skills && data.skills.length > 0) {
-    sectionChildren.push(new Paragraph({ text: data.skills.join('、') }))
-  } else {
-    sectionChildren.push(new Paragraph({
-      children: [new TextRun({ text: '暂无技能信息', color: '#999999' })]
-    }))
-  }
-
-  sectionChildren.push(createSectionTitle('个人优势'))
-
-  if (data.strengths) {
-    sectionChildren.push(new Paragraph({ text: data.strengths }))
-  } else {
-    sectionChildren.push(new Paragraph({
-      children: [new TextRun({ text: '暂无个人优势描述', color: '#999999' })]
-    }))
-  }
+  // 自我评价
+  children.push(createSectionTitle('自我评价'))
+  children.push(new Paragraph({ children: [new TextRun({ text: ' ' })] }))
+  children.push(new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders,
+    rows: [new TableRow({
+      children: [
+        new TableCell({
+          borders: { top: noBorder, bottom: noBorder, left: { style: BorderStyle.SINGLE, size: 8, color: '2C3E50' }, right: noBorder },
+          width: { size: 5, type: WidthType.PERCENTAGE },
+          children: [new Paragraph({ children: [new TextRun({ text: ' ' })] })]
+        }),
+        new TableCell({
+          borders,
+          width: { size: 95, type: WidthType.PERCENTAGE },
+          children: [makeP(strengths)]
+        })
+      ]
+    })]
+  }))
 
   const doc = new Document({
-    styles: {
-      default: {
-        paragraph: {
-          spacing: { after: 200, line: 240 },
-          run: { font: '宋体', size: 20 }
-        }
-      }
-    },
-    sections: [{
+    sections: [{ 
       properties: {
         page: {
-          size: { width: 11906, height: 16838 },
-          margins: { top: 1417, right: 1417, bottom: 1417, left: 1417 }
+          margin: { top: 720, right: 720, bottom: 720, left: 720 }
         }
       },
-      children: sectionChildren.filter(item => item)
+      children 
     }]
   })
 
-  const buffer = await Packer.toBlob(doc)
-  const url = URL.createObjectURL(buffer)
+  const blob = await Packer.toBlob(doc)
+  const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `${data.name || '简历'}_个人简历.docx`
+  link.download = `resume_${Date.now()}.docx`
+  document.body.appendChild(link)
   link.click()
-  URL.revokeObjectURL(url)
+  document.body.removeChild(link)
+  setTimeout(() => URL.revokeObjectURL(url), 100)
+  
+  alert('简历导出成功！')
+  } catch (error) {
+    console.error(error)
+    alert('导出失败：' + error.message)
+  }
 }
 
 const photoInput = ref(null)
@@ -1860,7 +1963,7 @@ onUnmounted(() => {
 
 .resume-container {
   background: #fff;
-  width: 800px;
+  width: 820px;
   max-height: 90vh;
   overflow-y: auto;
   border-radius: 12px;
@@ -1874,19 +1977,21 @@ onUnmounted(() => {
 }
 
 .resume-header {
-  background: linear-gradient(135deg, #4a9eff 0%, #3d7eff 100%);
+  background: #2c3e50;
   color: #fff;
-  padding: 24px 32px;
+  padding: 20px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 12px 12px 0 0;
+  border-bottom: 3px solid #d4a853;
 }
 
 .resume-header h2 {
   font-size: 24px;
   font-weight: 700;
   margin: 0;
+  letter-spacing: 2px;
 }
 
 .resume-actions {
@@ -1896,28 +2001,28 @@ onUnmounted(() => {
 }
 
 .export-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 6px;
+  background: transparent;
+  border: 1px solid #d4a853;
+  color: #d4a853;
+  padding: 8px 20px;
+  border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .export-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
+  background: #d4a853;
+  color: #2c3e50;
 }
 
 .close-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
-  font-size: 32px;
-  width: 40px;
-  height: 40px;
+  font-size: 24px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -1927,101 +2032,178 @@ onUnmounted(() => {
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
   transform: rotate(90deg);
 }
 
 .resume-content {
-  padding: 32px;
+  padding: 28px 32px;
+  background: #f8f9fa;
 }
 
 .resume-main {
+  position: relative;
+  padding-left: 30px;
   color: #333;
 }
 
+.resume-main::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #2c3e50 0%, #2c3e50 100%);
+}
+
 .section {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 24px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: relative;
 }
 
 .section:last-child {
-  border-bottom: none;
   margin-bottom: 0;
-  padding-bottom: 0;
+}
+
+.section::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 14px;
+  width: 12px;
+  height: 12px;
+  background: #d4a853;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #d4a853;
+  z-index: 10;
 }
 
 .section h3 {
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  padding: 12px 20px;
+  background: #2c3e50;
+  display: flex;
+  align-items: center;
+  letter-spacing: 1px;
+  border-radius: 6px 6px 0 0;
+}
+
+.basic-info {
+  display: flex;
+  gap: 24px;
+  padding: 20px;
+}
+
+.info-content {
+  flex: 1;
+}
+
+.photo-section {
+  width: 140px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.resume-photo {
+  width: 140px;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 2px solid #2c3e50;
+}
+
+.photo-placeholder-resume {
+  width: 140px;
+  height: 170px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #ccc;
+}
+
+.personal-header {
+  margin-bottom: 16px;
+}
+
+.name-title h2 {
+  font-size: 24px;
   font-weight: 700;
   color: #2c3e50;
-  margin: 0 0 20px 0;
-  padding-left: 12px;
-  border-left: 4px solid #4a9eff;
+  margin: 0 0 6px 0;
+}
+
+.name-title p {
+  font-size: 14px;
+  color: #d4a853;
+  font-weight: 500;
+  margin: 0;
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 8px 16px;
 }
 
 .info-grid div {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.8;
+  color: #555;
 }
 
 .label {
-  color: #7f8c8d;
+  color: #888;
   font-weight: 500;
 }
 
 .timeline-item {
   position: relative;
-  padding-left: 24px;
+  padding: 12px 20px;
+  border-bottom: 1px dashed #e0e0e0;
 }
 
-.timeline-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 8px;
-  width: 12px;
-  height: 12px;
-  background: #4a9eff;
-  border-radius: 50%;
-  border: 3px solid #e8f4fd;
+.timeline-item:last-child {
+  border-bottom: none;
 }
 
 .timeline-content {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
+  background: transparent;
+  padding: 0;
 }
 
 .timeline-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .timeline-header .title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #2c3e50;
 }
 
 .timeline-header .time {
-  font-size: 13px;
-  color: #7f8c8d;
+  font-size: 12px;
+  color: #999;
   font-weight: 500;
 }
 
 .timeline-content p {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.8;
-  margin: 6px 0;
+  margin: 4px 0;
   color: #555;
 }
 
@@ -2030,20 +2212,31 @@ onUnmounted(() => {
   line-height: 1.9;
 }
 
+.section > .timeline-item,
+.section > div > .timeline-item {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.section > *:not(h3) {
+  padding: 16px 20px;
+}
+
 .skills-container {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  padding: 0 20px 20px;
 }
 
 .skill-tag {
-  background: linear-gradient(135deg, #e8f4fd 0%, #d4eafc 100%);
-  color: #4a9eff;
-  padding: 6px 16px;
-  border-radius: 20px;
+  background: #e8edf2;
+  color: #2c3e50;
+  padding: 5px 14px;
+  border-radius: 4px;
   font-size: 13px;
   font-weight: 500;
-  border: 1px solid #cce5ff;
+  border: 1px solid #2c3e50;
 }
 
 .skill-detail {
@@ -2051,9 +2244,11 @@ onUnmounted(() => {
 }
 
 .no-data {
-  color: #95a5a6;
-  font-size: 14px;
+  color: #aaa;
+  font-size: 13px;
+  padding: 16px 20px;
   font-style: italic;
+  margin: 0;
 }
 
 .hidden-input {

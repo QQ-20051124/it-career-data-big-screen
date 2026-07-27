@@ -305,7 +305,7 @@
             </div>
           </div>
 
-          <button class="resume-btn">查看完整简历</button>
+          <button class="resume-btn" @click="openResume">查看完整简历</button>
         </div>
       </div>
     </div>
@@ -328,6 +328,122 @@
       </div>
     </div>
   </div>
+
+  <div v-if="showResumeModal" class="resume-modal" @click.self="closeResume">
+    <div class="resume-container">
+      <div class="resume-header">
+        <h2>个人简历</h2>
+        <button class="close-btn" @click="closeResume">×</button>
+      </div>
+      <div class="resume-content">
+        <div class="resume-main" v-if="resumeData">
+          <div class="section">
+            <h3>基本信息</h3>
+            <div class="basic-info">
+              <div class="info-content">
+                <div class="personal-header">
+                  <div class="name-title">
+                    <h2>{{ resumeData.name || '未填写' }}</h2>
+                    <p>{{ resumeData.intention || '未填写' }}</p>
+                  </div>
+                </div>
+                <div class="info-grid">
+                  <div><span class="label">性别：</span>{{ resumeData.gender || '未填写' }}</div>
+                  <div><span class="label">年龄：</span>{{ resumeData.age || '未填写' }}</div>
+                  <div><span class="label">籍贯：</span>{{ resumeData.origin || '未填写' }}</div>
+                  <div><span class="label">现居地：</span>{{ resumeData.residence || '未填写' }}</div>
+                  <div><span class="label">联系电话：</span>{{ resumeData.phone || '未填写' }}</div>
+                  <div><span class="label">邮箱：</span>{{ resumeData.email }}@{{ resumeData.emailType || '' }}.com</div>
+                </div>
+              </div>
+              <div class="photo-section">
+                <img v-if="resumeData.photo" :src="resumeData.photo" alt="照片" class="resume-photo"/>
+                <div v-else class="photo-placeholder-resume">
+                  <svg viewBox="0 0 24 24" width="40" height="40">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#ccc"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>教育背景</h3>
+            <div class="timeline-item">
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="title">{{ resumeData.school || '未填写' }}</span>
+                  <span class="time">{{ resumeData.schoolStart || '' }} - {{ resumeData.schoolEnd || '' }}</span>
+                </div>
+                <p><span class="label">专业：</span>{{ resumeData.major || '未填写' }}</p>
+                <p><span class="label">学历：</span>{{ resumeData.education || '未填写' }}（{{ resumeData.degree || '' }}）</p>
+                <p v-if="resumeData.courses" class="desc"><span class="label">主修课程：</span>{{ resumeData.courses }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>实习经历</h3>
+            <div class="timeline-item">
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="title">{{ resumeData.company || '未填写' }}</span>
+                  <span class="time">{{ resumeData.workStart || '' }} - {{ resumeData.workEnd || '' }}</span>
+                </div>
+                <p><span class="label">职位：</span>{{ resumeData.position || '未填写' }}</p>
+                <p><span class="label">行业：</span>{{ resumeData.industry || '未填写' }}</p>
+                <p><span class="label">经验：</span>{{ resumeData.experience || '未填写' }}</p>
+                <p v-if="resumeData.responsibilities" class="desc"><span class="label">岗位职责：</span>{{ resumeData.responsibilities }}</p>
+                <p v-if="resumeData.achievements" class="desc"><span class="label">工作业绩：</span>{{ resumeData.achievements }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>曾获奖项</h3>
+            <div v-if="resumeData.honors" class="timeline-item">
+              <div class="timeline-content">
+                <p class="desc" v-for="(honor, idx) in resumeData.honors.split('\n').filter(h => h.trim())" :key="idx">• {{ honor }}</p>
+              </div>
+            </div>
+            <p v-else class="no-data">暂无获奖信息</p>
+          </div>
+
+          <div class="section">
+            <h3>项目经历</h3>
+            <div v-if="resumeData.projects && resumeData.projects.length > 0">
+              <div v-for="(project, index) in resumeData.projects" :key="index" class="timeline-item" v-show="project.name">
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <span class="title">项目{{ index + 1 }}：{{ project.name || '未命名项目' }}</span>
+                    <span class="time">{{ project.duration || '' }}</span>
+                  </div>
+                  <p><span class="label">角色：</span>{{ project.role || '未填写' }}</p>
+                  <p v-if="project.desc" class="desc"><span class="label">项目描述：</span>{{ project.desc }}</p>
+                  <p v-if="project.achievements" class="desc"><span class="label">项目成果：</span>{{ project.achievements }}</p>
+                </div>
+              </div>
+            </div>
+            <p v-else class="no-data">暂无项目经历</p>
+          </div>
+
+          <div class="section">
+            <h3>专业技能</h3>
+            <div v-if="resumeData.skills && resumeData.skills.length > 0" class="skills-container">
+              <span v-for="skill in resumeData.skills" :key="skill" class="skill-tag">{{ skill }}</span>
+            </div>
+            <p v-else class="no-data">暂无技能信息</p>
+          </div>
+
+          <div class="section">
+            <h3>自我评价</h3>
+            <p v-if="resumeData.strengths" class="desc">{{ resumeData.strengths }}</p>
+            <p v-else class="no-data">暂无自我评价</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -341,6 +457,27 @@ const currentSlide = ref(0)
 const activeModule = ref('function')
 let slideInterval = null
 let bgAnimationId = null
+
+const showResumeModal = ref(false)
+const resumeData = ref(null)
+
+const openResume = () => {
+  const saved = localStorage.getItem('resumeData')
+  if (saved) {
+    try {
+      resumeData.value = JSON.parse(saved)
+      showResumeModal.value = true
+    } catch (e) {
+      alert('简历数据读取失败，请重新生成')
+    }
+  } else {
+    alert('暂无简历数据，请先到AI简历页面生成简历')
+  }
+}
+
+const closeResume = () => {
+  showResumeModal.value = false
+}
 
 const goToVisualization = () => {
   router.push('/analytics')
@@ -476,7 +613,9 @@ const bottomModules = ref([
 ])
 
 const navigateTo = (module) => {
-  if (module === 'job-recommend') {
+  if (module === 'planning') {
+    router.push('/planning')
+  } else if (module === 'job-recommend') {
     router.push('/job-recommend')
   } else if (module === 'ai-resume') {
     router.push('/ai-resume')
@@ -1383,5 +1522,256 @@ onUnmounted(() => {
   .bottom-modules {
     grid-template-columns: 1fr;
   }
+}
+
+.resume-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+}
+
+.resume-container {
+  width: 800px;
+  max-height: 90vh;
+  background: linear-gradient(135deg, #1a2332 0%, #0d1520 100%);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(74, 158, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.resume-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.15), transparent);
+  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.resume-header h2 {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.resume-header .close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.resume-header .close-btn:hover {
+  background: rgba(255, 77, 79, 0.3);
+  border-color: rgba(255, 77, 79, 0.5);
+}
+
+.resume-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+.resume-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.resume-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.resume-content::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.4);
+  border-radius: 3px;
+}
+
+.resume-main .section {
+  margin-bottom: 24px;
+}
+
+.resume-main .section h3 {
+  color: #4a9eff;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.resume-main .section h3::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: #4a9eff;
+  border-radius: 2px;
+  margin-right: 8px;
+  vertical-align: -2px;
+}
+
+.basic-info {
+  display: flex;
+  gap: 20px;
+}
+
+.info-content {
+  flex: 1;
+}
+
+.photo-section {
+  width: 140px;
+  height: 196px;
+  border: 2px solid rgba(74, 158, 255, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.resume-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder-resume {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.personal-header .name-title h2 {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.personal-header .name-title p {
+  color: #4a9eff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0 0 15px 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 20px;
+}
+
+.info-grid > div {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+}
+
+.info-grid .label {
+  color: rgba(74, 158, 255, 0.8);
+  font-weight: 500;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 20px;
+  border-left: 2px solid rgba(74, 158, 255, 0.3);
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  background: #4a9eff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.timeline-header .title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.timeline-header .time {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+}
+
+.timeline-content p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.timeline-content .label {
+  color: rgba(74, 158, 255, 0.8);
+  font-weight: 500;
+}
+
+.timeline-content .desc {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.no-data {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  padding: 5px 14px;
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 15px;
+  color: #4a9eff;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.resume-main .desc {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  line-height: 1.7;
 }
 </style>

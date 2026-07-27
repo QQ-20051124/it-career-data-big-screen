@@ -8,6 +8,9 @@ import IndustryPrediction from '@/components/IndustryPrediction.vue'
 import JobCommunity from '@/components/JobCommunity.vue'
 import TalentStatistics from '@/components/TalentStatistics.vue'
 
+import Planning from '@/components/Planning.vue'
+import SkillRoute from '@/components/SkillRoute.vue'
+
 const routes = [
   {
     path: '/',
@@ -43,6 +46,16 @@ const routes = [
     path: '/job-community',
     name: 'JobCommunity',
     component: JobCommunity
+  },
+  {
+    path: '/planning',
+    name: 'Planning',
+    component: Planning
+  },
+  {
+    path: '/skill-route',
+    name: 'SkillRoute',
+    component: SkillRoute
   },
   {
     path: '/talent-statistics',
