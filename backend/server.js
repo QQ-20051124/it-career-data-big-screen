@@ -9,6 +9,11 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`)
+  next()
+})
+
 const jobRoutes = require('./routes/jobs')
 const jobService = require('./services/jobService')
 app.use('/api/jobs', jobRoutes)

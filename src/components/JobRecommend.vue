@@ -672,13 +672,17 @@ const handleSearch = async () => {
       params.append('maxSalary', maxSalary.value * 1000)
     }
 
+    console.log('Search params:', params.toString())
     const response = await axios.get(`/api/jobs/search?${params.toString()}`)
+    console.log('Search response:', response.data)
+    
     if (response.data.success) {
       jobList.value = response.data.data.slice(0, 20)
       totalResults.value = response.data.total
+      console.log('Job list updated:', jobList.value.length, 'jobs')
     }
   } catch (error) {
-    console.error('搜索失败:', error)
+    console.error('搜索失败:', error.response ? error.response.data : error.message)
     jobList.value = []
     totalResults.value = 0
   } finally {
