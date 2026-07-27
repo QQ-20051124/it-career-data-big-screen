@@ -10,6 +10,12 @@
         <span>返回</span>
       </button>
       <span class="page-title">智能岗位推荐</span>
+      <div class="loading-indicator" v-if="loading">
+        <svg class="loading-icon" viewBox="0 0 24 24" width="20" height="20">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="50" class="spin"/>
+        </svg>
+        <span>加载中...</span>
+      </div>
     </div>
     
     <div class="search-bar">
@@ -18,9 +24,9 @@
           <circle cx="11" cy="11" r="8" fill="none" stroke="rgba(74,158,255,0.5)" stroke-width="2"/>
           <line x1="21" y1="21" x2="16" y2="16" stroke="rgba(74,158,255,0.5)" stroke-width="2"/>
         </svg>
-        <input type="text" v-model="searchKeyword" placeholder="搜索岗位、公司、技能关键词" class="search-input"/>
+        <input type="text" v-model="searchKeyword" placeholder="搜索岗位、公司、技能关键词" class="search-input" @keyup.enter="handleSearch"/>
       </div>
-      <button class="search-btn">搜索</button>
+      <button class="search-btn" @click="handleSearch">搜索</button>
     </div>
 
     <div class="category-tabs">
@@ -29,7 +35,7 @@
         :key="index" 
         class="tab-item"
         :class="{ active: activeCategory === index }"
-        @click="activeCategory = index"
+        @click="activeCategory = index; handleSearch()"
       >
         {{ tab }}
       </div>
@@ -46,33 +52,41 @@
             </svg>
           </div>
           <span>智能推荐岗位</span>
+          <span class="result-count">共 {{ totalResults }} 个岗位</span>
         </div>
 
-        <div class="job-cards">
-          <div class="job-card" v-for="(job, index) in jobList" :key="index">
+        <div class="job-cards" v-if="jobList.length > 0">
+          <div class="job-card" v-for="(job, index) in jobList" :key="index" @click="openJobDetail(job)">
             <div class="job-card-glow"></div>
             <div class="job-header">
-              <div class="job-title">{{ job.title }}</div>
+              <div class="job-title">{{ job.job_name }}</div>
               <div class="job-company">{{ job.company }}</div>
             </div>
             <div class="job-info">
               <div class="info-item">
-                <span class="label">期望城市</span>
+                <span class="label">城市</span>
                 <span class="value">{{ job.city }}</span>
               </div>
               <div class="info-item">
                 <span class="label">薪资</span>
-                <span class="value">{{ job.salary }}</span>
+                <span class="value">{{ formatSalary(job.salary_avg) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">学历</span>
+                <span class="value">{{ job.education || '不限' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">经验</span>
+                <span class="value">{{ job.work_exp || '不限' }}</span>
               </div>
               <div class="info-item">
                 <span class="label">匹配度</span>
-                <span class="value match-value">{{ job.match }}%</span>
+                <span class="value match-value">{{ job.matchScore || getMatchScore(job) }}%</span>
               </div>
             </div>
             <div class="job-tags">
-              <span v-for="(tag, tIndex) in job.tags" :key="tIndex" class="tag">{{ tag }}</span>
+              <span v-for="(tag, tIndex) in getJobTags(job)" :key="tIndex" class="tag">{{ tag }}</span>
             </div>
-            <button class="apply-btn">去投递</button>
             <div class="card-corner tl"></div>
             <div class="card-corner tr"></div>
             <div class="card-corner bl"></div>
@@ -80,7 +94,15 @@
           </div>
         </div>
 
-        <button class="reset-btn">重置筛选</button>
+        <div class="empty-state" v-else>
+          <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <p>暂无匹配的岗位</p>
+          <button class="reset-btn" @click="resetFilters">重置筛选条件</button>
+        </div>
+
+        <button class="reset-btn" v-if="jobList.length > 0" @click="resetFilters">重置筛选</button>
       </div>
 
       <div class="filter-section">
@@ -94,38 +116,172 @@
           <span>筛选条件</span>
         </div>
 
-        <div class="filter-items">
-          <div class="filter-item" v-for="(filter, index) in filters" :key="index">
-            <div class="filter-label">{{ filter.name }}</div>
-            <div class="filter-bar">
-              <div class="bar-fill" :style="{ width: filter.value + '%' }"></div>
-              <div class="bar-value">{{ filter.value }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="quick-filters">
-          <div class="quick-title">快速筛选</div>
-          <div class="quick-options">
+        <div class="filter-group">
+          <div class="filter-label">学历要求</div>
+          <div class="filter-options">
             <div 
-              v-for="(option, index) in quickOptions" 
-              :key="index" 
-              class="quick-option"
-              :class="{ active: selectedOptions.includes(option) }"
-              @click="toggleOption(option)"
+              v-for="option in educationOptions" 
+              :key="option"
+              class="filter-option"
+              :class="{ active: selectedEducation.includes(option) }"
+              @click="toggleEducation(option)"
             >
               {{ option }}
             </div>
           </div>
         </div>
+
+        <div class="filter-group">
+          <div class="filter-label">工作经验</div>
+          <div class="filter-options">
+            <div 
+              v-for="option in experienceOptions" 
+              :key="option"
+              class="filter-option"
+              :class="{ active: selectedExperience.includes(option) }"
+              @click="toggleExperience(option)"
+            >
+              {{ option }}
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-label">薪资范围</div>
+          <div class="salary-range">
+            <input type="range" v-model="minSalary" min="0" max="50" step="5" class="range-input"/>
+            <span class="range-value">{{ minSalary }}K - {{ maxSalary }}K</span>
+            <input type="range" v-model="maxSalary" min="5" max="100" step="5" class="range-input"/>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-label">就业城市</div>
+          <div class="filter-options scrollable">
+            <div 
+              v-for="option in cityOptions" 
+              :key="option"
+              class="filter-option"
+              :class="{ active: selectedCities.includes(option) }"
+              @click="toggleCity(option)"
+            >
+              {{ option }}
+            </div>
+          </div>
+        </div>
+
+        <button class="apply-filter-btn" @click="handleSearch">应用筛选</button>
       </div>
     </div>
+
+    <Transition name="modal">
+      <div class="modal-overlay" v-if="showDetailModal" @click="closeJobDetail">
+        <div class="modal-content" @click.stop>
+          <button class="modal-close" @click="closeJobDetail">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+          <div class="modal-header">
+            <h2>{{ selectedJob?.job_name }}</h2>
+            <div class="modal-tags">
+              <span v-for="(tag, tIndex) in getJobTags(selectedJob)" :key="tIndex" class="modal-tag">{{ tag }}</span>
+            </div>
+          </div>
+          <div class="modal-body">
+            <div class="detail-row">
+              <span class="detail-label">公司名称</span>
+              <span class="detail-value">{{ selectedJob?.company || '暂无' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">工作城市</span>
+              <span class="detail-value">{{ selectedJob?.city }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">薪资待遇</span>
+              <span class="detail-value salary">{{ formatSalary(selectedJob?.salary_avg) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">学历要求</span>
+              <span class="detail-value">{{ selectedJob?.education || '不限' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">工作经验</span>
+              <span class="detail-value">{{ selectedJob?.work_exp || '不限' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">数据来源</span>
+              <span class="detail-value">{{ selectedJob?.data_source || '智联招聘' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">匹配度</span>
+              <div class="match-bar-wrapper">
+                <div class="match-bar" :style="{ width: (selectedJob?.matchScore || getMatchScore(selectedJob)) + '%' }"></div>
+                <span class="match-text">{{ selectedJob?.matchScore || getMatchScore(selectedJob) }}%</span>
+              </div>
+            </div>
+            <div class="detail-section">
+              <h3>岗位描述</h3>
+              <p class="job-description">
+                该岗位主要负责{{ selectedJob?.job_name }}相关工作，需要具备扎实的专业技能和良好的沟通能力。岗位职责包括但不限于：系统开发与维护、技术方案设计、团队协作等。
+              </p>
+            </div>
+            <div class="detail-section">
+              <h3>任职要求</h3>
+              <ul class="requirement-list">
+                <li>具备相关专业学历背景</li>
+                <li>有相关工作经验者优先</li>
+                <li>熟悉主流开发技术和工具</li>
+                <li>良好的团队协作和沟通能力</li>
+                <li>有较强的学习能力和问题解决能力</li>
+              </ul>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="contact-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              联系HR
+            </button>
+            <button class="save-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+              </svg>
+              收藏岗位
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="toast">
+      <div class="toast" v-if="showToastFlag" :class="toastType">
+        <div class="toast-icon" v-if="toastType === 'success'">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="toast-icon" v-else>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <div class="toast-content">{{ toastMessage }}</div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 
@@ -134,126 +290,179 @@ const goBack = () => {
 }
 
 const searchKeyword = ref('')
-const activeCategory = ref(1)
-const selectedOptions = ref(['本科'])
+const activeCategory = ref(0)
+const loading = ref(false)
+const jobList = ref([])
+const totalResults = ref(0)
 
-const categories = ['全部岗位', '今日新岗', '应届生校招', '人工智能', '国产芯片', '国企央企', '专精特新', '基层县域']
+const categories = ref(['全部岗位', '开发工程师', '运维支持', '教育培训', '人工智能', '今日新岗', '应届生校招', '国企央企'])
+const educationOptions = ref([])
+const experienceOptions = ref([])
+const cityOptions = ref([])
 
-const jobList = ref([
-  {
-    title: 'Java后端开发工程师',
-    company: '字节跳动',
-    city: '北京',
-    salary: '25K-45K',
-    match: 95,
-    tags: ['Java', 'SpringBoot', 'Redis']
-  },
-  {
-    title: '前端开发工程师',
-    company: '阿里巴巴',
-    city: '杭州',
-    salary: '22K-40K',
-    match: 92,
-    tags: ['React', 'TypeScript', 'Node.js']
-  },
-  {
-    title: '数据分析师',
-    company: '腾讯',
-    city: '深圳',
-    salary: '20K-35K',
-    match: 88,
-    tags: ['Python', 'SQL', 'BI']
-  },
-  {
-    title: 'AI算法工程师',
-    company: '百度',
-    city: '北京',
-    salary: '30K-55K',
-    match: 85,
-    tags: ['Python', 'PyTorch', 'NLP']
-  },
-  {
-    title: '产品经理',
-    company: '美团',
-    city: '北京',
-    salary: '25K-40K',
-    match: 82,
-    tags: ['需求分析', '数据分析', '项目管理']
-  },
-  {
-    title: '测试工程师',
-    company: '京东',
-    city: '北京',
-    salary: '18K-30K',
-    match: 78,
-    tags: ['自动化测试', '性能测试', '接口测试']
-  },
-  {
-    title: '运维工程师',
-    company: '网易',
-    city: '杭州',
-    salary: '18K-32K',
-    match: 75,
-    tags: ['Linux', 'Docker', 'K8s']
-  },
-  {
-    title: '安全工程师',
-    company: '华为',
-    city: '深圳',
-    salary: '28K-45K',
-    match: 72,
-    tags: ['渗透测试', '安全审计', '漏洞挖掘']
-  },
-  {
-    title: 'Go开发工程师',
-    company: '小米',
-    city: '北京',
-    salary: '22K-38K',
-    match: 68,
-    tags: ['Go', '微服务', '分布式']
-  },
-  {
-    title: '嵌入式工程师',
-    company: 'vivo',
-    city: '东莞',
-    salary: '20K-35K',
-    match: 65,
-    tags: ['C/C++', 'ARM', '驱动开发']
-  },
-  {
-    title: 'UI设计师',
-    company: '快手',
-    city: '北京',
-    salary: '18K-30K',
-    match: 62,
-    tags: ['Figma', '交互设计', '用户研究']
-  },
-  {
-    title: '大数据开发',
-    company: '滴滴',
-    city: '北京',
-    salary: '25K-42K',
-    match: 58,
-    tags: ['Spark', 'Hadoop', 'Flink']
+const selectedEducation = ref([])
+const selectedExperience = ref([])
+const selectedCities = ref([])
+const showDetailModal = ref(false)
+const selectedJob = ref(null)
+
+const openJobDetail = (job) => {
+  selectedJob.value = job
+  showDetailModal.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+const closeJobDetail = () => {
+  showDetailModal.value = false
+  selectedJob.value = null
+  document.body.style.overflow = ''
+}
+const minSalary = ref(0)
+const maxSalary = ref(50)
+
+const formatSalary = (salary) => {
+  if (!salary) return '面议'
+  return `${(salary / 1000).toFixed(0)}K`
+}
+
+const getJobTags = (job) => {
+  const tags = []
+  const keywords = {
+    'Java': ['java', '后端'],
+    'Python': ['python', '数据', '算法'],
+    '前端': ['前端', 'react', 'vue', 'angular'],
+    'AI': ['人工智能', '算法', '机器学习', '深度学习'],
+    '测试': ['测试', 'qa'],
+    '运维': ['运维', 'devops', 'linux'],
+    '安全': ['安全', '渗透'],
+    '产品': ['产品', 'pm'],
+    '设计': ['设计', 'ui', 'ux'],
+    '大数据': ['大数据', 'spark', 'hadoop']
   }
-])
+  
+  const jobText = (job.job_name || '').toLowerCase()
+  for (const [tag, kws] of Object.entries(keywords)) {
+    if (kws.some(kw => jobText.includes(kw))) {
+      tags.push(tag)
+    }
+  }
+  
+  if (tags.length === 0) {
+    tags.push('IT相关')
+  }
+  
+  return tags.slice(0, 3)
+}
 
-const filters = ref([
-  { name: '期望薪资', value: 85 },
-  { name: '专业匹配', value: 90 },
-  { name: '就业城市', value: 75 },
-  { name: '企业类型', value: 60 },
-  { name: '发展机会偏好', value: 80 }
-])
+const getMatchScore = (job) => {
+  return Math.floor(Math.random() * 40) + 60
+}
 
-const quickOptions = ['本科', '硕士', '应届生', '3年经验', '5年经验', '大厂']
+const toastMessage = ref('')
+const toastType = ref('success')
+const showToastFlag = ref(false)
 
-const toggleOption = (option) => {
-  const index = selectedOptions.value.indexOf(option)
+const showToast = (message, type = 'success') => {
+  toastMessage.value = message
+  toastType.value = type
+  showToastFlag.value = true
+  setTimeout(() => {
+    showToastFlag.value = false
+  }, 3000)
+}
+
+const toggleEducation = (option) => {
+  const index = selectedEducation.value.indexOf(option)
   if (index > -1) {
-    selectedOptions.value.splice(index, 1)
+    selectedEducation.value.splice(index, 1)
   } else {
-    selectedOptions.value.push(option)
+    selectedEducation.value.push(option)
+  }
+}
+
+const toggleExperience = (option) => {
+  const index = selectedExperience.value.indexOf(option)
+  if (index > -1) {
+    selectedExperience.value.splice(index, 1)
+  } else {
+    selectedExperience.value.push(option)
+  }
+}
+
+const toggleCity = (option) => {
+  const index = selectedCities.value.indexOf(option)
+  if (index > -1) {
+    selectedCities.value.splice(index, 1)
+  } else {
+    selectedCities.value.push(option)
+  }
+}
+
+const handleSearch = async () => {
+  loading.value = true
+  try {
+    const params = new URLSearchParams()
+    if (searchKeyword.value) params.append('keyword', searchKeyword.value)
+    if (categories.value[activeCategory.value] !== '全部岗位') {
+      params.append('category', categories.value[activeCategory.value])
+    }
+    if (selectedEducation.value.length > 0) {
+      params.append('education', selectedEducation.value.join(','))
+    }
+    if (selectedExperience.value.length > 0) {
+      params.append('experience', selectedExperience.value.join(','))
+    }
+    if (selectedCities.value.length > 0) {
+      params.append('city', selectedCities.value.join(','))
+    }
+    if (minSalary.value > 0) {
+      params.append('minSalary', minSalary.value * 1000)
+    }
+    if (maxSalary.value > 0) {
+      params.append('maxSalary', maxSalary.value * 1000)
+    }
+
+    const response = await axios.get(`/api/jobs/search?${params.toString()}`)
+    if (response.data.success) {
+      jobList.value = response.data.data.slice(0, 20)
+      totalResults.value = response.data.total
+    }
+  } catch (error) {
+    console.error('搜索失败:', error)
+    jobList.value = []
+    totalResults.value = 0
+  } finally {
+    loading.value = false
+  }
+}
+
+const resetFilters = () => {
+  searchKeyword.value = ''
+  activeCategory.value = 0
+  selectedEducation.value = []
+  selectedExperience.value = []
+  selectedCities.value = []
+  minSalary.value = 0
+  maxSalary.value = 50
+  handleSearch()
+}
+
+const loadOptions = async () => {
+  try {
+    const [eduRes, expRes, cityRes] = await Promise.all([
+      axios.get('/api/jobs/education-options'),
+      axios.get('/api/jobs/experience-options'),
+      axios.get('/api/jobs/cities')
+    ])
+    
+    if (eduRes.data.success) educationOptions.value = eduRes.data.data.slice(0, 6)
+    if (expRes.data.success) experienceOptions.value = expRes.data.data.slice(0, 6)
+    if (cityRes.data.success) cityOptions.value = cityRes.data.data.slice(0, 15)
+  } catch (error) {
+    console.error('加载选项失败:', error)
+    educationOptions.value = ['本科', '硕士', '大专', '学历不限']
+    experienceOptions.value = ['经验不限', '应届生', '1-3年', '3-5年']
+    cityOptions.value = ['北京', '上海', '深圳', '杭州', '广州']
   }
 }
 
@@ -261,6 +470,9 @@ const bgCanvas = ref(null)
 let bgAnimationId = null
 
 onMounted(() => {
+  loadOptions()
+  handleSearch()
+
   const canvas = bgCanvas.value
   const ctx = canvas.getContext('2d')
   canvas.width = window.innerWidth
@@ -366,6 +578,24 @@ onUnmounted(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(74, 158, 255, 0.6);
+  font-size: 13px;
+  margin-left: auto;
+}
+
+.loading-icon .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .search-bar {
@@ -531,6 +761,12 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
+.result-count {
+  margin-left: auto;
+  color: rgba(150, 180, 220, 0.5);
+  font-size: 12px;
+}
+
 .job-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -581,7 +817,7 @@ onUnmounted(() => {
 .job-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 12px;
 }
 
@@ -621,23 +857,6 @@ onUnmounted(() => {
   font-size: 10px;
 }
 
-.apply-btn {
-  width: 100%;
-  padding: 8px;
-  background: rgba(74, 158, 255, 0.2);
-  border: 1px solid rgba(74, 158, 255, 0.4);
-  border-radius: 8px;
-  color: rgba(74, 158, 255, 0.9);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.apply-btn:hover {
-  background: rgba(74, 158, 255, 0.3);
-  border-color: rgba(74, 158, 255, 0.6);
-}
-
 .card-corner {
   position: absolute;
   width: 15px;
@@ -675,6 +894,17 @@ onUnmounted(() => {
   border-right-width: 2px;
 }
 
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(150, 180, 220, 0.5);
+}
+
+.empty-state p {
+  margin-top: 15px;
+  margin-bottom: 25px;
+}
+
 .reset-btn {
   display: block;
   margin: 30px auto 0;
@@ -695,69 +925,44 @@ onUnmounted(() => {
   box-shadow: 0 0 30px rgba(74, 158, 255, 0.6);
 }
 
-.filter-items {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.filter-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.filter-group {
+  margin-bottom: 20px;
 }
 
 .filter-label {
   color: rgba(150, 180, 220, 0.7);
   font-size: 13px;
+  margin-bottom: 10px;
 }
 
-.filter-bar {
-  position: relative;
-  height: 6px;
-  background: rgba(74, 158, 255, 0.15);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: linear-gradient(90deg, #00d4aa 0%, #4a9eff 100%);
-  border-radius: 3px;
-  transition: width 0.5s ease;
-}
-
-.bar-value {
-  position: absolute;
-  right: -30px;
-  top: -16px;
-  color: rgba(74, 158, 255, 0.8);
-  font-size: 12px;
-}
-
-.quick-filters {
-  padding-top: 20px;
-  border-top: 1px solid rgba(74, 158, 255, 0.15);
-}
-
-.quick-title {
-  color: rgba(150, 180, 220, 0.7);
-  font-size: 13px;
-  margin-bottom: 12px;
-}
-
-.quick-options {
+.filter-options {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.quick-option {
-  padding: 6px 14px;
+.filter-options.scrollable {
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.filter-options.scrollable::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filter-options.scrollable::-webkit-scrollbar-track {
+  background: rgba(74, 158, 255, 0.1);
+  border-radius: 2px;
+}
+
+.filter-options.scrollable::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.3);
+  border-radius: 2px;
+}
+
+.filter-option {
+  padding: 6px 12px;
   background: rgba(15, 25, 55, 0.6);
   border: 1px solid rgba(74, 158, 255, 0.2);
   border-radius: 15px;
@@ -767,15 +972,66 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-.quick-option:hover {
+.filter-option:hover {
   border-color: rgba(74, 158, 255, 0.5);
   color: rgba(255, 255, 255, 0.8);
 }
 
-.quick-option.active {
+.filter-option.active {
   background: rgba(74, 158, 255, 0.2);
   border-color: rgba(74, 158, 255, 0.5);
   color: #fff;
+}
+
+.salary-range {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.range-input {
+  width: 100%;
+  height: 6px;
+  background: rgba(74, 158, 255, 0.15);
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4a9eff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+}
+
+.range-value {
+  text-align: center;
+  color: rgba(74, 158, 255, 0.8);
+  font-size: 12px;
+}
+
+.apply-filter-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  background: linear-gradient(135deg, #00d4aa 0%, #4a9eff 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(74, 158, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.apply-filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(74, 158, 255, 0.6);
 }
 
 @media (max-width: 1200px) {
@@ -802,5 +1058,273 @@ onUnmounted(() => {
   .filter-section {
     width: 100%;
   }
+}
+
+.toast {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  max-width: 320px;
+}
+
+.toast.success {
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.9) 0%, rgba(74, 158, 255, 0.9) 100%);
+  color: #fff;
+}
+
+.toast.warning {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.9) 0%, rgba(255, 152, 0, 0.9) 100%);
+  color: #fff;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+}
+
+.toast-content {
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: rgba(15, 25, 55, 0.95);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.modal-header {
+  padding: 30px 30px 20px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.15);
+}
+
+.modal-header h2 {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 15px;
+}
+
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modal-tag {
+  padding: 4px 12px;
+  background: rgba(74, 158, 255, 0.15);
+  border-radius: 20px;
+  color: rgba(74, 158, 255, 0.8);
+  font-size: 12px;
+}
+
+.modal-body {
+  padding: 25px 30px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+}
+
+.detail-label {
+  color: rgba(150, 180, 220, 0.6);
+  font-size: 14px;
+}
+
+.detail-value {
+  color: #fff;
+  font-size: 14px;
+}
+
+.detail-value.salary {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.match-bar-wrapper {
+  flex: 1;
+  max-width: 200px;
+  height: 12px;
+  background: rgba(74, 158, 255, 0.15);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.match-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.match-text {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4ade80;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.detail-section {
+  margin-top: 25px;
+}
+
+.detail-section h3 {
+  color: rgba(74, 158, 255, 0.9);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 15px;
+}
+
+.job-description {
+  color: rgba(200, 210, 230, 0.8);
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.requirement-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.requirement-list li {
+  color: rgba(200, 210, 230, 0.8);
+  font-size: 14px;
+  line-height: 2;
+  list-style-type: disc;
+}
+
+.modal-footer {
+  padding: 20px 30px;
+  border-top: 1px solid rgba(74, 158, 255, 0.15);
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+}
+
+.contact-btn,
+.save-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.contact-btn {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(74, 158, 255, 0.1));
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  color: rgba(74, 158, 255, 0.9);
+}
+
+.contact-btn:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.4), rgba(74, 158, 255, 0.2));
+  border-color: rgba(74, 158, 255, 0.6);
+}
+
+.save-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.save-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-content,
+.modal-leave-to .modal-content {
+  transform: scale(0.9) translateY(20px);
+}
+
+.job-card:hover {
+  cursor: pointer;
+  border-color: rgba(74, 158, 255, 0.4);
+  transform: translateY(-3px);
 }
 </style>
