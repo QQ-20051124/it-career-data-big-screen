@@ -9,15 +9,217 @@
         <span class="logo-icon">◆</span>
         <span class="logo-text">IT学习与就业数据可视化导航系统</span>
       </div>
-      <button class="logout-btn" @click="logout">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 16l4-4-4-4"/>
-          <path d="M7 16l-4-4 4-4"/>
-          <path d="M12 19V5"/>
-        </svg>
-        <span>退出登录</span>
-      </button>
+      <div class="top-bar-right">
+        <button class="profile-btn" @click="toggleProfilePanel">
+          <div class="profile-avatar">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="profile-info">
+            <span class="profile-name">{{ userInfo.name }}</span>
+            <span class="profile-role">{{ userInfo.role }}</span>
+          </div>
+          <svg class="profile-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+        <button class="logout-btn" @click="logout">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 16l4-4-4-4"/>
+            <path d="M7 16l-4-4 4-4"/>
+            <path d="M12 19V5"/>
+          </svg>
+          <span>退出登录</span>
+        </button>
+      </div>
     </div>
+
+    <Transition name="panel">
+      <div class="profile-panel-overlay" v-if="showProfilePanel" @click="toggleProfilePanel"></div>
+    </Transition>
+    <Transition name="panel-slide">
+      <div class="profile-panel" v-if="showProfilePanel">
+        <div class="panel-header">
+          <div class="panel-avatar-large">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="panel-user-info">
+            <h3>{{ userInfo.name }}</h3>
+            <p>{{ userInfo.role }}</p>
+          </div>
+          <button class="panel-close" @click="toggleProfilePanel">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="panel-nav">
+          <button class="nav-item active" @click="activeProfileTab = 'info'">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>个人信息</span>
+          </button>
+          <button class="nav-item" @click="activeProfileTab = 'favorites'">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            </svg>
+            <span>我的收藏</span>
+            <span class="nav-badge" v-if="favoritesCount > 0">{{ favoritesCount }}</span>
+          </button>
+          <button class="nav-item" @click="activeProfileTab = 'history'">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+            </svg>
+            <span>浏览历史</span>
+          </button>
+          <button class="nav-item" @click="activeProfileTab = 'settings'">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <span>系统设置</span>
+          </button>
+        </div>
+
+        <div class="panel-content">
+          <div class="tab-content" v-if="activeProfileTab === 'info'">
+            <div class="info-section">
+              <h4>基本信息</h4>
+              <div class="info-grid">
+                <div class="info-item">
+                  <label>用户名</label>
+                  <span>{{ userInfo.name }}</span>
+                </div>
+                <div class="info-item">
+                  <label>角色</label>
+                  <span>{{ userInfo.role }}</span>
+                </div>
+                <div class="info-item">
+                  <label>登录方式</label>
+                  <span>{{ userInfo.loginType }}</span>
+                </div>
+                <div class="info-item">
+                  <label>注册时间</label>
+                  <span>{{ userInfo.registerTime }}</span>
+                </div>
+                <div class="info-item">
+                  <label>最近登录</label>
+                  <span>{{ userInfo.lastLogin }}</span>
+                </div>
+                <div class="info-item">
+                  <label>收藏数量</label>
+                  <span>{{ favoritesCount }}</span>
+                </div>
+              </div>
+            </div>
+            <button class="edit-profile-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              编辑资料
+            </button>
+          </div>
+
+          <div class="tab-content" v-if="activeProfileTab === 'favorites'">
+            <div class="favorites-section">
+              <div class="section-header">
+                <h4>我的收藏</h4>
+                <span class="section-count">共 {{ favoritesCount }} 个</span>
+              </div>
+              <div class="favorites-list" v-if="favoritesCount > 0">
+                <div class="favorite-card" v-for="(job, index) in profileFavorites" :key="index">
+                  <div class="favorite-card-info">
+                    <div class="favorite-card-title">{{ job.job_name }}</div>
+                    <div class="favorite-card-meta">{{ job.company }} - {{ job.city }}</div>
+                    <div class="favorite-card-salary">{{ formatFavoriteSalary(job.salary_avg) }}</div>
+                  </div>
+                  <div class="favorite-card-time">{{ formatFavoriteTime(job.favoriteTime) }}</div>
+                </div>
+              </div>
+              <div class="empty-state" v-else>
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                </svg>
+                <p>暂无收藏的岗位</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" v-if="activeProfileTab === 'history'">
+            <div class="history-section">
+              <div class="section-header">
+                <h4>浏览历史</h4>
+                <button class="clear-history-btn">清空历史</button>
+              </div>
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                <p>暂无浏览记录</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" v-if="activeProfileTab === 'settings'">
+            <div class="settings-section">
+              <h4>系统设置</h4>
+              <div class="settings-item">
+                <div class="settings-label">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span>深色模式</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" v-model="settings.darkMode"/>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="settings-item">
+                <div class="settings-label">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                  </svg>
+                  <span>通知提醒</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" v-model="settings.notifications"/>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="settings-item">
+                <div class="settings-label">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                  <span>自动更新</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" v-model="settings.autoUpdate"/>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
     <div class="top-modules">
       <div 
@@ -447,7 +649,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import jobData from '../assets/all_cleaned_jobs.json'
 
@@ -460,6 +662,62 @@ let bgAnimationId = null
 
 const showResumeModal = ref(false)
 const resumeData = ref(null)
+
+const showProfilePanel = ref(false)
+const activeProfileTab = ref('info')
+
+const userInfo = reactive({
+  name: '访客用户',
+  role: '普通用户',
+  loginType: '游客登录',
+  registerTime: '2026-07-27',
+  lastLogin: new Date().toLocaleString('zh-CN')
+})
+
+const settings = reactive({
+  darkMode: false,
+  notifications: true,
+  autoUpdate: true
+})
+
+const profileFavorites = computed(() => {
+  const saved = localStorage.getItem('jobFavorites')
+  if (saved) {
+    return JSON.parse(saved)
+  }
+  return []
+})
+
+const favoritesCount = computed(() => {
+  return profileFavorites.value.length
+})
+
+const toggleProfilePanel = () => {
+  showProfilePanel.value = !showProfilePanel.value
+}
+
+const formatFavoriteSalary = (salary) => {
+  if (salary && salary > 0) {
+    return `${salary}K/月`
+  }
+  return '薪资面议'
+}
+
+const formatFavoriteTime = (time) => {
+  if (!time) return ''
+  const now = new Date()
+  const favoriteDate = new Date(time)
+  const diffMs = now - favoriteDate
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+  
+  if (diffMins < 1) return '刚刚'
+  if (diffMins < 60) return `${diffMins}分钟前`
+  if (diffHours < 24) return `${diffHours}小时前`
+  if (diffDays < 7) return `${diffDays}天前`
+  return favoriteDate.toLocaleDateString('zh-CN')
+}
 
 const openResume = () => {
   const saved = localStorage.getItem('resumeData')
@@ -1776,5 +2034,442 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
   line-height: 1.7;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-btn:hover {
+  background: rgba(74, 158, 255, 0.25);
+  border-color: rgba(74, 158, 255, 0.5);
+}
+
+.profile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(74, 158, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a9eff;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.profile-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.profile-role {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.profile-arrow {
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.3s ease;
+}
+
+.profile-btn:hover .profile-arrow {
+  transform: rotate(180deg);
+}
+
+.profile-panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+.profile-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.98);
+  border-left: 1px solid rgba(74, 158, 255, 0.3);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(20px);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.panel-avatar-large {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(74, 158, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a9eff;
+}
+
+.panel-user-info {
+  flex: 1;
+}
+
+.panel-user-info h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+}
+
+.panel-user-info p {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 4px 0 0 0;
+}
+
+.panel-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.panel-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.panel-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 4px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+  background: rgba(74, 158, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-item.active {
+  background: rgba(74, 158, 255, 0.25);
+  color: #4a9eff;
+}
+
+.nav-badge {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  font-size: 0.7rem;
+  border-radius: 10px;
+}
+
+.panel-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.info-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 16px 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.info-item {
+  background: rgba(74, 158, 255, 0.08);
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+.info-item label {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 4px;
+}
+
+.info-item span {
+  display: block;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.edit-profile-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: rgba(74, 158, 255, 0.2);
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  border-radius: 10px;
+  color: #4a9eff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-profile-btn:hover {
+  background: rgba(74, 158, 255, 0.3);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-header h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.section-count {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.clear-history-btn {
+  font-size: 0.8rem;
+  color: rgba(239, 68, 68, 0.7);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.clear-history-btn:hover {
+  color: #ef4444;
+}
+
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.favorite-card {
+  background: rgba(74, 158, 255, 0.08);
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.favorite-card:hover {
+  background: rgba(74, 158, 255, 0.12);
+  border-color: rgba(74, 158, 255, 0.3);
+}
+
+.favorite-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.favorite-card-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.favorite-card-meta {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.favorite-card-salary {
+  font-size: 0.85rem;
+  color: #00d4aa;
+  font-weight: 500;
+}
+
+.favorite-card-time {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 8px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.settings-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 16px 0;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: rgba(74, 158, 255, 0.08);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.settings-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.2);
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.toggle-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: rgba(255, 255, 255, 0.8);
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .slider {
+  background: #4a9eff;
+}
+
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.panel-enter-active,
+.panel-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.panel-enter-from,
+.panel-leave-to {
+  opacity: 0;
+}
+
+.panel-slide-enter-active,
+.panel-slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.panel-slide-enter-from,
+.panel-slide-leave-to {
+  transform: translateX(100%);
 }
 </style>
