@@ -10,6 +10,13 @@
         <span>返回</span>
       </button>
       <span class="page-title">智能岗位推荐</span>
+      <button class="favorites-btn" @click="openFavoritesModal">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        </svg>
+        <span>我的收藏</span>
+        <span class="favorites-badge" v-if="favorites.length > 0">{{ favorites.length }}</span>
+      </button>
       <div class="loading-indicator" v-if="loading">
         <svg class="loading-icon" viewBox="0 0 24 24" width="20" height="20">
           <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="50" class="spin"/>
@@ -239,20 +246,161 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button class="contact-btn">
+            <button class="contact-btn" @click="openContactModal">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
               </svg>
               联系HR
             </button>
-            <button class="save-btn">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <button class="save-btn" :class="{ favorited: isFavorited(selectedJob) }" @click="toggleFavorite(selectedJob)">
+              <svg v-if="!isFavorited(selectedJob)" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                 <polyline points="17 21 17 13 7 13 7 21"/>
                 <polyline points="7 3 7 8 15 8"/>
               </svg>
-              收藏岗位
+              <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+              {{ isFavorited(selectedJob) ? '已收藏' : '收藏岗位' }}
             </button>
+            <button class="favorites-list-btn" @click="openFavoritesModal">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10"/>
+              </svg>
+              查看全部收藏
+              <span class="favorites-badge-small" v-if="favorites.length > 0">{{ favorites.length }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="modal">
+      <div class="modal-overlay" v-if="showFavoritesModal" @click="closeFavoritesModal">
+        <div class="modal-content favorites-modal" @click.stop>
+          <button class="modal-close" @click="closeFavoritesModal">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+          <div class="modal-header">
+            <h2>我的收藏</h2>
+            <div class="favorites-count-header">共 {{ favorites.length }} 个岗位</div>
+          </div>
+          <div class="modal-body favorites-body">
+            <div class="favorites-list" v-if="favorites.length > 0">
+              <div class="favorite-item" v-for="(job, index) in favorites" :key="index">
+                <div class="favorite-info" @click="openJobDetailFromFavorites(job)">
+                  <div class="favorite-title">{{ job.job_name }}</div>
+                  <div class="favorite-company">{{ job.company }} - {{ job.city }}</div>
+                  <div class="favorite-meta">
+                    <span class="favorite-salary">{{ formatSalary(job.salary_avg) }}</span>
+                    <span class="favorite-time">{{ formatFavoriteTime(job.favoriteTime) }}</span>
+                  </div>
+                </div>
+                <div class="favorite-actions">
+                  <button class="action-btn detail-btn" @click="openJobDetailFromFavorites(job)">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                      <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    详情
+                  </button>
+                  <button class="action-btn contact-btn" @click="openContactModalFromFavorites(job)">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    联系HR
+                  </button>
+                  <button class="action-btn unfavorite-btn" @click="removeFavorite(job)">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="none">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    </svg>
+                    取消
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="empty-state" v-else>
+              <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+              <p>暂无收藏的岗位</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="modal">
+      <div class="modal-overlay" v-if="showContactModal" @click="closeContactModal">
+        <div class="modal-content" @click.stop>
+          <button class="modal-close" @click="closeContactModal">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+          <div class="modal-header">
+            <h2>联系HR</h2>
+            <div class="modal-tags">
+                  <span class="modal-tag">{{ selectedContactJob?.company }}</span>
+                  <span class="modal-tag">{{ selectedContactJob?.job_name }}</span>
+                </div>
+          </div>
+          <div class="modal-body">
+            <div class="contact-info">
+              <div class="contact-item">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#4a9eff" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                <div class="contact-detail">
+                  <span class="contact-label">联系电话</span>
+                  <span class="contact-value">{{ generateContactInfo(selectedContactJob).phone }}</span>
+                </div>
+              </div>
+              <div class="contact-item">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#4a9eff" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <div class="contact-detail">
+                  <span class="contact-label">邮箱地址</span>
+                  <span class="contact-value">{{ generateContactInfo(selectedContactJob).email }}</span>
+                </div>
+              </div>
+              <div class="contact-item">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#4a9eff" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <div class="contact-detail">
+                  <span class="contact-label">工作地点</span>
+                  <span class="contact-value">{{ selectedContactJob?.city }}</span>
+                </div>
+              </div>
+              <div class="contact-item">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#4a9eff" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <div class="contact-detail">
+                  <span class="contact-label">HR姓名</span>
+                  <span class="contact-value">{{ generateContactInfo(selectedContactJob).name }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="contact-tips">
+              <h3>温馨提示</h3>
+              <ul>
+                <li>建议在工作时间（9:00-18:00）联系</li>
+                <li>邮件标题请注明：姓名-应聘岗位</li>
+                <li>如有简历请一并附件发送</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -305,6 +453,41 @@ const selectedExperience = ref([])
 const selectedCities = ref([])
 const showDetailModal = ref(false)
 const selectedJob = ref(null)
+const favorites = ref([])
+const showContactModal = ref(false)
+const showFavoritesModal = ref(false)
+const selectedContactJob = ref(null)
+
+const loadFavorites = () => {
+  const saved = localStorage.getItem('jobFavorites')
+  if (saved) {
+    favorites.value = JSON.parse(saved)
+  }
+}
+
+const saveFavorites = () => {
+  localStorage.setItem('jobFavorites', JSON.stringify(favorites.value))
+}
+
+const isFavorited = (job) => {
+  return favorites.value.some(f => f.job_name === job.job_name && f.company === job.company)
+}
+
+const toggleFavorite = (job) => {
+  const index = favorites.value.findIndex(f => f.job_name === job.job_name && f.company === job.company)
+  if (index > -1) {
+    favorites.value.splice(index, 1)
+    saveFavorites()
+    showToast('已取消收藏', 'warning')
+  } else {
+    favorites.value.push({
+      ...job,
+      favoriteTime: new Date().toISOString()
+    })
+    saveFavorites()
+    showToast('收藏成功')
+  }
+}
 
 const openJobDetail = (job) => {
   selectedJob.value = job
@@ -317,6 +500,63 @@ const closeJobDetail = () => {
   selectedJob.value = null
   document.body.style.overflow = ''
 }
+
+const openContactModal = () => {
+  selectedContactJob.value = selectedJob.value
+  showContactModal.value = true
+}
+
+const closeContactModal = () => {
+  showContactModal.value = false
+  selectedContactJob.value = null
+}
+
+const openFavoritesModal = () => {
+  showFavoritesModal.value = true
+}
+
+const closeFavoritesModal = () => {
+  showFavoritesModal.value = false
+}
+
+const openJobDetailFromFavorites = (job) => {
+  showFavoritesModal.value = false
+  openJobDetail(job)
+}
+
+const openContactModalFromFavorites = (job) => {
+  showFavoritesModal.value = false
+  selectedContactJob.value = job
+  showContactModal.value = true
+}
+
+const formatFavoriteTime = (timeStr) => {
+  if (!timeStr) return '未知'
+  const date = new Date(timeStr)
+  const now = new Date()
+  const diff = now - date
+  
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes}分钟前`
+  if (hours < 24) return `${hours}小时前`
+  if (days < 30) return `${days}天前`
+  
+  return date.toLocaleDateString('zh-CN')
+}
+
+const removeFavorite = (job) => {
+  const index = favorites.value.findIndex(f => f.job_name === job.job_name && f.company === job.company)
+  if (index > -1) {
+    favorites.value.splice(index, 1)
+    saveFavorites()
+    showToast('已取消收藏', 'warning')
+  }
+}
+
 const minSalary = ref(0)
 const maxSalary = ref(50)
 
@@ -354,8 +594,18 @@ const getJobTags = (job) => {
   return tags.slice(0, 3)
 }
 
-const getMatchScore = (job) => {
+const getMatchScore = () => {
   return Math.floor(Math.random() * 40) + 60
+}
+
+const generateContactInfo = (job) => {
+  const names = ['张经理', '李主管', '王HR', '赵专员', '陈总监', '刘经理', '周主管', '吴HR']
+  const domains = ['hr.com', 'company.com', 'recruit.com', 'job.com']
+  const name = names[Math.floor(Math.random() * names.length)]
+  const companyName = (job?.company || 'company').replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '')
+  const phone = `1${Math.floor(Math.random() * 9 + 3)}${Math.floor(Math.random() * 1000000000).toString().padStart(9, '0')}`
+  const email = `hr@${companyName.toLowerCase()}.${domains[Math.floor(Math.random() * domains.length)]}`
+  return { name, phone, email }
 }
 
 const toastMessage = ref('')
@@ -470,6 +720,7 @@ const bgCanvas = ref(null)
 let bgAnimationId = null
 
 onMounted(() => {
+  loadFavorites()
   loadOptions()
   handleSearch()
 
@@ -587,6 +838,55 @@ onUnmounted(() => {
   color: rgba(74, 158, 255, 0.6);
   font-size: 13px;
   margin-left: auto;
+}
+
+.favorites-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: rgba(251, 146, 60, 0.15);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  border-radius: 10px;
+  color: #fb923c;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-left: auto;
+}
+
+.favorites-btn:hover {
+  background: rgba(251, 146, 60, 0.25);
+  border-color: rgba(251, 146, 60, 0.5);
+}
+
+.favorites-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #fb923c;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.favorites-badge-small {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: #fb923c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
 }
 
 .loading-icon .spin {
@@ -1155,6 +1455,143 @@ onUnmounted(() => {
   color: #fff;
 }
 
+.favorites-modal {
+  max-width: 600px;
+  max-height: 80vh;
+}
+
+.favorites-count-header {
+  font-size: 13px;
+  color: #999;
+  margin-top: 4px;
+}
+
+.favorites-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.favorites-list {
+  padding: 10px 0;
+}
+
+.favorite-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+  transition: background 0.2s;
+}
+
+.favorite-item:last-child {
+  border-bottom: none;
+}
+
+.favorite-item:hover {
+  background: rgba(74, 158, 255, 0.03);
+}
+
+.favorite-info {
+  flex: 1;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.favorite-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favorite-company {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.favorite-meta {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.favorite-salary {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff6b6b;
+}
+
+.favorite-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.favorite-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 15px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.detail-btn {
+  background: rgba(74, 158, 255, 0.1);
+  color: #4a9eff;
+}
+
+.detail-btn:hover {
+  background: rgba(74, 158, 255, 0.15);
+}
+
+.contact-btn {
+  background: rgba(6, 182, 212, 0.1);
+  color: #06b6d4;
+}
+
+.contact-btn:hover {
+  background: rgba(6, 182, 212, 0.15);
+}
+
+.unfavorite-btn {
+  background: rgba(251, 146, 60, 0.1);
+  color: #fb923c;
+}
+
+.unfavorite-btn:hover {
+  background: rgba(251, 146, 60, 0.15);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-state p {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
 .modal-header {
   padding: 30px 30px 20px;
   border-bottom: 1px solid rgba(74, 158, 255, 0.15);
@@ -1305,6 +1742,94 @@ onUnmounted(() => {
 
 .save-btn:hover {
   background: rgba(255, 255, 255, 0.15);
+}
+
+.save-btn.favorited {
+  background: rgba(251, 146, 60, 0.2);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.4);
+}
+
+.save-btn.favorited:hover {
+  background: rgba(251, 146, 60, 0.3);
+}
+
+.favorites-list-btn {
+  padding: 12px 24px;
+  border: 1px solid rgba(251, 146, 60, 0.4);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  background: rgba(251, 146, 60, 0.1);
+  color: #fb923c;
+}
+
+.favorites-list-btn:hover {
+  background: rgba(251, 146, 60, 0.2);
+  border-color: rgba(251, 146, 60, 0.6);
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(74, 158, 255, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(74, 158, 255, 0.15);
+}
+
+.contact-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contact-label {
+  color: rgba(150, 180, 220, 0.5);
+  font-size: 12px;
+}
+
+.contact-value {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.contact-tips {
+  margin-top: 25px;
+  padding: 15px;
+  background: rgba(251, 146, 60, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(251, 146, 60, 0.15);
+}
+
+.contact-tips h3 {
+  color: #fb923c;
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+.contact-tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.contact-tips li {
+  color: rgba(200, 210, 230, 0.7);
+  font-size: 13px;
+  line-height: 2;
 }
 
 .modal-enter-active,

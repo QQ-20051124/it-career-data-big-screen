@@ -1385,6 +1385,7 @@ onUnmounted(() => {
 .bottom-modules {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: 1fr;
   gap: 20px;
   position: relative;
   z-index: 10;
@@ -1401,6 +1402,8 @@ onUnmounted(() => {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   animation: cardFadeIn 0.6s ease-out forwards;
   opacity: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes cardFadeIn {
