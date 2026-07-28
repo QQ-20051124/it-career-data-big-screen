@@ -16,7 +16,21 @@ const initData = async () => {
   }
 }
 
-const searchJobs = (keyword, category, filters) => {
+const calcMatchForSearch = (job, userProfile) => {
+  if (userProfile && Object.keys(userProfile).length > 0) {
+    return calculateMatchScore(job, userProfile)
+  }
+  const jobText = (job.job_name || '').toLowerCase() + (job.company || '').toLowerCase()
+  let score = 60
+  const hotSkills = ['java', 'python', '前端', '后端', '算法', 'ai', '人工智能', '运维', '测试', '大数据', '云计算']
+  const matchedSkills = hotSkills.filter(sk => jobText.includes(sk))
+  score += matchedSkills.length * 5
+  if (job.salary_avg && job.salary_avg > 20000) score += 10
+  if (['北京', '上海', '深圳', '杭州', '广州'].includes(job.city)) score += 5
+  return Math.min(100, Math.max(40, score))
+}
+
+const searchJobs = (keyword, category, filters, options = {}) => {
   let results = [...jobData]
 
   if (keyword) {
@@ -79,7 +93,33 @@ const searchJobs = (keyword, category, filters) => {
     }
   }
 
-  return results
+  const userProfile = options.userProfile || {}
+  results = results.map(job => ({
+    ...job,
+    matchScore: calcMatchForSearch(job, userProfile)
+  }))
+
+  const sortBy = options.sortBy || 'match'
+  if (sortBy === 'salary') {
+    results.sort((a, b) => (b.salary_avg || 0) - (a.salary_avg || 0))
+  } else if (sortBy === 'city') {
+    results.sort((a, b) => {
+      const aMatch = userProfile.city && a.city === userProfile.city ? 0 : 1
+      const bMatch = userProfile.city && b.city === userProfile.city ? 0 : 1
+      if (aMatch !== bMatch) return aMatch - bMatch
+      return (b.matchScore || 0) - (a.matchScore || 0)
+    })
+  } else {
+    results.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
+  }
+
+  const total = results.length
+  const page = options.page || 1
+  const pageSize = options.pageSize || 20
+  const startIdx = (page - 1) * pageSize
+  const pagedResults = results.slice(startIdx, startIdx + pageSize)
+
+  return { data: pagedResults, total, page, pageSize, totalPages: Math.ceil(total / pageSize) }
 }
 
 const getJobById = (id) => {
@@ -182,6 +222,16 @@ const getSalaryStatistics = () => {
   return { avg, min, max, median: Math.round(median) }
 }
 
+const getJobSuggestions = (keyword) => {
+  if (!keyword || keyword.length < 1) return []
+  const lowerKeyword = keyword.toLowerCase()
+  return jobData
+    .filter(job => job.job_name && job.job_name.toLowerCase().includes(lowerKeyword))
+    .map(job => job.job_name)
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .slice(0, 8)
+}
+
 const getCityStatistics = () => {
   const cityCounts = {}
   jobData.forEach(job => {
@@ -207,5 +257,6 @@ module.exports = {
   getRecommendedJobs,
   calculateMatchScore,
   getSalaryStatistics,
-  getCityStatistics
+  getCityStatistics,
+  getJobSuggestions
 }

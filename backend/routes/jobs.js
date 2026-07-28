@@ -4,7 +4,7 @@ const jobService = require('../services/jobService')
 
 router.get('/search', (req, res) => {
   try {
-    const { keyword, category, education, experience, city, minSalary, maxSalary } = req.query
+    const { keyword, category, education, experience, city, minSalary, maxSalary, page, pageSize, sortBy, skills, userCity, userExperience } = req.query
     
     const filters = {
       education: education ? education.split(',') : [],
@@ -14,17 +14,43 @@ router.get('/search', (req, res) => {
       maxSalary: maxSalary ? parseInt(maxSalary) : null
     }
 
-    const results = jobService.searchJobs(keyword, category, filters)
+    const userProfile = {
+      skillKeywords: skills ? skills.split(',') : [],
+      city: userCity || '',
+      experience: userExperience ? parseInt(userExperience) : 0
+    }
+
+    const options = {
+      page: parseInt(page) || 1,
+      pageSize: parseInt(pageSize) || 20,
+      sortBy: sortBy || 'match',
+      userProfile
+    }
+
+    const result = jobService.searchJobs(keyword, category, filters, options)
     res.json({
       success: true,
-      data: results,
-      total: results.length
+      data: result.data,
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+      totalPages: result.totalPages
     })
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message
     })
+  }
+})
+
+router.get('/suggest', (req, res) => {
+  try {
+    const { keyword } = req.query
+    const suggestions = jobService.getJobSuggestions(keyword)
+    res.json({ success: true, data: suggestions })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
   }
 })
 
