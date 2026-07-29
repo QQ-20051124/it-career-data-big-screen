@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const path = require('path')
@@ -16,7 +17,9 @@ app.use((req, res, next) => {
 
 const jobRoutes = require('./routes/jobs')
 const jobService = require('./services/jobService')
+const aiRoutes = require('./routes/ai')
 app.use('/api/jobs', jobRoutes)
+app.use('/api/ai', aiRoutes)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'IT Career Backend is running' })

@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="main-layout">
+    <div class="main-layout" :class="{ 'ai-mode': currentNav === 'ai-assistant', 'no-ai-sidebar': currentNav !== 'ai-assistant' }">
       <aside class="sidebar">
         <div class="sidebar-section">
           <div class="section-label">功能导航</div>
@@ -39,181 +39,329 @@
       </aside>
 
       <main class="content-area">
-        <div class="content-header">
-          <h2>为你推荐的学习资源</h2>
-          <p class="content-desc">根据你的目标岗位、学习进度和薄弱技能，系统自动推送资源</p>
-        </div>
-
-        <div class="job-selector">
-          <div class="selector-label">
-            <span class="label-icon">🎯</span>
-            <span>选择目标岗位</span>
+        <!-- 个人学习数据分析视图 -->
+        <div v-if="currentNav === 'dashboard'" class="view-section">
+          <div class="content-header">
+            <h2>个人学习数据分析</h2>
+            <p class="content-desc">实时追踪你的学习进度和成果</p>
           </div>
-          <div class="selector-wrapper">
-            <select v-model="selectedPosition" class="position-select">
-              <option value="">-- 请选择目标就业岗位 --</option>
-              <optgroup v-for="group in positionGroups" :key="group.name" :label="group.name">
-                <option v-for="pos in group.positions" :key="pos.key" :value="pos.key">{{ pos.label }}</option>
-              </optgroup>
-            </select>
-            <div class="select-arrow">▼</div>
-          </div>
-        </div>
-
-        <section class="top-section" v-if="selectedPosition && currentSkills.length > 0">
-          <div class="section-block-header">
-            <div class="section-block-title">
-              <span class="block-icon">📋</span>
-              <span>岗位技能清单</span>
-              <span class="block-divider"></span>
-              <span class="block-subtitle">{{ selectedPositionLabel }} · 共 {{ currentSkills.length }} 项技能要求</span>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon blue">📚</div>
+              <div class="stat-content">
+                <h3>已学资源</h3>
+                <p class="stat-value">{{ learnedCount }}</p>
+                <span class="stat-label">个学习资源</span>
+              </div>
             </div>
-            <div class="section-block-deco"></div>
-          </div>
-          <div class="skill-categories">
-            <div v-for="category in categorizedSkills" :key="category.name" class="skill-category">
-              <h4 class="category-title">{{ category.name }}</h4>
-              <div class="skill-tags">
-                <span 
-                  v-for="skill in category.skills" 
-                  :key="skill.name" 
-                  class="skill-tag"
-                  :class="'level-' + skill.level"
-                >
-                  {{ skill.name }}
-                  <span class="level-badge">{{ levelLabels[skill.level] }}</span>
-                </span>
+            <div class="stat-card">
+              <div class="stat-icon green">⏱</div>
+              <div class="stat-content">
+                <h3>学习时长</h3>
+                <p class="stat-value">{{ totalHours }}</p>
+                <span class="stat-label">小时累计</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon orange">🎯</div>
+              <div class="stat-content">
+                <h3>技能掌握</h3>
+                <p class="stat-value">{{ masteryRate }}%</p>
+                <span class="stat-label">平均掌握率</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple">📈</div>
+              <div class="stat-content">
+                <h3>连续学习</h3>
+                <p class="stat-value">{{ streakDays }}</p>
+                <span class="stat-label">天连续打卡</span>
               </div>
             </div>
           </div>
-        </section>
-
-        <section class="bottom-section">
-          <div class="section-block-header">
-            <div class="section-block-title">
-              <span class="block-icon">🎓</span>
-              <span>学习资源推送</span>
-              <span class="block-divider"></span>
-              <span class="block-subtitle">系统主动推送 · 每项技能至少匹配1份权威资源</span>
+          <div class="chart-section">
+            <h3 class="chart-title">📊 技能掌握进度</h3>
+            <div class="progress-list">
+              <div v-for="skill in topSkills" :key="skill.name" class="progress-item">
+                <div class="progress-header">
+                  <span class="progress-name">{{ skill.name }}</span>
+                  <span class="progress-percent">{{ skill.progress }}%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" :style="{ width: skill.progress + '%' }"></div>
+                </div>
+              </div>
             </div>
-            <div class="section-block-deco"></div>
           </div>
-          <div class="resource-cards">
-            <div
-              v-for="(card, idx) in resourceCards"
-              :key="card.id || idx"
-              class="resource-card"
-              :class="{ 'featured': card.featured }"
-            >
-              <div class="card-header">
-                <div class="card-header-left">
-                  <span class="push-badge">
-                    <span class="push-icon">⚡</span>
-                    <span>系统推送</span>
+        </div>
+
+        <!-- 行业技能路线视图 -->
+        <div v-else-if="currentNav === 'skill-route'" class="view-section">
+          <div class="content-header">
+            <h2>行业技能路线</h2>
+            <p class="content-desc">查看IT行业各岗位技能成长路径</p>
+          </div>
+          <div class="route-placeholder">
+            <div class="placeholder-icon">🚀</div>
+            <h3>技能路线规划</h3>
+            <p>选择目标岗位后，系统将为你生成完整的技能成长路线图</p>
+            <button class="action-btn primary" @click="currentNav = 'resource-lib'">前往选择岗位</button>
+          </div>
+        </div>
+
+        <!-- 我的学习计划视图 -->
+        <div v-else-if="currentNav === 'study-plan'" class="view-section">
+          <div class="content-header">
+            <h2>我的学习计划</h2>
+            <p class="content-desc">管理你的学习任务和目标</p>
+          </div>
+          <div class="plan-list" v-if="studyPlans.length > 0">
+            <div v-for="plan in studyPlans" :key="plan.id" class="plan-item">
+              <div class="plan-header">
+                <h4>{{ plan.title }}</h4>
+                <span class="plan-status" :class="plan.status">{{ plan.statusText }}</span>
+              </div>
+              <p class="plan-desc">{{ plan.desc }}</p>
+              <div class="plan-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" :style="{ width: plan.progress + '%' }"></div>
+                </div>
+                <span class="progress-text">{{ plan.progress }}%</span>
+              </div>
+              <div class="plan-meta">
+                <span>📅 截止: {{ plan.deadline }}</span>
+                <span>🎯 目标: {{ plan.goal }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>暂无学习计划</h3>
+            <p>选择岗位并开始学习，系统将为你自动生成学习计划</p>
+            <button class="action-btn primary" @click="currentNav = 'resource-lib'">前往选择岗位</button>
+          </div>
+        </div>
+
+        <!-- 推荐资源库视图 -->
+        <div v-else-if="currentNav === 'resource-lib'" class="view-section">
+          <div class="content-header">
+            <h2>为你推荐的学习资源</h2>
+            <p class="content-desc">根据你的目标岗位、学习进度和薄弱技能，系统自动推送资源</p>
+          </div>
+
+          <div class="job-selector">
+            <div class="selector-label">
+              <span class="label-icon">🎯</span>
+              <span>选择目标岗位</span>
+            </div>
+            <div class="selector-wrapper">
+              <select v-model="selectedPosition" class="position-select">
+                <option value="">-- 请选择目标就业岗位 --</option>
+                <optgroup v-for="group in positionGroups" :key="group.name" :label="group.name">
+                  <option v-for="pos in group.positions" :key="pos.key" :value="pos.key">{{ pos.label }}</option>
+                </optgroup>
+              </select>
+              <div class="select-arrow">▼</div>
+            </div>
+          </div>
+
+          <section class="top-section" v-if="selectedPosition && currentSkills.length > 0">
+            <div class="section-block-header">
+              <div class="section-block-title">
+                <span class="block-icon">📋</span>
+                <span>岗位技能清单</span>
+                <span class="block-divider"></span>
+                <span class="block-subtitle">{{ selectedPositionLabel }} · 共 {{ currentSkills.length }} 项技能要求</span>
+              </div>
+              <div class="section-block-deco"></div>
+            </div>
+            <div class="skill-categories">
+              <div v-for="category in categorizedSkills" :key="category.name" class="skill-category">
+                <h4 class="category-title">{{ category.name }}</h4>
+                <div class="skill-tags">
+                  <span 
+                    v-for="skill in category.skills" 
+                    :key="skill.name" 
+                    class="skill-tag"
+                    :class="'level-' + skill.level"
+                  >
+                    {{ skill.name }}
+                    <span class="level-badge">{{ levelLabels[skill.level] }}</span>
                   </span>
-                  <span class="card-type">{{ card.typeLabel }}</span>
-                </div>
-                <div class="card-rating" v-if="card.rating">
-                  <span class="rating-star">★</span>
-                  <span>{{ card.rating }}</span>
-                </div>
-              </div>
-              <h3 class="card-title">{{ card.title }}</h3>
-              <p class="card-desc">{{ card.desc }}</p>
-              <div class="card-meta-row">
-                <span class="meta-item" v-if="card.matchedSkills && card.matchedSkills.length > 0">
-                  <span class="meta-icon">🎯</span>
-                  匹配技能：{{ card.matchedSkills.slice(0, 2).map(s => s.name).join('、') }}{{ card.matchedSkills.length > 2 ? ` 等${card.matchedSkills.length}项` : '' }}
-                </span>
-              </div>
-              <div class="card-footer">
-                <span class="time-label">⏱ {{ card.durationText }}</span>
-                <span class="level-label" :class="'level-' + card.difficulty">{{ card.difficulty }}</span>
-                <span class="source-label" v-if="card.provider">{{ card.provider }}</span>
-              </div>
-              <button
-                class="card-action-btn"
-                v-if="card.url || card.externalUrl"
-                @click.stop="openResource(card)"
-              >
-                🚀 前往学习
-              </button>
-              <div class="card-collapse-toggle" @click="toggleCardExpand(card.id || idx)">
-                <span class="toggle-icon" :class="{ expanded: expandedCards[card.id || idx] }">▼</span>
-                <span class="toggle-text">{{ expandedCards[card.id || idx] ? '收起详情' : '展开实践方案与工具' }}</span>
-              </div>
-              <div class="card-collapse-panel" v-if="expandedCards[card.id || idx]">
-                <div class="collapse-section" v-if="card.practicePlan && card.practicePlan.length > 0">
-                  <h5 class="collapse-title">
-                    <span class="collapse-icon">💪</span> 实践练习方案
-                  </h5>
-                  <ol class="practice-list">
-                    <li v-for="(step, sIdx) in card.practicePlan" :key="sIdx">{{ step }}</li>
-                  </ol>
-                </div>
-                <div class="collapse-section" v-if="card.recommendedTools && card.recommendedTools.length > 0">
-                  <h5 class="collapse-title">
-                    <span class="collapse-icon">🛠</span> 配套推荐工具
-                  </h5>
-                  <ul class="tools-list">
-                    <li v-for="(tool, tIdx) in card.recommendedTools" :key="tIdx">{{ tool }}</li>
-                  </ul>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <div class="action-area">
-          <button class="action-btn primary">立即学习</button>
+          <section class="bottom-section">
+            <div class="section-block-header">
+              <div class="section-block-title">
+                <span class="block-icon">🎓</span>
+                <span>学习资源推送</span>
+                <span class="block-divider"></span>
+                <span class="block-subtitle">系统主动推送 · 每项技能至少匹配1份权威资源</span>
+              </div>
+              <div class="section-block-deco"></div>
+            </div>
+            <div class="resource-cards">
+              <div
+                v-for="(card, idx) in resourceCards"
+                :key="card.id || idx"
+                class="resource-card"
+                :class="{ 'featured': card.featured }"
+              >
+                <div class="card-header">
+                  <div class="card-header-left">
+                    <span class="push-badge">
+                      <span class="push-icon">⚡</span>
+                      <span>系统推送</span>
+                    </span>
+                    <span class="card-type">{{ card.typeLabel }}</span>
+                  </div>
+                  <div class="card-rating" v-if="card.rating">
+                    <span class="rating-star">★</span>
+                    <span>{{ card.rating }}</span>
+                  </div>
+                </div>
+                <h3 class="card-title">{{ card.title }}</h3>
+                <p class="card-desc">{{ card.desc }}</p>
+                <div class="card-meta-row">
+                  <span class="meta-item" v-if="card.matchedSkills && card.matchedSkills.length > 0">
+                    <span class="meta-icon">🎯</span>
+                    匹配技能：{{ card.matchedSkills.slice(0, 2).map(s => s.name).join('、') }}{{ card.matchedSkills.length > 2 ? ` 等${card.matchedSkills.length}项` : '' }}
+                  </span>
+                  <span class="relevance-badge" v-if="card.relevanceScore" :class="'level-' + getRelevanceLevel(card.relevanceScore)">
+                    <span class="relevance-icon">📊</span>
+                    <span>匹配度 {{ Math.round(card.relevanceScore) }}%</span>
+                  </span>
+                </div>
+                <div class="card-footer">
+                  <span class="time-label">⏱ {{ card.durationText }}</span>
+                  <span class="level-label" :class="'level-' + card.difficulty">{{ card.difficulty }}</span>
+                  <span class="source-label" v-if="card.provider">{{ card.provider }}</span>
+                  <span class="quality-badge" v-if="card.isHighlyRelevant">
+                    <span class="quality-icon">✓</span>
+                    <span>强相关</span>
+                  </span>
+                </div>
+                <button
+                  class="card-action-btn"
+                  v-if="card.url || card.externalUrl"
+                  @click.stop="openResource(card)"
+                >
+                  🚀 前往学习
+                </button>
+                <div class="card-collapse-toggle" @click="toggleCardExpand(card.id || idx)">
+                  <span class="toggle-icon" :class="{ expanded: expandedCards[card.id || idx] }">▼</span>
+                  <span class="toggle-text">{{ expandedCards[card.id || idx] ? '收起详情' : '展开实践方案与工具' }}</span>
+                </div>
+                <div class="card-collapse-panel" v-if="expandedCards[card.id || idx]">
+                  <div class="collapse-section" v-if="card.practicePlan && card.practicePlan.length > 0">
+                    <h5 class="collapse-title">
+                      <span class="collapse-icon">💪</span> 实践练习方案
+                    </h5>
+                    <ol class="practice-list">
+                      <li v-for="(step, sIdx) in card.practicePlan" :key="sIdx">{{ step }}</li>
+                    </ol>
+                  </div>
+                  <div class="collapse-section" v-if="card.recommendedTools && card.recommendedTools.length > 0">
+                    <h5 class="collapse-title">
+                      <span class="collapse-icon">🛠</span> 配套推荐工具
+                    </h5>
+                    <ul class="tools-list">
+                      <li v-for="(tool, tIdx) in card.recommendedTools" :key="tIdx">{{ tool }}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="rules-section">
+            <div class="rules-column">
+              <h4 class="rules-title">🎯 推送规则</h4>
+              <ul class="rules-list">
+                <li><span class="rule-icon">📌</span> 目标岗位：{{ selectedPositionLabel }}</li>
+                <li><span class="rule-icon">⚙️</span> 匹配算法：JD技能 + 进度加权</li>
+                <li><span class="rule-icon">📊</span> 资源类型：视频/课程/图书</li>
+              </ul>
+            </div>
+            <div class="rules-column">
+              <h4 class="rules-title">📈 推送机制</h4>
+              <ul class="rules-list">
+                <li><span class="rule-icon">🔝</span> 必备技能权重10分/项</li>
+                <li><span class="rule-icon">🔸</span> 优先技能权重5分/项</li>
+                <li><span class="rule-icon">📐</span> 覆盖率 + 类型多样性</li>
+              </ul>
+            </div>
+          </div>
         </div>
 
-        <div class="rules-section">
-          <div class="rules-column">
-            <h4 class="rules-title">🎯 推送规则</h4>
-            <ul class="rules-list">
-              <li><span class="rule-icon">📌</span> 目标岗位：{{ selectedPositionLabel }}</li>
-              <li><span class="rule-icon">⚙️</span> 匹配算法：JD技能 + 进度加权</li>
-              <li><span class="rule-icon">📊</span> 资源类型：视频/课程/图书</li>
-            </ul>
+        <!-- AI学习顾问视图 -->
+        <div v-else-if="currentNav === 'ai-assistant'" class="view-section ai-view">
+          <div class="content-header">
+            <h2>AI学习顾问</h2>
+            <p class="content-desc">基于Coze智能体的AI学习助手，为你解答学习疑问、规划学习路径、推荐练习方案</p>
           </div>
-          <div class="rules-column">
-            <h4 class="rules-title">📈 推送机制</h4>
-            <ul class="rules-list">
-              <li><span class="rule-icon">🔝</span> 必备技能权重10分/项</li>
-              <li><span class="rule-icon">🔸</span> 优先技能权重5分/项</li>
-              <li><span class="rule-icon">📐</span> 覆盖率 + 类型多样性</li>
-            </ul>
+          <div class="ai-chat-container">
+            <div class="ai-chat-messages" ref="aiChatMessagesRef">
+              <div 
+                v-for="(msg, idx) in aiMessages" 
+                :key="msg.id || idx" 
+                class="ai-chat-message" 
+                :class="[msg.role, msg.isStreaming ? 'streaming' : '']"
+              >
+                <div class="message-avatar">
+                  <span v-if="msg.role === 'user'">👤</span>
+                  <span v-else>🤖</span>
+                </div>
+                <div class="message-content">
+                  <div v-if="msg.role === 'assistant' && idx === 0 && !msg.content" class="ai-welcome">
+                    <p>你好！我是AI学习顾问。我可以帮你：</p>
+                    <ul>
+                      <li>🎯 规划学习路径，制定学习计划</li>
+                      <li>💡 解答技术疑问，讲解知识点</li>
+                      <li>📚 推荐学习资源和实战项目</li>
+                      <li>🚀 模拟面试，提供求职建议</li>
+                    </ul>
+                    <p class="ai-suggestion-title">试试这样问我：</p>
+                    <ul class="ai-suggestions">
+                      <li v-for="(sug, si) in aiSuggestions" :key="si" @click="useSuggestion(sug)">{{ sug }}</li>
+                    </ul>
+                  </div>
+                  <div v-else class="message-text">{{ msg.content }}<span v-if="msg.isStreaming" class="cursor">|</span></div>
+                </div>
+              </div>
+              <!-- 加载气泡：用户发送后显示，AI开始返回时消失 -->
+              <div v-if="aiLoading && !aiStreamStarted" class="ai-chat-message assistant loading-bubble">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content loading-content">
+                  <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                  </div>
+                  <span class="loading-text">正在思考，请稍等片刻...</span>
+                </div>
+              </div>
+            </div>
+            <div class="ai-chat-input" :class="{ locked: aiLoading }">
+              <input 
+                v-model="aiMessageInput" 
+                type="text" 
+                placeholder="输入你的学习问题..." 
+                @keydown.enter="sendAIMessage"
+                :disabled="aiLoading"
+              >
+              <button 
+                class="ai-send-btn" 
+                @click="sendAIMessage"
+                :disabled="aiLoading || !aiMessageInput.trim()"
+              >
+                {{ aiLoading ? '思考中...' : '发送' }}
+              </button>
+            </div>
           </div>
         </div>
       </main>
-
-      <aside class="ai-sidebar">
-        <div class="ai-card">
-          <div class="ai-header">
-            <div class="ai-avatar">
-              <svg viewBox="0 0 24 24" width="24" height="24">
-                <path d="M12 2a3 3 0 0 1 3 3v1h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3V5a3 3 0 0 1 3-3zm0 2a1 1 0 0 0-1 1v1h2V5a1 1 0 0 0-1-1z" fill="#4a9eff"/>
-              </svg>
-            </div>
-            <h3>AI学习顾问</h3>
-          </div>
-          <div class="ai-messages">
-            <div class="ai-message">
-              <span class="msg-icon">⚡</span>
-              <p>已基于{{ selectedPositionLabel }}技能图谱，智能推送6项学习资源</p>
-            </div>
-            <div class="ai-message highlight">
-              <span class="msg-icon">🎯</span>
-              <p>核心技能匹配度92%，建议优先学习必备技能课程</p>
-            </div>
-          </div>
-          <div class="ai-input-area">
-            <input type="text" v-model="aiInput" placeholder="问问技能、岗位或学习方法..." />
-            <button class="ai-send-btn">提问</button>
-          </div>
-        </div>
-      </aside>
     </div>
   </div>
 </template>
@@ -228,6 +376,241 @@ const bgCanvas = ref(null)
 const currentNav = ref('dashboard')
 const aiInput = ref('')
 const selectedPosition = ref('')
+
+// 学习数据统计
+const learnedCount = ref(3)
+const totalHours = ref(12)
+const masteryRate = ref(68)
+const streakDays = ref(5)
+
+// 技能进度列表
+const topSkills = computed(() => {
+  if (!selectedPosition.value || currentSkills.value.length === 0) {
+    return [
+      { name: 'HTML/CSS', progress: 85 },
+      { name: 'JavaScript', progress: 72 },
+      { name: 'Vue/React', progress: 60 },
+      { name: '工程化工具', progress: 45 }
+    ]
+  }
+  return currentSkills.value.slice(0, 6).map((skill, idx) => ({
+    name: skill.name,
+    progress: Math.max(30, 90 - idx * 12)
+  }))
+})
+
+// 学习计划列表
+const studyPlans = computed(() => {
+  if (!selectedPosition.value) return []
+  const positionLabel = selectedPositionLabel.value || '目标岗位'
+  return [
+    {
+      id: 1,
+      title: `${positionLabel}基础技能学习`,
+      desc: '掌握岗位所需的核心基础知识',
+      progress: 45,
+      status: 'ongoing',
+      statusText: '进行中',
+      deadline: '2026-08-30',
+      goal: '完成10个核心技能学习'
+    },
+    {
+      id: 2,
+      title: '实战项目训练',
+      desc: '通过实战项目巩固所学知识',
+      progress: 20,
+      status: 'pending',
+      statusText: '待开始',
+      deadline: '2026-09-15',
+      goal: '完成3个完整项目'
+    }
+  ]
+})
+
+// AI聊天相关变量
+const aiMessages = ref([{ role: 'assistant', content: '', isStreaming: false }])
+const aiMessageInput = ref('')
+const aiLoading = ref(false)
+const aiStreamStarted = ref(false)
+const aiConversationId = ref('')
+const aiUserId = ref('user-' + Date.now())
+const aiChatMessagesRef = ref(null)
+let msgIdCounter = 0
+
+const aiSuggestions = [
+  '如何系统学习前端开发？',
+  'Vue和React哪个更适合新手？',
+  '我想转行IT，需要学哪些技能？',
+  '如何准备前端面试？',
+  '推荐一些JavaScript进阶学习资源'
+]
+
+const useSuggestion = (text) => {
+  aiMessageInput.value = text
+  sendAIMessage()
+}
+
+const scrollChatToBottom = () => {
+  if (aiChatMessagesRef.value) {
+    aiChatMessagesRef.value.scrollTop = aiChatMessagesRef.value.scrollHeight
+  }
+}
+
+const sendAIMessage = async () => {
+  const message = aiMessageInput.value.trim()
+  if (!message || aiLoading.value) return
+
+  aiLoading.value = true
+  aiStreamStarted.value = false
+  aiMessageInput.value = ''
+
+  msgIdCounter++
+  aiMessages.value.push({
+    id: 'user-' + msgIdCounter,
+    role: 'user',
+    content: message,
+    isStreaming: false
+  })
+
+  const pendingAssistantIndex = aiMessages.value.length
+
+  scrollChatToBottom()
+
+  try {
+    const response = await fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: message,
+        conversation_id: aiConversationId.value,
+        user_id: aiUserId.value
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('请求失败')
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop()
+
+      for (const line of lines) {
+        if (line.startsWith('data:')) {
+          const dataStr = line.slice(5).trim()
+          if (dataStr === '[DONE]') continue
+
+          try {
+            const data = JSON.parse(dataStr)
+            handleAIResponse(data, pendingAssistantIndex)
+          } catch (e) {
+            // 非JSON格式
+          }
+        }
+      }
+    }
+
+    // 确保最后一条消息停止流式
+    if (aiMessages.value[pendingAssistantIndex]) {
+      aiMessages.value[pendingAssistantIndex].isStreaming = false
+    }
+  } catch (error) {
+    console.error('AI请求错误:', error)
+    if (aiMessages.value[pendingAssistantIndex]) {
+      aiMessages.value[pendingAssistantIndex].content = '抱歉，AI服务暂时不可用，请稍后重试。'
+      aiMessages.value[pendingAssistantIndex].isStreaming = false
+    } else {
+      msgIdCounter++
+      aiMessages.value.push({
+        id: 'assistant-' + msgIdCounter,
+        role: 'assistant',
+        content: '抱歉，AI服务暂时不可用，请稍后重试。',
+        isStreaming: false
+      })
+    }
+  } finally {
+    aiLoading.value = false
+    aiStreamStarted.value = false
+  }
+}
+
+const handleAIResponse = (data, msgIndex) => {
+  switch (data.type) {
+    case 'delta':
+      if (data.content) {
+        if (!aiMessages.value[msgIndex]) {
+          msgIdCounter++
+          aiMessages.value.splice(msgIndex, 0, {
+            id: 'assistant-' + msgIdCounter,
+            role: 'assistant',
+            content: data.content,
+            isStreaming: true
+          })
+        } else {
+          aiMessages.value[msgIndex].content += data.content
+        }
+        aiStreamStarted.value = true
+        scrollChatToBottom()
+      }
+      break
+
+    case 'completed':
+      if (data.content) {
+        if (!aiMessages.value[msgIndex]) {
+          msgIdCounter++
+          aiMessages.value.splice(msgIndex, 0, {
+            id: 'assistant-' + msgIdCounter,
+            role: 'assistant',
+            content: data.content,
+            isStreaming: false
+          })
+        } else if (!aiMessages.value[msgIndex].content) {
+          aiMessages.value[msgIndex].content = data.content
+        }
+        if (aiMessages.value[msgIndex]) {
+          aiMessages.value[msgIndex].isStreaming = false
+        }
+      }
+      break
+
+    case 'conversation_id':
+      if (data.conversation_id) {
+        aiConversationId.value = data.conversation_id
+      }
+      break
+
+    case 'error':
+      if (aiMessages.value[msgIndex]) {
+        aiMessages.value[msgIndex].content += '\n\n⚠️ ' + (data.message || '未知错误')
+        aiMessages.value[msgIndex].isStreaming = false
+      } else {
+        msgIdCounter++
+        aiMessages.value.splice(msgIndex, 0, {
+          id: 'assistant-' + msgIdCounter,
+          role: 'assistant',
+          content: '⚠️ ' + (data.message || '未知错误'),
+          isStreaming: false
+        })
+      }
+      break
+
+    case 'done':
+      if (aiMessages.value[msgIndex]) {
+        aiMessages.value[msgIndex].isStreaming = false
+      }
+      break
+  }
+}
 
 // 折叠面板状态：key为卡片id/索引，value为是否展开
 const expandedCards = ref({})
@@ -1273,6 +1656,13 @@ const formatDuration = (minutes) => {
   return mins > 0 ? `${days}天${hours % 8}小时` : `${days}天`
 }
 
+// 获取相关性等级（用于UI样式）
+const getRelevanceLevel = (score) => {
+  if (score >= 70) return 'high'
+  if (score >= 50) return 'medium'
+  return 'low'
+}
+
 const resourceCards = computed(() => {
   if (!selectedPosition.value) {
     return defaultResourceCards
@@ -1297,7 +1687,9 @@ const resourceCards = computed(() => {
     externalUrl: item.externalUrl,
     practicePlan: item.practicePlan || [],
     recommendedTools: item.recommendedTools || [],
-    featured: idx === 0
+    featured: idx === 0,
+    relevanceScore: item.relevanceScore || 0,
+    isHighlyRelevant: item.isHighlyRelevant || false
   }))
 })
 
@@ -1336,15 +1728,7 @@ const goBack = () => {
 }
 
 const handleNavClick = (key) => {
-  if (key === 'skill-route') {
-    if (!selectedPosition.value) {
-      alert('请先选择目标岗位')
-      return
-    }
-    router.push('/skill-route')
-  } else {
-    currentNav.value = key
-  }
+  currentNav.value = key
 }
 
 const openResource = (card) => {
@@ -1543,6 +1927,17 @@ onUnmounted(() => {
   padding: 25px;
   max-width: 1600px;
   margin: 0 auto;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.main-layout.ai-mode {
+  grid-template-columns: 200px 1fr;
+  max-width: none;
+  width: 100%;
+}
+
+.main-layout.no-ai-sidebar {
+  grid-template-columns: 200px 1fr;
 }
 
 .sidebar {
@@ -1606,6 +2001,7 @@ onUnmounted(() => {
   border-radius: 12px;
   padding: 25px;
   min-height: calc(100vh - 140px);
+  min-width: 0;
 }
 
 .content-header {
@@ -2147,6 +2543,57 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.5);
   padding-top: 10px;
   border-top: 1px solid rgba(74, 158, 255, 0.1);
+  flex-wrap: wrap;
+}
+
+.relevance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.relevance-badge.level-high {
+  background: rgba(0, 212, 170, 0.2);
+  color: #00d4aa;
+  border: 1px solid rgba(0, 212, 170, 0.4);
+}
+
+.relevance-badge.level-medium {
+  background: rgba(255, 180, 71, 0.2);
+  color: #ffb447;
+  border: 1px solid rgba(255, 180, 71, 0.4);
+}
+
+.relevance-badge.level-low {
+  background: rgba(255, 99, 132, 0.2);
+  color: #ff6384;
+  border: 1px solid rgba(255, 99, 132, 0.4);
+}
+
+.relevance-icon {
+  font-size: 0.75rem;
+}
+
+.quality-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.3), rgba(0, 180, 216, 0.3));
+  color: #00d4aa;
+  border: 1px solid rgba(0, 212, 170, 0.5);
+}
+
+.quality-icon {
+  font-size: 0.7rem;
 }
 
 .time-label {
@@ -2361,9 +2808,501 @@ onUnmounted(() => {
   transform: scale(1.05);
 }
 
+/* 新视图样式 */
+.view-section {
+  min-height: 100%;
+}
+
+/* 数据统计卡片 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(74, 158, 255, 0.2);
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-icon.blue { background: linear-gradient(135deg, #4a9eff, #00d4aa); }
+.stat-icon.green { background: linear-gradient(135deg, #00d4aa, #00b894); }
+.stat-icon.orange { background: linear-gradient(135deg, #ffb447, #ff8c42); }
+.stat-icon.purple { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+
+.stat-content h3 {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 5px;
+  font-weight: 400;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* 技能进度列表 */
+.chart-section {
+  background: rgba(17, 27, 46, 0.4);
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid rgba(74, 158, 255, 0.1);
+}
+
+.chart-title {
+  font-size: 1.1rem;
+  color: #fff;
+  margin: 0 0 20px;
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.progress-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px 15px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.progress-name {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.progress-percent {
+  color: #4a9eff;
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4a9eff, #00d4aa);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* 路线占位符 */
+.route-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(74, 158, 255, 0.05);
+  border-radius: 16px;
+  border: 2px dashed rgba(74, 158, 255, 0.3);
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.route-placeholder h3 {
+  color: #fff;
+  font-size: 1.3rem;
+  margin: 0 0 10px;
+}
+
+.route-placeholder p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  margin: 0 0 25px;
+}
+
+/* 学习计划 */
+.plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.plan-item {
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.plan-header h4 {
+  color: #fff;
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.plan-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.plan-status.ongoing {
+  background: rgba(0, 212, 170, 0.2);
+  color: #00d4aa;
+}
+
+.plan-status.pending {
+  background: rgba(255, 180, 71, 0.2);
+  color: #ffb447;
+}
+
+.plan-desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin: 0 0 15px;
+}
+
+.plan-progress {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.plan-progress .progress-bar {
+  flex: 1;
+}
+
+.progress-text {
+  color: #4a9eff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 45px;
+}
+
+.plan-meta {
+  display: flex;
+  gap: 20px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(74, 158, 255, 0.05);
+  border-radius: 16px;
+  border: 2px dashed rgba(74, 158, 255, 0.3);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  color: #fff;
+  font-size: 1.3rem;
+  margin: 0 0 10px;
+}
+
+.empty-state p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  margin: 0 0 25px;
+}
+
+/* AI学习顾问视图 */
+.ai-view {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 160px);
+  min-width: 0;
+}
+
+.ai-chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(17, 27, 46, 0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(74, 158, 255, 0.1);
+  overflow: hidden;
+  width: 100%;
+}
+
+.ai-chat-messages {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ai-chat-message {
+  display: flex;
+  gap: 12px;
+  max-width: 85%;
+}
+
+.ai-chat-message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.ai-chat-message.assistant {
+  align-self: flex-start;
+}
+
+.ai-chat-message.assistant.streaming {
+  opacity: 0.95;
+}
+
+.message-avatar {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 158, 255, 0.15);
+  border-radius: 50%;
+}
+
+.ai-chat-message.user .message-avatar {
+  background: rgba(0, 212, 170, 0.15);
+}
+
+.message-content {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  background: rgba(74, 158, 255, 0.08);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(74, 158, 255, 0.15);
+}
+
+.ai-chat-message.user .message-content {
+  background: rgba(0, 212, 170, 0.08);
+  border-color: rgba(0, 212, 170, 0.2);
+}
+
+.message-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s infinite;
+  margin-left: 2px;
+  color: #4a9eff;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.ai-welcome {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ai-welcome p {
+  margin: 0 0 10px;
+}
+
+.ai-welcome ul {
+  margin: 0 0 15px;
+  padding-left: 20px;
+}
+
+.ai-welcome li {
+  margin-bottom: 5px;
+}
+
+.ai-suggestion-title {
+  margin-top: 15px !important;
+  color: rgba(74, 158, 255, 0.8);
+  font-weight: 500;
+}
+
+.ai-suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ai-suggestions li {
+  padding: 10px 14px;
+  background: rgba(74, 158, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid rgba(74, 158, 255, 0.15);
+}
+
+.ai-suggestions li:hover {
+  background: rgba(74, 158, 255, 0.2);
+  border-color: rgba(74, 158, 255, 0.3);
+  transform: translateX(4px);
+}
+
+.ai-chat-input {
+  display: flex;
+  gap: 10px;
+  padding: 15px 20px;
+  background: rgba(17, 27, 46, 0.6);
+  border-top: 1px solid rgba(74, 158, 255, 0.1);
+}
+
+.ai-chat-input input {
+  flex: 1;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.ai-chat-input input:focus {
+  border-color: rgba(74, 158, 255, 0.5);
+}
+
+.ai-chat-input input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.ai-chat-input input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-chat-input .ai-send-btn {
+  padding: 10px 25px;
+  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ai-chat-input .ai-send-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+}
+
+.ai-chat-input .ai-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-chat-input.locked {
+  background: rgba(17, 27, 46, 0.8);
+}
+
+/* 加载气泡样式 */
+.loading-bubble {
+  max-width: 200px;
+}
+
+.loading-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.loading-dots span {
+  width: 6px;
+  height: 6px;
+  background: #4a9eff;
+  border-radius: 50%;
+  animation: dotBounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.loading-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
 @media (max-width: 1200px) {
   .main-layout {
     grid-template-columns: 180px 1fr 240px;
+  }
+  .main-layout.ai-mode {
+    grid-template-columns: 180px 1fr;
+  }
+  .main-layout.no-ai-sidebar {
+    grid-template-columns: 180px 1fr;
   }
   .resource-cards {
     grid-template-columns: repeat(2, 1fr);
@@ -2371,7 +3310,9 @@ onUnmounted(() => {
 }
 
 @media (max-width: 900px) {
-  .main-layout {
+  .main-layout,
+  .main-layout.ai-mode,
+  .main-layout.no-ai-sidebar {
     grid-template-columns: 1fr;
   }
   .resource-cards {
@@ -2379,6 +3320,9 @@ onUnmounted(() => {
   }
   .rules-section {
     grid-template-columns: 1fr;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

@@ -1365,8 +1365,8 @@ export const resourceDatabase = [
     description: '黑马程序员Vue3完整课程，含基础语法、组件通信、状态管理、路由、项目实战',
     rating: 4.9,
     students: 850000,
-    externalUrl: 'https://www.bilibili.com/video/BV11f4y1q7tY/',
-    url: 'https://www.bilibili.com/video/BV11f4y1q7tY/',
+    externalUrl: 'https://www.bilibili.com/video/BV1Ac411K7EQ/',
+    url: 'https://www.bilibili.com/video/BV1Ac411K7EQ/',
     practicePlan: [
       '跟随视频完成Vue3基础语法学习，至少完成20个代码练习',
       '实现TodoList应用：含Pinia状态管理和本地持久化',
@@ -1501,9 +1501,107 @@ const posSkillData = {
 }
 
 // ============================================================
-// 智能匹配推送算法
+// 技能相关性校验工具函数
+// 用于精确计算资源技能标签与岗位技能的匹配程度
+// ============================================================
+
+// 技能标签规范化：统一转换为小写，去除特殊字符
+const normalizeSkill = (skill) => {
+  return skill.toLowerCase().replace(/[（）()/]/g, '').trim()
+}
+
+// 计算两个技能字符串的相关性得分（0-100分）
+const calculateSkillRelevance = (resourceTag, jobSkill) => {
+  const normTag = normalizeSkill(resourceTag)
+  const normSkill = normalizeSkill(jobSkill)
+
+  // 完全匹配
+  if (normTag === normSkill) return 100
+
+  // 精确包含匹配（子串关系）
+  if (normTag.includes(normSkill) || normSkill.includes(normTag)) {
+    // 短字符串被长字符串完全包含，高度相关
+    const minLen = Math.min(normTag.length, normSkill.length)
+    const maxLen = Math.max(normTag.length, normSkill.length)
+    const ratio = minLen / maxLen
+
+    // 如果短串长度>=3，且被包含，则高度相关
+    if (minLen >= 3 && ratio >= 0.5) return 90
+    if (minLen >= 2 && ratio >= 0.3) return 70
+    return 50
+  }
+
+  // 关键词拆分匹配
+  const tagKeywords = normTag.split(/[/\s,+-]+/)
+  const skillKeywords = normSkill.split(/[/\s,+-]+/)
+
+  let matchCount = 0
+  for (const tk of tagKeywords) {
+    if (tk.length < 2) continue
+    for (const sk of skillKeywords) {
+      if (sk.length < 2) continue
+      if (tk === sk || tk.includes(sk) || sk.includes(tk)) {
+        matchCount++
+        break
+      }
+    }
+  }
+
+  // 计算关键词匹配率
+  const maxKeywords = Math.min(tagKeywords.filter(k => k.length >= 2).length, skillKeywords.filter(k => k.length >= 2).length)
+  if (maxKeywords === 0) return 0
+
+  const relevanceScore = (matchCount / maxKeywords) * 60
+  return relevanceScore
+}
+
+// 计算资源与岗位的整体相关性评估
+const evaluateResourceRelevance = (resource, searchSkills) => {
+  let totalRelevance = 0
+  let highRelevanceCount = 0
+  const matchedSkills = []
+
+  for (const tag of resource.skillTags) {
+    let maxRelevance = 0
+    let bestSkill = null
+
+    for (const skill of searchSkills) {
+      const relevance = calculateSkillRelevance(tag, skill)
+      if (relevance > maxRelevance) {
+        maxRelevance = relevance
+        bestSkill = skill
+      }
+    }
+
+    if (maxRelevance >= 60) {
+      highRelevanceCount++
+      matchedSkills.push({ tag, skill: bestSkill, relevance: maxRelevance })
+      totalRelevance += maxRelevance
+    } else if (maxRelevance >= 30) {
+      matchedSkills.push({ tag, skill: bestSkill, relevance: maxRelevance })
+      totalRelevance += maxRelevance * 0.5
+    }
+  }
+
+  // 计算综合相关性分数
+  const avgRelevance = matchedSkills.length > 0 ? totalRelevance / matchedSkills.length : 0
+  const coverageRatio = highRelevanceCount / Math.max(searchSkills.length, 1)
+  const overallScore = avgRelevance * 0.4 + coverageRatio * 100 * 0.6
+
+  return {
+    avgRelevance,
+    highRelevanceCount,
+    coverageRatio,
+    overallScore,
+    matchedSkills,
+    isHighlyRelevant: overallScore >= 40
+  }
+}
+
+// ============================================================
+// 智能匹配推送算法（增强版）
 // 根据岗位JD技能清单 + 用户学习进度 自动匹配资源
-// 核心变化：确保岗位技能清单每一项至少匹配到1条资源
+// 强制约束：仅强相关资源参与系统推送
 // ============================================================
 export function findMatchingResources(positionKey, userProgress = 0) {
   const searchSkills = posSkillData[positionKey] || []
@@ -1514,55 +1612,92 @@ export function findMatchingResources(positionKey, userProgress = 0) {
   const preferSkills = searchSkills.slice(Math.ceil(searchSkills.length * 0.4), Math.ceil(searchSkills.length * 0.75))
   const bonusSkills = searchSkills.slice(Math.ceil(searchSkills.length * 0.75))
 
-  // 为每条资源计算匹配分数
+  // 为每条资源计算匹配分数和相关性评估
   const scored = resourceDatabase.map(resource => {
+    // 1. 基础匹配分数计算
     let score = 0
     const matchedSkills = []
+    const relevanceResult = evaluateResourceRelevance(resource, searchSkills)
 
     for (const tag of resource.skillTags) {
-      if (mustSkills.some(s => tag.includes(s) || s.includes(tag))) {
-        score += 10
-        matchedSkills.push({ name: tag, level: 'must' })
-      } else if (preferSkills.some(s => tag.includes(s) || s.includes(tag))) {
-        score += 5
-        matchedSkills.push({ name: tag, level: 'prefer' })
-      } else if (bonusSkills.some(s => tag.includes(s) || s.includes(tag))) {
-        score += 2
-        matchedSkills.push({ name: tag, level: 'bonus' })
+      const tagRelevance = relevanceResult.matchedSkills.find(m => m.tag === tag)
+      if (!tagRelevance || tagRelevance.relevance < 30) continue
+
+      // 检查技能分级
+      if (mustSkills.some(s => calculateSkillRelevance(tag, s) >= 60)) {
+        score += 15  // 必备技能高度匹配
+        matchedSkills.push({ name: tag, level: 'must', relevance: tagRelevance.relevance })
+      } else if (mustSkills.some(s => calculateSkillRelevance(tag, s) >= 30)) {
+        score += 8   // 必备技能中度匹配
+        matchedSkills.push({ name: tag, level: 'must', relevance: tagRelevance.relevance })
+      } else if (preferSkills.some(s => calculateSkillRelevance(tag, s) >= 60)) {
+        score += 10  // 优先技能高度匹配
+        matchedSkills.push({ name: tag, level: 'prefer', relevance: tagRelevance.relevance })
+      } else if (preferSkills.some(s => calculateSkillRelevance(tag, s) >= 30)) {
+        score += 5   // 优先技能中度匹配
+        matchedSkills.push({ name: tag, level: 'prefer', relevance: tagRelevance.relevance })
+      } else if (bonusSkills.some(s => calculateSkillRelevance(tag, s) >= 60)) {
+        score += 5   // 加分技能高度匹配
+        matchedSkills.push({ name: tag, level: 'bonus', relevance: tagRelevance.relevance })
+      } else if (bonusSkills.some(s => calculateSkillRelevance(tag, s) >= 30)) {
+        score += 2   // 加分技能中度匹配
+        matchedSkills.push({ name: tag, level: 'bonus', relevance: tagRelevance.relevance })
       }
     }
 
-    // 覆盖率加成
+    // 2. 覆盖率加成
     const skillCoverage = matchedSkills.length / Math.max(resource.skillTags.length, 1)
-    score += skillCoverage * 5
+    score += skillCoverage * 10
 
-    // 进度适配加成
+    // 3. 相关性加成（核心增强）
+    score += relevanceResult.overallScore * 0.3
+
+    // 4. 进度适配加成
     if (userProgress > 0 && userProgress < 50 && resource.difficulty === '进阶') {
-      score += 2
+      score += 3
     } else if (userProgress >= 50 && resource.difficulty === '进阶') {
       score += 2
     }
 
-    return { ...resource, score, matchedSkills, skillCoverage }
+    // 5. 资源质量加成（基于评分和学习人数）
+    if (resource.rating >= 4.8) score += 2
+    if (resource.students >= 10000) score += 1
+
+    return {
+      ...resource,
+      score,
+      matchedSkills,
+      skillCoverage,
+      relevanceScore: relevanceResult.overallScore,
+      isHighlyRelevant: relevanceResult.isHighlyRelevant
+    }
   })
 
-  // 过滤有匹配分数的资源
+  // 严格过滤：仅保留有匹配分数的资源
   const filtered = scored.filter(r => r.score > 0)
 
   // ======================================================
-  // 核心变化：确保岗位技能清单每一项至少匹配到1条资源
+  // 核心约束：确保岗位技能清单每一项至少匹配到1条资源
+  // 且仅高相关资源作为必选推荐
   // ======================================================
   const guaranteedIds = new Set()
   const guaranteedItems = []
 
   for (const skill of searchSkills) {
-    // 精确子串匹配
+    // 优先选择高度相关的资源（相关性分数>=60）
     let candidates = filtered.filter(r =>
-      r.skillTags.some(tag => tag.includes(skill) || skill.includes(tag))
+      r.skillTags.some(tag => calculateSkillRelevance(tag, skill) >= 60)
     )
 
+    // 如果没有高度相关资源，退化为中等相关（>=30）
     if (candidates.length === 0) {
-      // 退化为关键词模糊匹配
+      candidates = filtered.filter(r =>
+        r.skillTags.some(tag => calculateSkillRelevance(tag, skill) >= 30)
+      )
+    }
+
+    // 最后兜底：关键词模糊匹配
+    if (candidates.length === 0) {
       const keywords = skill.split(/[/\s,+()（）]/).filter(k => k.length >= 2)
       if (keywords.length > 0) {
         candidates = filtered.filter(r =>
@@ -1583,15 +1718,31 @@ export function findMatchingResources(positionKey, userProgress = 0) {
     }
   }
 
-  // 去重：将guaranteedItems作为必选基础，再补充其他高分资源
+  // 补充其他高匹配度资源（排除已选的必选资源）
+  // 严格过滤：仅保留相关性分数>=40的资源，确保强相关
   const otherCandidates = filtered
-    .filter(r => !guaranteedIds.has(r.id))
+    .filter(r => !guaranteedIds.has(r.id) && r.relevanceScore >= 40)
     .sort((a, b) => b.score - a.score)
 
-  // 合并：先放必选项，再按分数补充
-  const result = [...guaranteedItems, ...otherCandidates]
+  // 对必选资源进行二次校验：确保至少有一个技能标签与岗位高度相关
+  const validatedGuaranteedItems = guaranteedItems.filter(r => {
+    // 必选资源至少需要一个技能标签与岗位技能有中等以上相关性
+    return r.matchedSkills.length > 0 && r.relevanceScore >= 20
+  })
 
-  // 不再硬编码6条限制，返回所有匹配到的资源
+  // 合并结果：必选资源优先，其他高分资源补充
+  const result = [...validatedGuaranteedItems, ...otherCandidates]
+
+  // 返回所有匹配到的资源（已通过相关性校验）
+  // 如果过滤后资源太少，保留部分必选资源以确保覆盖度
+  if (result.length < 5) {
+    const fallbackItems = filtered
+      .filter(r => !result.some(r2 => r2.id === r.id))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5 - result.length)
+    return [...result, ...fallbackItems]
+  }
+
   return result
 }
 

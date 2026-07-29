@@ -1,0 +1,424 @@
+{
+  "positions": [
+    {
+      "position": "前端开发工程师",
+      "aliases": ["前端", "前端开发", "前端工程师", "Frontend", "Vue开发", "React开发", "网页开发"],
+      "keywords": ["前端", "frontend", "vue", "react", "网页", "ui"],
+      "description": "负责网页/移动端前端界面开发，核心技术栈为HTML/CSS/JavaScript及主流框架",
+      "requiredSkills": [
+        { "name": "HTML5/CSS3", "level": "必备", "desc": "语义化标签、Flexbox/Grid布局、响应式设计" },
+        { "name": "JavaScript", "level": "必备", "desc": "ES6+语法、DOM操作、异步编程、模块化" },
+        { "name": "Vue.js", "level": "必备", "desc": "组件化开发、Vue Router、Pinia状态管理、Composition API" },
+        { "name": "React", "level": "优先", "desc": "Hooks、Context、Redux、Next.js" },
+        { "name": "TypeScript", "level": "优先", "desc": "类型系统、接口定义、泛型" },
+        { "name": "Webpack/Vite", "level": "加分", "desc": "构建配置、性能优化" },
+        { "name": "Node.js", "level": "加分", "desc": "Express/Koa、API对接" }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：基础入门（1-2个月）",
+          "tasks": [
+            "掌握HTML5语义化标签和CSS3选择器、盒模型",
+            "学习Flexbox/Grid布局，能独立完成响应式页面",
+            "JavaScript基础语法、ES6+常用特性",
+            "DOM/BOM操作、事件处理"
+          ]
+        },
+        {
+          "phase": "第二阶段：进阶提升（2-3个月）",
+          "tasks": [
+            "深入JavaScript：原型链、闭包、异步编程(Promise/async)",
+            "学习Vue 3或React框架，掌握组件化思想",
+            "状态管理：Pinia/Pinia、Redux Toolkit",
+            "路由管理：Vue Router / React Router"
+          ]
+        },
+        {
+          "phase": "第三阶段：实战项目（2-3个月）",
+          "tasks": [
+            "完成3个以上完整项目（电商后台、管理系统、数据大屏）",
+            "学习TypeScript，在项目中应用类型系统",
+            "工程化：Webpack/Vite配置、ESLint、Prettier",
+            "单元测试：Vitest/Jest"
+          ]
+        },
+        {
+          "phase": "第四阶段：高级进阶（持续学习）",
+          "tasks": [
+            "性能优化：懒加载、代码分割、缓存策略",
+            "源码阅读：Vue/React核心原理",
+            "微前端架构：qiankun/Module Federation",
+            "Node.js全栈开发：Express/Nest.js"
+          ]
+        }
+      ],
+      "resources": [
+        { "name": "MDN Web Docs", "url": "https://developer.mozilla.org/zh-CN/docs/Web", "type": "在线文档", "level": "入门" },
+        { "name": "Vue.js官方文档", "url": "https://cn.vuejs.org/", "type": "官方文档", "level": "入门" },
+        { "name": "React官方文档", "url": "https://react.dev/", "type": "官方文档", "level": "入门" },
+        { "name": "freeCodeCamp前端课程", "url": "https://www.freecodecamp.org/zh/learn", "type": "视频课程", "level": "入门" },
+        { "name": "极客时间-前端面试", "url": "https://time.geekbang.org/column/intro/147", "type": "视频课程", "level": "进阶" },
+        { "name": "掘金小册-React进阶", "url": "https://juejin.cn/book/6844733800308614414", "type": "实战项目", "level": "进阶" }
+      ],
+      "tools": ["VS Code", "Chrome DevTools", "Git", "npm/pnpm", "Webpack/Vite", "Figma"],
+      "practicePlan": {
+        "projects": [
+          "个人简历网站（HTML/CSS）",
+          "待办事项应用（JavaScript）",
+          "天气数据看板（Vue/React + API）",
+          "电商管理后台（Vue3 + TypeScript）",
+          "数据可视化大屏（ECharts + Vue）"
+        ],
+        "practiceCount": "建议完成3-5个项目，累计代码量5000+行",
+        "skills": "通过实战项目强化组件化思维和工程化实践"
+      }
+    },
+    {
+      "position": "后端开发工程师",
+      "aliases": ["后端", "后端开发", "服务端", "Server", "Java开发", "Python开发", "Node开发"],
+      "keywords": ["后端", "server", "java", "python", "node", "服务端", "api"],
+      "description": "负责服务端架构设计、API开发、数据库管理，支撑前端业务",
+      "requiredSkills": [
+        { "name": "编程语言", "level": "必备", "desc": "Java/Python/Node.js至少精通一门" },
+        { "name": "Spring Boot/Express", "level": "必备", "desc": "主流后端框架，RESTful API设计" },
+        { "name": "MySQL", "level": "必备", "desc": "SQL语句、索引优化、事务管理" },
+        { "name": "Redis", "level": "优先", "desc": "缓存设计、分布式锁" },
+        { "name": "MongoDB", "level": "加分", "desc": "文档型数据库使用场景" },
+        { "name": "Docker", "level": "加分", "desc": "容器化部署、微服务编排" },
+        { "name": "Linux", "level": "加分", "desc": "服务器运维、Shell脚本" }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：基础入门（1-2个月）",
+          "tasks": [
+            "掌握至少一门后端语言语法（Java/Python/Node.js）",
+            "学习数据结构与算法基础",
+            "数据库原理：SQL基础、表设计",
+            "HTTP协议、RESTful API设计规范"
+          ]
+        },
+        {
+          "phase": "第二阶段：框架学习（2-3个月）",
+          "tasks": [
+            "学习主流后端框架：Spring Boot / Express / Django",
+            "ORM框架：MyBatis/Prisma/SQLAlchemy",
+            "认证授权：JWT、OAuth2.0",
+            "中间件：Redis缓存、消息队列"
+          ]
+        },
+        {
+          "phase": "第三阶段：实战开发（3-4个月）",
+          "tasks": [
+            "设计并开发完整的API服务（用户系统、订单系统）",
+            "数据库优化：索引、分库分表、慢查询分析",
+            "接口文档：Swagger/Knife4j",
+            "单元测试与接口测试"
+          ]
+        },
+        {
+          "phase": "第四阶段：架构进阶（持续学习）",
+          "tasks": [
+            "微服务架构：Spring Cloud / NestJS",
+            "分布式系统：服务注册、配置中心、链路追踪",
+            "高并发优化：负载均衡、CDN、异步处理",
+            "DevOps：CI/CD、Kubernetes"
+          ]
+        }
+      ],
+      "resources": [
+        { "name": "Spring Boot官方文档", "url": "https://spring.io/projects/spring-boot", "type": "官方文档", "level": "入门" },
+        { "name": "Node.js官方文档", "url": "https://nodejs.cn/", "type": "官方文档", "level": "入门" },
+        { "name": "Python官方文档", "url": "https://docs.python.org/zh-cn/3/", "type": "官方文档", "level": "入门" },
+        { "name": "MDN Web Docs", "url": "https://developer.mozilla.org/zh-CN/docs/Web", "type": "在线文档", "level": "入门" },
+        { "name": "极客时间-后端开发", "url": "https://time.geekbang.org/column/intro/139", "type": "视频课程", "level": "进阶" },
+        { "name": "掘金小册-微服务", "url": "https://juejin.cn/book/7084248767276855812", "type": "实战项目", "level": "进阶" }
+      ],
+      "tools": ["IntelliJ IDEA/VS Code", "MySQL Workbench", "Redis", "Postman", "Docker", "Git", "Nginx"],
+      "practicePlan": {
+        "projects": [
+          "用户管理系统（注册、登录、权限）",
+          "博客API服务（CRUD、评论、标签）",
+          "电商订单系统（支付、库存、物流）",
+          "实时聊天服务（WebSocket、消息推送）"
+        ],
+        "practiceCount": "建议完成2-3个完整后端项目",
+        "skills": "重点掌握API设计、数据库优化、系统架构能力"
+      }
+    },
+    {
+      "position": "全栈开发工程师",
+      "aliases": ["全栈", "全栈开发", "Fullstack", "Full Stack", "全栈工程师"],
+      "keywords": ["全栈", "fullstack", "full stack", "前后端"],
+      "description": "同时掌握前端和后端技术栈，能独立完成从UI到数据库的全流程开发",
+      "requiredSkills": [
+        { "name": "前端基础", "level": "必备", "desc": "HTML/CSS/JavaScript、Vue或React框架" },
+        { "name": "后端开发", "level": "必备", "desc": "Node.js/Python/Java、RESTful API" },
+        { "name": "数据库", "level": "必备", "desc": "MySQL、Redis基础使用" },
+        { "name": "部署运维", "level": "优先", "desc": "Linux、Docker、Nginx" },
+        { "name": "工程化", "level": "优先", "desc": "Git、CI/CD、测试" },
+        { "name": "云服务", "level": "加分", "desc": "阿里云/腾讯云/AWS基础服务" }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：前端入门（1-2个月）",
+          "tasks": [
+            "HTML5/CSS3/JavaScript基础",
+            "Vue 3或React框架",
+            "能独立完成前端页面开发"
+          ]
+        },
+        {
+          "phase": "第二阶段：后端入门（2-3个月）",
+          "tasks": [
+            "选择一门后端语言（推荐Node.js/Python）",
+            "学习Express/Django框架",
+            "数据库设计与API开发"
+          ]
+        },
+        {
+          "phase": "第三阶段：全栈实战（3-4个月）",
+          "tasks": [
+            "前后端联调开发完整项目",
+            "用户认证、文件上传、实时通信",
+            "部署上线：云服务器+域名+HTTPS"
+          ]
+        },
+        {
+          "phase": "第四阶段：架构进阶（持续学习）",
+          "tasks": [
+            "微服务拆分、API网关",
+            "性能优化、高可用架构",
+            "多端开发：小程序、APP"
+          ]
+        }
+      ],
+      "resources": [
+        { "name": "freeCodeCamp全栈课程", "url": "https://www.freecodecamp.org/zh/learn/full-stack-programming", "type": "视频课程", "level": "入门" },
+        { "name": "MDN Web Docs", "url": "https://developer.mozilla.org/zh-CN/docs/Web", "type": "在线文档", "level": "入门" },
+        { "name": "Node.js官方文档", "url": "https://nodejs.cn/", "type": "官方文档", "level": "入门" },
+        { "name": "Vue.js官方文档", "url": "https://cn.vuejs.org/", "type": "官方文档", "level": "入门" },
+        { "name": "极客时间-全栈开发", "url": "https://time.geekbang.org/column/intro/139", "type": "视频课程", "level": "进阶" }
+      ],
+      "tools": ["VS Code", "Git", "Docker", "MySQL", "Redis", "Postman", "Nginx"],
+      "practicePlan": {
+        "projects": [
+          "个人博客系统（前后端+数据库）",
+          "待办事项全栈应用",
+          "实时聊天室（WebSocket）",
+          "简易电商平台"
+        ],
+        "practiceCount": "建议完成2-3个完整全栈项目",
+        "skills": "重点掌握全流程开发能力、系统设计能力"
+      }
+    },
+    {
+      "position": "算法工程师",
+      "aliases": ["算法", "算法开发", "AI算法", "机器学习", "ML工程师"],
+      "keywords": ["算法", "algo", "algorithm", "机器学习", "ml", "ai算法"],
+      "description": "负责算法模型研发与优化，应用于推荐、搜索、NLP、CV等场景",
+      "requiredSkills": [
+        { "name": "Python", "level": "必备", "desc": "Python数据处理、科学计算" },
+        { "name": "机器学习基础", "level": "必备", "desc": "sklearn、经典算法原理" },
+        { "name": "深度学习", "level": "必备", "desc": "PyTorch/TensorFlow、Transformer" },
+        { "name": "数据处理", "level": "优先", "desc": "Pandas、NumPy、数据清洗" },
+        { "name": "NLP/CV", "level": "优先", "desc": "自然语言处理/计算机视觉方向" },
+        { "name": "大数据", "level": "加分", "desc": "Spark、Hadoop基础" }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：数学与编程基础（2-3个月）",
+          "tasks": [
+            "线性代数、概率论、微积分基础",
+            "Python编程、NumPy/Pandas",
+            "数据结构与算法（LeetCode刷题）"
+          ]
+        },
+        {
+          "phase": "第二阶段：机器学习（2-3个月）",
+          "tasks": [
+            "经典ML算法：线性回归、决策树、SVM",
+            "集成学习：XGBoost、LightGBM",
+            "特征工程、模型调优"
+          ]
+        },
+        {
+          "phase": "第三阶段：深度学习（3-4个月）",
+          "tasks": [
+            "PyTorch/TensorFlow框架",
+            "CNN、RNN、Transformer架构",
+            "NLP/LLM：BERT、GPT原理",
+            "计算机视觉：目标检测、图像分割"
+          ]
+        },
+        {
+          "phase": "第四阶段：工程实践（持续学习）",
+          "tasks": [
+            "模型部署：ONNX、TensorRT",
+            "MLflow实验管理",
+            "K8s + 模型服务",
+            "大模型应用：RAG、Agent开发"
+          ]
+        }
+      ],
+      "resources": [
+        { "name": "PyTorch官方文档", "url": "https://pytorch.apachecn.org/", "type": "官方文档", "level": "入门" },
+        { "name": "TensorFlow官方文档", "url": "https://tensorflow.google.cn/", "type": "官方文档", "level": "入门" },
+        { "name": "李沐-动手学深度学习", "url": "https://zh.d2l.ai/", "type": "在线教程", "level": "入门" },
+        { "name": "Scikit-learn文档", "url": "https://scikit-learn.org.cn/", "type": "官方文档", "level": "入门" },
+        { "name": "HuggingFace", "url": "https://huggingface.co/", "type": "在线平台", "level": "进阶" }
+      ],
+      "tools": ["Python", "PyTorch", "TensorFlow", "Jupyter", "VS Code", "Git", "MLflow"],
+      "practicePlan": {
+        "projects": [
+          "手写数字识别（CNN）",
+          "文本情感分类（BERT）",
+          "电影推荐系统",
+          "图像目标检测应用",
+          "RAG知识库问答系统"
+        ],
+        "practiceCount": "建议完成3-5个算法项目",
+        "skills": "重点掌握模型原理、调优能力和工程落地"
+      }
+    },
+    {
+      "position": "大数据开发工程师",
+      "aliases": ["大数据", "大数据开发", "BigData", "数据工程", "ETL工程师"],
+      "keywords": ["大数据", "bigdata", "big data", "hadoop", "spark", "数据工程"],
+      "description": "负责大数据平台建设、数据处理与分析、支撑业务决策",
+      "requiredSkills": [
+        { "name": "Java/Scala", "level": "必备", "desc": "大数据开发主流语言" },
+        { "name": "Hadoop", "level": "必备", "desc": "HDFS、YARN、MapReduce" },
+        { "name": "Spark", "level": "必备", "desc": "Spark Core、Spark SQL、Spark Streaming" },
+        { "name": "Flink", "level": "优先", "desc": "实时流处理、CEP" },
+        { "name": "Hive/HBase", "level": "优先", "desc": "数据仓库、NoSQL数据库" },
+        { "name": "Kafka", "level": "加分", "desc": "消息队列、实时数据管道" },
+        { "name": "Airflow/DolphinScheduler", "level": "加分", "desc": "任务调度、数据管道编排" }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：基础学习（2-3个月）",
+          "tasks": [
+            "Java/Scala语言基础",
+            "Linux系统、Shell脚本",
+            "MySQL数据库、SQL优化",
+            "计算机网络、分布式系统基础"
+          ]
+        },
+        {
+          "phase": "第二阶段：Hadoop生态（2-3个月）",
+          "tasks": [
+            "HDFS分布式文件系统",
+            "MapReduce计算模型",
+            "YARN资源调度",
+            "Hive数据仓库"
+          ]
+        },
+        {
+          "phase": "第三阶段：Spark/Flink（3-4个月）",
+          "tasks": [
+            "Spark Core/RDD编程",
+            "Spark SQL数据处理",
+            "Spark Streaming实时计算",
+            "Flink流处理框架"
+          ]
+        },
+        {
+          "phase": "第四阶段：实战应用（持续学习）",
+          "tasks": [
+            "数据仓库分层设计（ODS/DWD/DWS/ADS）",
+            "实时数据平台搭建",
+            "数据治理与血缘分析",
+            "云原生大数据：EMR、MaxCompute"
+          ]
+        }
+      ],
+      "resources": [
+        { "name": "Apache Hadoop文档", "url": "https://hadoop.apache.org/", "type": "官方文档", "level": "入门" },
+        { "name": "Apache Spark文档", "url": "https://spark.apache.org/", "type": "官方文档", "level": "入门" },
+        { "name": "Apache Flink文档", "url": "https://flink.apache.org/zh/", "type": "官方文档", "level": "入门" },
+        { "name": "Apache Hive文档", "url": "https://hive.apache.org/", "type": "官方文档", "level": "入门" },
+        { "name": "极客时间-大数据", "url": "https://time.geekbang.org/column/intro/119", "type": "视频课程", "level": "进阶" }
+      ],
+      "tools": ["Java/Scala", "Hadoop", "Spark", "Flink", "Hive", "Kafka", "Docker", "Git"],
+      "practicePlan": {
+        "projects": [
+          "离线数据仓库（Hive + Spark）",
+          "实时计算平台（Flink + Kafka）",
+          "用户行为分析系统",
+          "推荐系统数据层"
+        ],
+        "practiceCount": "建议完成2-3个大数据项目",
+        "skills": "重点掌握数据处理链路、分布式计算能力"
+      }
+    },
+    {
+      "position": "UI/UX设计师",
+      "aliases": ["UI", "UX", "设计师", "UI设计", "UX设计", "视觉设计"],
+      "keywords": ["ui", "ux", "设计", "design", "视觉", "交互"],
+      "description": "负责产品界面视觉设计和用户交互体验优化",
+      "requiredSkills": [
+        { "name": "Figma/Sketch", "level": "必备", "desc": "主流UI设计工具" },
+        { "name": "设计基础", "level": "必备", "desc": "配色、排版、布局原理" },
+        { "name": "交互设计", "level": "必备", "desc": "用户旅程、原型设计" },
+        { "name": "响应式设计", "level": "优先", "desc": "多端适配、设计系统" },
+        { "name": "HTML/CSS", "level": "加分", "desc": "基础前端代码，设计落地" }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：设计基础（1-2个月）",
+          "tasks": [
+            "色彩理论、排版设计",
+            "视觉设计原则、设计规范",
+            "Figma/Sketch工具使用"
+          ]
+        },
+        {
+          "phase": "第二阶段：交互设计（2-3个月）",
+          "tasks": [
+            "用户研究、需求分析",
+            "用户旅程地图、信息架构",
+            "原型设计、交互文档"
+          ]
+        },
+        {
+          "phase": "第三阶段：实战项目（2-3个月）",
+          "tasks": [
+            "完成3个以上完整产品UI设计",
+            "建立个人作品集",
+            "学习设计系统搭建"
+          ]
+        },
+        {
+          "phase": "第四阶段：进阶提升（持续学习）",
+          "tasks": [
+            "动效设计：After Effects、Framer",
+            "3D设计、AR/VR体验",
+            "设计管理、团队协作"
+          ]
+        }
+      ],
+      "resources": [
+        { "name": "Figma官方教程", "url": "https://help.figma.com/hc/en-us/categories/360002051613", "type": "官方教程", "level": "入门" },
+        { "name": "Material Design", "url": "https://m3.material.io/", "type": "设计规范", "level": "入门" },
+        { "name": "Ant Design", "url": "https://ant.design/components/overview-cn/", "type": "设计规范", "level": "入门" },
+        { "name": "Dribbble", "url": "https://dribbble.com/", "type": "灵感网站", "level": "进阶" },
+        { "name": "站酷ZCOOL", "url": "https://www.zcool.com.cn/", "type": "灵感网站", "level": "进阶" }
+      ],
+      "tools": ["Figma", "Sketch", "Adobe XD", "Photoshop", "Illustrator", "Principle"],
+      "practicePlan": {
+        "projects": [
+          "移动端APP界面设计",
+          "Web管理后台设计",
+          "数据可视化大屏UI",
+          "品牌视觉系统设计"
+        ],
+        "practiceCount": "建议完成5-8个设计项目，准备作品集",
+        "skills": "重点掌握视觉表达、用户思维、工具熟练度"
+      }
+    }
+  ],
+  "defaultResponse": {
+    "greeting": "你好！我是AI学习顾问。我可以为你规划IT行业各岗位的学习路线，包括：前端开发、后端开发、全栈开发、算法工程师、大数据开发、UI设计师等。请告诉我你感兴趣的岗位，我会为你提供详细的学习方案。",
+    "helpMessage": "我可以为你提供以下帮助：\n\n1. 🎯 **岗位学习路线**：输入岗位名称，获取分阶段学习计划\n2. 📚 **学习资源推荐**：推荐权威的在线文档、视频课程和实战项目\n3. 💡 **技术答疑**：解答编程问题、技术选型建议\n4. 🔍 **技能匹配分析**：分析你当前技能与目标岗位的差距\n\n试试这样问我：\n- \"全栈开发工程师学习路线\"\n- \"如何转行做算法工程师\"\n- \"前端开发需要掌握哪些技能\""
+  }
+}
