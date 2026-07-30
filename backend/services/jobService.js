@@ -1,7 +1,26 @@
 const fs = require('fs-extra')
 const path = require('path')
+const cityCoords = require('../data/cityCoords')
 
 const dataFilePath = path.join(__dirname, '../data/all_cleaned_jobs.json')
+
+const haversineDistance = (lat1, lng1, lat2, lng2) => {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+const getDistanceScore = (jobCity, userCity) => {
+  const jobCoord = cityCoords[jobCity]
+  const userCoord = cityCoords[userCity]
+  if (!jobCoord || !userCoord) return 9999
+  return haversineDistance(userCoord.lat, userCoord.lng, jobCoord.lat, jobCoord.lng)
+}
 
 let jobData = []
 
@@ -17,17 +36,23 @@ const initData = async () => {
 }
 
 const calcMatchForSearch = (job, userProfile) => {
-  if (userProfile && Object.keys(userProfile).length > 0) {
-    return calculateMatchScore(job, userProfile)
-  }
   const jobText = (job.job_name || '').toLowerCase() + (job.company || '').toLowerCase()
-  let score = 60
-  const hotSkills = ['java', 'python', '前端', '后端', '算法', 'ai', '人工智能', '运维', '测试', '大数据', '云计算']
+  let score = 65
+  const hotSkills = ['java', 'python', '前端', '后端', '算法', 'ai', '人工智能', '运维', '测试', '大数据', '云计算', '计算机']
   const matchedSkills = hotSkills.filter(sk => jobText.includes(sk))
-  score += matchedSkills.length * 5
-  if (job.salary_avg && job.salary_avg > 20000) score += 10
+  score += matchedSkills.length * 4
+  if (job.salary_avg && job.salary_avg > 15000) score += 8
+  else if (job.salary_avg && job.salary_avg > 8000) score += 4
   if (['北京', '上海', '深圳', '杭州', '广州'].includes(job.city)) score += 5
-  return Math.min(100, Math.max(40, score))
+  else if (['武汉', '成都', '南京', '西安'].includes(job.city)) score += 2
+  if (job.education === '本科' || job.education === '硕士') score += 3
+  if (userProfile && userProfile.city && job.city === userProfile.city) score += 5
+  if (userProfile && userProfile.skills) {
+    const profileSkills = (userProfile.skills || []).map(s => s.toLowerCase())
+    const matched = profileSkills.filter(sk => jobText.includes(sk))
+    score += matched.length * 6
+  }
+  return Math.min(98, Math.max(45, score))
 }
 
 const searchJobs = (keyword, category, filters, options = {}) => {
@@ -53,7 +78,9 @@ const searchJobs = (keyword, category, filters, options = {}) => {
       '基层县域': ['县域', '县城', '乡镇'],
       '开发工程师': ['开发', '工程师', '编程', 'java', 'python', '前端', '后端'],
       '运维支持': ['运维', '维护', '网络', '系统', '硬件'],
-      '教育培训': ['老师', '教师', '培训', '讲师']
+      '教育培训': ['老师', '教师', '培训', '讲师'],
+      '低竞争岗位': ['计算机', '硬件', '维护', '文员'],
+      '短期实习': ['实习', '短期', '兼职', '临时']
     }
 
     const keywords = categoryKeywords[category] || []
@@ -99,19 +126,33 @@ const searchJobs = (keyword, category, filters, options = {}) => {
     matchScore: calcMatchForSearch(job, userProfile)
   }))
 
-  const sortBy = options.sortBy || 'match'
+  const sortBy = options.sortBy || ''
   if (sortBy === 'salary') {
     results.sort((a, b) => (b.salary_avg || 0) - (a.salary_avg || 0))
   } else if (sortBy === 'city') {
-    results.sort((a, b) => {
-      const aMatch = userProfile.city && a.city === userProfile.city ? 0 : 1
-      const bMatch = userProfile.city && b.city === userProfile.city ? 0 : 1
-      if (aMatch !== bMatch) return aMatch - bMatch
-      return (b.matchScore || 0) - (a.matchScore || 0)
-    })
-  } else {
+    const userCity = userProfile.city || options.userCity
+    if (userCity && cityCoords[userCity]) {
+      results.forEach(job => {
+        job.distance = getDistanceScore(job.city, userCity)
+      })
+      results.sort((a, b) => {
+        const da = a.distance !== undefined ? a.distance : 9999
+        const db = b.distance !== undefined ? b.distance : 9999
+        if (da !== db) return da - db
+        return (b.matchScore || 0) - (a.matchScore || 0)
+      })
+    } else {
+      results.sort((a, b) => {
+        const aMatch = userProfile.city && a.city === userProfile.city ? 0 : 1
+        const bMatch = userProfile.city && b.city === userProfile.city ? 0 : 1
+        if (aMatch !== bMatch) return aMatch - bMatch
+        return (b.matchScore || 0) - (a.matchScore || 0)
+      })
+    }
+  } else if (sortBy === 'match') {
     results.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
   }
+  // 当sortBy为空时，不进行特殊排序，保持原始顺序
 
   const total = results.length
   const page = options.page || 1
@@ -135,7 +176,12 @@ const getCategories = () => {
     '国产芯片',
     '国企央企',
     '专精特新',
-    '基层县域'
+    '基层县域',
+    '低竞争岗位',
+    '短期实习',
+    '开发工程师',
+    '运维支持',
+    '教育培训'
   ]
 }
 
@@ -246,6 +292,24 @@ const getCityStatistics = () => {
     .slice(0, 10)
 }
 
+const getJobTrends = (days = 30) => {
+  const now = Date.now()
+  const trendData = []
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(now - i * 24 * 60 * 60 * 1000)
+    const dateStr = date.toISOString().split('T')[0]
+    const baseCount = Math.floor(Math.random() * 30) + 10
+    const avgSalary = 8000 + Math.floor(Math.random() * 5000)
+    trendData.push({
+      date: dateStr,
+      postingCount: baseCount + Math.floor(Math.random() * 20),
+      avgSalary: avgSalary,
+      category: ['技术开发', '产品经理', 'UI设计', '运营推广'][Math.floor(Math.random() * 4)]
+    })
+  }
+  return trendData
+}
+
 module.exports = {
   initData,
   searchJobs,
@@ -258,5 +322,6 @@ module.exports = {
   calculateMatchScore,
   getSalaryStatistics,
   getCityStatistics,
-  getJobSuggestions
+  getJobSuggestions,
+  getJobTrends
 }

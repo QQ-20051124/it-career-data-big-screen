@@ -1,7 +1,21 @@
 <template>
   <div class="dashboard-page">
     <canvas ref="bgCanvas" class="bg-canvas"></canvas>
-
+    
+    <!-- 星云背景层 -->
+    <div class="nebula-bg">
+      <div class="nebula nebula-1"></div>
+      <div class="nebula nebula-2"></div>
+      <div class="nebula nebula-3"></div>
+    </div>
+    
+    <!-- 动态光带 -->
+    <div class="light-ribbons">
+      <div class="ribbon ribbon-1"></div>
+      <div class="ribbon ribbon-2"></div>
+      <div class="ribbon ribbon-3"></div>
+    </div>
+    
     <div class="dashboard-glow-bg"></div>
 
     <div class="top-bar">
@@ -227,22 +241,48 @@
         :class="{ active: activeModule === 'function' }"
         @click="activeModule = 'function'"
       >
-        <div class="module-glow"></div>
+        <!-- 光晕外壳 -->
+        <div class="card-shell"></div>
+        <div class="card-glow-ring"></div>
+        <!-- 扫光动画层 -->
+        <div class="card-shine"></div>
+        <!-- 顶部能量条 -->
+        <div class="energy-bar"></div>
+        <!-- 内部流动光线 -->
+        <div class="flow-line flow-line-1"></div>
+        <div class="flow-line flow-line-2"></div>
+        <!-- 底部光晕底座 -->
+        <div class="module-base-glow"></div>
+        <!-- 边角装饰 -->
+        <div class="deco-ring deco-ring-1"></div>
+        <div class="deco-ring deco-ring-2"></div>
+        
         <div class="module-content">
-          <div class="module-icon">
-            <svg viewBox="0 0 60 60" width="40" height="40">
-              <rect x="10" y="20" width="12" height="25" rx="2" fill="url(#funcGrad)" opacity="0.9"/>
-              <rect x="24" y="12" width="12" height="33" rx="2" fill="url(#funcGrad)" opacity="0.9"/>
-              <rect x="38" y="18" width="12" height="27" rx="2" fill="url(#funcGrad)" opacity="0.9"/>
-              <defs>
-                <linearGradient id="funcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#4a9eff"/>
-                  <stop offset="100%" style="stop-color:#00d4aa"/>
-                </linearGradient>
-              </defs>
-            </svg>
+          <!-- 3D六边形图标容器 -->
+          <div class="module-icon-wrapper">
+            <div class="module-icon-3d">
+              <div class="icon-face front">
+                <svg viewBox="0 0 60 60" width="36" height="36">
+                  <rect x="10" y="20" width="12" height="25" rx="2" fill="url(#funcGrad)" opacity="0.95"/>
+                  <rect x="24" y="12" width="12" height="33" rx="2" fill="url(#funcGrad)" opacity="0.95"/>
+                  <rect x="38" y="18" width="12" height="27" rx="2" fill="url(#funcGrad)" opacity="0.95"/>
+                  <defs>
+                    <linearGradient id="funcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#4a9eff"/>
+                      <stop offset="100%" style="stop-color:#00d4aa"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+            <div class="icon-reflection"></div>
           </div>
           <h3>功能模块</h3>
+          <div class="module-arrow">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
         </div>
         <div class="module-corner tl"></div>
         <div class="module-corner tr"></div>
@@ -256,24 +296,50 @@
         :class="{ active: activeModule === 'visualization' }"
         @click="goToVisualization"
       >
-        <div class="module-glow"></div>
+        <!-- 光晕外壳 -->
+        <div class="card-shell"></div>
+        <div class="card-glow-ring"></div>
+        <!-- 扫光动画层 -->
+        <div class="card-shine"></div>
+        <!-- 顶部能量条 -->
+        <div class="energy-bar"></div>
+        <!-- 内部流动光线 -->
+        <div class="flow-line flow-line-1"></div>
+        <div class="flow-line flow-line-2"></div>
+        <!-- 底部光晕底座 -->
+        <div class="module-base-glow"></div>
+        <!-- 边角装饰 -->
+        <div class="deco-ring deco-ring-1"></div>
+        <div class="deco-ring deco-ring-2"></div>
+        
         <div class="module-content">
-          <div class="module-icon">
-            <svg viewBox="0 0 60 60" width="40" height="40">
-              <circle cx="30" cy="30" r="20" fill="none" stroke="url(#vizGrad)" stroke-width="2"/>
-              <circle cx="30" cy="30" r="12" fill="none" stroke="url(#vizGrad)" stroke-width="1.5"/>
-              <circle cx="30" cy="30" r="5" fill="url(#vizGrad)"/>
-              <line x1="30" y1="10" x2="30" y2="50" stroke="url(#vizGrad)" stroke-width="1" opacity="0.5"/>
-              <line x1="10" y1="30" x2="50" y2="30" stroke="url(#vizGrad)" stroke-width="1" opacity="0.5"/>
-              <defs>
-                <linearGradient id="vizGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#4a9eff"/>
-                  <stop offset="100%" style="stop-color:#7b68ee"/>
-                </linearGradient>
-              </defs>
-            </svg>
+          <!-- 3D六边形图标容器 -->
+          <div class="module-icon-wrapper">
+            <div class="module-icon-3d">
+              <div class="icon-face front">
+                <svg viewBox="0 0 60 60" width="36" height="36">
+                  <circle cx="30" cy="30" r="20" fill="none" stroke="url(#vizGrad)" stroke-width="2"/>
+                  <circle cx="30" cy="30" r="12" fill="none" stroke="url(#vizGrad)" stroke-width="1.5"/>
+                  <circle cx="30" cy="30" r="5" fill="url(#vizGrad)"/>
+                  <line x1="30" y1="10" x2="30" y2="50" stroke="url(#vizGrad)" stroke-width="1" opacity="0.5"/>
+                  <line x1="10" y1="30" x2="50" y2="30" stroke="url(#vizGrad)" stroke-width="1" opacity="0.5"/>
+                  <defs>
+                    <linearGradient id="vizGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#4a9eff"/>
+                      <stop offset="100%" style="stop-color:#7b68ee"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+            <div class="icon-reflection"></div>
           </div>
           <h3>可视化模块</h3>
+          <div class="module-arrow">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
         </div>
         <div class="module-corner tl"></div>
         <div class="module-corner tr"></div>
@@ -512,21 +578,82 @@
       </div>
     </div>
 
-    <div class="bottom-modules">
-      <div class="bottom-card" v-for="(module, index) in bottomModules" :key="index" 
-        :style="{ animationDelay: `${index * 0.1}s` }"
-        @click="navigateTo(module.key)">
-        <div class="card-glow"></div>
-        <div class="card-icon" :style="{ '--color': module.color }">
-          <svg :viewBox="module.iconViewBox" width="40" height="40" v-html="module.icon"></svg>
+    <!-- 3D沉浸式功能区 -->
+    <div class="immersive-zone">
+      <!-- 镜面反射平台 -->
+      <div class="reflective-platform"></div>
+      
+      <!-- 背景光束 -->
+      <div class="light-beams">
+        <div class="beam beam-1"></div>
+        <div class="beam beam-2"></div>
+        <div class="beam beam-3"></div>
+      </div>
+      
+      <!-- 漂浮光粒子 -->
+      <div class="floating-particles">
+        <span class="particle" v-for="n in 20" :key="n" 
+          :style="{ 
+            left: `${Math.random() * 100}%`, 
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 5}s`,
+            animationDuration: `${3 + Math.random() * 4}s`,
+            '--particle-size': `${2 + Math.random() * 4}px`,
+            '--particle-color': bottomModules[n % 5].color
+          }">
+        </span>
+      </div>
+      
+      <!-- 3D弧形卡片容器 -->
+      <div class="cards-3d-container">
+        <div class="cards-arc">
+          <div class="arc-tilt"></div>
+          <div 
+            class="bottom-card-3d" 
+            :class="['card-3d', 'card-' + module.key, `pos-${index}`]" 
+            v-for="(module, index) in bottomModules" 
+            :key="index"
+            :style="{ 
+              '--theme-color': module.color, 
+              '--theme-rgb': hexToRgb(module.color),
+              '--card-delay': `${index * 0.12}s`
+            }"
+            @click="navigateTo(module.key)">
+            <!-- 玻璃底座 -->
+            <div class="card-base">
+              <div class="base-reflection"></div>
+              <div class="base-glow"></div>
+            </div>
+            
+            <!-- 玻璃卡片主体 -->
+            <div class="card-glass">
+              <!-- 3D立体图标 -->
+              <div class="icon-3d" :style="{ '--icon-color': module.color }">
+                <div class="icon-cube">
+                  <svg :viewBox="module.iconViewBox" width="48" height="48" v-html="module.icon"></svg>
+                </div>
+                <div class="icon-glow-ring"></div>
+                <div class="icon-shadow"></div>
+              </div>
+              
+              <!-- 标题和描述 -->
+              <h3 class="card-title">{{ module.title }}</h3>
+              <p class="card-description">{{ module.desc }}</p>
+              
+              <!-- 进入按钮 -->
+              <button class="enter-btn">
+                <span class="btn-text">进入</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                <div class="btn-shine"></div>
+              </button>
+              
+              <!-- 高光点缀 -->
+              <div class="glass-highlight"></div>
+            </div>
+          </div>
         </div>
-        <h4>{{ module.title }}</h4>
-        <p>{{ module.desc }}</p>
-        <button class="card-btn">进入</button>
-        <div class="card-corner tl"></div>
-        <div class="card-corner tr"></div>
-        <div class="card-corner bl"></div>
-        <div class="card-corner br"></div>
       </div>
     </div>
   </div>
@@ -870,6 +997,11 @@ const bottomModules = ref([
   },
 ])
 
+const hexToRgb = (hex) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '74, 158, 255'
+}
+
 const navigateTo = (module) => {
   if (module === 'planning') {
     router.push('/planning')
@@ -905,48 +1037,109 @@ const initBackground = () => {
   resizeCanvas()
   window.addEventListener('resize', resizeCanvas)
 
+  // 多层星空
   const stars = []
-  const particles = []
-
-  for (let i = 0; i < 200; i++) {
+  const starsLayer2 = []
+  
+  for (let i = 0; i < 250; i++) {
     stars.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      size: Math.random() * 2 + 0.5,
-      brightness: Math.random() * 0.5 + 0.3,
+      size: Math.random() * 2 + 0.3,
+      brightness: Math.random() * 0.6 + 0.2,
       twinkle: Math.random() * Math.PI * 2,
-      twinkleSpeed: Math.random() * 0.02 + 0.005
+      twinkleSpeed: Math.random() * 0.02 + 0.005,
+      hue: Math.random() > 0.7 ? 200 : 250
+    })
+  }
+  
+  // 较大的彩色星点
+  for (let i = 0; i < 80; i++) {
+    starsLayer2.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 1.5 + 1,
+      brightness: Math.random() * 0.5 + 0.4,
+      twinkle: Math.random() * Math.PI * 2,
+      twinkleSpeed: Math.random() * 0.015 + 0.008,
+      hue: [200, 220, 240, 260, 280][Math.floor(Math.random() * 5)]
     })
   }
 
-  for (let i = 0; i < 50; i++) {
+  // 流动粒子
+  const particles = []
+  for (let i = 0; i < 60; i++) {
     particles.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.15,
-      vy: (Math.random() - 0.5) * 0.15,
-      size: Math.random() * 2 + 1,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: (Math.random() - 0.5) * 0.2,
+      size: Math.random() * 2.5 + 1,
       alpha: Math.random() * 0.4 + 0.2,
-      hue: Math.random() > 0.5 ? 180 : 240
+      hue: Math.random() > 0.5 ? 200 : 260
+    })
+  }
+
+  // 流星
+  const meteors = []
+  
+  const createMeteor = () => {
+    const startX = Math.random() * canvas.width * 0.5
+    const startY = -20
+    meteors.push({
+      x: startX,
+      y: startY,
+      length: Math.random() * 80 + 60,
+      speed: Math.random() * 6 + 4,
+      angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+      opacity: 1,
+      hue: Math.random() > 0.5 ? 200 : 260
     })
   }
 
   let time = 0
+  let meteorTimer = 0
 
   const animate = () => {
-    ctx.fillStyle = 'rgba(8, 5, 35, 0.05)'
+    // 透明背景，创造拖尾效果
+    ctx.fillStyle = 'rgba(8, 5, 30, 0.08)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+    // 绘制小星星层
     stars.forEach(star => {
       star.twinkle += star.twinkleSpeed
       const alpha = star.brightness * (0.5 + Math.sin(star.twinkle) * 0.5)
       
       ctx.beginPath()
       ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
+      ctx.fillStyle = `hsla(${star.hue}, 50%, 90%, ${alpha})`
       ctx.fill()
     })
 
+    // 绘制较大的彩色星点
+    starsLayer2.forEach(star => {
+      star.twinkle += star.twinkleSpeed
+      const alpha = star.brightness * (0.5 + Math.sin(star.twinkle) * 0.5)
+      
+      // 光晕
+      const gradient = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.size * 4)
+      gradient.addColorStop(0, `hsla(${star.hue}, 70%, 70%, ${alpha * 0.8})`)
+      gradient.addColorStop(0.5, `hsla(${star.hue}, 60%, 50%, ${alpha * 0.3})`)
+      gradient.addColorStop(1, 'transparent')
+      
+      ctx.beginPath()
+      ctx.arc(star.x, star.y, star.size * 4, 0, Math.PI * 2)
+      ctx.fillStyle = gradient
+      ctx.fill()
+      
+      // 核心
+      ctx.beginPath()
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
+      ctx.fillStyle = `hsla(${star.hue}, 80%, 95%, ${alpha})`
+      ctx.fill()
+    })
+
+    // 绘制流动粒子
     particles.forEach(p => {
       p.x += p.vx + Math.sin(time * 0.0003 + p.x * 0.002) * 0.05
       p.y += p.vy + Math.cos(time * 0.0003 + p.y * 0.002) * 0.05
@@ -956,12 +1149,24 @@ const initBackground = () => {
       if (p.y < 0) p.y = canvas.height
       if (p.y > canvas.height) p.y = 0
 
+      // 粒子光晕
+      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3)
+      gradient.addColorStop(0, `hsla(${p.hue}, 80%, 60%, ${p.alpha})`)
+      gradient.addColorStop(0.5, `hsla(${p.hue}, 70%, 50%, ${p.alpha * 0.3})`)
+      gradient.addColorStop(1, 'transparent')
+      
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2)
+      ctx.fillStyle = gradient
+      ctx.fill()
+      
       ctx.beginPath()
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-      ctx.fillStyle = `hsla(${p.hue}, 80%, 60%, ${p.alpha})`
+      ctx.fillStyle = `hsla(${p.hue}, 90%, 75%, ${p.alpha + 0.2})`
       ctx.fill()
     })
 
+    // 粒子连线
     particles.forEach((p1, i) => {
       particles.forEach((p2, j) => {
         if (i < j) {
@@ -969,18 +1174,67 @@ const initBackground = () => {
           const dy = p1.y - p2.y
           const dist = Math.sqrt(dx * dx + dy * dy)
 
-          if (dist < 120) {
-            const opacity = (1 - dist / 120) * 0.1
+          if (dist < 150) {
+            const opacity = (1 - dist / 150) * 0.15
             ctx.beginPath()
             ctx.moveTo(p1.x, p1.y)
             ctx.lineTo(p2.x, p2.y)
-            ctx.strokeStyle = `rgba(74, 158, 255, ${opacity})`
+            ctx.strokeStyle = `rgba(100, 180, 255, ${opacity})`
             ctx.lineWidth = 0.5
             ctx.stroke()
           }
         }
       })
     })
+
+    // 流星生成
+    meteorTimer++
+    if (meteorTimer > 180 + Math.random() * 200) {
+      createMeteor()
+      meteorTimer = 0
+    }
+
+    // 绘制流星
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      const m = meteors[i]
+      
+      // 流星头部
+      const tailX = m.x - Math.cos(m.angle) * m.length
+      const tailY = m.y - Math.sin(m.angle) * m.length
+      
+      // 渐变拖尾
+      const gradient = ctx.createLinearGradient(m.x, m.y, tailX, tailY)
+      gradient.addColorStop(0, `hsla(${m.hue}, 90%, 80%, ${m.opacity})`)
+      gradient.addColorStop(0.3, `hsla(${m.hue}, 80%, 60%, ${m.opacity * 0.5})`)
+      gradient.addColorStop(1, 'transparent')
+      
+      ctx.beginPath()
+      ctx.moveTo(m.x, m.y)
+      ctx.lineTo(tailX, tailY)
+      ctx.strokeStyle = gradient
+      ctx.lineWidth = 2
+      ctx.stroke()
+      
+      // 流星头部发光
+      const headGradient = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, 8)
+      headGradient.addColorStop(0, `hsla(${m.hue}, 100%, 95%, ${m.opacity})`)
+      headGradient.addColorStop(0.5, `hsla(${m.hue}, 80%, 70%, ${m.opacity * 0.5})`)
+      headGradient.addColorStop(1, 'transparent')
+      
+      ctx.beginPath()
+      ctx.arc(m.x, m.y, 8, 0, Math.PI * 2)
+      ctx.fillStyle = headGradient
+      ctx.fill()
+      
+      // 移动
+      m.x += Math.cos(m.angle) * m.speed
+      m.y += Math.sin(m.angle) * m.speed
+      m.opacity -= 0.008
+      
+      if (m.opacity <= 0 || m.x > canvas.width + 50 || m.y > canvas.height + 50) {
+        meteors.splice(i, 1)
+      }
+    }
 
     time++
     bgAnimationId = requestAnimationFrame(animate)
@@ -1040,6 +1294,151 @@ onUnmounted(() => {
   z-index: 0;
 }
 
+/* 星云背景层 */
+.nebula-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+}
+
+.nebula-1 {
+  width: 600px;
+  height: 600px;
+  top: -10%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(100, 100, 255, 0.3) 0%, rgba(80, 60, 200, 0.15) 50%, transparent 70%);
+  animation: nebulaFloat1 20s ease-in-out infinite;
+}
+
+.nebula-2 {
+  width: 500px;
+  height: 500px;
+  bottom: 10%;
+  left: -5%;
+  background: radial-gradient(circle, rgba(180, 100, 255, 0.25) 0%, rgba(120, 80, 200, 0.1) 50%, transparent 70%);
+  animation: nebulaFloat2 25s ease-in-out infinite;
+}
+
+.nebula-3 {
+  width: 400px;
+  height: 400px;
+  top: 40%;
+  left: 30%;
+  background: radial-gradient(circle, rgba(0, 150, 255, 0.2) 0%, rgba(50, 100, 200, 0.1) 50%, transparent 70%);
+  animation: nebulaFloat3 30s ease-in-out infinite;
+}
+
+@keyframes nebulaFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, 20px) scale(1.05); }
+  66% { transform: translate(20px, -20px) scale(0.95); }
+}
+
+@keyframes nebulaFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.08); }
+  66% { transform: translate(-20px, 30px) scale(0.92); }
+}
+
+@keyframes nebulaFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 40px) scale(1.1); }
+}
+
+/* 动态光带 */
+.light-ribbons {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ribbon {
+  position: absolute;
+  width: 150%;
+  height: 2px;
+  filter: blur(1px);
+  opacity: 0.6;
+}
+
+.ribbon-1 {
+  top: 20%;
+  left: -25%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(100, 180, 255, 0.4) 20%, 
+    rgba(150, 130, 255, 0.6) 50%, 
+    rgba(100, 180, 255, 0.4) 80%, 
+    transparent 100%);
+  height: 1px;
+  box-shadow: 0 0 20px rgba(100, 180, 255, 0.5);
+  animation: ribbonFlow1 12s linear infinite;
+}
+
+.ribbon-2 {
+  top: 60%;
+  left: -25%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(180, 120, 255, 0.3) 30%, 
+    rgba(100, 200, 255, 0.5) 50%, 
+    rgba(180, 120, 255, 0.3) 70%, 
+    transparent 100%);
+  height: 1.5px;
+  box-shadow: 0 0 25px rgba(180, 120, 255, 0.4);
+  animation: ribbonFlow2 15s linear infinite;
+  animation-delay: -5s;
+}
+
+.ribbon-3 {
+  bottom: 15%;
+  left: -25%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(80, 200, 220, 0.35) 25%, 
+    rgba(120, 150, 255, 0.5) 50%, 
+    rgba(80, 200, 220, 0.35) 75%, 
+    transparent 100%);
+  height: 1px;
+  box-shadow: 0 0 18px rgba(80, 200, 220, 0.45);
+  animation: ribbonFlow3 18s linear infinite;
+  animation-delay: -8s;
+}
+
+@keyframes ribbonFlow1 {
+  0% { transform: translateX(0) scaleY(1); opacity: 0.6; }
+  50% { transform: translateX(30%) scaleY(1.5); opacity: 0.8; }
+  100% { transform: translateX(60%) scaleY(1); opacity: 0.6; }
+}
+
+@keyframes ribbonFlow2 {
+  0% { transform: translateX(0) scaleY(1); opacity: 0.5; }
+  50% { transform: translateX(-20%) scaleY(2); opacity: 0.7; }
+  100% { transform: translateX(-40%) scaleY(1); opacity: 0.5; }
+}
+
+@keyframes ribbonFlow3 {
+  0% { transform: translateX(0) scaleY(1); opacity: 0.4; }
+  50% { transform: translateX(25%) scaleY(1.8); opacity: 0.65; }
+  100% { transform: translateX(50%) scaleY(1); opacity: 0.4; }
+}
+
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -1092,144 +1491,579 @@ onUnmounted(() => {
 .top-modules {
   display: flex;
   justify-content: center;
-  gap: 30px;
+  gap: 35px;
   margin-bottom: 30px;
   position: relative;
   z-index: 10;
 }
 
+/* 高级卡片框架 - 全息玻璃 + 能量流动 */
 .module-card {
   flex: 1;
-  max-width: 500px;
-  padding: 25px 40px;
-  border-radius: 16px;
-  border: 1px solid rgba(74, 158, 255, 0.15);
+  max-width: 520px;
+  padding: 32px 48px;
+  border-radius: 24px;
+  border: none;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  isolation: isolate;
+}
+
+/* 卡片主体背景层 - 实际DOM元素 */
+.card-shell {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    0 0 60px var(--module-glow-color),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  z-index: 0;
+  transition: all 0.5s ease;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* 渐变边框光晕层 */
+.card-glow-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 27px;
+  background: var(--border-gradient);
+  z-index: -1;
+  opacity: 0.6;
+  transition: opacity 0.5s ease;
+  filter: blur(10px);
 }
 
 .module-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-8px) scale(1.02);
+}
+
+.module-card:hover .card-shell {
+  box-shadow: 
+    0 35px 70px rgba(0, 0, 0, 0.6),
+    0 0 100px var(--module-glow-color),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.module-card:hover .card-glow-ring {
+  opacity: 1;
+}
+
+/* 顶部能量条 */
+.energy-bar {
+  position: absolute;
+  top: 1px;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--module-color-start) 20%, 
+    var(--module-color-end) 50%, 
+    var(--module-color-start) 80%, 
+    transparent 100%);
+  opacity: 0.6;
+  z-index: 1;
+  animation: energyBarPulse 3s ease-in-out infinite;
+}
+
+@keyframes energyBarPulse {
+  0%, 100% { opacity: 0.4; transform: scaleX(0.9); }
+  50% { opacity: 0.9; transform: scaleX(1); }
+}
+
+/* 内部流动光线 - 装饰数据流 */
+.flow-line {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(1px);
+  pointer-events: none;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.flow-line-1 {
+  top: 20%;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    var(--module-color-start), 
+    var(--module-color-end), 
+    transparent);
+  animation: flowLine1 4s ease-in-out infinite;
+}
+
+.flow-line-2 {
+  bottom: 25%;
+  right: 15%;
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(270deg, 
+    transparent, 
+    var(--module-color-end), 
+    var(--module-color-start), 
+    transparent);
+  animation: flowLine2 5s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+@keyframes flowLine1 {
+  0%, 100% { opacity: 0.1; transform: translateX(-10px); }
+  50% { opacity: 0.25; transform: translateX(10px); }
+}
+
+@keyframes flowLine2 {
+  0%, 100% { opacity: 0.08; transform: translateX(10px); }
+  50% { opacity: 0.2; transform: translateX(-10px); }
+}
+
+/* 底部光晕底座 */
+.module-base-glow {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 60px;
+  background: radial-gradient(ellipse at center, 
+    var(--module-glow-color) 0%, 
+    transparent 70%);
+  filter: blur(20px);
+  z-index: -1;
+  opacity: 0.6;
+  transition: opacity 0.5s ease;
+}
+
+.module-card:hover .module-base-glow {
+  opacity: 1;
+  bottom: -40px;
+  height: 80px;
+}
+
+/* 扫光动画 - 高级感光泽流动 */
+.card-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 70%,
+    transparent 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+  transform: skewX(-20deg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.module-card:hover .card-shine {
+  opacity: 1;
+  animation: cardShine 1.2s ease-out forwards;
+}
+
+@keyframes cardShine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 150%;
+  }
+}
+
+/* 边角装饰圆环 - 科技感点缀 */
+.deco-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--module-color-start);
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  transition: all 0.5s ease;
+}
+
+.deco-ring-1 {
+  top: -15px;
+  right: -15px;
+  width: 40px;
+  height: 40px;
+  border-style: dashed;
+  animation: ringRotate 20s linear infinite;
+}
+
+.deco-ring-2 {
+  bottom: -10px;
+  left: -10px;
+  width: 25px;
+  height: 25px;
+  border-color: var(--module-color-end);
+  animation: ringRotate 15s linear infinite reverse;
+}
+
+.module-card:hover .deco-ring {
+  opacity: 0.8;
+  transform: scale(1.2);
+}
+
+@keyframes ringRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .module-content {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
 }
 
-.module-icon {
-  flex-shrink: 0;
+/* 3D六边形图标容器 */
+.module-icon-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  perspective: 200px;
 }
 
-.module-card h3 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin: 0;
+.module-icon-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.module-card:hover .module-icon-3d {
+  transform: rotateY(-15deg) rotateX(10deg);
+}
+
+.icon-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-face.front {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  background: linear-gradient(135deg, var(--module-icon-bg-1), var(--module-icon-bg-2));
+  border: 1px solid var(--module-color-start);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 20px var(--module-glow-color);
+  z-index: 2;
   transition: all 0.4s ease;
 }
 
+.icon-face.top {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  background: linear-gradient(180deg, var(--module-color-light), var(--module-color-start));
+  transform: translateZ(12px);
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.icon-face.bottom {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  background: linear-gradient(0deg, var(--module-color-dark), var(--module-color-start));
+  transform: translateZ(-8px);
+  opacity: 0.4;
+  filter: blur(2px);
+}
+
+.module-card:hover .icon-face.front {
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 30px var(--module-glow-color);
+}
+
+.icon-reflection {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) scaleY(-0.8);
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(180deg, 
+    var(--module-icon-bg-1) 0%, 
+    transparent 100%);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  opacity: 0.2;
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.module-card h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+  transition: all 0.4s ease;
+  letter-spacing: 2px;
+  position: relative;
+}
+
+/* 箭头指示器 */
+.module-arrow {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--module-icon-bg-1), var(--module-icon-bg-2));
+  border: 1px solid var(--module-color-start);
+  color: var(--module-color-start);
+  opacity: 0.6;
+  transform: translateX(-10px);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.module-card:hover .module-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: #fff;
+  box-shadow: 0 0 15px var(--module-glow-color);
+}
+
+/* 功能模块 - 冰青蓝主题 */
 .function-module {
-  background: rgba(74, 158, 255, 0.05);
-  border-color: rgba(74, 158, 255, 0.1);
+  --module-color-start: #4a9eff;
+  --module-color-end: #00d4aa;
+  --module-color-light: #6cb8ff;
+  --module-color-dark: #2a7ecc;
+  --module-glow-color: rgba(74, 158, 255, 0.35);
+  --module-icon-bg-1: rgba(74, 158, 255, 0.3);
+  --module-icon-bg-2: rgba(0, 212, 170, 0.2);
+  --card-bg: linear-gradient(145deg, 
+    rgba(25, 40, 80, 0.85) 0%, 
+    rgba(18, 30, 60, 0.8) 50%, 
+    rgba(12, 22, 48, 0.88) 100%);
+  --card-border: rgba(74, 158, 255, 0.25);
+  --border-gradient: linear-gradient(135deg, #4a9eff, #00d4aa, #4a9eff);
 }
 
 .function-module h3 {
-  color: rgba(74, 158, 255, 0.5);
+  color: rgba(200, 230, 255, 0.75);
 }
 
 .function-module.active {
-  background: rgba(74, 158, 255, 0.3);
-  border-color: rgba(74, 158, 255, 0.6);
-  box-shadow: 
-    0 0 60px rgba(74, 158, 255, 0.35),
-    0 10px 30px rgba(0, 0, 0, 0.3);
+  --card-bg: linear-gradient(145deg, 
+    rgba(35, 60, 100, 0.92) 0%, 
+    rgba(25, 45, 80, 0.88) 50%, 
+    rgba(18, 35, 65, 0.92) 100%);
+  --card-border: rgba(74, 158, 255, 0.7);
+  --module-glow-color: rgba(74, 158, 255, 0.5);
 }
 
 .function-module.active h3 {
-  color: rgba(74, 158, 255, 0.95);
-  text-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
+  color: #ffffff;
+  text-shadow: 0 0 25px rgba(74, 158, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+/* 可视化模块 - 电光紫主题 */
 .visualization-module {
-  background: rgba(74, 158, 255, 0.05);
-  border-color: rgba(74, 158, 255, 0.1);
+  --module-color-start: #7b68ee;
+  --module-color-end: #4a9eff;
+  --module-color-light: #9a8fff;
+  --module-color-dark: #5a48cc;
+  --module-glow-color: rgba(123, 104, 238, 0.35);
+  --module-icon-bg-1: rgba(123, 104, 238, 0.3);
+  --module-icon-bg-2: rgba(74, 158, 255, 0.2);
+  --card-bg: linear-gradient(145deg, 
+    rgba(40, 30, 75, 0.85) 0%, 
+    rgba(30, 22, 60, 0.8) 50%, 
+    rgba(22, 16, 48, 0.88) 100%);
+  --card-border: rgba(123, 104, 238, 0.25);
+  --border-gradient: linear-gradient(135deg, #7b68ee, #4a9eff, #7b68ee);
 }
 
 .visualization-module h3 {
-  color: rgba(74, 158, 255, 0.5);
+  color: rgba(210, 195, 255, 0.75);
 }
 
 .visualization-module.active {
-  background: rgba(74, 158, 255, 0.3);
-  border-color: rgba(74, 158, 255, 0.6);
-  box-shadow: 
-    0 0 60px rgba(74, 158, 255, 0.35),
-    0 10px 30px rgba(0, 0, 0, 0.3);
+  --card-bg: linear-gradient(145deg, 
+    rgba(55, 42, 95, 0.92) 0%, 
+    rgba(42, 32, 78, 0.88) 50%, 
+    rgba(32, 24, 62, 0.92) 100%);
+  --card-border: rgba(123, 104, 238, 0.7);
+  --module-glow-color: rgba(123, 104, 238, 0.5);
 }
 
 .visualization-module.active h3 {
-  color: rgba(74, 158, 255, 0.95);
-  text-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
+  color: #ffffff;
+  text-shadow: 0 0 25px rgba(123, 104, 238, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+/* 模块内部光效 */
 .module-glow {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 30% 30%, rgba(74, 158, 255, 0.05) 0%, transparent 50%);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, var(--module-glow-color) 0%, transparent 100%);
   pointer-events: none;
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
 }
 
+.module-card:hover .module-glow,
+.module-card.active .module-glow {
+  opacity: 0.6;
+}
+
+/* 底部指示器 */
 .module-indicator {
   position: absolute;
-  bottom: 0;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.8), transparent);
-  border-radius: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--module-color-start);
+  box-shadow: 0 0 12px var(--module-color-start);
+  animation: indicatorPulse 2s ease-in-out infinite;
 }
 
+@keyframes indicatorPulse {
+  0%, 100% { 
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: translateX(-50%) scale(1.5);
+    opacity: 0.6;
+  }
+}
+
+/* 精致角标装饰 - 高级科技感 */
 .module-corner {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  border: 2px solid rgba(74, 158, 255, 0.4);
+  width: 24px;
+  height: 24px;
   pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.module-corner::before,
+.module-corner::after {
+  content: '';
+  position: absolute;
+  background: var(--module-color-start);
+  box-shadow: 0 0 8px var(--module-color-start);
 }
 
 .module-corner.tl {
-  top: 15px;
-  left: 15px;
-  border-right: none;
-  border-bottom: none;
+  top: 12px;
+  left: 12px;
+}
+
+.module-corner.tl::before {
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 2px;
+}
+
+.module-corner.tl::after {
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 16px;
 }
 
 .module-corner.tr {
-  top: 15px;
-  right: 15px;
-  border-left: none;
-  border-bottom: none;
+  top: 12px;
+  right: 12px;
+}
+
+.module-corner.tr::before {
+  top: 0;
+  right: 0;
+  width: 16px;
+  height: 2px;
+}
+
+.module-corner.tr::after {
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 16px;
 }
 
 .module-corner.bl {
-  bottom: 15px;
-  left: 15px;
-  border-right: none;
-  border-top: none;
+  bottom: 12px;
+  left: 12px;
+}
+
+.module-corner.bl::before {
+  bottom: 0;
+  left: 0;
+  width: 16px;
+  height: 2px;
+}
+
+.module-corner.bl::after {
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  height: 16px;
 }
 
 .module-corner.br {
-  bottom: 15px;
-  right: 15px;
-  border-left: none;
-  border-top: none;
+  bottom: 12px;
+  right: 12px;
+}
+
+.module-corner.br::before {
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 2px;
+}
+
+.module-corner.br::after {
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  height: 16px;
+}
+
+.module-card:hover .module-corner,
+.module-card.active .module-corner {
+  width: 28px;
+  height: 28px;
+}
+
+.module-card:hover .module-corner::before,
+.module-card:hover .module-corner::after,
+.module-card.active .module-corner::before,
+.module-card.active .module-corner::after {
+  background: var(--module-color-end);
+  box-shadow: 0 0 12px var(--module-color-end);
 }
 
 .main-section {
@@ -1640,148 +2474,570 @@ onUnmounted(() => {
   box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
 }
 
-.bottom-modules {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-auto-rows: 1fr;
-  gap: 20px;
+/* ===== 3D Immersive Zone ===== */
+.immersive-zone {
   position: relative;
+  width: 100%;
+  min-height: 420px;
+  padding: 60px 40px 80px;
+  perspective: 1200px;
   z-index: 10;
 }
 
-.bottom-card {
-  background: rgba(10, 15, 40, 0.7);
-  border-radius: 16px;
-  border: 1px solid rgba(74, 158, 255, 0.15);
-  padding: 25px;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  animation: cardFadeIn 0.6s ease-out forwards;
-  opacity: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-@keyframes cardFadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.bottom-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(74, 158, 255, 0.4);
-  box-shadow: 
-    0 0 60px rgba(74, 158, 255, 0.2),
-    0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-.card-glow {
+/* 镜面反射平台 */
+.reflective-platform {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 50% 50%, rgba(74, 158, 255, 0.05) 0%, transparent 60%);
+  bottom: 0;
+  left: 5%;
+  right: 5%;
+  height: 180px;
+  background: linear-gradient(180deg, 
+    rgba(30, 20, 60, 0) 0%, 
+    rgba(60, 40, 100, 0.15) 30%, 
+    rgba(40, 30, 80, 0.25) 100%);
+  transform: perspective(800px) rotateX(65deg);
+  transform-origin: center top;
+  border-radius: 50% 50% 0 0 / 30px;
+  filter: blur(2px);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.reflective-platform::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 5%, 
+    rgba(138, 100, 255, 0.6) 30%, 
+    rgba(100, 150, 255, 0.8) 50%, 
+    rgba(138, 100, 255, 0.6) 70%, 
+    transparent 95%);
+  box-shadow: 0 0 30px rgba(138, 100, 255, 0.5);
+}
+
+/* 光束效果 */
+.light-beams {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.beam {
+  position: absolute;
+  width: 120px;
+  height: 100%;
+  top: 0;
+  opacity: 0.15;
+  filter: blur(30px);
+}
+
+.beam-1 {
+  left: 15%;
+  background: linear-gradient(180deg, 
+    rgba(138, 100, 255, 0.4) 0%, 
+    rgba(138, 100, 255, 0.1) 50%, 
+    transparent 100%);
+  transform: rotate(-8deg);
+  animation: beamFlicker1 6s ease-in-out infinite;
+}
+
+.beam-2 {
+  left: 50%;
+  background: linear-gradient(180deg, 
+    rgba(100, 180, 255, 0.3) 0%, 
+    rgba(100, 180, 255, 0.08) 40%, 
+    transparent 100%);
+  transform: rotate(2deg);
+  width: 180px;
+  animation: beamFlicker2 8s ease-in-out infinite;
+}
+
+.beam-3 {
+  right: 20%;
+  background: linear-gradient(180deg, 
+    rgba(180, 120, 255, 0.35) 0%, 
+    rgba(180, 120, 255, 0.1) 45%, 
+    transparent 100%);
+  transform: rotate(-5deg);
+  animation: beamFlicker3 7s ease-in-out infinite;
+}
+
+@keyframes beamFlicker1 {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.25; }
+}
+
+@keyframes beamFlicker2 {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes beamFlicker3 {
+  0%, 100% { opacity: 0.18; }
+  50% { opacity: 0.28; }
+}
+
+/* 漂浮光粒子 */
+.floating-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.particle {
+  position: absolute;
+  width: var(--particle-size, 3px);
+  height: var(--particle-size, 3px);
+  background: var(--particle-color, #8a64ff);
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 10px var(--particle-color, #8a64ff), 0 0 20px var(--particle-color, #8a64ff);
+  animation: particleFloat var(--animation-duration, 4s) ease-in-out var(--animation-delay, 0s) infinite;
+}
+
+@keyframes particleFloat {
+  0% { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.5); 
+  }
+  20% { 
+    opacity: 0.8; 
+  }
+  80% { 
+    opacity: 0.6; 
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(-40px) scale(1); 
+  }
+}
+
+/* 3D弧形卡片容器 */
+.cards-3d-container {
+  position: relative;
+  z-index: 5;
+}
+
+.cards-arc {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 30px;
+  padding-bottom: 60px;
+}
+
+/* 弧形倾斜容器 */
+.arc-tilt {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  height: 100px;
+  background: linear-gradient(180deg, 
+    transparent 0%, 
+    rgba(100, 80, 160, 0.08) 50%, 
+    rgba(80, 60, 140, 0.12) 100%);
+  border-radius: 50%;
+  filter: blur(15px);
+  opacity: 0.7;
   pointer-events: none;
 }
 
-.card-icon {
-  width: 50px;
-  height: 50px;
+/* 3D卡片基础样式 */
+.bottom-card-3d {
+  position: relative;
+  width: 240px;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.5s ease;
+  animation: card3dFadeIn 0.8s ease-out var(--card-delay, 0s) both;
+}
+
+@keyframes card3dFadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(60px) scale(0.8);
+    filter: blur(10px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* 弧形位置 - 中间卡片最高，两侧渐低 */
+.pos-0 { 
+  transform: translateY(30px) rotateY(25deg);
+}
+.pos-1 { 
+  transform: translateY(15px) rotateY(12deg);
+}
+.pos-2 { 
+  transform: translateY(0) rotateY(0deg);
+  z-index: 10;
+}
+.pos-3 { 
+  transform: translateY(15px) rotateY(-12deg);
+}
+.pos-4 { 
+  transform: translateY(30px) rotateY(-25deg);
+}
+
+/* 悬停效果 */
+.bottom-card-3d:hover {
+  transform: translateY(-20px) rotateY(0deg) scale(1.08) !important;
+  filter: brightness(1.1);
+  z-index: 20;
+}
+
+.pos-2:hover {
+  transform: translateY(-25px) rotateY(0deg) scale(1.1) !important;
+}
+
+/* 玻璃底座 */
+.card-base {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 20px;
+  z-index: 0;
+}
+
+.base-reflection {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 30px;
+  background: radial-gradient(ellipse at center top, 
+    rgba(var(--theme-rgb), 0.4) 0%, 
+    rgba(var(--theme-rgb), 0.2) 40%, 
+    transparent 70%);
+  filter: blur(8px);
+  opacity: 0.6;
+}
+
+.base-glow {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    var(--theme-color), 
+    transparent);
+  box-shadow: 0 0 20px var(--theme-color), 0 0 40px var(--theme-color);
+  opacity: 0.8;
+  border-radius: 50%;
+  animation: baseGlowPulse 3s ease-in-out infinite;
+}
+
+@keyframes baseGlowPulse {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(0.8); }
+  50% { opacity: 1; transform: translateX(-50%) scaleX(1); }
+}
+
+/* 玻璃卡片主体 */
+.card-glass {
+  position: relative;
+  background: linear-gradient(145deg, 
+    rgba(20, 18, 45, 0.75) 0%, 
+    rgba(30, 25, 55, 0.65) 50%, 
+    rgba(15, 12, 35, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 30px 25px 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(var(--theme-rgb), 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.4s ease;
+}
+
+.bottom-card-3d:hover .card-glass {
+  border-color: rgba(var(--theme-rgb), 0.4);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(var(--theme-rgb), 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* 3D立体图标 */
+.icon-3d {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+  perspective: 200px;
+}
+
+.icon-cube {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, 
+    rgba(var(--theme-rgb), 0.3) 0%, 
+    rgba(var(--theme-rgb), 0.15) 100%);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 15px;
-  color: var(--color);
-  filter: drop-shadow(0 0 10px var(--color));
+  color: var(--icon-color);
+  border: 1px solid rgba(var(--theme-rgb), 0.3);
+  transform: rotateY(-15deg) rotateX(10deg);
+  transition: transform 0.5s ease;
+  box-shadow: 
+    0 10px 30px rgba(var(--theme-rgb), 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.bottom-card h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 8px;
+.bottom-card-3d:hover .icon-cube {
+  transform: rotateY(0deg) rotateX(0deg) scale(1.1);
+  box-shadow: 
+    0 15px 40px rgba(var(--theme-rgb), 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-.bottom-card p {
-  font-size: 0.75rem;
-  color: rgba(150, 180, 220, 0.4);
-  margin-bottom: 15px;
-  line-height: 1.5;
+.icon-cube svg {
+  filter: drop-shadow(0 0 8px var(--icon-color));
 }
 
-.card-btn {
-  padding: 7px 14px;
-  background: rgba(74, 158, 255, 0.2);
-  border: 1px solid rgba(74, 158, 255, 0.4);
-  border-radius: 15px;
-  color: rgba(74, 158, 255, 0.8);
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
+.icon-glow-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 18px;
+  border: 1.5px solid var(--icon-color);
+  opacity: 0.4;
+  box-shadow: 0 0 15px var(--icon-color);
+  animation: ringRotate 4s linear infinite;
+}
+
+@keyframes ringRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.icon-shadow {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 8px;
+  background: radial-gradient(ellipse at center, 
+    rgba(var(--theme-rgb), 0.4) 0%, 
+    transparent 70%);
+  filter: blur(4px);
+  opacity: 0.6;
+}
+
+/* 卡片标题 */
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 10px;
+  text-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.3),
+    0 2px 10px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+  line-height: 1.3;
   transition: all 0.3s ease;
 }
 
-.card-btn:hover {
-  background: rgba(74, 158, 255, 0.4);
-  color: rgba(74, 158, 255, 0.95);
+.bottom-card-3d:hover .card-title {
+  text-shadow: 
+    0 0 30px var(--theme-color),
+    0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-.card-corner {
+/* 卡片描述 */
+.card-description {
+  font-size: 0.78rem;
+  color: rgba(220, 230, 255, 0.7);
+  margin: 0 0 24px;
+  line-height: 1.6;
+}
+
+/* 进入按钮 */
+.enter-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, 
+    rgba(var(--theme-rgb), 0.4) 0%, 
+    rgba(var(--theme-rgb), 0.2) 100%);
+  border: 1.5px solid rgba(var(--theme-rgb), 0.6);
+  border-radius: 30px;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+  box-shadow: 
+    0 4px 15px rgba(var(--theme-rgb), 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.enter-btn:hover {
+  background: linear-gradient(135deg, 
+    rgba(var(--theme-rgb), 0.6) 0%, 
+    rgba(var(--theme-rgb), 0.4) 100%);
+  border-color: var(--theme-color);
+  box-shadow: 
+    0 6px 25px rgba(var(--theme-rgb), 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateX(5px);
+}
+
+.enter-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.enter-btn:hover svg {
+  transform: translateX(4px);
+}
+
+.btn-shine {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 1px solid rgba(74, 158, 255, 0.3);
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.3) 50%, 
+    transparent 100%);
+  animation: btnShine 3s ease-in-out infinite;
+}
+
+@keyframes btnShine {
+  0%, 100% { left: -100%; }
+  50% { left: 100%; }
+}
+
+/* 玻璃高光 */
+.glass-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    transparent 100%);
+  border-radius: 20px 20px 0 0;
   pointer-events: none;
 }
 
-.card-corner.tl {
-  top: 10px;
-  left: 10px;
-  border-right: none;
-  border-bottom: none;
+/* 卡片特定配色 */
+.card-planning .card-glass {
+  background: linear-gradient(145deg, 
+    rgba(25, 20, 55, 0.75) 0%, 
+    rgba(35, 28, 65, 0.65) 50%, 
+    rgba(18, 15, 40, 0.8) 100%);
 }
 
-.card-corner.tr {
-  top: 10px;
-  right: 10px;
-  border-left: none;
-  border-bottom: none;
+.card-ai-resume .card-glass {
+  background: linear-gradient(145deg, 
+    rgba(15, 25, 35, 0.75) 0%, 
+    rgba(20, 35, 45, 0.65) 50%, 
+    rgba(12, 20, 28, 0.8) 100%);
 }
 
-.card-corner.bl {
-  bottom: 10px;
-  left: 10px;
-  border-right: none;
-  border-top: none;
+.card-talent-stat .card-glass {
+  background: linear-gradient(145deg, 
+    rgba(30, 18, 45, 0.75) 0%, 
+    rgba(40, 25, 55, 0.65) 50%, 
+    rgba(22, 14, 32, 0.8) 100%);
 }
 
-.card-corner.br {
-  bottom: 10px;
-  right: 10px;
-  border-left: none;
-  border-top: none;
+.card-industry-prediction .card-glass {
+  background: linear-gradient(145deg, 
+    rgba(35, 25, 10, 0.75) 0%, 
+    rgba(45, 32, 15, 0.65) 50%, 
+    rgba(28, 20, 8, 0.8) 100%);
+}
+
+.card-job-recommend .card-glass {
+  background: linear-gradient(145deg, 
+    rgba(10, 25, 35, 0.75) 0%, 
+    rgba(15, 35, 48, 0.65) 50%, 
+    rgba(8, 18, 26, 0.8) 100%);
+}
+
+/* 响应式适配 */
+@media (max-width: 1400px) {
+  .bottom-card-3d {
+    width: 200px;
+  }
+  .cards-arc {
+    gap: 20px;
+  }
 }
 
 @media (max-width: 1200px) {
-  .main-content {
-    grid-template-columns: 1fr;
+  .immersive-zone {
+    padding: 40px 20px 60px;
   }
-  
-  .bottom-modules {
-    grid-template-columns: repeat(2, 1fr);
+  .cards-arc {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .bottom-card-3d {
+    width: 220px;
+    transform: none !important;
+  }
+  .bottom-card-3d:hover {
+    transform: translateY(-15px) scale(1.05) !important;
+  }
+  .pos-0, .pos-1, .pos-2, .pos-3, .pos-4 {
+    transform: none !important;
   }
 }
 
 @media (max-width: 768px) {
-  .top-modules {
-    flex-direction: column;
+  .immersive-zone {
+    padding: 30px 15px 50px;
   }
-  
-  .bottom-modules {
-    grid-template-columns: 1fr;
+  .bottom-card-3d {
+    width: 100%;
+    max-width: 300px;
+  }
+  .cards-arc {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  .reflective-platform,
+  .light-beams,
+  .floating-particles {
+    display: none;
   }
 }
 

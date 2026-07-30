@@ -1,6 +1,30 @@
 <template>
-  <div class="job-recommend-page">
+  <div class="job-recommend-page" ref="pageRef" @mousemove="handleMouseMove">
     <canvas ref="bgCanvas" class="bg-canvas"></canvas>
+    
+    <!-- 星云背景层 -->
+    <div class="nebula-bg">
+      <div class="nebula nebula-1"></div>
+      <div class="nebula nebula-2"></div>
+      <div class="nebula nebula-3"></div>
+    </div>
+    
+    <!-- 动态光带 -->
+    <div class="light-ribbons">
+      <div class="ribbon ribbon-1"></div>
+      <div class="ribbon ribbon-2"></div>
+      <div class="ribbon ribbon-3"></div>
+    </div>
+    
+    <div class="bg-hex-grid"></div>
+    <div class="bg-cursor-glow" :style="{ transform: `translate(${mouseX}px, ${mouseY}px)`, opacity: cursorOpacity }"></div>
+    <div class="bg-edge-glow edge-tl"></div>
+    <div class="bg-edge-glow edge-tr"></div>
+    <div class="bg-edge-glow edge-bl"></div>
+    <div class="bg-edge-glow edge-br"></div>
+    <div class="bg-fluid-edge fluid-bottom"></div>
+    <div class="bg-fluid-edge fluid-left"></div>
+    <div class="bg-fluid-edge fluid-right"></div>
     
     <div class="top-bar">
       <button class="back-btn" @click="goBack">
@@ -19,6 +43,7 @@
         </span>
       </div>
       <div class="top-bar-right">
+        <span class="data-update-notice">📊 岗位数据每日凌晨自动爬取更新</span>
         <div class="favorites-wrapper" @mouseenter="onFavPreviewEnter" @mouseleave="onFavPreviewLeave">
           <button class="favorites-btn" @click="openFavoritesModal">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none">
@@ -66,7 +91,10 @@
                @input="handleSearchInput"/>
         <div class="hot-tags" v-if="!searchKeyword && !searchFocused">
           <span class="hot-tag-label">热搜:</span>
-          <span class="hot-tag" v-for="(tag, i) in hotTags" :key="i" @click="quickSearch(tag)">{{ tag }}</span>
+          <span class="hot-tag" v-for="(tag, i) in hotTags" :key="i" 
+                @click="quickSearch(tag)"
+                @mouseenter="hoverHotTag(tag)"
+                @mouseleave="clearHotTagHover">{{ tag }}</span>
         </div>
         <div class="suggestions-dropdown" v-if="searchSuggestions.length > 0 && searchFocused">
           <div class="suggestion-item" v-for="(sug, i) in searchSuggestions" :key="i" 
@@ -91,6 +119,7 @@
           @click="activeCategory = index; handleSearch()"
         >
           {{ tab }}
+          <span class="tab-glow-line" v-if="activeCategory === index"></span>
         </div>
       </div>
     </div>
@@ -108,9 +137,24 @@
           <span>智能推荐岗位</span>
           <div class="sort-controls">
             <span class="sort-label">排序:</span>
-            <div class="sort-btn" :class="{ active: sortBy === 'match' }" @click="setSortBy('match')">匹配度</div>
-            <div class="sort-btn" :class="{ active: sortBy === 'salary' }" @click="setSortBy('salary')">薪资</div>
-            <div class="sort-btn" :class="{ active: sortBy === 'city' }" @click="setSortBy('city')">就近</div>
+            <div class="sort-btn" :class="{ active: sortBy === 'match' }" @click="setSortBy('match')">
+              <svg v-if="sortBy === 'match'" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              匹配度
+            </div>
+            <div class="sort-btn" :class="{ active: sortBy === 'salary' }" @click="setSortBy('salary')">
+              <svg v-if="sortBy === 'salary'" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 1C5.92 1 1 5.92 1 12s4.92 11 11 11 11-4.92 11-11S18.08 1 12 1zm1 17h-2v-1.5c-1.44-.34-2.5-1.31-2.5-2.5h2c0 .41.34.75.75.75h1.5c.41 0 .75-.34.75-.75 0-.42-.34-.75-.75-.75H10c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5V7h2v1.5c1.44.34 2.5 1.31 2.5 2.5h-2c0-.41-.34-.75-.75-.75h-1.5c-.41 0-.75.34-.75.75s.34.75.75.75h2.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5V18z"/></svg>
+              薪资
+            </div>
+            <div class="sort-btn" :class="{ active: sortBy === 'city' }" @click="setSortBy('city')">
+              <svg v-if="sortBy === 'city'" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              就近{{ userLocationCity ? `(${userLocationCity})` : '' }}
+            </div>
+            <div class="city-picker-wrap" v-if="(sortBy === 'city' && !userLocationCity) || locationStatus === 'denied'">
+              <select v-model="tempCity" @change="applyUserCity" class="city-picker">
+                <option value="">选择你的城市</option>
+                <option v-for="city in topCities" :key="city" :value="city">{{ city }}</option>
+              </select>
+            </div>
           </div>
           <span class="result-count">共 {{ totalResults }} 个岗位</span>
         </div>
@@ -125,10 +169,6 @@
             <button class="batch-btn" @click="batchFavorite" :disabled="isGuest">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
               批量收藏
-            </button>
-            <button class="batch-btn apply" @click="batchApply" :disabled="isGuest">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              批量投递
             </button>
             <button class="batch-btn compare" @click="openCompareSidebar">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M9 3v18M15 3v18"/></svg>
@@ -166,7 +206,7 @@
               <div class="job-salary">{{ formatSalary(job.salary_avg) }}</div>
             </div>
             <div class="job-company-row">
-              <span class="job-company">{{ job.company }}</span>
+              <span class="job-company">{{ getJobCompany(job) }}</span>
               <span class="job-match-score" :class="matchLevel(job)">
                 <span class="score-bar">
                   <span class="score-fill" :style="{ width: (job.matchScore || getMatchScore(job)) + '%' }"></span>
@@ -174,23 +214,29 @@
                 <span class="score-text">{{ job.matchScore || getMatchScore(job) }}%</span>
               </span>
             </div>
+            <div class="match-basis" v-if="job.matchScore">
+              匹配依据：根据技能 + 学历智能计算
+            </div>
             <div class="job-info-row">
               <span class="info-chip">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                 </svg>
                 {{ job.city }}
               </span>
-              <span class="info-chip small" v-if="job.education">
+              <span class="info-chip tiny" v-if="job.education">
                 {{ job.education }}
               </span>
-              <span class="info-chip small" v-if="job.work_exp">
+              <span class="info-chip tiny" v-if="job.work_exp">
                 {{ job.work_exp }}
               </span>
             </div>
             <div class="job-tags-row">
               <span v-for="(tag, tIndex) in getJobTags(job)" :key="'s'+tIndex" class="skill-tag">{{ tag }}</span>
-              <span v-for="(tag, tIndex) in getWelfareTags(job)" :key="'w'+tIndex" class="welfare-tag">{{ tag }}</span>
+              <span v-for="(tag, tIndex) in getWelfareTags(job)" :key="'w'+tIndex" class="welfare-badge">{{ tag }}</span>
+            </div>
+            <div class="job-source-tag" v-if="job.data_source">
+              数据来源：{{ job.data_source }}
             </div>
             <div class="card-actions" @click.stop>
               <button class="card-action-btn" :class="{ favorited: isFavorited(job) }" @click.stop="toggleFavorite(job)">
@@ -202,7 +248,7 @@
                 <svg v-else viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="none">
                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                 </svg>
-                <span>{{ isFavorited(job) ? '已收藏' : '收藏' }}</span>
+                <span>{{ isFavorited(job) ? '已收藏' : '收藏岗位' }}</span>
               </button>
               <button class="card-action-btn view-btn" @click.stop="openJobDetail(job)">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -227,6 +273,15 @@
           <button class="page-btn" :disabled="currentPage <= 1" @click="changePage(currentPage - 1)">上一页</button>
           <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
           <button class="page-btn" :disabled="currentPage >= totalPages" @click="changePage(currentPage + 1)">下一页</button>
+        </div>
+        <div class="lazy-load-indicator" v-if="loading && jobList.length > 0">
+          <svg class="loading-icon" viewBox="0 0 24 24" width="18" height="18">
+            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="50" class="spin"/>
+          </svg>
+          <span>加载中...</span>
+        </div>
+        <div class="no-more-indicator" v-if="currentPage >= totalPages && totalPages > 1 && !loading">
+          <span>— 已加载全部岗位 —</span>
         </div>
       </div>
 
@@ -452,7 +507,7 @@
             <div class="detail-grid">
               <div class="detail-row">
                 <span class="detail-label">公司名称</span>
-                <span class="detail-value">{{ selectedJob?.company || '暂无' }}</span>
+                <span class="detail-value">{{ getJobCompany(selectedJob) }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">工作城市</span>
@@ -491,14 +546,68 @@
                 <li>有较强的学习能力和问题解决能力</li>
               </ul>
             </div>
+            <div class="detail-section company-info-section" v-if="selectedJob">
+              <h3>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#4a9eff" stroke-width="2" style="vertical-align: -3px; margin-right: 6px;">
+                  <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/>
+                </svg>
+                招聘企业信息
+              </h3>
+              <div class="company-info-grid">
+                <div class="company-info-item">
+                  <span class="ci-label">公司名称</span>
+                  <span class="ci-value">{{ getJobCompany(selectedJob) }}</span>
+                </div>
+                <div class="company-info-item">
+                  <span class="ci-label">行业领域</span>
+                  <span class="ci-value">{{ getIndustry(selectedJob) }}</span>
+                </div>
+                <div class="company-info-item">
+                  <span class="ci-label">企业规模</span>
+                  <span class="ci-value">{{ getCompanySize(selectedJob) }}</span>
+                </div>
+                <div class="company-info-item">
+                  <span class="ci-label">企业类型</span>
+                  <span class="ci-value company-type" :class="getCompanyTypeClass(selectedJob)">{{ getCompanyType(selectedJob) }}</span>
+                </div>
+                <div class="company-info-item full">
+                  <span class="ci-label">公司地址</span>
+                  <span class="ci-value">{{ selectedJob?.city || '暂无' }}</span>
+                </div>
+                <div class="company-info-item full">
+                  <span class="ci-label">企业简介</span>
+                  <span class="ci-value brief">{{ getCompanyBrief(selectedJob) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="detail-section trend-section" v-if="selectedJob">
+              <h3>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#00d4aa" stroke-width="2" style="vertical-align: -3px; margin-right: 6px;">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+                </svg>
+                岗位热度分析（近30天）
+              </h3>
+              <div class="trend-chart-container">
+                <canvas ref="trendChartCanvas" class="trend-canvas"></canvas>
+                <div class="trend-stats">
+                  <div class="trend-stat">
+                    <span class="trend-value">{{ selectedJob?.city || '-' }} · {{ getSameCityCount(selectedJob?.city) }} 条</span>
+                    <span class="trend-label">同城市岗位</span>
+                  </div>
+                  <div class="trend-stat">
+                    <span class="trend-value">{{ getPublishTrend(selectedJob) >= 0 ? '+' : '' }}{{ getPublishTrend(selectedJob) }}%</span>
+                    <span class="trend-label">行业薪资环比</span>
+                  </div>
+                  <div class="trend-stat">
+                    <span class="trend-value">{{ formatSalary(getAvgSalaryForCity(selectedJob?.city)) }}</span>
+                    <span class="trend-label">同城市平均薪资</span>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
           </div>
           <div class="modal-footer">
-            <button class="contact-btn" @click="openContactModal">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              联系HR
-            </button>
             <button class="trend-btn" @click="showTrendModal = true">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
@@ -873,14 +982,121 @@ const totalResults = ref(0)
 const currentPage = ref(1)
 const totalPages = ref(1)
 const pageSize = 20
-const sortBy = ref('match')
+const sortBy = ref('')
+const userLocationCity = ref('')
+const locationStatus = ref('idle')
+const CITY_LATLNG = {
+  '北京': [39.9042, 116.4074], '上海': [31.2304, 121.4737], '广州': [23.1291, 113.2644],
+  '深圳': [22.5431, 114.0579], '杭州': [30.2741, 120.1551], '成都': [30.5728, 104.0668],
+  '武汉': [30.5928, 114.3055], '西安': [34.3416, 108.9398], '南京': [32.0603, 118.7969],
+  '重庆': [29.5630, 106.5516], '天津': [39.3434, 117.3616], '苏州': [31.2990, 120.5853],
+  '青岛': [36.0671, 120.3826], '长沙': [28.2282, 112.9388], '郑州': [34.7466, 113.6254],
+  '厦门': [24.4798, 118.0894], '福州': [26.0745, 119.2965], '合肥': [31.8206, 117.2272],
+  '宁波': [29.8683, 121.5440], '无锡': [31.4912, 120.3119], '大连': [38.9140, 121.6147],
+  '沈阳': [41.8057, 123.4315], '哈尔滨': [45.8038, 126.5349], '长春': [43.8171, 125.3235],
+  '济南': [36.6512, 117.1201], '昆明': [25.0389, 102.7183], '贵阳': [26.6470, 106.6302],
+  '南宁': [22.8170, 108.3669], '海口': [20.0440, 110.1999], '兰州': [36.0611, 103.8343],
+  '乌鲁木齐': [43.8256, 87.6168], '拉萨': [29.6520, 91.1721], '银川': [38.4872, 106.2309],
+  '西宁': [36.6171, 101.7782], '呼和浩特': [40.8414, 111.7490], '太原': [37.8706, 112.5489],
+  '石家庄': [38.0428, 114.5149], '南昌': [28.6820, 115.8579], '珠海': [22.2707, 113.5767],
+  '佛山': [23.0218, 113.1219], '东莞': [23.0489, 113.7447], '中山': [22.5171, 113.3925],
+  '惠州': [23.1115, 114.4152], '江门': [22.5787, 113.0818], '汕头': [23.3535, 116.6820],
+  '桂林': [25.2736, 110.2907], '柳州': [24.3264, 109.4115], '三亚': [18.2479, 109.5108],
+  '嘉兴': [30.7463, 120.7556], '温州': [27.9939, 120.6994], '湖州': [30.8945, 120.0883],
+  '绍兴': [30.0000, 120.5833], '金华': [29.0788, 119.6495], '台州': [28.6560, 121.4208],
+  '常州': [31.7733, 119.5797], '徐州': [34.2615, 117.1847], '南通': [31.9800, 120.8647],
+  '扬州': [32.3936, 119.4129], '镇江': [32.1882, 119.4253], '泰州': [32.4553, 119.9230],
+  '盐城': [33.3478, 120.1616], '淮安': [33.5514, 119.0130], '连云港': [34.5968, 119.2217],
+  '德州': [37.4354, 116.3689], '聊城': [36.4564, 115.9857], '济宁': [35.4146, 116.5873],
+  '淄博': [36.8131, 118.0548], '潍坊': [36.7167, 119.1684], '烟台': [37.4638, 121.4479],
+  '威海': [37.5131, 122.1200], '临沂': [35.1041, 118.3563], '菏泽': [35.2333, 115.4807],
+  '洛阳': [34.6197, 112.4540], '开封': [34.7971, 114.3599], '南阳': [32.9905, 112.5283],
+  '信阳': [32.1264, 114.0664], '商丘': [34.4142, 115.6616], '郑州': [34.7466, 113.6254],
+  '大庆': [46.5907, 125.1039], '吉林': [43.8431, 126.5497], '鞍山': [41.1087, 122.9957],
+  '赣州': [25.8310, 114.9333], '九江': [29.7050, 116.0019], '绵阳': [31.4676, 104.6780],
+  '德阳': [31.1279, 104.3981], '乐山': [29.5521, 103.7660], '宜宾': [28.7723, 104.6417],
+  '泸州': [28.8717, 105.4416], '南充': [30.7953, 106.0807], '遵义': [27.7254, 106.9273],
+  '曲靖': [25.4890, 103.7956], '宝鸡': [34.3617, 107.2373], '咸阳': [34.3296, 108.7089],
+  '延安': [36.5853, 109.4898], '榆林': [38.2854, 109.7348], '酒泉': [39.7426, 98.4941],
+  '天水': [34.5809, 105.7249], '赤峰': [42.2635, 118.8870], '包头': [40.6571, 109.8403],
+  '香港': [22.3193, 114.1694], '澳门': [22.1987, 113.5439]
+}
+const CITIES_BY_PROXIMITY = {}
+Object.entries(CITY_LATLNG).forEach(([city, [lat, lng]]) => {
+  CITIES_BY_PROXIMITY[city] = { lat, lng }
+})
+const findNearestCity = (lat, lng) => {
+  let nearest = null
+  let minDist = Infinity
+  for (const [name, coords] of Object.entries(CITY_LATLNG)) {
+    const dLat = (lat - coords[0]) * Math.PI / 180
+    const dLng = (lng - coords[1]) * Math.PI / 180
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat * Math.PI / 180) * Math.cos(coords[0] * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    const dist = 6371 * c
+    if (dist < minDist) { minDist = dist; nearest = name }
+  }
+  return nearest
+}
+const detectUserLocation = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const city = findNearestCity(pos.coords.latitude, pos.coords.longitude)
+        if (city) {
+          userLocationCity.value = city
+          locationStatus.value = 'found'
+          if (sortBy.value === 'city') {
+            handleSearch()
+          }
+        }
+      },
+      () => {
+        locationStatus.value = 'denied'
+        const saved = localStorage.getItem('userPreferredCity')
+        if (saved) userLocationCity.value = saved
+      },
+      { timeout: 5000 }
+    )
+  } else {
+    locationStatus.value = 'unsupported'
+  }
+}
 const selectAllVisible = ref(false)
 const selectedJobs = ref([])
 const filterSticky = ref(false)
+const tempCity = ref('')
+const topCities = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '西安', '南京', '重庆', '天津', '苏州', '青岛', '长沙', '郑州', '厦门', '福州', '合肥', '宁波', '无锡', '大连', '沈阳', '哈尔滨', '济南', '昆明', '南宁', '兰州', '南昌', '珠海', '佛山', '东莞', '桂林', '三亚', '温州', '合肥', '长沙']
+const applyUserCity = () => {
+  if (tempCity.value) {
+    userLocationCity.value = tempCity.value
+    localStorage.setItem('userPreferredCity', tempCity.value)
+    locationStatus.value = 'manual'
+    handleSearch()
+  }
+}
+const mouseX = ref(-500)
+const mouseY = ref(-500)
+const cursorOpacity = ref(0)
+let mouseThrottleTimer = null
+let mouseIdleTimer = null
+const handleMouseMove = (e) => {
+  if (mouseThrottleTimer) return
+  mouseThrottleTimer = requestAnimationFrame(() => {
+    mouseX.value = e.clientX
+    mouseY.value = e.clientY
+    cursorOpacity.value = 1
+    mouseThrottleTimer = null
+    if (mouseIdleTimer) clearTimeout(mouseIdleTimer)
+    mouseIdleTimer = setTimeout(() => {
+      cursorOpacity.value = 0
+    }, 400)
+  })
+}
 
 const hotTags = ['前端', '运维', 'AI算法', 'Java', 'Python', '大数据', '云计算', '产品经理']
 
-const categories = ref(['全部岗位', '高匹配优先', '高薪岗位', '开发工程师', '运维支持', '教育培训', '人工智能', '今日新岗', '应届生校招', '国企央企'])
+const categories = ref(['全部岗位', '高匹配优先', '高薪岗位', '低竞争岗位', '短期实习', '开发工程师', '运维支持', '教育培训', '人工智能', '应届生校招', '国企央企'])
 const educationOptions = ref([])
 const experienceOptions = ref([])
 const cityOptions = ref([])
@@ -939,8 +1155,6 @@ const isGuest = computed(() => {
   return !isLoggedIn
 })
 
-const canApply = computed(() => !isGuest.value)
-
 const statusLabels = {
   applied: '已投递',
   viewed: '已查看',
@@ -976,20 +1190,20 @@ const aiAnalysis = computed(() => {
     cityMatch: true,
     gaps,
     suggestions,
-    hotScore: Math.floor(70 + Math.random() * 30) + '分',
-    competeLevel: Math.random() > 0.5 ? '中等' : '较高'
+    hotScore: Math.floor(getMatchScore(job)) + '分',
+    competeLevel: getMatchScore(job) >= 75 ? '较低' : getMatchScore(job) >= 60 ? '中等' : '较高'
   }
 })
 
 const matchLevel = (job) => {
-  const score = job?.matchScore || 60
-  if (score >= 80) return 'high'
-  if (score >= 60) return 'medium'
+  const score = job?.matchScore || getMatchScore(job)
+  if (score >= 75) return 'high'
+  if (score >= 50) return 'medium'
   return 'low'
 }
 
 const getMatchCircleStyle = (job) => {
-  const score = job?.matchScore || 60
+  const score = job?.matchScore || getMatchScore(job)
   const deg = Math.round((score / 100) * 360)
   let color = '#00d4aa'
   if (score < 60) color = '#fb923c'
@@ -1054,30 +1268,6 @@ const getApplicationStatus = (job) => {
   return record ? record.status : null
 }
 
-const batchApply = () => {
-  if (isGuest.value) {
-    showToast('请先登录后再投递简历', 'warning')
-    return
-  }
-  let count = 0
-  selectedJobs.value.forEach(job => {
-    const existingIndex = applicationRecords.value.findIndex(
-      r => r.job_name === job.job_name && r.company === job.company
-    )
-    if (existingIndex === -1) {
-      applicationRecords.value.push({
-        job_name: job.job_name,
-        company: job.company,
-        status: 'applied',
-        appliedAt: new Date().toISOString()
-      })
-      count++
-    }
-  })
-  saveApplications()
-  showToast(`已批量投递 ${count} 个岗位`)
-}
-
 const loadFilterState = () => {
   const saved = localStorage.getItem('jobFilterState')
   if (saved) {
@@ -1090,8 +1280,13 @@ const loadFilterState = () => {
       selectedCities.value = state.selectedCities || []
       minSalary.value = state.minSalary ?? 0
       maxSalary.value = state.maxSalary ?? 50
-      sortBy.value = state.sortBy || 'match'
+      sortBy.value = state.sortBy || ''
     } catch (e) {}
+  }
+  const savedCity = localStorage.getItem('userPreferredCity')
+  if (savedCity) {
+    userLocationCity.value = savedCity
+    locationStatus.value = 'manual'
   }
 }
 
@@ -1216,6 +1411,40 @@ const formatSalary = (salary) => {
   return `${(salary / 1000).toFixed(0)}K`
 }
 
+const getSameCityCount = (city) => {
+  if (!city) return 0
+  return jobList.value.filter(j => j.city === city).length
+}
+
+const getAvgSalaryForCity = (city) => {
+  if (!city) return 0
+  const cityJobs = jobList.value.filter(j => j.city === city)
+  if (cityJobs.length === 0) return 0
+  const total = cityJobs.reduce((sum, j) => sum + (j.salary_avg || 0), 0)
+  return Math.round(total / cityJobs.length)
+}
+
+const getPublishTrend = (job) => {
+  if (!job) return 0
+  const industry = getIndustry(job)
+  const industryJobs = jobList.value.filter(j => getIndustry(j) === industry)
+  if (industryJobs.length < 3) return 5
+  const avgSalary = industryJobs.reduce((sum, j) => sum + (j.salary_avg || 0), 0) / industryJobs.length
+  if ((job.salary_avg || 0) > avgSalary * 1.2) return 12
+  if ((job.salary_avg || 0) > avgSalary) return 7
+  if ((job.salary_avg || 0) < avgSalary * 0.8) return -3
+  return 4
+}
+
+const getJobCompany = (job) => {
+  const raw = job?.company || ''
+  if (!raw || raw.includes('立即投递') || raw === '未知企业') {
+    const source = job?.data_source || '网络'
+    return `${source}招聘`
+  }
+  return raw
+}
+
 const getJobTags = (job) => {
   const tags = []
   const keywords = {
@@ -1228,7 +1457,10 @@ const getJobTags = (job) => {
     '安全': ['安全', '渗透'],
     '产品': ['产品', 'pm'],
     '设计': ['设计', 'ui', 'ux'],
-    '大数据': ['大数据', 'spark', 'hadoop']
+    '大数据': ['大数据', 'spark', 'hadoop'],
+    '计算机': ['计算机', '编程', '开发'],
+    '老师': ['老师', '教师', '讲师'],
+    '硬件': ['硬件', '维护']
   }
   const jobText = (job.job_name || '').toLowerCase()
   for (const [tag, kws] of Object.entries(keywords)) {
@@ -1241,23 +1473,74 @@ const getJobTags = (job) => {
 const getWelfareTags = (job) => {
   const tags = []
   const text = (job.job_name || '') + (job.company || '')
-  if (text.includes('应届') || text.includes('校招')) tags.push('应届生')
-  if (text.includes('五险一金')) tags.push('五险一金')
-  if (text.includes('包吃住')) tags.push('包吃住')
-  if (text.includes('弹性') || text.includes('双休')) tags.push('弹性工作')
-  return tags.slice(0, 2)
+  if (text.includes('应届') || text.includes('校招') || text.includes('往届')) tags.push('应届生')
+  if (text.includes('五险一金') || text.includes('六险')) tags.push('五险一金')
+  if (text.includes('包吃住') || text.includes('包吃') || text.includes('包住')) tags.push('包吃住')
+  if (text.includes('弹性') || text.includes('双休') || text.includes('不加班')) tags.push('弹性工作')
+  if (text.includes('年底') || text.includes('年终奖')) tags.push('年终奖')
+  if (text.includes('三方') || text.includes('实习')) tags.push('可签三方')
+  if (text.includes('免费') || text.includes('提供')) tags.push('免费提供')
+  return tags.slice(0, 3)
 }
 
-const getMatchScore = () => Math.floor(Math.random() * 40) + 60
+const getMatchScore = (job) => {
+  if (job?.matchScore) return job.matchScore
+  const jobText = (job?.job_name || '').toLowerCase()
+  let score = 65
+  const hotSkills = ['java', 'python', '前端', '后端', '算法', 'ai', '人工智能', '运维', '测试', '大数据', '云计算', '计算机']
+  const matchedSkills = hotSkills.filter(sk => jobText.includes(sk))
+  score += matchedSkills.length * 4
+  if (job?.salary_avg && job.salary_avg > 15000) score += 8
+  else if (job?.salary_avg && job.salary_avg > 8000) score += 4
+  if (['北京', '上海', '深圳', '杭州', '广州'].includes(job?.city)) score += 5
+  else if (['武汉', '成都', '南京', '西安'].includes(job?.city)) score += 2
+  if (job?.education === '本科' || job?.education === '硕士') score += 3
+  if (getWelfareTags(job).length >= 2) score += 3
+  return Math.min(98, Math.max(45, score))
+}
 
-const generateContactInfo = (job) => {
-  const names = ['张经理', '李主管', '王HR', '赵专员', '陈总监', '刘经理', '周主管', '吴HR']
-  const domains = ['hr.com', 'company.com', 'recruit.com', 'job.com']
-  const name = names[Math.floor(Math.random() * names.length)]
-  const companyName = (job?.company || 'company').replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '')
-  const phone = `1${Math.floor(Math.random() * 9 + 3)}${Math.floor(Math.random() * 1000000000).toString().padStart(9, '0')}`
-  const email = `hr@${companyName.toLowerCase()}.${domains[Math.floor(Math.random() * domains.length)]}`
-  return { name, phone, email }
+const getIndustry = (job) => {
+  const name = (job?.job_name || '').toLowerCase()
+  if (name.includes('java') || name.includes('后端') || name.includes('开发') || name.includes('编程')) return '软件开发'
+  if (name.includes('前端') || name.includes('react') || name.includes('vue')) return 'Web前端开发'
+  if (name.includes('ai') || name.includes('算法') || name.includes('人工智能') || name.includes('机器学习')) return '人工智能'
+  if (name.includes('测试') || name.includes('qa')) return '软件测试'
+  if (name.includes('运维') || name.includes('devops') || name.includes('linux')) return '运维服务'
+  if (name.includes('大数据') || name.includes('spark') || name.includes('hadoop')) return '大数据'
+  if (name.includes('安全')) return '网络安全'
+  if (name.includes('产品') || name.includes('pm')) return '产品管理'
+  if (name.includes('设计') || name.includes('ui') || name.includes('ux')) return '设计'
+  if (name.includes('老师') || name.includes('教师') || name.includes('讲师')) return '教育/培训'
+  if (name.includes('硬件') || name.includes('维护')) return '硬件技术'
+  return 'IT信息技术'
+}
+
+const getCompanySize = () => '暂无数据'
+
+const getCompanyType = (job) => {
+  const text = (job?.company || '') + (job?.job_name || '')
+  if (text.includes('国企') || text.includes('国家') || text.includes('银行')) return '国有企业'
+  if (text.includes('上市') || text.includes('科技') || text.includes('集团')) return '上市公司'
+  if (text.includes('小微') || text.includes('创业')) return '小微企业'
+  if (text.includes('教育') || text.includes('培训') || text.includes('学校') || text.includes('老师')) return '民办/教育机构'
+  if (text.includes('立即投递') || !text.trim()) return '未知企业'
+  return '民营企业'
+}
+
+const getCompanyTypeClass = (job) => {
+  const type = getCompanyType(job)
+  if (type.includes('上市')) return 'type-listed'
+  if (type.includes('国有')) return 'type-state'
+  if (type.includes('小微')) return 'type-small'
+  if (type.includes('民办') || type.includes('教育')) return 'type-private'
+  if (type.includes('未知')) return 'type-unknown'
+  return 'type-default'
+}
+
+const getCompanyBrief = () => '爬取数据中暂无企业简介信息，可通过「查看详情」了解岗位核心内容。'
+
+const getCompanyAddress = (job) => {
+  return job?.city || '暂无数据'
 }
 
 const toastMessage = ref('')
@@ -1312,7 +1595,11 @@ const removeFilterTag = (tag) => {
 }
 
 const setSortBy = (mode) => {
-  sortBy.value = mode
+  if (sortBy.value === mode) {
+    sortBy.value = ''
+  } else {
+    sortBy.value = mode
+  }
   currentPage.value = 1
   handleSearch()
 }
@@ -1374,6 +1661,18 @@ const quickSearch = (tag) => {
   handleSearch()
 }
 
+const hoverHotTag = (tag) => {
+  searchKeyword.value = tag
+  searchFocused.value = true
+}
+
+const clearHotTagHover = () => {
+  if (!searchKeyword.value || hotTags.includes(searchKeyword.value)) {
+    searchKeyword.value = ''
+  }
+  searchFocused.value = false
+}
+
 const handleSearchInput = async () => {
   if (searchKeyword.value.length >= 1) {
     try {
@@ -1392,10 +1691,10 @@ const optimizeResume = () => {
 const generateTrendData = () => {
   const data = []
   const now = new Date()
+  const baseSalary = (selectedJob.value?.salary_avg || 15000) / 1000
   for (let i = 11; i >= 0; i--) {
     const month = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const baseSalary = (selectedJob.value?.salary_avg || 15000) / 1000
-    const variance = Math.sin(i * 0.5) * 2 + (Math.random() - 0.5) * 3
+    const variance = Math.sin(i * 0.5) * 2 + Math.cos(i * 0.3) * 1.5
     data.push({
       month: `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`,
       salary: Math.round((baseSalary + variance) * 10) / 10
@@ -1500,6 +1799,44 @@ const changePage = (page) => {
   handleSearch()
 }
 
+const loadMoreJobs = async () => {
+  if (loading.value || currentPage.value >= totalPages.value) return
+  loading.value = true
+  currentPage.value++
+  try {
+    const currentCategory = categories.value[activeCategory.value]
+    let effectiveSortBy = sortBy.value
+    if (currentCategory === '高匹配优先') effectiveSortBy = 'match'
+    else if (currentCategory === '高薪岗位') effectiveSortBy = 'salary'
+
+    const params = new URLSearchParams()
+    if (searchKeyword.value) params.append('keyword', searchKeyword.value)
+    if (currentCategory !== '全部岗位' && currentCategory !== '高匹配优先' && currentCategory !== '高薪岗位') {
+      params.append('category', currentCategory)
+    }
+    if (selectedEducation.value.length > 0) params.append('education', selectedEducation.value.join(','))
+    if (selectedExperience.value.length > 0) params.append('experience', selectedExperience.value.join(','))
+    if (selectedCities.value.length > 0) params.append('city', selectedCities.value.join(','))
+    if (minSalary.value > 0) params.append('minSalary', minSalary.value * 1000)
+    if (maxSalary.value > 0) params.append('maxSalary', maxSalary.value * 1000)
+    params.append('page', currentPage.value)
+    params.append('pageSize', pageSize)
+    params.append('sortBy', effectiveSortBy)
+    if (userLocationCity.value) params.append('userCity', userLocationCity.value)
+
+    const response = await axios.get(`/api/jobs/search?${params.toString()}`)
+    if (response.data.success) {
+      jobList.value = [...jobList.value, ...response.data.data]
+      totalResults.value = response.data.total
+      totalPages.value = response.data.totalPages
+    }
+  } catch (error) {
+    console.error('加载更多失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
 const handleSearch = async () => {
   loading.value = true
   currentPage.value = 1
@@ -1525,7 +1862,10 @@ const handleSearch = async () => {
     if (maxSalary.value > 0) params.append('maxSalary', maxSalary.value * 1000)
     params.append('page', currentPage.value)
     params.append('pageSize', pageSize)
-    params.append('sortBy', effectiveSortBy)
+    if (effectiveSortBy) {
+      params.append('sortBy', effectiveSortBy)
+    }
+    if (userLocationCity.value) params.append('userCity', userLocationCity.value)
 
     const response = await axios.get(`/api/jobs/search?${params.toString()}`)
     if (response.data.success) {
@@ -1552,7 +1892,7 @@ const resetFilters = () => {
   selectedCities.value = []
   minSalary.value = 0
   maxSalary.value = 50
-  sortBy.value = 'match'
+  sortBy.value = ''
   currentPage.value = 1
   handleSearch()
 }
@@ -1591,6 +1931,7 @@ onMounted(() => {
   loadApplications()
   loadFilterState()
   loadOptions()
+  detectUserLocation()
   handleSearch()
 
   scrollHandler = () => {
@@ -1598,6 +1939,15 @@ onMounted(() => {
     if (el) {
       const rect = el.getBoundingClientRect()
       filterSticky.value = rect.top < 100 && rect.bottom > window.innerHeight
+    }
+    
+    // Scroll-triggered lazy loading
+    if (!loading.value && currentPage.value < totalPages.value) {
+      const scrollBottom = window.innerHeight + window.scrollY
+      const pageHeight = document.documentElement.scrollHeight
+      if (pageHeight - scrollBottom < 200) {
+        loadMoreJobs()
+      }
     }
   }
   window.addEventListener('scroll', scrollHandler)
@@ -1607,27 +1957,148 @@ onMounted(() => {
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
   const stars = []
-  const particleCount = 80
+  const colors = ['74, 158, 255', '139, 92, 246']
+  const particleCount = 160
   for (let i = 0; i < particleCount; i++) {
+    const sizeRand = Math.random()
+    let radius, layer
+    if (sizeRand < 0.65) { radius = Math.random() * 0.8 + 0.3; layer = 0 }
+    else if (sizeRand < 0.92) { radius = Math.random() * 1.2 + 0.8; layer = 1 }
+    else { radius = Math.random() * 1.5 + 1.8; layer = 2 }
     stars.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      radius: Math.random() * 2,
-      alpha: Math.random(),
-      speed: Math.random() * 0.02
+      radius,
+      layer,
+      alpha: Math.random() * 0.8 + 0.2,
+      baseAlpha: Math.random() * 0.7 + 0.3,
+      twinkleSpeed: Math.random() * 0.02 + 0.005,
+      colorIdx: Math.floor(Math.random() * 2),
+      driftX: (Math.random() - 0.5) * 0.08,
+      driftY: (Math.random() - 0.5) * 0.05
     })
   }
+  const meteors = []
+  let meteorTimer = 0
+  const spawnMeteor = () => {
+    const side = Math.random()
+    let x, y, vx, vy
+    if (side < 0.5) {
+      x = Math.random() * canvas.width * 0.5
+      y = -20
+      vx = (Math.random() * 4 + 3)
+      vy = Math.random() * 3 + 2
+    } else {
+      x = canvas.width + 20
+      y = Math.random() * canvas.height * 0.4
+      vx = -(Math.random() * 4 + 3)
+      vy = Math.random() * 3 + 1
+    }
+    meteors.push({ x, y, vx, vy, life: 1, maxLife: 60 + Math.random() * 40 })
+  }
   const animate = () => {
-    ctx.fillStyle = 'rgba(5, 10, 30, 0.1)'
+    ctx.fillStyle = 'rgba(3, 6, 20, 0.15)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     stars.forEach(star => {
-      star.alpha += star.speed
-      if (star.alpha >= 1 || star.alpha <= 0) star.speed = -star.speed
+      star.x += star.driftX
+      star.y += star.driftY
+      if (star.x < -10) star.x = canvas.width + 10
+      if (star.x > canvas.width + 10) star.x = -10
+      if (star.y < -10) star.y = canvas.height + 10
+      if (star.y > canvas.height + 10) star.y = -10
+      star.alpha += star.twinkleSpeed
+      if (star.alpha > star.baseAlpha + 0.3 || star.alpha < star.baseAlpha - 0.1) {
+        star.twinkleSpeed = -star.twinkleSpeed
+      }
+      if (star.alpha < 0.1) star.alpha = 0.1
+      if (star.alpha > 1) star.alpha = 1
+      const dx = star.x - mouseX.value
+      const dy = star.y - mouseY.value
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      let brightness = star.alpha
+      if (dist < 150) {
+        brightness = Math.min(1, star.alpha + (1 - dist / 150) * 0.5)
+      }
+      const color = colors[star.colorIdx]
+      if (star.layer >= 2) {
+        const spikeLen = star.radius * 5
+        ctx.strokeStyle = `rgba(${color}, ${brightness * 0.3})`
+        ctx.lineWidth = 0.4
+        ctx.beginPath()
+        ctx.moveTo(star.x - spikeLen, star.y)
+        ctx.lineTo(star.x + spikeLen, star.y)
+        ctx.moveTo(star.x, star.y - spikeLen)
+        ctx.lineTo(star.x, star.y + spikeLen)
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${color}, ${brightness * 0.15})`
+        ctx.fill()
+      }
       ctx.beginPath()
       ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(74, 158, 255, ${star.alpha})`
+      ctx.fillStyle = `rgba(${color}, ${brightness})`
+      if (star.layer >= 1 || dist < 150) {
+        ctx.shadowBlur = star.layer >= 2 ? 15 : 8
+        ctx.shadowColor = `rgba(${color}, ${brightness})`
+      } else {
+        ctx.shadowBlur = 0
+      }
       ctx.fill()
+      ctx.shadowBlur = 0
     })
+    ctx.lineWidth = 0.4
+    let lineCount = 0
+    for (let i = 0; i < stars.length && lineCount < 35; i++) {
+      for (let j = i + 1; j < stars.length && lineCount < 35; j++) {
+        const dx = stars[i].x - stars[j].x
+        const dy = stars[i].y - stars[j].y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < 120) {
+          const opacity = (1 - dist / 120) * 0.08 * Math.min(stars[i].alpha, stars[j].alpha)
+          ctx.strokeStyle = `rgba(74, 158, 255, ${opacity})`
+          ctx.beginPath()
+          ctx.moveTo(stars[i].x, stars[i].y)
+          ctx.lineTo(stars[j].x, stars[j].y)
+          ctx.stroke()
+          lineCount++
+        }
+      }
+    }
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      const m = meteors[i]
+      m.x += m.vx
+      m.y += m.vy
+      m.life += 1
+      const progress = m.life / m.maxLife
+      const alpha = progress < 0.5 ? progress * 2 : (1 - (progress - 0.5) * 2)
+      const tailLen = 60
+      const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * 8, m.y - m.vy * 8)
+      grad.addColorStop(0, `rgba(180, 210, 255, ${alpha})`)
+      grad.addColorStop(0.3, `rgba(139, 92, 246, ${alpha * 0.5})`)
+      grad.addColorStop(1, 'rgba(139, 92, 246, 0)')
+      ctx.strokeStyle = grad
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(m.x, m.y)
+      ctx.lineTo(m.x - m.vx * 8, m.y - m.vy * 8)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.arc(m.x, m.y, 2, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(200, 220, 255, ${alpha})`
+      ctx.shadowBlur = 8
+      ctx.shadowColor = `rgba(180, 200, 255, ${alpha})`
+      ctx.fill()
+      ctx.shadowBlur = 0
+      if (m.life > m.maxLife || m.x < -50 || m.x > canvas.width + 50 || m.y > canvas.height + 50) {
+        meteors.splice(i, 1)
+      }
+    }
+    meteorTimer++
+    if (meteorTimer > 300 + Math.random() * 500) {
+      if (meteors.length < 2) spawnMeteor()
+      meteorTimer = 0
+    }
     bgAnimationId = requestAnimationFrame(animate)
   }
   animate()
@@ -1650,7 +2121,11 @@ onUnmounted(() => {
 <style scoped>
 .job-recommend-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #050a1e 0%, #0a1628 50%, #050a1e 100%);
+  background: 
+    radial-gradient(ellipse at 30% 25%, rgba(18, 22, 55, 0.25) 0%, transparent 45%),
+    radial-gradient(ellipse at 70% 75%, rgba(12, 18, 42, 0.2) 0%, transparent 45%),
+    radial-gradient(ellipse at center, rgba(8, 12, 32, 0.3) 0%, transparent 60%),
+    linear-gradient(180deg, #02040f 0%, #050818 40%, #030614 100%);
   position: relative;
   overflow-x: hidden;
   padding: 20px 40px 60px;
@@ -1660,6 +2135,250 @@ onUnmounted(() => {
   top: 0; left: 0;
   width: 100%; height: 100%;
   z-index: 0;
+}
+
+/* 星云背景层 */
+.nebula-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+}
+
+.nebula-1 {
+  width: 550px;
+  height: 550px;
+  top: -5%;
+  right: 10%;
+  background: radial-gradient(circle, rgba(100, 120, 255, 0.25) 0%, rgba(80, 60, 200, 0.12) 50%, transparent 70%);
+  animation: nebulaFloat1 22s ease-in-out infinite;
+}
+
+.nebula-2 {
+  width: 450px;
+  height: 450px;
+  bottom: 20%;
+  left: 5%;
+  background: radial-gradient(circle, rgba(150, 100, 255, 0.2) 0%, rgba(120, 80, 200, 0.1) 50%, transparent 70%);
+  animation: nebulaFloat2 28s ease-in-out infinite;
+}
+
+.nebula-3 {
+  width: 380px;
+  height: 380px;
+  top: 35%;
+  right: 25%;
+  background: radial-gradient(circle, rgba(0, 180, 255, 0.18) 0%, rgba(50, 120, 220, 0.08) 50%, transparent 70%);
+  animation: nebulaFloat3 32s ease-in-out infinite;
+}
+
+@keyframes nebulaFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-25px, 15px) scale(1.06); }
+  66% { transform: translate(15px, -18px) scale(0.94); }
+}
+
+@keyframes nebulaFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(35px, -25px) scale(1.07); }
+  66% { transform: translate(-18px, 25px) scale(0.93); }
+}
+
+@keyframes nebulaFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-25px, 35px) scale(1.08); }
+}
+
+/* 动态光带 */
+.light-ribbons {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ribbon {
+  position: absolute;
+  width: 150%;
+  height: 2px;
+  filter: blur(1px);
+  opacity: 0.5;
+}
+
+.ribbon-1 {
+  top: 15%;
+  left: -25%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(100, 180, 255, 0.35) 20%, 
+    rgba(150, 130, 255, 0.55) 50%, 
+    rgba(100, 180, 255, 0.35) 80%, 
+    transparent 100%);
+  height: 1px;
+  box-shadow: 0 0 18px rgba(100, 180, 255, 0.45);
+  animation: ribbonFlow1 14s linear infinite;
+}
+
+.ribbon-2 {
+  top: 55%;
+  left: -25%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(180, 120, 255, 0.25) 30%, 
+    rgba(100, 200, 255, 0.45) 50%, 
+    rgba(180, 120, 255, 0.25) 70%, 
+    transparent 100%);
+  height: 1.5px;
+  box-shadow: 0 0 22px rgba(180, 120, 255, 0.35);
+  animation: ribbonFlow2 16s linear infinite;
+  animation-delay: -6s;
+}
+
+.ribbon-3 {
+  bottom: 12%;
+  left: -25%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(80, 200, 220, 0.3) 25%, 
+    rgba(120, 150, 255, 0.45) 50%, 
+    rgba(80, 200, 220, 0.3) 75%, 
+    transparent 100%);
+  height: 1px;
+  box-shadow: 0 0 16px rgba(80, 200, 220, 0.4);
+  animation: ribbonFlow3 20s linear infinite;
+  animation-delay: -9s;
+}
+
+@keyframes ribbonFlow1 {
+  0% { transform: translateX(0) scaleY(1); opacity: 0.5; }
+  50% { transform: translateX(25%) scaleY(1.4); opacity: 0.7; }
+  100% { transform: translateX(50%) scaleY(1); opacity: 0.5; }
+}
+
+@keyframes ribbonFlow2 {
+  0% { transform: translateX(0) scaleY(1); opacity: 0.4; }
+  50% { transform: translateX(-18%) scaleY(1.8); opacity: 0.65; }
+  100% { transform: translateX(-36%) scaleY(1); opacity: 0.4; }
+}
+
+@keyframes ribbonFlow3 {
+  0% { transform: translateX(0) scaleY(1); opacity: 0.35; }
+  50% { transform: translateX(22%) scaleY(1.6); opacity: 0.55; }
+  100% { transform: translateX(44%) scaleY(1); opacity: 0.35; }
+}
+.bg-hex-grid {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  background-color: transparent;
+  background-image:
+    linear-gradient(30deg, rgba(74,158,255,0.06) 1px, transparent 1px),
+    linear-gradient(-30deg, rgba(74,158,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,158,255,0.05) 1px, transparent 1px);
+  background-size: 52px 90px, 52px 90px, 52px 90px;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.9) 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.9) 30%, transparent 80%);
+}
+.bg-cursor-glow {
+  position: fixed;
+  top: -150px;
+  left: -150px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74,158,255,0.06) 0%, rgba(139,92,246,0.03) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(50px);
+  will-change: transform;
+  transition: opacity 0.6s ease;
+}
+.bg-edge-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+}
+.bg-edge-glow.edge-tl {
+  top: 0; left: 0;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle at top left, rgba(76,29,149,0.12) 0%, transparent 65%);
+}
+.bg-edge-glow.edge-tr {
+  top: 0; right: 0;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle at top right, rgba(30,58,138,0.1) 0%, transparent 65%);
+}
+.bg-edge-glow.edge-bl {
+  bottom: 0; left: 0;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle at bottom left, rgba(139,92,246,0.08) 0%, transparent 65%);
+}
+.bg-edge-glow.edge-br {
+  bottom: 0; right: 0;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle at bottom right, rgba(74,158,255,0.08) 0%, transparent 65%);
+}
+.bg-fluid-edge {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.08;
+}
+.bg-fluid-edge.fluid-bottom {
+  bottom: -80px;
+  left: 0;
+  right: 0;
+  height: 160px;
+  background: linear-gradient(0deg, rgba(74,158,255,0.06) 0%, rgba(139,92,246,0.04) 50%, transparent 100%);
+  filter: blur(30px);
+  animation: fluidBottom 18s ease-in-out infinite;
+}
+.bg-fluid-edge.fluid-left {
+  top: 0;
+  left: -80px;
+  bottom: 0;
+  width: 160px;
+  background: linear-gradient(90deg, rgba(139,92,246,0.05) 0%, rgba(74,158,255,0.03) 50%, transparent 100%);
+  filter: blur(30px);
+  animation: fluidLeft 22s ease-in-out infinite;
+}
+.bg-fluid-edge.fluid-right {
+  top: 0;
+  right: -80px;
+  bottom: 0;
+  width: 160px;
+  background: linear-gradient(-90deg, rgba(74,158,255,0.05) 0%, rgba(139,92,246,0.03) 50%, transparent 100%);
+  filter: blur(30px);
+  animation: fluidRight 20s ease-in-out infinite;
+}
+@keyframes fluidBottom {
+  0%, 100% { transform: translateY(0) scaleX(1); opacity: 0.3; }
+  50% { transform: translateY(-20px) scaleX(1.05); opacity: 0.45; }
+}
+@keyframes fluidLeft {
+  0%, 100% { transform: translateX(0) scaleY(1); opacity: 0.3; }
+  50% { transform: translateX(15px) scaleY(1.04); opacity: 0.4; }
+}
+@keyframes fluidRight {
+  0%, 100% { transform: translateX(0) scaleY(1); opacity: 0.3; }
+  50% { transform: translateX(-15px) scaleY(1.04); opacity: 0.4; }
 }
 .top-bar {
   display: flex;
@@ -2014,13 +2733,32 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .tab-item:hover { border-color: rgba(74,158,255,0.5); color: rgba(255,255,255,0.8); }
 .tab-item.active {
-  background: linear-gradient(135deg, rgba(74,158,255,0.3), rgba(0,212,170,0.25));
+  background: rgba(74,158,255,0.18);
   border-color: rgba(74,158,255,0.6);
   color: #fff;
-  box-shadow: 0 0 20px rgba(74,158,255,0.4);
+  box-shadow: 0 0 12px rgba(74,158,255,0.3);
+}
+.tab-glow-line {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #4a9eff, #00d4aa, #4a9eff, transparent);
+  border-radius: 2px;
+  animation: tabGlowPulse 2s ease-in-out infinite;
+}
+@keyframes tabGlowPulse {
+  0%, 100% { opacity: 0.7; box-shadow: 0 0 8px rgba(74,158,255,0.5); }
+  50% { opacity: 1; box-shadow: 0 0 15px rgba(74,158,255,0.8); }
 }
 .main-content {
   display: flex; gap: 25px;
@@ -2029,24 +2767,31 @@ onUnmounted(() => {
 }
 .job-list-section {
   flex: 1;
-  background: rgba(10,20,45,0.4);
-  border: 1px solid rgba(74,158,255,0.2);
+  background: rgba(10, 16, 42, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(74,158,255,0.18);
   border-radius: 20px;
   padding: 25px;
   position: relative;
+  box-shadow: 0 0 40px rgba(74,158,255,0.04), inset 0 1px 0 rgba(255,255,255,0.03);
+  overflow: hidden;
 }
 .job-list-section::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74,158,255,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(74,158,255,0.4), transparent);
 }
 .filter-section {
   width: 280px;
-  background: rgba(10,20,45,0.5);
+  background: rgba(10, 16, 42, 0.5);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(74,158,255,0.2);
   border-radius: 20px;
   padding: 25px;
   position: relative;
   transition: all 0.3s;
+  box-shadow: 0 0 30px rgba(74,158,255,0.03), inset 0 1px 0 rgba(255,255,255,0.03);
 }
 .filter-section.sticky {
   position: fixed;
@@ -2251,6 +2996,11 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 20px rgba(74,158,255,0.35);
+  animation: filterBreathe 3s ease-in-out infinite;
+}
+@keyframes filterBreathe {
+  0%, 100% { box-shadow: 0 4px 20px rgba(74,158,255,0.35); }
+  50% { box-shadow: 0 4px 30px rgba(74,158,255,0.6), 0 0 20px rgba(0,212,170,0.3); }
 }
 .apply-filter-btn:hover {
   transform: translateY(-2px);
@@ -2278,20 +3028,46 @@ onUnmounted(() => {
 .sort-label { color: rgba(150,180,220,0.5); font-size: 12px; }
 .sort-btn {
   padding: 5px 12px;
-  background: rgba(74,158,255,0.1);
-  border: 1px solid rgba(74,158,255,0.2);
+  background: transparent;
+  border: 1px solid rgba(74,158,255,0.25);
   border-radius: 15px;
   color: rgba(150,180,220,0.7);
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
-.sort-btn:hover { border-color: rgba(74,158,255,0.5); color: #fff; }
+.sort-btn:hover { border-color: rgba(74,158,255,0.5); color: #fff; background: rgba(74,158,255,0.08); }
 .sort-btn.active {
-  background: rgba(74,158,255,0.3);
+  background: rgba(74,158,255,0.22);
   border-color: rgba(74,158,255,0.6);
   color: #fff;
-  box-shadow: 0 0 10px rgba(74,158,255,0.3);
+  box-shadow: 0 0 12px rgba(74,158,255,0.35);
+  font-weight: 600;
+}
+.city-picker-wrap {
+  margin-left: 10px;
+}
+.city-picker {
+  padding: 5px 10px;
+  background: rgba(10,18,42,0.8);
+  border: 1px solid rgba(74,158,255,0.35);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+}
+.city-picker:hover {
+  border-color: rgba(74,158,255,0.7);
+  box-shadow: 0 0 10px rgba(74,158,255,0.25);
+}
+.city-picker option {
+  background: #0a122a;
+  color: #e0e8f0;
 }
 .batch-toolbar {
   display: flex; align-items: center; gap: 15px;
@@ -2368,9 +3144,11 @@ onUnmounted(() => {
   gap: 16px;
 }
 .job-card {
-  background: rgba(15,25,55,0.7);
-  border: 1px solid rgba(74,158,255,0.2);
-  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(10,18,42,0.85), rgba(14,22,48,0.75));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(74,158,255,0.15);
+  border-radius: 18px;
   padding: 20px;
   position: relative;
   overflow: hidden;
@@ -2385,10 +3163,19 @@ onUnmounted(() => {
   left: -100%;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(74,158,255,0.8), transparent);
+  background: linear-gradient(90deg, transparent, rgba(74,158,255,0.6), transparent);
   transition: left 0.5s;
   pointer-events: none;
   z-index: 3;
+}
+.job-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: radial-gradient(ellipse at top left, rgba(139,92,246,0.06), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
 }
 @keyframes cardFadeIn {
   from { opacity: 0; transform: translateY(15px); }
@@ -2402,18 +3189,16 @@ onUnmounted(() => {
 .job-card:nth-child(6) { animation-delay: 0.3s; }
 .job-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(74,158,255,0.5);
-  box-shadow: 0 10px 40px rgba(74,158,255,0.2);
+  border-color: rgba(74,158,255,0.4);
+  box-shadow: 0 12px 40px rgba(74,158,255,0.12), 0 0 20px rgba(139,92,246,0.08);
 }
 .job-card:hover::after {
   left: 100%;
+  animation: neonScan 1s ease-out forwards;
 }
 @keyframes neonScan {
   0% { left: -100%; }
   100% { left: 100%; }
-}
-.job-card:hover::after {
-  animation: neonScan 1s ease-out forwards;
 }
 .job-card.is-selected {
   border-color: rgba(0,212,170,0.6);
@@ -2421,14 +3206,15 @@ onUnmounted(() => {
 }
 .job-card-glow {
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(74,158,255,0.06), transparent 60%);
+  background: linear-gradient(135deg, rgba(139,92,246,0.08), transparent 50%);
   pointer-events: none;
 }
 .card-top-glow {
   position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(74,158,255,0.6), transparent);
+  background: linear-gradient(90deg, transparent, rgba(74,158,255,0.7), rgba(139,92,246,0.5), transparent);
   opacity: 0;
   transition: opacity 0.3s;
+  box-shadow: 0 0 8px rgba(74,158,255,0.5);
 }
 .job-card:hover .card-top-glow { opacity: 1; }
 .card-select {
@@ -2464,22 +3250,24 @@ onUnmounted(() => {
   margin: 10px 0 8px;
 }
 .job-title {
-  color: #fff; font-size: 15px; font-weight: 600;
+  color: #fff; font-size: 16px; font-weight: 700;
   flex: 1; min-width: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   padding-left: 24px;
+  text-shadow: 0 0 15px rgba(74,158,255,0.3);
 }
 .job-salary {
   color: #4a9eff;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   white-space: nowrap;
   margin-left: 10px;
-  text-shadow: 0 0 10px rgba(74,158,255,0.5);
+  text-shadow: 0 0 15px rgba(74,158,255,0.6), 0 0 30px rgba(74,158,255,0.3);
+  letter-spacing: 0.5px;
 }
 .job-company-row {
   display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .job-company {
   color: rgba(150,180,220,0.6); font-size: 13px;
@@ -2490,56 +3278,77 @@ onUnmounted(() => {
   display: flex; align-items: center; gap: 6px;
 }
 .score-bar {
-  width: 50px; height: 6px;
-  background: rgba(74,158,255,0.15);
-  border-radius: 3px;
+  width: 55px; height: 7px;
+  background: rgba(74,158,255,0.12);
+  border-radius: 4px;
   overflow: hidden;
 }
 .score-fill {
   height: 100%;
-  border-radius: 3px;
-  transition: width 0.5s ease;
+  border-radius: 4px;
+  transition: width 0.6s ease;
 }
-.job-match-score.high .score-fill { background: linear-gradient(90deg, #00d4aa, #4a9eff); box-shadow: 0 0 8px rgba(0,212,170,0.6); }
-.job-match-score.medium .score-fill { background: linear-gradient(90deg, #4a9eff, #3b82f6); }
+.job-match-score.high .score-fill { background: linear-gradient(90deg, #00d4aa, #4a9eff); box-shadow: 0 0 10px rgba(0,212,170,0.8); }
+.job-match-score.medium .score-fill { background: linear-gradient(90deg, #4a9eff, #3b82f6); box-shadow: 0 0 6px rgba(74,158,255,0.4); }
 .job-match-score.low .score-fill { background: rgba(150,180,220,0.3); }
-.job-match-score.high .score-text { color: #00d4aa; font-weight: 600; }
-.job-match-score.medium .score-text { color: #4a9eff; }
+.job-match-score.high .score-text { color: #00d4aa; font-weight: 700; text-shadow: 0 0 8px rgba(0,212,170,0.5); }
+.job-match-score.medium .score-text { color: #4a9eff; font-weight: 600; }
 .job-match-score.low .score-text { color: rgba(150,180,220,0.5); }
-.score-text { font-size: 11px; font-weight: 500; }
+.score-text { font-size: 11px; font-weight: 600; }
+.match-basis {
+  font-size: 10px;
+  color: rgba(150,180,220,0.45);
+  margin-bottom: 8px;
+  font-style: italic;
+}
 .job-info-row {
-  display: flex; flex-wrap: wrap; gap: 6px;
+  display: flex; flex-wrap: wrap; gap: 5px;
   margin-bottom: 10px;
 }
 .info-chip {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 10px;
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 9px;
   background: rgba(74,158,255,0.1);
-  border-radius: 12px;
+  border-radius: 10px;
   color: rgba(200,210,230,0.9);
   font-size: 12px;
 }
-.info-chip.small {
+.info-chip.tiny {
   background: rgba(150,180,220,0.08);
-  color: rgba(150,180,220,0.7);
+  color: rgba(150,180,220,0.6);
   font-size: 11px;
+  padding: 2px 7px;
 }
 .job-tags-row {
   display: flex; flex-wrap: wrap; gap: 5px;
 }
 .skill-tag {
-  padding: 3px 8px;
+  padding: 3px 9px;
   background: rgba(74,158,255,0.15);
-  border-radius: 4px;
-  color: rgba(74,158,255,0.8);
+  border-radius: 10px;
+  color: rgba(74,158,255,0.85);
   font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(74,158,255,0.2);
 }
-.welfare-tag {
-  padding: 3px 8px;
-  background: rgba(251,146,60,0.15);
-  border-radius: 4px;
-  color: rgba(251,146,60,0.9);
+.welfare-badge {
+  padding: 3px 9px;
+  background: linear-gradient(135deg, rgba(251,146,60,0.18), rgba(239,68,68,0.12));
+  border-radius: 10px;
+  color: #fb923c;
   font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(251,146,60,0.25);
+}
+.job-source-tag {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(74,158,255,0.1);
+  font-size: 10px;
+  color: rgba(150,180,220,0.35);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .card-actions {
   display: flex;
@@ -2604,6 +3413,29 @@ onUnmounted(() => {
 .page-btn:hover:not(:disabled) { background: rgba(74,158,255,0.25); }
 .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .page-info { color: rgba(150,180,220,0.6); font-size: 13px; }
+
+.lazy-load-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: rgba(74,158,255,0.7);
+  font-size: 13px;
+}
+.lazy-load-indicator .loading-icon {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.no-more-indicator {
+  text-align: center;
+  padding: 20px;
+  color: rgba(150,180,220,0.3);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
 
 .favorites-wrapper {
   position: relative;
@@ -2956,13 +3788,6 @@ onUnmounted(() => {
   transform: translateY(-2px);
   box-shadow: 0 5px 20px rgba(168,85,247,0.3);
 }
-.batch-btn.apply {
-  background: rgba(251,146,60,0.15);
-  border-color: rgba(251,146,60,0.3);
-  color: #fb923c;
-}
-.batch-btn.apply:hover { background: rgba(251,146,60,0.25); }
-.batch-btn.apply:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .guest-overlay-tip {
   position: fixed;
@@ -3332,7 +4157,7 @@ onUnmounted(() => {
 
 .modal-footer {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   margin-top: 20px;
   padding-top: 18px;
@@ -3342,8 +4167,6 @@ onUnmounted(() => {
 .modal-footer .save-btn {
   grid-column: 1 / -1;
 }
-.modal-footer .contact-btn,
-.modal-footer .apply-btn,
 .modal-footer .trend-btn,
 .modal-footer .career-path-btn,
 .modal-footer .ai-resume-btn,
@@ -3359,15 +4182,6 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid;
-}
-.modal-footer .contact-btn {
-  background: rgba(0,212,170,0.12);
-  border-color: rgba(0,212,170,0.35);
-  color: #00d4aa;
-}
-.modal-footer .contact-btn:hover {
-  background: rgba(0,212,170,0.25);
-  box-shadow: 0 4px 15px rgba(0,212,170,0.3);
 }
 .modal-footer .trend-btn {
   background: rgba(0,212,170,0.1);
@@ -3415,4 +4229,104 @@ onUnmounted(() => {
 .modal-footer .save-btn.favorited:hover {
   box-shadow: 0 6px 20px rgba(251,146,60,0.3);
 }
+
+.data-update-notice {
+  font-size: 10px;
+  color: rgba(150,180,220,0.4);
+  padding: 4px 10px;
+  background: rgba(74,158,255,0.06);
+  border-radius: 10px;
+  border: 1px solid rgba(74,158,255,0.1);
+}
+
+.company-info-section h3,
+.trend-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.company-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.company-info-item {
+  padding: 10px 14px;
+  background: rgba(74,158,255,0.05);
+  border: 1px solid rgba(74,158,255,0.1);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.company-info-item.full {
+  grid-column: 1 / -1;
+}
+.ci-label {
+  font-size: 11px;
+  color: rgba(150,180,220,0.5);
+}
+.ci-value {
+  font-size: 13px;
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+}
+.ci-value.brief {
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(200,210,230,0.8);
+}
+.company-type {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.company-type.type-listed { background: rgba(74,158,255,0.2); color: #4a9eff; }
+.company-type.type-state { background: rgba(251,146,60,0.2); color: #fb923c; }
+.company-type.type-small { background: rgba(0,212,170,0.2); color: #00d4aa; }
+.company-type.type-private { background: rgba(168,85,247,0.2); color: #a855f7; }
+.company-type.type-default { background: rgba(150,180,220,0.15); color: rgba(200,210,230,0.8); }
+.company-type.type-unknown { background: rgba(100,116,139,0.15); color: rgba(148,163,184,0.7); }
+
+.trend-chart-container {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  align-items: stretch;
+}
+.trend-canvas {
+  width: 280px;
+  height: 100px;
+  background: rgba(10,20,45,0.5);
+  border-radius: 10px;
+  border: 1px solid rgba(74,158,255,0.1);
+}
+.trend-stats {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.trend-stat {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(74,158,255,0.05);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.trend-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a9eff;
+}
+.trend-label {
+  font-size: 11px;
+  color: rgba(150,180,220,0.5);
+}
+
 </style>

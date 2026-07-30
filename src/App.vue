@@ -1,8 +1,10 @@
 <template>
   <router-view />
+  <FloatingAIAssistant />
 </template>
 
 <script setup>
+import FloatingAIAssistant from './components/FloatingAIAssistant.vue'
 </script>
 
 <style>

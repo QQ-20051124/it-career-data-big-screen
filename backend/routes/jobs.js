@@ -24,7 +24,8 @@ router.get('/search', (req, res) => {
       page: parseInt(page) || 1,
       pageSize: parseInt(pageSize) || 20,
       sortBy: sortBy || 'match',
-      userProfile
+      userProfile,
+      userCity: userCity || ''
     }
 
     const result = jobService.searchJobs(keyword, category, filters, options)
@@ -154,6 +155,22 @@ router.get('/statistics/cities', (req, res) => {
     res.json({
       success: true,
       data: stats
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+})
+
+router.get('/statistics/trends', (req, res) => {
+  try {
+    const { days = 30 } = req.query
+    const trends = jobService.getJobTrends(parseInt(days))
+    res.json({
+      success: true,
+      data: trends
     })
   } catch (error) {
     res.status(500).json({

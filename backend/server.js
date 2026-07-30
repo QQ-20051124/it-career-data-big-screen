@@ -16,10 +16,12 @@ app.use((req, res, next) => {
 })
 
 const jobRoutes = require('./routes/jobs')
+const aiAssistantRoutes = require('./routes/aiAssistant')
 const jobService = require('./services/jobService')
 const aiRoutes = require('./routes/ai')
 app.use('/api/jobs', jobRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/ai-assistant', aiAssistantRoutes)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'IT Career Backend is running' })
