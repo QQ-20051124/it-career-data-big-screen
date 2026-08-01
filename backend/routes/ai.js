@@ -748,4 +748,454 @@ function handleCozeEvent(eventType, data, res) {
   return { hasContent: false }
 }
 
+// ============================================================
+// 【AI简历优化接口】
+// ============================================================
+const RESUME_OPTIMIZE_SYSTEM_PROMPT = `你是一位资深的HR和职业发展顾问，擅长分析简历并提供专业的优化建议。请根据用户提供的简历信息和目标岗位要求，生成详细的分析报告和优化建议。
+
+请严格按照以下JSON格式输出：
+{
+  "score": {
+    "total": 分数(0-100),
+    "breakdown": {
+      "basic": 基础信息分数,
+      "education": 教育背景分数,
+      "experience": 工作经历分数,
+      "skills": 技能匹配分数,
+      "projects": 项目经历分数
+    }
+  },
+  "analysis": {
+    "strengths": ["优势1", "优势2", ...],
+    "weaknesses": ["不足1", "不足2", ...],
+    "summary": "简历总体评价"
+  },
+  "suggestions": [
+    {
+      "category": "基础信息|教育背景|工作经历|技能|项目经历",
+      "priority": "high|medium|low",
+      "title": "优化建议标题",
+      "description": "详细描述",
+      "example": "示例内容"
+    }
+  ],
+  "keywordSuggestions": {
+    "add": ["建议添加的关键词"],
+    "remove": ["建议移除的关键词"],
+    "optimize": {
+      "old": "原关键词",
+      "new": "优化后的关键词",
+      "reason": "优化原因"
+    }
+  },
+  "contentRewrite": {
+    "summary": "重写后的自我评价",
+    "responsibilities": "重写后的岗位职责描述",
+    "achievements": "重写后的工作业绩"
+  }
+}
+
+要求：
+1. 分析要具体、有针对性，避免空泛建议
+2. 分数要合理，体现真实水平
+3. 优化建议要可操作
+4. 如果目标岗位信息存在，要重点围绕岗位要求分析
+5. 使用中文输出`
+
+// AI简历优化接口
+router.post('/resume/optimize', async (req, res) => {
+  try {
+    const { resume, targetJob } = req.body
+
+    if (!resume) {
+      return res.status(400).json({ error: '简历数据不能为空' })
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+    res.setHeader('Access-Control-Allow-Origin', '*')
+
+    // 构建用户消息
+    let userMessage = `请帮我分析和优化这份简历：\n\n`
+    
+    userMessage += `【简历信息】\n`
+    userMessage += `姓名：${resume.name || '未填写'}\n`
+    userMessage += `求职意向：${resume.intention || '未填写'}\n`
+    userMessage += `学历：${resume.education || '未填写'}\n`
+    userMessage += `院校：${resume.school || '未填写'}\n`
+    userMessage += `专业：${resume.major || '未填写'}\n`
+    userMessage += `工作单位：${resume.company || '未填写'}\n`
+    userMessage += `职位：${resume.position || '未填写'}\n`
+    userMessage += `工作年限：${resume.experience || '未填写'}\n`
+    
+    if (resume.skills && resume.skills.length > 0) {
+      userMessage += `技能标签：${resume.skills.join('、')}\n`
+    }
+    
+    if (resume.responsibilities) {
+      userMessage += `岗位职责：${resume.responsibilities}\n`
+    }
+    
+    if (resume.achievements) {
+      userMessage += `工作业绩：${resume.achievements}\n`
+    }
+    
+    if (resume.strengths) {
+      userMessage += `个人优势：${resume.strengths}\n`
+    }
+    
+    if (resume.projects && resume.projects.length > 0) {
+      userMessage += `项目经历：\n`
+      resume.projects.forEach((p, i) => {
+        if (p.name) {
+          userMessage += `  项目${i+1}：${p.name}，角色：${p.role || '未填写'}\n`
+          if (p.desc) userMessage += `    描述：${p.desc}\n`
+          if (p.achievements) userMessage += `    成果：${p.achievements}\n`
+        }
+      })
+    }
+    
+    if (targetJob) {
+      userMessage += `\n【目标岗位】\n`
+      userMessage += `岗位名称：${targetJob.job_name || '未填写'}\n`
+      userMessage += `城市：${targetJob.city || '未填写'}\n`
+      userMessage += `学历要求：${targetJob.education || '未填写'}\n`
+      userMessage += `经验要求：${targetJob.work_exp || '未填写'}\n`
+      if (targetJob.skills && targetJob.skills.length > 0) {
+        userMessage += `技能要求：${targetJob.skills.join('、')}\n`
+      }
+    }
+
+    // 调用Coze API
+    const cozeResult = await callCozeWithKnowledge(
+      RESUME_OPTIMIZE_SYSTEM_PROMPT,
+      userMessage,
+      res,
+      userMessage,
+      'resume-optimize-' + Date.now(),
+      null
+    )
+
+    if (cozeResult.success) {
+      console.log('[ResumeOptimize] Coze调用成功')
+      return
+    }
+
+    // Coze失败时使用DeepSeek降级
+    console.log('[ResumeOptimize] Coze失败，切换DeepSeek降级:', cozeResult.reason)
+    const deepseekOk = await callDeepSeekFallback(
+      RESUME_OPTIMIZE_SYSTEM_PROMPT,
+      userMessage,
+      res,
+      null,
+      'resume-optimize-' + Date.now()
+    )
+
+    if (deepseekOk) {
+      console.log('[ResumeOptimize] DeepSeek降级成功')
+      return
+    }
+
+    // 本地兜底
+    console.log('[ResumeOptimize] 双模型均失败，启用本地兜底')
+    generateLocalResumeAnalysis(resume, targetJob, res)
+
+  } catch (error) {
+    console.error('Resume Optimize Error:', error)
+    try {
+      res.write(`data: ${JSON.stringify({ type: 'error', message: error.message })}\n\n`)
+      res.end()
+    } catch (_) {}
+  }
+})
+
+// 本地简历分析兜底函数
+function generateLocalResumeAnalysis(resume, targetJob, res) {
+  // 检查用户是否提供了有意义的简历数据
+  const hasMeaningfulData = (
+    (resume.name && resume.intention) ||
+    (resume.education && resume.school) ||
+    (resume.company && resume.position) ||
+    (resume.skills && resume.skills.length > 0) ||
+    (resume.projects && resume.projects.some(p => p.name)) ||
+    resume.responsibilities || resume.achievements || resume.strengths
+  )
+  
+  // 如果用户没有提供任何简历数据，返回空分析结果
+  if (!hasMeaningfulData) {
+    const emptyAnalysis = {
+      score: {
+        total: 0,
+        breakdown: {
+          basic: 0,
+          education: 0,
+          experience: 0,
+          skills: 0,
+          projects: 0
+        }
+      },
+      analysis: {
+        strengths: [],
+        weaknesses: [],
+        summary: '请先填写您的简历信息！需要您提供：基本信息（姓名、求职意向）、教育背景、工作经历、技能标签等，才能生成真实的AI分析报告。'
+      },
+      suggestions: [],
+      keywordSuggestions: {
+        add: [],
+        remove: [],
+        optimize: []
+      },
+      contentRewrite: {
+        summary: '',
+        responsibilities: '',
+        achievements: ''
+      },
+      isEmpty: true
+    }
+    
+    const resultText = JSON.stringify(emptyAnalysis)
+    const chunks = resultText.match(/.{1,100}/g) || [resultText]
+    
+    for (const chunk of chunks) {
+      if (!res.writable) break
+      res.write(`data: ${JSON.stringify({ type: 'delta', content: chunk })}\n\n`)
+    }
+    
+    res.write(`data: ${JSON.stringify({ type: 'completed', mode: 'local_fallback' })}\n\n`)
+    res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`)
+    res.end()
+    return
+  }
+  
+  const analysis = {
+    score: {
+      total: 0,
+      breakdown: {
+        basic: resume.name && resume.intention ? 20 : 0,
+        education: resume.education && resume.school ? 20 : 0,
+        experience: resume.company && resume.position ? 15 : 0,
+        skills: (resume.skills || []).length >= 5 ? 15 : (resume.skills || []).length >= 3 ? 10 : (resume.skills || []).length > 0 ? 5 : 0,
+        projects: (resume.projects || []).filter(p => p.name).length >= 2 ? 10 : (resume.projects || []).filter(p => p.name).length >= 1 ? 5 : 0
+      }
+    },
+    analysis: {
+      strengths: [],
+      weaknesses: [],
+      summary: ''
+    },
+    suggestions: [],
+    keywordSuggestions: {
+      add: [],
+      remove: [],
+      optimize: []
+    },
+    contentRewrite: {
+      summary: '',
+      responsibilities: '',
+      achievements: ''
+    },
+    isEmpty: false
+  }
+
+  // 分析优势
+  if (resume.skills && resume.skills.length >= 5) {
+    analysis.analysis.strengths.push('技能标签丰富，展现了多项技术能力')
+  }
+  if (resume.projects && resume.projects.some(p => p.name && p.achievements)) {
+    analysis.analysis.strengths.push('项目经历完整，有量化成果')
+  }
+  if (resume.achievements) {
+    analysis.analysis.strengths.push('有工作业绩描述')
+  }
+
+  // 分析不足
+  if (!resume.skills || resume.skills.length < 3) {
+    analysis.analysis.weaknesses.push('技能标签较少，建议补充3-5项核心技能')
+  }
+  if (!resume.responsibilities) {
+    analysis.analysis.weaknesses.push('缺少岗位职责描述')
+  }
+  if (!resume.achievements) {
+    analysis.analysis.weaknesses.push('缺少工作业绩描述')
+  }
+  if (!resume.projects || !resume.projects.some(p => p.name)) {
+    analysis.analysis.weaknesses.push('缺少项目经历')
+  }
+
+  // 生成总体评价
+  const totalScore = Object.values(analysis.score.breakdown).reduce((a, b) => a + b, 0)
+  analysis.score.total = totalScore
+  if (totalScore >= 80) {
+    analysis.analysis.summary = '简历基础扎实，内容完整，具有较强竞争力。建议重点优化岗位匹配度，突出与目标岗位相关的技能和经验。'
+  } else if (totalScore >= 60) {
+    analysis.analysis.summary = '简历内容基本完整，但在技能展示和项目经验方面还有提升空间。建议补充更多量化成果和技术细节。'
+  } else {
+    analysis.analysis.summary = '简历内容较为基础，建议重点完善工作经历、技能标签和项目经验，以增强竞争力。'
+  }
+
+  // 基于目标岗位的建议
+  if (targetJob) {
+    const jobSkills = targetJob.skills || []
+    const userSkills = resume.skills || []
+    const missingSkills = jobSkills.filter(s => !userSkills.some(us => us.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(us.toLowerCase())))
+    
+    if (missingSkills.length > 0) {
+      analysis.suggestions.push({
+        category: '技能',
+        priority: 'high',
+        title: `补充岗位所需技能`,
+        description: `目标岗位要求的技能中，您缺少：${missingSkills.slice(0, 5).join('、')}。建议优先学习这些技能，并在简历中体现相关经验。`,
+        example: `在技能标签中添加：${missingSkills.slice(0, 3).join('、')}`
+      })
+      analysis.keywordSuggestions.add = missingSkills.slice(0, 5)
+    }
+
+    if (targetJob.education && resume.education) {
+      const eduLevels = { '不限': 0, '大专': 1, '本科': 2, '硕士': 3, '博士': 4 }
+      const jobLevel = eduLevels[targetJob.education] || 0
+      const userLevel = eduLevels[resume.education] || 0
+      if (userLevel < jobLevel) {
+        analysis.suggestions.push({
+          category: '教育背景',
+          priority: 'medium',
+          title: '学历差距弥补建议',
+          description: `目标岗位要求${targetJob.education}学历，您目前是${resume.education}。建议通过突出实践经验、项目成果和专业技能来弥补学历差距。`,
+          example: '在简历中突出相关领域的项目经验和技术深度'
+        })
+      }
+    }
+  }
+
+  // 通用建议
+  if (!resume.responsibilities) {
+    analysis.suggestions.push({
+      category: '工作经历',
+      priority: 'high',
+      title: '补充岗位职责描述',
+      description: '详细描述您在前公司的工作职责、参与的项目、负责的模块等，让HR了解您的工作内容。',
+      example: '负责XX系统的开发与维护，参与需求分析、技术方案设计、核心功能实现；优化系统性能，提升代码质量'
+    })
+  }
+
+  if (!resume.achievements) {
+    analysis.suggestions.push({
+      category: '工作经历',
+      priority: 'high',
+      title: '添加量化工作业绩',
+      description: '用数据说话，展示您的工作成果。例如：性能提升百分比、用户增长、代码量减少等。',
+      example: '主导XX模块开发，系统性能提升30%；优化代码架构，减少代码量25%；推动团队技术分享，累计完成10+分享'
+    })
+  }
+
+  if (!resume.projects || !resume.projects.some(p => p.name)) {
+    analysis.suggestions.push({
+      category: '项目经历',
+      priority: 'high',
+      title: '添加项目经历',
+      description: '项目经历是技术岗位简历的核心，建议添加至少2个有代表性的项目，包含项目背景、您的角色、技术栈和成果。',
+      example: '项目名称：XX管理系统；角色：前端负责人；技术栈：Vue/React；成果：主导架构设计，页面加载速度提升40%'
+    })
+  }
+
+  if (!resume.strengths) {
+    analysis.suggestions.push({
+      category: '基础信息',
+      priority: 'medium',
+      title: '撰写个人优势',
+      description: '总结您的核心竞争力，突出与目标岗位相关的技能和经验。',
+      example: '扎实的XX技术基础，熟练掌握XX技能；良好的团队协作精神；注重代码质量和系统性能'
+    })
+  }
+
+  // 重写建议 - 仅在用户提供了相关简历数据时才生成
+  const hasSkills = resume.skills && resume.skills.length > 0
+  const hasIntention = !!resume.intention
+  const hasWorkExp = resume.company && resume.position
+  const hasProjects = resume.projects && resume.projects.some(p => p.name)
+  
+  const techStack = hasSkills ? resume.skills.slice(0, 3).join('、') : ''
+  const position = hasIntention ? resume.intention : ''
+  
+  if (hasSkills || hasWorkExp || hasIntention) {
+    analysis.contentRewrite.responsibilities = `负责基于${techStack || '相关技术'}的${position || '相关领域'}系统开发与维护；参与产品需求分析、技术方案设计和核心功能实现；优化系统性能，提升代码质量和开发效率；与团队协作完成项目交付，持续跟进技术发展。`
+  }
+  
+  if (hasWorkExp || hasProjects) {
+    analysis.contentRewrite.achievements = `主导核心模块开发，系统性能提升30%；优化代码架构，减少代码量25%，可维护性显著提升；推动团队技术分享，累计完成10+技术分享；参与项目从0到1建设，支撑百万级用户。`
+  }
+  
+  if (hasSkills || hasIntention) {
+    analysis.contentRewrite.summary = `${position || '相关领域'}专业背景，扎实的技术基础；熟练掌握${techStack || '主流技术'}，具备独立开发能力；良好的团队协作精神和沟通能力，善于学习新技术；注重代码质量和系统性能，追求卓越。`
+  }
+
+  // 流式输出结果
+  const resultText = JSON.stringify(analysis)
+  const chunks = resultText.match(/.{1,100}/g) || [resultText]
+  
+  for (const chunk of chunks) {
+    if (!res.writable) break
+    res.write(`data: ${JSON.stringify({ type: 'delta', content: chunk })}\n\n`)
+  }
+
+  res.write(`data: ${JSON.stringify({ type: 'completed', mode: 'local_fallback' })}\n\n`)
+  res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`)
+  res.end()
+}
+
+// 简历关键词优化接口
+router.post('/resume/keywords', async (req, res) => {
+  try {
+    const { jobDescription, currentSkills } = req.body
+
+    if (!jobDescription) {
+      return res.status(400).json({ error: '岗位描述不能为空' })
+    }
+
+    // 从岗位描述中提取关键词
+    const keywordExtraction = extractKeywordsFromJob(jobDescription, currentSkills || [])
+    
+    res.json({
+      status: 'ok',
+      data: keywordExtraction
+    })
+  } catch (error) {
+    console.error('Keywords Error:', error)
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// 关键词提取辅助函数
+function extractKeywordsFromJob(jobDesc, currentSkills) {
+  const skillKeywords = {
+    '前端开发': ['JavaScript', 'Vue', 'React', 'HTML', 'CSS', 'TypeScript', 'Webpack'],
+    '后端开发': ['Java', 'Python', 'Go', 'Spring', 'Django', 'MySQL', 'Redis'],
+    '算法': ['Python', '机器学习', '深度学习', 'TensorFlow', 'PyTorch', 'NLP'],
+    '大数据': ['Hadoop', 'Spark', 'Kafka', 'Hive', 'Flink'],
+    '运维': ['Linux', 'Docker', 'Kubernetes', 'CI/CD', 'Jenkins'],
+    '数据库': ['MySQL', 'MongoDB', 'Redis', 'Oracle', 'PostgreSQL']
+  }
+
+  const foundSkills = []
+  const missingSkills = []
+
+  for (const [category, skills] of Object.entries(skillKeywords)) {
+    for (const skill of skills) {
+      if (jobDesc.toLowerCase().includes(skill.toLowerCase())) {
+        foundSkills.push({ name: skill, category })
+        if (!currentSkills.some(cs => cs.toLowerCase().includes(skill.toLowerCase()))) {
+          missingSkills.push(skill)
+        }
+      }
+    }
+  }
+
+  return {
+    foundSkills,
+    missingSkills,
+    suggestedSkills: missingSkills.slice(0, 10),
+    summary: `从岗位描述中识别出${foundSkills.length}项技术关键词，建议优先学习：${missingSkills.slice(0, 5).join('、')}`
+  }
+}
+
 module.exports = router

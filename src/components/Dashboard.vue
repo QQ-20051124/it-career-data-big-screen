@@ -26,26 +26,19 @@
       <div class="top-bar-right">
         <button class="profile-btn" @click="toggleProfilePanel">
           <div class="profile-avatar">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <img v-if="userAvatar" :src="userAvatar" class="profile-avatar-img" alt="用户头像"/>
+            <svg v-else viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
           <div class="profile-info">
-            <span class="profile-name">{{ userInfo.name }}</span>
+            <span class="profile-name">个人中心</span>
             <span class="profile-role">{{ userInfo.role }}</span>
           </div>
           <svg class="profile-arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M6 9l6 6 6-6"/>
           </svg>
-        </button>
-        <button class="logout-btn" @click="logout">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 16l4-4-4-4"/>
-            <path d="M7 16l-4-4 4-4"/>
-            <path d="M12 19V5"/>
-          </svg>
-          <span>退出登录</span>
         </button>
       </div>
     </div>
@@ -56,15 +49,31 @@
     <Transition name="panel-slide">
       <div class="profile-panel" v-if="showProfilePanel">
         <div class="panel-header">
-          <div class="panel-avatar-large">
-            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="panel-header-bg">
+            <div class="aurora-blob blob-1"></div>
+            <div class="aurora-blob blob-2"></div>
+            <div class="aurora-blob blob-3"></div>
+          </div>
+          <div class="panel-header-grid"></div>
+          <div class="panel-avatar-large" @click="triggerAvatarUpload" title="点击更换头像">
+            <div class="avatar-ring-deco"></div>
+            <div class="avatar-ring-deco-2"></div>
+            <img v-if="userAvatar" :src="userAvatar" class="avatar-user-img" alt="用户头像"/>
+            <svg v-else viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
+            <div class="avatar-upload-hint">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <input ref="avatarInputRef" type="file" accept="image/*" style="display:none" @change="handleAvatarChange"/>
           </div>
           <div class="panel-user-info">
             <h3>{{ userInfo.name }}</h3>
-            <p>{{ userInfo.role }}</p>
+            <p>{{ userInfo.role }} · {{ userInfo.loginType }}</p>
           </div>
           <button class="panel-close" @click="toggleProfilePanel">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -74,29 +83,70 @@
           </button>
         </div>
 
+        <div class="panel-stats-bar">
+          <div class="stat-item clickable" @click="activeProfileTab = 'favorites'">
+            <div class="stat-icon-wrap">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+            </div>
+            <div class="stat-value">{{ allFavoritesCount }}</div>
+            <div class="stat-label">收藏</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-icon-wrap">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="stat-value">{{ userInfo.loginDays }}</div>
+            <div class="stat-label">在线天数</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item clickable" @click="activeProfileTab = 'history'">
+            <div class="stat-icon-wrap">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <div class="stat-value">{{ browseHistory.length }}</div>
+            <div class="stat-label">浏览量</div>
+          </div>
+        </div>
+        <div class="stats-progress-track">
+          <div class="stats-progress-fill"></div>
+        </div>
+
         <div class="panel-nav">
-          <button class="nav-item active" @click="activeProfileTab = 'info'">
+          <button class="nav-item" :class="{ active: activeProfileTab === 'info' }" @click="activeProfileTab = 'info'">
+            <span class="nav-indicator"></span>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
             <span>个人信息</span>
           </button>
-          <button class="nav-item" @click="activeProfileTab = 'favorites'">
+          <button class="nav-item" :class="{ active: activeProfileTab === 'favorites' }" @click="activeProfileTab = 'favorites'">
+            <span class="nav-indicator"></span>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
             </svg>
             <span>我的收藏</span>
-            <span class="nav-badge" v-if="favoritesCount > 0">{{ favoritesCount }}</span>
+            <span class="nav-badge" v-if="allFavoritesCount > 0">{{ allFavoritesCount }}</span>
           </button>
-          <button class="nav-item" @click="activeProfileTab = 'history'">
+          <button class="nav-item" :class="{ active: activeProfileTab === 'history' }" @click="activeProfileTab = 'history'">
+            <span class="nav-indicator"></span>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
               <path d="M3 3v5h5"/>
             </svg>
             <span>浏览历史</span>
           </button>
-          <button class="nav-item" @click="activeProfileTab = 'settings'">
+          <button class="nav-item" :class="{ active: activeProfileTab === 'settings' }" @click="activeProfileTab = 'settings'">
+            <span class="nav-indicator"></span>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"/>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -108,35 +158,112 @@
         <div class="panel-content">
           <div class="tab-content" v-if="activeProfileTab === 'info'">
             <div class="info-section">
-              <h4>基本信息</h4>
+              <h4><span class="section-icon"></span>基本信息</h4>
               <div class="info-grid">
                 <div class="info-item">
-                  <label>用户名</label>
-                  <span>{{ userInfo.name }}</span>
+                  <div class="info-item-icon">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div class="info-item-content">
+                    <label>用户名</label>
+                    <span>{{ userInfo.name }}</span>
+                  </div>
                 </div>
                 <div class="info-item">
-                  <label>角色</label>
-                  <span>{{ userInfo.role }}</span>
+                  <div class="info-item-icon">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                  </div>
+                  <div class="info-item-content">
+                    <label>角色</label>
+                    <span>{{ userInfo.role }}</span>
+                  </div>
                 </div>
                 <div class="info-item">
-                  <label>登录方式</label>
-                  <span>{{ userInfo.loginType }}</span>
+                  <div class="info-item-icon">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                      <polyline points="10 17 15 12 10 7"/>
+                      <line x1="15" y1="12" x2="3" y2="12"/>
+                    </svg>
+                  </div>
+                  <div class="info-item-content">
+                    <label>登录方式</label>
+                    <span>{{ userInfo.loginType }}</span>
+                  </div>
                 </div>
                 <div class="info-item">
-                  <label>注册时间</label>
-                  <span>{{ userInfo.registerTime }}</span>
+                  <div class="info-item-icon">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </div>
+                  <div class="info-item-content">
+                    <label>注册时间</label>
+                    <span>{{ userInfo.registerTime }}</span>
+                  </div>
                 </div>
                 <div class="info-item">
-                  <label>最近登录</label>
-                  <span>{{ userInfo.lastLogin }}</span>
+                  <div class="info-item-icon">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+                  <div class="info-item-content">
+                    <label>最近登录</label>
+                    <span>{{ userInfo.lastLogin }}</span>
+                  </div>
                 </div>
                 <div class="info-item">
-                  <label>收藏数量</label>
-                  <span>{{ favoritesCount }}</span>
+                  <div class="info-item-icon">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    </svg>
+                  </div>
+                  <div class="info-item-content">
+                    <label>收藏数量</label>
+                    <span>{{ allFavoritesCount }}</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <button class="edit-profile-btn">
+            <div class="info-section" style="margin-top: 20px;">
+              <h4>账号安全</h4>
+              <div class="security-list">
+                <div class="security-item">
+                  <div class="security-icon ok">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                  </div>
+                  <span>账号状态正常</span>
+                  <span class="security-status ok">已验证</span>
+                </div>
+                <div class="security-item">
+                  <div class="security-icon info">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="16" x2="12" y2="12"/>
+                      <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                  </div>
+                  <span>完善简历信息</span>
+                  <span class="security-status info">建议</span>
+                </div>
+              </div>
+            </div>
+            <button class="edit-profile-btn" @click="openEditModal">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -147,25 +274,184 @@
 
           <div class="tab-content" v-if="activeProfileTab === 'favorites'">
             <div class="favorites-section">
-              <div class="section-header">
-                <h4>我的收藏</h4>
-                <span class="section-count">共 {{ favoritesCount }} 个</span>
-              </div>
-              <div class="favorites-list" v-if="favoritesCount > 0">
-                <div class="favorite-card" v-for="(job, index) in profileFavorites" :key="index">
-                  <div class="favorite-card-info">
-                    <div class="favorite-card-title">{{ job.job_name }}</div>
-                    <div class="favorite-card-meta">{{ job.company }} - {{ job.city }}</div>
-                    <div class="favorite-card-salary">{{ formatFavoriteSalary(job.salary_avg) }}</div>
+              <!-- 收藏概览 -->
+              <div class="fav-overview">
+                <div class="fav-overview-card" @click="favSubTab = 'jobs'">
+                  <div class="fav-overview-icon jobs">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    </svg>
                   </div>
-                  <div class="favorite-card-time">{{ formatFavoriteTime(job.favoriteTime) }}</div>
+                  <div class="fav-overview-info">
+                    <span class="fav-overview-num">{{ jobFavoritesCount }}</span>
+                    <span class="fav-overview-label">岗位收藏</span>
+                  </div>
+                </div>
+                <div class="fav-overview-card" @click="favSubTab = 'applied'">
+                  <div class="fav-overview-icon applied">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                  </div>
+                  <div class="fav-overview-info">
+                    <span class="fav-overview-num">{{ appliedJobsCount }}</span>
+                    <span class="fav-overview-label">投递记录</span>
+                  </div>
+                </div>
+                <div class="fav-overview-card" @click="favSubTab = 'resume'">
+                  <div class="fav-overview-icon resume">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                  </div>
+                  <div class="fav-overview-info">
+                    <span class="fav-overview-num">{{ hasResume ? '1' : '0' }}</span>
+                    <span class="fav-overview-label">简历数据</span>
+                  </div>
+                </div>
+                <div class="fav-overview-card" @click="favSubTab = 'learning'">
+                  <div class="fav-overview-icon learning">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                      <path d="M2 17l10 5 10-5"/>
+                    </svg>
+                  </div>
+                  <div class="fav-overview-info">
+                    <span class="fav-overview-num">{{ learningProgressCount }}</span>
+                    <span class="fav-overview-label">学习进度</span>
+                  </div>
                 </div>
               </div>
-              <div class="empty-state" v-else>
-                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                </svg>
-                <p>暂无收藏的岗位</p>
+
+              <!-- 子标签切换 -->
+              <div class="fav-sub-tabs">
+                <button class="fav-sub-tab" :class="{ active: favSubTab === 'jobs' }" @click="favSubTab = 'jobs'">岗位收藏</button>
+                <button class="fav-sub-tab" :class="{ active: favSubTab === 'applied' }" @click="favSubTab = 'applied'">投递记录</button>
+                <button class="fav-sub-tab" :class="{ active: favSubTab === 'resume' }" @click="favSubTab = 'resume'">我的简历</button>
+                <button class="fav-sub-tab" :class="{ active: favSubTab === 'learning' }" @click="favSubTab = 'learning'">学习进度</button>
+              </div>
+
+              <!-- 岗位收藏列表 -->
+              <div v-if="favSubTab === 'jobs'" class="fav-detail-list">
+                <div class="section-header">
+                  <h4>岗位收藏</h4>
+                  <span class="section-count">共 {{ jobFavoritesCount }} 个</span>
+                </div>
+                <div class="favorites-list" v-if="jobFavoritesCount > 0">
+                  <div class="favorite-card" v-for="(job, index) in profileFavorites" :key="index" @click="router.push('/job-recommend')">
+                    <div class="favorite-card-info">
+                      <div class="favorite-card-title">{{ job.job_name }}</div>
+                      <div class="favorite-card-meta">{{ job.company }} - {{ job.city }}</div>
+                      <div class="favorite-card-salary">{{ formatFavoriteSalary(job.salary_avg) }}</div>
+                    </div>
+                    <div class="favorite-card-time">{{ formatFavoriteTime(job.favoriteTime) }}</div>
+                  </div>
+                </div>
+                <div class="empty-state" v-else>
+                  <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  </svg>
+                  <p>暂无收藏的岗位</p>
+                  <p class="empty-hint">前往岗位推荐页面收藏感兴趣的岗位</p>
+                </div>
+              </div>
+
+              <!-- 投递记录列表 -->
+              <div v-if="favSubTab === 'applied'" class="fav-detail-list">
+                <div class="section-header">
+                  <h4>投递记录</h4>
+                  <span class="section-count">共 {{ appliedJobsCount }} 个</span>
+                </div>
+                <div class="favorites-list" v-if="appliedJobsCount > 0">
+                  <div class="favorite-card" v-for="(job, index) in appliedJobs" :key="index">
+                    <div class="favorite-card-info">
+                      <div class="favorite-card-title">{{ job.job_name }}</div>
+                      <div class="favorite-card-meta">{{ job.company }} - {{ job.city }}</div>
+                      <div class="applied-status" :class="job.status || 'pending'">{{ getAppliedStatusText(job.status) }}</div>
+                    </div>
+                    <div class="favorite-card-time">{{ formatFavoriteTime(job.applyTime) }}</div>
+                  </div>
+                </div>
+                <div class="empty-state" v-else>
+                  <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  <p>暂无投递记录</p>
+                  <p class="empty-hint">在岗位推荐页面投递岗位后将在此显示</p>
+                </div>
+              </div>
+
+              <!-- 简历数据 -->
+              <div v-if="favSubTab === 'resume'" class="fav-detail-list">
+                <div class="section-header">
+                  <h4>我的简历</h4>
+                </div>
+                <div v-if="hasResume" class="resume-summary-card" @click="router.push('/ai-resume')">
+                  <div class="resume-summary-icon">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                  </div>
+                  <div class="resume-summary-info">
+                    <div class="resume-summary-name">{{ resumeSummary.name || '未填写' }}</div>
+                    <div class="resume-summary-meta">{{ resumeSummary.education || '学历未填' }} · {{ resumeSummary.intention || '求职意向未填' }}</div>
+                    <div class="resume-summary-skills" v-if="resumeSummary.skills && resumeSummary.skills.length > 0">
+                      <span class="skill-tag-sm" v-for="skill in resumeSummary.skills.slice(0, 5)" :key="skill">{{ skill }}</span>
+                      <span class="skill-tag-sm more" v-if="resumeSummary.skills.length > 5">+{{ resumeSummary.skills.length - 5 }}</span>
+                    </div>
+                  </div>
+                  <div class="resume-summary-arrow">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="empty-state" v-else>
+                  <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  <p>暂无简历数据</p>
+                  <p class="empty-hint">前往AI简历页面创建您的简历</p>
+                </div>
+              </div>
+
+              <!-- 学习进度 -->
+              <div v-if="favSubTab === 'learning'" class="fav-detail-list">
+                <div class="section-header">
+                  <h4>学习进度</h4>
+                </div>
+                <div v-if="learningProgressCount > 0" class="learning-list">
+                  <div class="learning-card" v-for="(item, index) in learningProgressList" :key="index" @click="router.push('/planning')">
+                    <div class="learning-icon">
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                      </svg>
+                    </div>
+                    <div class="learning-info">
+                      <div class="learning-title">{{ item.position }}</div>
+                      <div class="learning-progress-bar">
+                        <div class="learning-progress-fill" :style="{ width: item.progress + '%' }"></div>
+                      </div>
+                      <span class="learning-percent">{{ item.progress }}%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="empty-state" v-else>
+                  <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                  </svg>
+                  <p>暂无学习进度</p>
+                  <p class="empty-hint">前往学业规划页面开始学习</p>
+                </div>
               </div>
             </div>
           </div>
@@ -174,14 +460,41 @@
             <div class="history-section">
               <div class="section-header">
                 <h4>浏览历史</h4>
-                <button class="clear-history-btn">清空历史</button>
+                <button class="clear-history-btn" v-if="browseHistory.length > 0" @click="clearBrowseHistory">清空历史</button>
               </div>
-              <div class="empty-state">
+              <div class="history-list" v-if="browseHistory.length > 0">
+                <div class="history-item" v-for="(item, index) in browseHistory" :key="index" @click="goToHistoryPage(item)">
+                  <div class="history-icon" :class="item.type">
+                    <svg v-if="item.type === 'job'" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                    </svg>
+                    <svg v-else-if="item.type === 'resume'" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <svg v-else-if="item.type === 'planning'" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/>
+                    </svg>
+                    <svg v-else-if="item.type === 'prediction'" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M8 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+                  <div class="history-info">
+                    <span class="history-title">{{ item.title }}</span>
+                    <span class="history-page">{{ item.pageName }}</span>
+                  </div>
+                  <span class="history-time">{{ formatFavoriteTime(item.time) }}</span>
+                </div>
+              </div>
+              <div class="empty-state" v-else>
                 <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="rgba(74,158,255,0.3)" stroke-width="1.5">
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                   <path d="M3 3v5h5"/>
                 </svg>
                 <p>暂无浏览记录</p>
+                <p class="empty-hint">浏览各功能页面后将在此显示记录</p>
               </div>
             </div>
           </div>
@@ -229,8 +542,83 @@
                   <span class="slider"></span>
                 </label>
               </div>
+              <div class="settings-item">
+                <div class="settings-label">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                  </svg>
+                  <span>数据同步</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" v-model="settings.dataSync"/>
+                  <span class="slider"></span>
+                </label>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div class="panel-footer">
+          <button class="panel-logout-btn" @click="logout">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span>退出登录</span>
+          </button>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- 编辑资料弹窗 -->
+    <Transition name="panel">
+      <div class="edit-modal-overlay" v-if="showEditModal" @click="closeEditModal"></div>
+    </Transition>
+    <Transition name="panel-slide">
+      <div class="edit-modal" v-if="showEditModal">
+        <div class="edit-modal-header">
+          <h3>编辑个人资料</h3>
+          <button class="edit-modal-close" @click="closeEditModal">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="edit-modal-body">
+          <div class="edit-avatar-section" @click="triggerAvatarUpload">
+            <div class="edit-avatar-preview">
+              <img v-if="userAvatar" :src="userAvatar" alt="头像预览"/>
+              <svg v-else viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <span class="edit-avatar-text">点击更换头像</span>
+          </div>
+          <div class="edit-form-group">
+            <label>用户名</label>
+            <input v-model="editForm.name" type="text" placeholder="请输入用户名"/>
+          </div>
+          <div class="edit-form-group">
+            <label>角色</label>
+            <input v-model="editForm.role" type="text" placeholder="请输入角色"/>
+          </div>
+          <div class="edit-form-group">
+            <label>登录方式</label>
+            <select v-model="editForm.loginType">
+              <option value="游客登录">游客登录</option>
+              <option value="账号登录">账号登录</option>
+              <option value="微信登录">微信登录</option>
+              <option value="QQ登录">QQ登录</option>
+            </select>
+          </div>
+        </div>
+        <div class="edit-modal-footer">
+          <button class="edit-cancel-btn" @click="closeEditModal">取消</button>
+          <button class="edit-save-btn" @click="saveEditModal">保存</button>
         </div>
       </div>
     </Transition>
@@ -682,7 +1070,7 @@
                   <div><span class="label">籍贯：</span>{{ resumeData.origin || '未填写' }}</div>
                   <div><span class="label">现居地：</span>{{ resumeData.residence || '未填写' }}</div>
                   <div><span class="label">联系电话：</span>{{ resumeData.phone || '未填写' }}</div>
-                  <div><span class="label">邮箱：</span>{{ resumeData.email }}@{{ resumeData.emailType || '' }}.com</div>
+                  <div><span class="label">邮箱：</span>{{ resumeData.email && resumeData.emailType ? resumeData.email + '@' + resumeData.emailType + '.com' : (resumeData.email ? resumeData.email : '未填写') }}</div>
                 </div>
               </div>
               <div class="photo-section">
@@ -781,6 +1169,16 @@ import { useRouter } from 'vue-router'
 import jobData from '../assets/all_cleaned_jobs.json'
 
 const router = useRouter()
+
+// 浏览历史记录（由全局路由守卫记录，这里仅提供读取方法）
+const recordBrowseHistory = (type, title, pageName, url) => {
+  const saved = localStorage.getItem('browseHistory')
+  let history = []
+  try { history = saved ? JSON.parse(saved) : [] } catch { history = [] }
+  history.unshift({ type, title, pageName, url, time: Date.now() })
+  if (history.length > 30) history = history.slice(0, 30)
+  localStorage.setItem('browseHistory', JSON.stringify(history))
+}
 const bgCanvas = ref(null)
 const currentSlide = ref(0)
 const activeModule = ref('function')
@@ -798,29 +1196,137 @@ const userInfo = reactive({
   role: '普通用户',
   loginType: '游客登录',
   registerTime: '2026-07-27',
-  lastLogin: new Date().toLocaleString('zh-CN')
+  lastLogin: new Date().toLocaleString('zh-CN'),
+  loginDays: 4
 })
 
 const settings = reactive({
   darkMode: false,
   notifications: true,
-  autoUpdate: true
+  autoUpdate: true,
+  dataSync: true
 })
 
-const profileFavorites = computed(() => {
-  const saved = localStorage.getItem('jobFavorites')
-  if (saved) {
-    return JSON.parse(saved)
+// localStorage数据 - 使用ref，面板打开时刷新
+const profileFavorites = ref([])
+const jobFavoritesCount = computed(() => profileFavorites.value.length)
+const appliedJobs = ref([])
+const appliedJobsCount = computed(() => appliedJobs.value.length)
+const resumeSummary = ref({})
+const hasResume = computed(() => {
+  const r = resumeSummary.value
+  return r && (r.name || r.intention || (r.skills && r.skills.length > 0))
+})
+const learningProgressList = ref([])
+const learningProgressCount = computed(() => learningProgressList.value.length)
+const allFavoritesCount = computed(() => {
+  return jobFavoritesCount.value + appliedJobsCount.value + (hasResume.value ? 1 : 0) + learningProgressCount.value
+})
+const browseHistory = ref([])
+
+const refreshProfileData = () => {
+  // 刷新岗位收藏
+  try { profileFavorites.value = JSON.parse(localStorage.getItem('jobFavorites') || '[]') } catch { profileFavorites.value = [] }
+  // 刷新投递记录
+  try { appliedJobs.value = JSON.parse(localStorage.getItem('jobApplications') || '[]') } catch { appliedJobs.value = [] }
+  // 刷新简历
+  try { resumeSummary.value = JSON.parse(localStorage.getItem('resumeData') || '{}') } catch { resumeSummary.value = {} }
+  // 刷新学习进度
+  const list = []
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key && key.startsWith('learningProgress_')) {
+      const progress = parseInt(localStorage.getItem(key) || '0', 10)
+      const position = key.replace('learningProgress_', '')
+      if (progress > 0) list.push({ position, progress })
+    }
   }
-  return []
-})
+  learningProgressList.value = list
+  // 刷新浏览历史
+  try { browseHistory.value = JSON.parse(localStorage.getItem('browseHistory') || '[]') } catch { browseHistory.value = [] }
+}
 
-const favoritesCount = computed(() => {
-  return profileFavorites.value.length
-})
+const favSubTab = ref('jobs')
+
+const getAppliedStatusText = (status) => {
+  const map = { pending: '待处理', viewed: '已查看', interview: '面试中', offer: '已录用', rejected: '未通过' }
+  return map[status] || '待处理'
+}
+
+const goToHistoryPage = (item) => {
+  if (item.url) router.push(item.url)
+}
+
+const clearBrowseHistory = () => {
+  localStorage.removeItem('browseHistory')
+  browseHistory.value = []
+}
 
 const toggleProfilePanel = () => {
   showProfilePanel.value = !showProfilePanel.value
+  if (showProfilePanel.value) refreshProfileData()
+}
+
+// 编辑资料弹窗相关
+const showEditModal = ref(false)
+const avatarInputRef = ref(null)
+const userAvatar = ref(localStorage.getItem('userAvatar') || '')
+const editForm = reactive({
+  name: '',
+  role: '',
+  loginType: ''
+})
+
+const openEditModal = () => {
+  editForm.name = userInfo.name
+  editForm.role = userInfo.role
+  editForm.loginType = userInfo.loginType
+  showEditModal.value = true
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+}
+
+const saveEditModal = () => {
+  if (editForm.name.trim()) {
+    userInfo.name = editForm.name.trim()
+    localStorage.setItem('userName', editForm.name.trim())
+  }
+  if (editForm.role.trim()) {
+    userInfo.role = editForm.role.trim()
+    localStorage.setItem('userRole', editForm.role.trim())
+  }
+  if (editForm.loginType) {
+    userInfo.loginType = editForm.loginType
+    localStorage.setItem('userLoginType', editForm.loginType)
+  }
+  showEditModal.value = false
+}
+
+// 头像上传相关
+const triggerAvatarUpload = () => {
+  avatarInputRef.value?.click()
+}
+
+const handleAvatarChange = (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    alert('请选择图片文件')
+    return
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    alert('图片大小不能超过5MB')
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    userAvatar.value = e.target?.result
+    localStorage.setItem('userAvatar', userAvatar.value)
+  }
+  reader.readAsDataURL(file)
+  event.target.value = ''
 }
 
 const formatFavoriteSalary = (salary) => {
@@ -1003,18 +1509,17 @@ const hexToRgb = (hex) => {
 }
 
 const navigateTo = (module) => {
-  if (module === 'planning') {
-    router.push('/planning')
-  } else if (module === 'job-recommend') {
-    router.push('/job-recommend')
-  } else if (module === 'ai-resume') {
-    router.push('/ai-resume')
-  } else if (module === 'industry-prediction') {
-    router.push('/industry-prediction')
-  } else if (module === 'job-community') {
-    router.push('/job-community')
-  } else if (module === 'talent-stat') {
-    router.push('/talent-statistics')
+  const moduleMap = {
+    'planning': { url: '/planning', title: '学业-就业双向联动规划', pageName: '学业规划', type: 'planning' },
+    'job-recommend': { url: '/job-recommend', title: '智能岗位推荐', pageName: '岗位推荐', type: 'job' },
+    'ai-resume': { url: '/ai-resume', title: 'AI简历', pageName: 'AI简历', type: 'resume' },
+    'industry-prediction': { url: '/industry-prediction', title: '行业供需预测', pageName: '行业预测', type: 'prediction' },
+    'job-community': { url: '/job-community', title: '求职社区', pageName: '求职社区', type: 'job' },
+    'talent-stat': { url: '/talent-statistics', title: '人才专项统计', pageName: '人才统计', type: 'job' }
+  }
+  const info = moduleMap[module]
+  if (info) {
+    router.push(info.url)
   } else {
     alert(`进入${module}模块，功能开发中`)
   }
@@ -1250,6 +1755,31 @@ const initBackground = () => {
 
 onMounted(() => {
   initBackground()
+  
+  // 从auth_info加载用户资料
+  try {
+    const authData = JSON.parse(localStorage.getItem('auth_info') || '{}')
+    if (authData) {
+      if (authData.nickname) userInfo.name = authData.nickname
+      if (authData.loginType) {
+        const typeMap = { wechat: '微信登录', qq: 'QQ登录', email: '邮箱登录', guest: '游客登录' }
+        userInfo.loginType = typeMap[authData.loginType] || authData.loginType
+      }
+      if (authData.loginTime) {
+        userInfo.lastLogin = new Date(authData.loginTime).toLocaleString('zh-CN')
+        const registerDate = new Date(authData.loginTime)
+        userInfo.registerTime = registerDate.toISOString().split('T')[0]
+      }
+    }
+  } catch {}
+  
+  // 兼容旧版本
+  const savedName = localStorage.getItem('userName')
+  if (savedName) userInfo.name = savedName
+  const savedRole = localStorage.getItem('userRole')
+  if (savedRole) userInfo.role = savedRole
+  const savedLoginType = localStorage.getItem('userLoginType')
+  if (savedLoginType) userInfo.loginType = savedLoginType
   
   slideInterval = setInterval(() => {
     currentSlide.value = (currentSlide.value + 1) % carouselSlides.value.length
@@ -1509,6 +2039,10 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 140px;
 }
 
 /* 卡片主体背景层 - 实际DOM元素 */
@@ -1731,6 +2265,7 @@ onUnmounted(() => {
   gap: 20px;
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 /* 3D六边形图标容器 */
@@ -2102,73 +2637,121 @@ onUnmounted(() => {
 
 .main-content {
   display: grid;
-  grid-template-columns: 260px 1fr 300px;
-  gap: 18px;
+  grid-template-columns: 280px 1fr 320px;
+  gap: 20px;
   align-items: stretch;
   min-height: 260px;
 }
 
 .left-panel, .center-panel, .right-panel {
-  background: rgba(10, 15, 40, 0.6);
-  border-radius: 16px;
-  border: 1px solid rgba(74, 158, 255, 0.1);
-  padding: 20px;
+  background: linear-gradient(180deg, rgba(10, 18, 48, 0.65) 0%, rgba(6, 12, 32, 0.55) 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  padding: 22px;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.left-panel::before, .center-panel::before, .right-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.4), rgba(168, 85, 247, 0.3), transparent);
 }
 
 .panel-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+  gap: 12px;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.12);
 }
 
 .panel-header .panel-icon {
-  color: rgba(74, 158, 255, 0.8);
+  color: rgba(74, 158, 255, 0.85);
+  filter: drop-shadow(0 0 6px rgba(74, 158, 255, 0.4));
 }
 
 .panel-header span {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #fff;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #fff, #b8d4ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .community-posts {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 14px;
   overflow-y: auto;
+}
+
+.community-posts::-webkit-scrollbar {
+  width: 3px;
+}
+.community-posts::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.3);
+  border-radius: 2px;
 }
 
 .post-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  background: rgba(5, 10, 30, 0.5);
-  border-radius: 10px;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(5, 12, 35, 0.6), rgba(8, 16, 42, 0.5));
+  border-radius: 14px;
   border: 1px solid rgba(74, 158, 255, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.post-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #4a9eff, #a855f7);
+  border-radius: 14px 0 0 14px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .post-item:hover {
-  background: rgba(74, 158, 255, 0.1);
-  border-color: rgba(74, 158, 255, 0.2);
-  transform: translateX(5px);
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.12), rgba(168, 85, 247, 0.08));
+  border-color: rgba(74, 158, 255, 0.25);
+  transform: translateX(6px);
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.15);
+}
+
+.post-item:hover::before {
+  opacity: 1;
 }
 
 .post-avatar {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   overflow: hidden;
-  background: rgba(74, 158, 255, 0.1);
+  background: rgba(74, 158, 255, 0.12);
+  border: 1px solid rgba(74, 158, 255, 0.2);
 }
 
 .post-avatar img {
@@ -2189,11 +2772,12 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .post-meta {
-  font-size: 0.7rem;
-  color: rgba(150, 180, 220, 0.4);
+  font-size: 0.72rem;
+  color: rgba(150, 180, 220, 0.5);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2624,39 +3208,29 @@ onUnmounted(() => {
 .cards-3d-container {
   position: relative;
   z-index: 5;
+  width: 100%;
 }
 
 .cards-arc {
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 30px;
-  padding-bottom: 60px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
+  padding-bottom: 40px;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-/* 弧形倾斜容器 */
+/* 弧形倾斜容器 - 已废弃，保留元素但隐藏 */
 .arc-tilt {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  height: 100px;
-  background: linear-gradient(180deg, 
-    transparent 0%, 
-    rgba(100, 80, 160, 0.08) 50%, 
-    rgba(80, 60, 140, 0.12) 100%);
-  border-radius: 50%;
-  filter: blur(15px);
-  opacity: 0.7;
-  pointer-events: none;
+  display: none;
 }
 
 /* 3D卡片基础样式 */
 .bottom-card-3d {
   position: relative;
-  width: 240px;
+  width: 100%;
+  min-height: 280px;
   cursor: pointer;
   transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.5s ease;
   animation: card3dFadeIn 0.8s ease-out var(--card-delay, 0s) both;
@@ -2665,8 +3239,8 @@ onUnmounted(() => {
 @keyframes card3dFadeIn {
   from { 
     opacity: 0; 
-    transform: translateY(60px) scale(0.8);
-    filter: blur(10px);
+    transform: translateY(40px) scale(0.9);
+    filter: blur(8px);
   }
   to { 
     opacity: 1; 
@@ -2675,43 +3249,25 @@ onUnmounted(() => {
   }
 }
 
-/* 弧形位置 - 中间卡片最高，两侧渐低 */
-.pos-0 { 
-  transform: translateY(30px) rotateY(25deg);
-}
-.pos-1 { 
-  transform: translateY(15px) rotateY(12deg);
-}
-.pos-2 { 
+/* 所有卡片位置统一，不再有弧形高低差 */
+.pos-0, .pos-1, .pos-2, .pos-3, .pos-4 {
   transform: translateY(0) rotateY(0deg);
-  z-index: 10;
-}
-.pos-3 { 
-  transform: translateY(15px) rotateY(-12deg);
-}
-.pos-4 { 
-  transform: translateY(30px) rotateY(-25deg);
 }
 
-/* 悬停效果 */
 .bottom-card-3d:hover {
-  transform: translateY(-20px) rotateY(0deg) scale(1.08) !important;
+  transform: translateY(-12px) scale(1.03) !important;
   filter: brightness(1.1);
   z-index: 20;
 }
 
-.pos-2:hover {
-  transform: translateY(-25px) rotateY(0deg) scale(1.1) !important;
-}
-
-/* 玻璃底座 */
+/* 玻璃底座 - 调整为底部对齐 */
 .card-base {
   position: absolute;
-  bottom: -10px;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 180px;
-  height: 20px;
+  width: 140px;
+  height: 16px;
   z-index: 0;
 }
 
@@ -2752,7 +3308,7 @@ onUnmounted(() => {
   50% { opacity: 1; transform: translateX(-50%) scaleX(1); }
 }
 
-/* 玻璃卡片主体 */
+/* 玻璃卡片主体 - 等高对齐 */
 .card-glass {
   position: relative;
   background: linear-gradient(145deg, 
@@ -2762,13 +3318,17 @@ onUnmounted(() => {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 20px;
-  padding: 30px 25px 25px;
+  padding: 28px 22px 22px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.4),
     0 0 40px rgba(var(--theme-rgb), 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 260px;
 }
 
 .bottom-card-3d:hover .card-glass {
@@ -2779,13 +3339,14 @@ onUnmounted(() => {
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* 3D立体图标 */
+/* 3D立体图标 - 统一大小 */
 .icon-3d {
   position: relative;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 20px;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 16px;
   perspective: 200px;
+  flex-shrink: 0;
 }
 
 .icon-cube {
@@ -2853,16 +3414,19 @@ onUnmounted(() => {
 
 /* 卡片标题 */
 .card-title {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   text-shadow: 
     0 0 20px rgba(255, 255, 255, 0.3),
     0 2px 10px rgba(0, 0, 0, 0.5);
   letter-spacing: 0.5px;
   line-height: 1.3;
   transition: all 0.3s ease;
+  min-height: 2.6em;
+  display: flex;
+  align-items: flex-end;
 }
 
 .bottom-card-3d:hover .card-title {
@@ -2871,28 +3435,34 @@ onUnmounted(() => {
     0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* 卡片描述 */
+/* 卡片描述 - 固定高度保证对齐 */
 .card-description {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: rgba(220, 230, 255, 0.7);
-  margin: 0 0 24px;
-  line-height: 1.6;
+  margin: 0;
+  line-height: 1.5;
+  min-height: 3.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* 进入按钮 */
+/* 进入按钮 - 推到底部 */
 .enter-btn {
   position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 22px;
+  padding: 9px 20px;
+  margin-top: auto;
   background: linear-gradient(135deg, 
     rgba(var(--theme-rgb), 0.4) 0%, 
     rgba(var(--theme-rgb), 0.2) 100%);
   border: 1.5px solid rgba(var(--theme-rgb), 0.6);
   border-radius: 30px;
   color: #ffffff;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 1px;
   cursor: pointer;
@@ -2993,11 +3563,8 @@ onUnmounted(() => {
 
 /* 响应式适配 */
 @media (max-width: 1400px) {
-  .bottom-card-3d {
-    width: 200px;
-  }
   .cards-arc {
-    gap: 20px;
+    gap: 18px;
   }
 }
 
@@ -3006,18 +3573,8 @@ onUnmounted(() => {
     padding: 40px 20px 60px;
   }
   .cards-arc {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .bottom-card-3d {
-    width: 220px;
-    transform: none !important;
-  }
-  .bottom-card-3d:hover {
-    transform: translateY(-15px) scale(1.05) !important;
-  }
-  .pos-0, .pos-1, .pos-2, .pos-3, .pos-4 {
-    transform: none !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
   }
 }
 
@@ -3025,14 +3582,9 @@ onUnmounted(() => {
   .immersive-zone {
     padding: 30px 15px 50px;
   }
-  .bottom-card-3d {
-    width: 100%;
-    max-width: 300px;
-  }
   .cards-arc {
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
+    grid-template-columns: 1fr;
+    max-width: 320px;
   }
   .reflective-platform,
   .light-beams,
@@ -3325,6 +3877,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   color: #4a9eff;
+  overflow: hidden;
 }
 
 .profile-info {
@@ -3359,85 +3912,314 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.65);
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
 .profile-panel {
   position: fixed;
   top: 0;
   right: 0;
-  width: 380px;
+  width: 420px;
+  max-width: 92vw;
   height: 100vh;
-  background: rgba(15, 23, 42, 0.98);
-  border-left: 1px solid rgba(74, 158, 255, 0.3);
+  background: linear-gradient(180deg, rgba(12, 20, 42, 0.99) 0%, rgba(8, 14, 32, 0.99) 100%);
+  border-left: 1px solid rgba(74, 158, 255, 0.25);
   z-index: 1001;
   display: flex;
   flex-direction: column;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  box-shadow: -16px 0 48px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
 }
 
 .panel-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 24px;
-  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+  padding: 32px 24px 22px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.panel-header-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.panel-header-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(74, 158, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 158, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 80%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 80%);
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.5;
+  animation: auroraFloat 8s ease-in-out infinite;
+}
+
+.aurora-blob.blob-1 {
+  width: 160px; height: 160px;
+  top: -60px; left: -20px;
+  background: radial-gradient(circle, rgba(74, 158, 255, 0.35), transparent 70%);
+}
+
+.aurora-blob.blob-2 {
+  width: 140px; height: 140px;
+  top: -40px; right: -30px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.3), transparent 70%);
+  animation-delay: -2s;
+}
+
+.aurora-blob.blob-3 {
+  width: 120px; height: 120px;
+  bottom: -50px; left: 30%;
+  background: radial-gradient(circle, rgba(0, 212, 170, 0.2), transparent 70%);
+  animation-delay: -4s;
+}
+
+@keyframes auroraFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(8px, -6px) scale(1.05); }
+  66% { transform: translate(-6px, 4px) scale(0.95); }
 }
 
 .panel-avatar-large {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: rgba(74, 158, 255, 0.2);
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.25), rgba(168, 85, 247, 0.2));
   display: flex;
   align-items: center;
   justify-content: center;
   color: #4a9eff;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 0 24px rgba(74, 158, 255, 0.35);
+  z-index: 2;
+}
+
+.avatar-ring-deco {
+  position: absolute;
+  inset: -5px;
+  border: 1.5px solid rgba(74, 158, 255, 0.25);
+  border-radius: 50%;
+  border-top-color: #4a9eff;
+  border-right-color: rgba(74, 158, 255, 0.5);
+  animation: avatarRingSpin 4s linear infinite;
+}
+
+.avatar-ring-deco-2 {
+  position: absolute;
+  inset: -10px;
+  border: 1px solid rgba(168, 85, 247, 0.15);
+  border-radius: 50%;
+  border-bottom-color: rgba(168, 85, 247, 0.4);
+  animation: avatarRingSpin 6s linear infinite reverse;
+}
+
+@keyframes avatarRingSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .panel-user-info {
   flex: 1;
+  position: relative;
+  z-index: 2;
 }
 
 .panel-user-info h3 {
   font-size: 1.2rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.98);
   margin: 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 12px rgba(74, 158, 255, 0.3);
 }
 
 .panel-user-info p {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 4px 0 0 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 5px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-user-info p::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00d4aa;
+  box-shadow: 0 0 8px #00d4aa;
 }
 
 .panel-close {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.55);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .panel-close:hover {
   background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
   color: #ef4444;
+  transform: rotate(90deg);
+}
+
+.panel-stats-bar {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(180deg, rgba(74, 158, 255, 0.08) 0%, rgba(168, 85, 247, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
+  position: relative;
+}
+
+.panel-stats-bar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.3), rgba(168, 85, 247, 0.3), transparent);
+}
+
+.stats-progress-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-progress-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.6), rgba(168, 85, 247, 0.6), transparent);
+  animation: progressShine 3s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.stat-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.08), rgba(168, 85, 247, 0.04));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-item.clickable {
+  cursor: pointer;
+}
+
+.stat-item.clickable:hover {
+  transform: translateY(-3px);
+}
+
+.stat-item.clickable:hover::before {
+  opacity: 1;
+}
+
+.stat-item.clickable:hover .stat-icon-wrap {
+  color: #5ba8ff;
+  transform: scale(1.15);
+}
+
+.stat-item.clickable:hover .stat-value {
+  color: #7bc4ff;
+  text-shadow: 0 0 20px rgba(91, 168, 255, 0.8);
+}
+
+.stat-icon-wrap {
+  color: rgba(74, 158, 255, 0.55);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4a9eff, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(180deg, transparent, rgba(74, 158, 255, 0.4), transparent);
+  margin: 0 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .panel-nav {
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  gap: 4px;
-  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+  padding: 12px 14px;
+  gap: 6px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .nav-item {
@@ -3445,54 +4227,114 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid transparent;
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
+  font-size: 0.88rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  letter-spacing: 0.3px;
+}
+
+.nav-indicator {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 55%;
+  background: linear-gradient(180deg, #4a9eff, #a855f7);
+  border-radius: 0 3px 3px 0;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-item:hover {
-  background: rgba(74, 158, 255, 0.15);
-  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.12), transparent);
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(74, 158, 255, 0.12);
+  padding-left: 20px;
 }
 
 .nav-item.active {
-  background: rgba(74, 158, 255, 0.25);
-  color: #4a9eff;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.2), rgba(168, 85, 247, 0.08));
+  color: #fff;
+  border-color: rgba(74, 158, 255, 0.2);
+  padding-left: 20px;
+  box-shadow: inset 0 0 20px rgba(74, 158, 255, 0.08);
+}
+
+.nav-item.active .nav-indicator {
+  transform: translateY(-50%) scaleY(1);
+  box-shadow: 0 0 14px rgba(74, 158, 255, 0.7);
+}
+
+.nav-item.active svg {
+  color: #7bc4ff;
+  filter: drop-shadow(0 0 8px rgba(74, 158, 255, 0.6));
+}
+
+.nav-item:hover svg {
+  color: #5ba8ff;
 }
 
 .nav-badge {
   margin-left: auto;
-  padding: 2px 8px;
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  font-size: 0.7rem;
-  border-radius: 10px;
+  padding: 2px 10px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  font-size: 0.68rem;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .panel-content {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  min-height: 0;
+}
+
+.panel-content::-webkit-scrollbar {
+  width: 4px;
+}
+.panel-content::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.3);
+  border-radius: 2px;
+}
+.panel-content::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .tab-content {
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .info-section h4 {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   margin: 0 0 16px 0;
+  letter-spacing: 0.5px;
+}
+
+.section-icon {
+  width: 18px;
+  height: 4px;
+  background: linear-gradient(180deg, #4a9eff, #a855f7);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.6);
 }
 
 .info-grid {
@@ -3502,94 +4344,306 @@ onUnmounted(() => {
 }
 
 .info-item {
-  background: rgba(74, 158, 255, 0.08);
-  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.08) 0%, rgba(74, 158, 255, 0.02) 100%);
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(74, 158, 255, 0.1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(168, 85, 247, 0.06));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.info-item:hover {
+  border-color: rgba(74, 158, 255, 0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(74, 158, 255, 0.12);
+}
+
+.info-item:hover::before {
+  opacity: 1;
+}
+
+.info-item-icon {
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.2), rgba(74, 158, 255, 0.08));
+  color: #5ba8ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.15);
+  transition: all 0.3s ease;
 }
 
-.info-item label {
+.info-item:hover .info-item-icon {
+  transform: scale(1.05);
+  box-shadow: 0 0 18px rgba(74, 158, 255, 0.3);
+}
+
+.info-item-content {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.info-item-content label {
   display: block;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.45);
   margin-bottom: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-.info-item span {
+.info-item-content span {
   display: block;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .edit-profile-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 24px;
   width: 100%;
-  padding: 12px;
-  background: rgba(74, 158, 255, 0.2);
-  border: 1px solid rgba(74, 158, 255, 0.4);
-  border-radius: 10px;
-  color: #4a9eff;
-  font-size: 0.9rem;
+  padding: 14px;
+  background: linear-gradient(135deg, #4a9eff 0%, #7b68ee 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.35);
+}
+
+.edit-profile-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
 
 .edit-profile-btn:hover {
-  background: rgba(74, 158, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(74, 158, 255, 0.5);
+}
+
+.edit-profile-btn:hover::before {
+  opacity: 1;
+}
+
+.edit-profile-btn:active {
+  transform: translateY(0);
+}
+
+.security-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.security-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.06), rgba(0, 0, 0, 0.15));
+  border: 1px solid rgba(74, 158, 255, 0.1);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.3s ease;
+}
+
+.security-item:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(0, 0, 0, 0.2));
+  border-color: rgba(74, 158, 255, 0.18);
+  transform: translateX(4px);
+}
+
+.security-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.security-icon.ok {
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.2), rgba(0, 212, 170, 0.08));
+  color: #00d4aa;
+  box-shadow: 0 0 12px rgba(0, 212, 170, 0.2);
+}
+
+.security-icon.info {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.08));
+  color: #fbbf24;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+}
+
+.security-status {
+  margin-left: auto;
+  font-size: 0.7rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.security-status.ok {
+  background: rgba(0, 212, 170, 0.18);
+  color: #00d4aa;
+  border: 1px solid rgba(0, 212, 170, 0.3);
+}
+
+.security-status.info {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.empty-hint {
+  font-size: 0.78rem !important;
+  color: rgba(255, 255, 255, 0.35) !important;
+  margin-top: 6px !important;
+}
+
+.panel-footer {
+  padding: 18px 24px 22px;
+  border-top: 1px solid rgba(74, 158, 255, 0.08);
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.3));
+}
+
+.panel-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  color: rgba(252, 165, 165, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.08);
 }
 
 .section-header h4 {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
   margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.section-header h4::before {
+  content: '';
+  width: 4px;
+  height: 14px;
+  background: linear-gradient(180deg, #4a9eff, #a855f7);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(74, 158, 255, 0.4);
 }
 
 .section-count {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 2px 10px;
+  background: rgba(74, 158, 255, 0.08);
+  border-radius: 10px;
 }
 
 .clear-history-btn {
-  font-size: 0.8rem;
-  color: rgba(239, 68, 68, 0.7);
+  font-size: 0.78rem;
+  color: rgba(239, 68, 68, 0.65);
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
+  padding: 4px 10px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .clear-history-btn:hover {
   color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
 }
 
 .favorites-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .favorite-card {
-  background: rgba(74, 158, 255, 0.08);
-  padding: 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(74, 158, 255, 0.15);
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.06), rgba(74, 158, 255, 0.03));
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(74, 158, 255, 0.1);
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .favorite-card:hover {
-  background: rgba(74, 158, 255, 0.12);
-  border-color: rgba(74, 158, 255, 0.3);
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(74, 158, 255, 0.05));
+  border-color: rgba(74, 158, 255, 0.25);
+  transform: translateX(-3px);
+  box-shadow: -4px 0 16px rgba(74, 158, 255, 0.1);
 }
 
 .favorite-card-info {
@@ -3599,26 +4653,364 @@ onUnmounted(() => {
 }
 
 .favorite-card-title {
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 0.92rem;
+  font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
 }
 
 .favorite-card-meta {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .favorite-card-salary {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #00d4aa;
-  font-weight: 500;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(0, 212, 170, 0.3);
 }
 
 .favorite-card-time {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
   margin-top: 8px;
+  align-self: flex-end;
+}
+
+/* 收藏概览卡片 */
+.fav-overview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.fav-overview-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.05), rgba(74, 158, 255, 0.02));
+  border: 1px solid rgba(74, 158, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.fav-overview-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transition: left 0.5s ease;
+}
+
+.fav-overview-card:hover::before {
+  left: 100%;
+}
+
+.fav-overview-card:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(74, 158, 255, 0.04));
+  border-color: rgba(74, 158, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(74, 158, 255, 0.12);
+}
+
+.fav-overview-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fav-overview-icon.jobs { background: rgba(74, 158, 255, 0.15); color: #4a9eff; box-shadow: 0 0 10px rgba(74, 158, 255, 0.2); }
+.fav-overview-icon.applied { background: rgba(0, 212, 170, 0.15); color: #00d4aa; box-shadow: 0 0 10px rgba(0, 212, 170, 0.2); }
+.fav-overview-icon.resume { background: rgba(167, 139, 250, 0.15); color: #a78bfa; box-shadow: 0 0 10px rgba(167, 139, 250, 0.2); }
+.fav-overview-icon.learning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+
+.fav-overview-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.fav-overview-num {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.2;
+}
+
+.fav-overview-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* 子标签切换 */
+.fav-sub-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  border: 1px solid rgba(74, 158, 255, 0.06);
+}
+
+.fav-sub-tab {
+  flex: 1;
+  padding: 9px 4px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.78rem;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.fav-sub-tab.active {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.2), rgba(168, 85, 247, 0.1));
+  color: #4a9eff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.15);
+}
+
+.fav-sub-tab:hover:not(.active) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* 投递状态标签 */
+.applied-status {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  border-radius: 8px;
+  margin-top: 2px;
+}
+
+.applied-status.pending { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.applied-status.viewed { background: rgba(74, 158, 255, 0.15); color: #4a9eff; }
+.applied-status.interview { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+.applied-status.offer { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
+.applied-status.rejected { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+/* 简历摘要卡片 */
+.resume-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.resume-summary-card:hover {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.35);
+}
+
+.resume-summary-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.resume-summary-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.resume-summary-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.resume-summary-meta {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.resume-summary-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.skill-tag-sm {
+  padding: 1px 7px;
+  font-size: 0.68rem;
+  background: rgba(74, 158, 255, 0.12);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 6px;
+  color: rgba(150, 200, 255, 0.85);
+}
+
+.skill-tag-sm.more {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.resume-summary-arrow {
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+}
+
+/* 学习进度卡片 */
+.learning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.learning-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.learning-card:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.learning-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.learning-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.learning-title {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.learning-progress-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.learning-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #fb923c);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.learning-percent {
+  font-size: 0.78rem;
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+/* 浏览历史列表 */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.04), rgba(74, 158, 255, 0.02));
+  border: 1px solid rgba(74, 158, 255, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.history-item:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.08), rgba(74, 158, 255, 0.04));
+  border-color: rgba(74, 158, 255, 0.2);
+  transform: translateX(-3px);
+  box-shadow: -4px 0 12px rgba(74, 158, 255, 0.08);
+}
+
+.history-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-icon.job { background: rgba(74, 158, 255, 0.15); color: #4a9eff; box-shadow: 0 0 8px rgba(74, 158, 255, 0.15); }
+.history-icon.resume { background: rgba(167, 139, 250, 0.15); color: #a78bfa; box-shadow: 0 0 8px rgba(167, 139, 250, 0.15); }
+.history-icon.planning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.15); }
+.history-icon.prediction { background: rgba(0, 212, 170, 0.15); color: #00d4aa; box-shadow: 0 0 8px rgba(0, 212, 170, 0.15); }
+.history-icon.default { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.5); }
+
+.history-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-title {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.history-page {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.history-time {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
 }
 
 .empty-state {
@@ -3640,28 +5032,48 @@ onUnmounted(() => {
 }
 
 .settings-section h4 {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
   margin: 0 0 16px 0;
+  letter-spacing: 0.3px;
+}
+
+.settings-section h4::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: linear-gradient(180deg, #4a9eff, #a855f7);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.5);
 }
 
 .settings-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  background: rgba(74, 158, 255, 0.08);
-  border-radius: 10px;
-  margin-bottom: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.06), rgba(74, 158, 255, 0.03));
+  border: 1px solid rgba(74, 158, 255, 0.08);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  transition: all 0.25s ease;
+}
+
+.settings-item:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.08), rgba(74, 158, 255, 0.04));
+  border-color: rgba(74, 158, 255, 0.15);
 }
 
 .settings-label {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.88rem;
 }
 
 .toggle-switch {
@@ -3727,5 +5139,380 @@ onUnmounted(() => {
 .panel-slide-enter-from,
 .panel-slide-leave-to {
   transform: translateX(100%);
+}
+
+/* 用户头像图片样式 */
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(74, 158, 255, 0.5);
+}
+
+.avatar-user-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(74, 158, 255, 0.6);
+}
+
+.avatar-upload-hint {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 28px;
+  background: rgba(74, 158, 255, 0.7);
+  border-radius: 0 0 50% 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.panel-avatar-large:hover .avatar-upload-hint {
+  opacity: 1;
+}
+
+/* 编辑资料弹窗 */
+.edit-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+.edit-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 440px;
+  max-height: 90vh;
+  background: linear-gradient(180deg, rgba(26, 39, 68, 0.95), rgba(15, 26, 51, 0.95));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(74, 158, 255, 0.25);
+  border-radius: 20px;
+  z-index: 1001;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(74, 158, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.edit-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 26px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.15), rgba(168, 85, 247, 0.1));
+  border-bottom: 1px solid rgba(74, 158, 255, 0.12);
+  position: relative;
+}
+
+.edit-modal-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.4), transparent);
+}
+
+.edit-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #fff, rgba(74, 158, 255, 0.9));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+}
+
+.edit-modal-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-modal-close:hover {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: rotate(90deg);
+}
+
+.edit-modal-body {
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.edit-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 20px;
+  background: radial-gradient(circle at 50% 50%, rgba(74, 158, 255, 0.08), rgba(0, 0, 0, 0.2));
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.edit-avatar-section::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(from 0deg, transparent, rgba(74, 158, 255, 0.1), transparent);
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  to { transform: rotate(360deg); }
+}
+
+.edit-avatar-section:hover {
+  border-color: rgba(74, 158, 255, 0.35);
+  transform: scale(1.02);
+  box-shadow: 0 8px 30px rgba(74, 158, 255, 0.15);
+}
+
+.edit-avatar-preview {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.25), rgba(168, 85, 247, 0.2));
+  border: 2px solid rgba(74, 158, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: rgba(123, 196, 255, 0.9);
+  box-shadow: 0 0 30px rgba(74, 158, 255, 0.3), inset 0 0 20px rgba(74, 158, 255, 0.1);
+  position: relative;
+  z-index: 1;
+  transition: all 0.4s ease;
+}
+
+.edit-avatar-section:hover .edit-avatar-preview {
+  box-shadow: 0 0 40px rgba(74, 158, 255, 0.5), inset 0 0 30px rgba(74, 158, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.edit-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.edit-avatar-text {
+  font-size: 0.82rem;
+  color: rgba(123, 196, 255, 0.9);
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
+  font-weight: 500;
+}
+
+.edit-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.edit-form-group label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
+}
+
+.edit-form-group input,
+.edit-form-group select {
+  width: 100%;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(74, 158, 255, 0.2);
+  border-radius: 0;
+  color: #fff;
+  font-size: 0.92rem;
+  outline: none;
+  transition: all 0.35s ease;
+  box-sizing: border-box;
+}
+
+.edit-form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.edit-form-group input:focus,
+.edit-form-group select:focus {
+  border-bottom-color: #4a9eff;
+  box-shadow: 0 2px 0 0 rgba(74, 158, 255, 0.3);
+}
+
+.edit-form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(74, 158, 255, 0.6)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+  padding-right: 20px;
+  cursor: pointer;
+}
+
+.edit-form-group select option {
+  background: #1a2744;
+  color: #fff;
+}
+
+.edit-modal-footer {
+  display: flex;
+  gap: 14px;
+  padding: 20px 26px;
+  border-top: 1px solid rgba(74, 158, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.edit-cancel-btn,
+.edit-save-btn {
+  flex: 1;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+}
+
+.edit-cancel-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.edit-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.edit-save-btn {
+  background: linear-gradient(135deg, #4a9eff 0%, #7b68ee 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.4);
+}
+
+.edit-save-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.edit-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(74, 158, 255, 0.55);
+}
+
+.edit-save-btn:hover::before {
+  opacity: 1;
+}
+
+.edit-save-btn:active {
+  transform: translateY(0);
+}
+
+.edit-form-group select option {
+  background: #1a2744;
+  color: #fff;
+}
+
+.edit-modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(74, 158, 255, 0.12);
+}
+
+.edit-cancel-btn,
+.edit-save-btn {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.edit-cancel-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.edit-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.edit-save-btn {
+  background: linear-gradient(135deg, #4a9eff, #7b68ee);
+  color: #fff;
+  border: 1px solid rgba(74, 158, 255, 0.5);
+}
+
+.edit-save-btn:hover {
+  background: linear-gradient(135deg, #5aa8ff, #8b78f0);
+  box-shadow: 0 4px 16px rgba(74, 158, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* 编辑弹窗滚动条 */
+.edit-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.edit-modal-body::-webkit-scrollbar-track {
+  background: rgba(74, 158, 255, 0.05);
+}
+
+.edit-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.3);
+  border-radius: 3px;
+}
+
+.edit-modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 158, 255, 0.5);
 }
 </style>

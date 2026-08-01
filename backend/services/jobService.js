@@ -37,22 +37,39 @@ const initData = async () => {
 
 const calcMatchForSearch = (job, userProfile) => {
   const jobText = (job.job_name || '').toLowerCase() + (job.company || '').toLowerCase()
-  let score = 65
-  const hotSkills = ['java', 'python', '前端', '后端', '算法', 'ai', '人工智能', '运维', '测试', '大数据', '云计算', '计算机']
+  let score = 25 // 降低基础分，增加区分度
+  
+  // 技能匹配 - 核心维度，占主要分数
+  const hotSkills = ['java', 'python', 'c++', 'c/c++', '前端', 'vue', 'react', '后端', '算法', 'ai', '人工智能', '运维', '测试', '大数据', '云计算', '计算机', 'javascript', '嵌入式', '数据库']
   const matchedSkills = hotSkills.filter(sk => jobText.includes(sk))
-  score += matchedSkills.length * 4
-  if (job.salary_avg && job.salary_avg > 15000) score += 8
-  else if (job.salary_avg && job.salary_avg > 8000) score += 4
+  score += Math.min(matchedSkills.length * 5, 35) // 最多35分
+  
+  // 薪资水平
+  if (job.salary_avg && job.salary_avg >= 25000) score += 8
+  else if (job.salary_avg && job.salary_avg >= 15000) score += 6
+  else if (job.salary_avg && job.salary_avg >= 8000) score += 4
+  
+  // 城市等级
   if (['北京', '上海', '深圳', '杭州', '广州'].includes(job.city)) score += 5
-  else if (['武汉', '成都', '南京', '西安'].includes(job.city)) score += 2
-  if (job.education === '本科' || job.education === '硕士') score += 3
-  if (userProfile && userProfile.city && job.city === userProfile.city) score += 5
+  else if (['武汉', '成都', '南京', '西安'].includes(job.city)) score += 3
+  else if (job.city) score += 1
+  
+  // 学历要求
+  if (job.education === '不限') score += 5
+  else if (job.education === '本科') score += 4
+  else if (job.education === '硕士') score += 3
+  
+  // 用户特定匹配（如果有用户数据）
+  if (userProfile && userProfile.city && job.city === userProfile.city) score += 8
   if (userProfile && userProfile.skills) {
     const profileSkills = (userProfile.skills || []).map(s => s.toLowerCase())
-    const matched = profileSkills.filter(sk => jobText.includes(sk))
-    score += matched.length * 6
+    const matched = profileSkills.filter(sk => 
+      jobText.includes(sk) || sk.includes(jobText)
+    )
+    score += Math.min(matched.length * 8, 24) // 最多24分
   }
-  return Math.min(98, Math.max(45, score))
+  
+  return Math.min(98, Math.max(20, score))
 }
 
 const searchJobs = (keyword, category, filters, options = {}) => {

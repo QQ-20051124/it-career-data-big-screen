@@ -207,15 +207,22 @@
             </div>
             <div class="job-company-row">
               <span class="job-company">{{ getJobCompany(job) }}</span>
-              <span class="job-match-score" :class="matchLevel(job)">
+              <span class="job-match-score" :class="matchLevel(job)" v-if="hasUserResume()">
                 <span class="score-bar">
-                  <span class="score-fill" :style="{ width: (job.matchScore || getMatchScore(job)) + '%' }"></span>
+                  <span class="score-fill" :style="{ width: getDisplayScore(job) + '%' }"></span>
                 </span>
-                <span class="score-text">{{ job.matchScore || getMatchScore(job) }}%</span>
+                <span class="score-text">{{ getDisplayScore(job) }}%</span>
+              </span>
+              <span class="job-match-score no-resume" v-else @click="goToResume">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                <span class="score-text">完善简历</span>
               </span>
             </div>
-            <div class="match-basis" v-if="job.matchScore">
-              匹配依据：根据技能 + 学历智能计算
+            <div class="match-basis" v-if="hasUserResume()">
+              匹配依据：根据您的简历技能 + 学历智能计算
+            </div>
+            <div class="match-basis no-resume-hint" v-else>
+              完善简历后可查看真实匹配度
             </div>
             <div class="job-info-row">
               <span class="info-chip">
@@ -370,66 +377,89 @@
             </svg>
           </button>
           <div class="ai-explanation-header">
-            <div class="ai-icon">
-              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="ai-header-glow"></div>
+            <div class="ai-icon-wrapper">
+              <svg class="ai-icon-svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93L12 22l-.75-12.07C9.4 9.58 8 7.95 8 6a4 4 0 0 1 4-4z"/>
               </svg>
+              <div class="ai-icon-ring"></div>
             </div>
             <h2>AI智能推荐引擎</h2>
-            <p class="ai-subtitle">我们的AI系统通过四大维度智能分析，为您匹配最合适的岗位</p>
+            <p class="ai-subtitle">通过四大维度智能分析算法，为您精准匹配最合适的岗位</p>
           </div>
           <div class="ai-explanation-body">
-            <div class="ai-dimension">
-              <div class="dim-icon skills">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                </svg>
-              </div>
-              <div class="dim-content">
+            <div class="ai-dimension-card skills-dim">
+              <div class="dim-header">
+                <div class="dim-icon-box">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
                 <h4>技能匹配度</h4>
-                <p>分析岗位要求技能与您掌握技能的重合度，核心技能匹配加权更高</p>
               </div>
-              <div class="dim-score">权重 35%</div>
+              <p class="dim-desc">分析岗位要求技能与您掌握技能的重合度，核心技能匹配加权更高</p>
+              <div class="dim-weight">
+                <span class="weight-label">权重</span>
+                <span class="weight-value">35%</span>
+                <div class="weight-bar"><div class="weight-progress" style="width: 35%"></div></div>
+              </div>
             </div>
-            <div class="ai-dimension">
-              <div class="dim-icon salary">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>
-              </div>
-              <div class="dim-content">
+            <div class="ai-dimension-card salary-dim">
+              <div class="dim-header">
+                <div class="dim-icon-box">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                </div>
                 <h4>薪资期望匹配</h4>
-                <p>对比岗位薪资范围与您的期望薪资，提供最具性价比的选择</p>
               </div>
-              <div class="dim-score">权重 25%</div>
+              <p class="dim-desc">对比岗位薪资范围与您的期望薪资，提供最具性价比的选择</p>
+              <div class="dim-weight">
+                <span class="weight-label">权重</span>
+                <span class="weight-value">25%</span>
+                <div class="weight-bar"><div class="weight-progress" style="width: 25%"></div></div>
+              </div>
             </div>
-            <div class="ai-dimension">
-              <div class="dim-icon city">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                </svg>
-              </div>
-              <div class="dim-content">
+            <div class="ai-dimension-card city-dim">
+              <div class="dim-header">
+                <div class="dim-icon-box">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </div>
                 <h4>城市偏好匹配</h4>
-                <p>优先推荐您目标城市的岗位，减少不必要的通勤成本</p>
               </div>
-              <div class="dim-score">权重 20%</div>
+              <p class="dim-desc">优先推荐您目标城市的岗位，减少不必要的通勤成本</p>
+              <div class="dim-weight">
+                <span class="weight-label">权重</span>
+                <span class="weight-value">20%</span>
+                <div class="weight-bar"><div class="weight-progress" style="width: 20%"></div></div>
+              </div>
             </div>
-            <div class="ai-dimension">
-              <div class="dim-icon exp">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                </svg>
-              </div>
-              <div class="dim-content">
+            <div class="ai-dimension-card exp-dim">
+              <div class="dim-header">
+                <div class="dim-icon-box">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
                 <h4>经验学历匹配</h4>
-                <p>综合评估您的工作年限与学历，确保岗位要求与您的资质相符</p>
               </div>
-              <div class="dim-score">权重 20%</div>
+              <p class="dim-desc">综合评估您的工作年限与学历，确保岗位要求与您的资质相符</p>
+              <div class="dim-weight">
+                <span class="weight-label">权重</span>
+                <span class="weight-value">20%</span>
+                <div class="weight-bar"><div class="weight-progress" style="width: 20%"></div></div>
+              </div>
             </div>
           </div>
           <div class="ai-explanation-footer">
-            <button class="ai-confirm-btn" @click="showAIExplanation = false">了解了</button>
+            <button class="ai-confirm-btn" @click="showAIExplanation = false">
+              <span>了解了</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -449,57 +479,85 @@
             </div>
           </div>
           <div class="modal-body">
-            <div class="ai-analysis-card" v-if="selectedJob">
+            <div class="ai-analysis-card" v-if="selectedJob && aiAnalysis">
               <div class="ai-analysis-header">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#00d4aa" stroke-width="2">
                   <path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93L12 22l-.75-12.07C9.4 9.58 8 7.95 8 6a4 4 0 0 1 4-4z"/>
                 </svg>
                 <span>AI智能分析</span>
+                <span class="resume-tag" :class="{ 'has-resume': aiAnalysis.hasResume, 'no-resume': !aiAnalysis.hasResume }">
+                  {{ aiAnalysis.hasResume ? '基于您的简历' : '请先完善简历' }}
+                </span>
               </div>
               <div class="ai-analysis-content">
                 <div class="match-summary">
                   <div class="match-circle" :class="matchLevel(selectedJob)" :style="getMatchCircleStyle(selectedJob)">
-                    <span class="pct">{{ selectedJob?.matchScore || getMatchScore(selectedJob) }}</span>
-                    <span class="pct-label">匹配度</span>
+                    <template v-if="hasUserResume()">
+                      <span class="pct">{{ getDisplayScore(selectedJob) }}</span>
+                      <span class="pct-label">匹配度</span>
+                    </template>
+                    <template v-else>
+                      <span class="pct-resume" @click="goToResume">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      </span>
+                      <span class="pct-label" @click="goToResume">点击完善简历</span>
+                    </template>
                   </div>
                   <div class="match-details">
-                    <div class="match-item good">
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span>技能匹配: {{ aiAnalysis.skillsMatch }}/5项符合</span>
+                    <div class="match-item" v-if="aiAnalysis.hasResume && aiAnalysis.matchedSkills.length > 0">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#00d4aa" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span>您掌握的技能匹配: {{ aiAnalysis.matchedSkills.join('、') }}</span>
                     </div>
-                    <div class="match-item good">
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span>学历要求: {{ selectedJob?.education || '不限' }} - 符合</span>
+                    <div class="match-item" v-if="aiAnalysis.hasResume && aiAnalysis.missingSkills.length > 0">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      <span>待补充技能: {{ aiAnalysis.missingSkills.join('、') }}</span>
                     </div>
-                    <div class="match-item" :class="aiAnalysis.cityMatch ? 'good' : 'warn'">
-                      <svg v-if="aiAnalysis.cityMatch" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      <svg v-else viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fb923c" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                      <span>城市偏好: {{ aiAnalysis.cityMatch ? '符合' : '建议关注' }}</span>
+                    <div class="match-item" v-if="aiAnalysis.skillKeywords.length > 0 && !aiAnalysis.hasResume">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#00d4aa" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                      <span>岗位技能要求: {{ aiAnalysis.skillKeywords.join('、') }}</span>
                     </div>
-                    <div class="match-item warn" v-if="aiAnalysis.gaps.length > 0">
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                      <span>待补技能: {{ aiAnalysis.gaps.join('、') }}</span>
+                    <div class="match-item">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#4a9eff" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      <span>{{ aiAnalysis.cityMatchAnalysis }}</span>
+                    </div>
+                    <div class="match-item">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#9a75ff" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                      <span>{{ aiAnalysis.eduMatchAnalysis }}</span>
+                    </div>
+                    <div class="match-item" v-if="aiAnalysis.exp">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <span>经验要求: {{ aiAnalysis.exp }} - {{ aiAnalysis.expAnalysis }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="ai-salary-section">
+                  <div class="salary-card">
+                    <div class="salary-icon">💰</div>
+                    <div class="salary-info">
+                      <span class="salary-value">{{ aiAnalysis.salary > 0 ? (aiAnalysis.salary / 1000).toFixed(0) + 'K' : '面议' }}</span>
+                      <span class="salary-level" :class="'level-' + aiAnalysis.salaryLevel">{{ aiAnalysis.salaryLevel }}</span>
+                      <span class="salary-desc">{{ aiAnalysis.salaryAnalysis }}</span>
                     </div>
                   </div>
                 </div>
                 <div class="ai-suggestion" v-if="aiAnalysis.suggestions.length > 0">
-                  <h5>💡 提升匹配度建议</h5>
+                  <h5>💡 岗位分析建议</h5>
                   <ul>
                     <li v-for="(sug, i) in aiAnalysis.suggestions" :key="i">{{ sug }}</li>
                   </ul>
                 </div>
                 <div class="ai-stats-row">
                   <div class="ai-stat">
-                    <span class="stat-value">{{ aiAnalysis.hotScore }}</span>
-                    <span class="stat-label">招聘热度</span>
+                    <span class="stat-value">{{ aiAnalysis.hasResume ? aiAnalysis.matchedSkillCount + '/' + aiAnalysis.skillCount : aiAnalysis.skillCount }}</span>
+                    <span class="stat-label">{{ aiAnalysis.hasResume ? '技能匹配数' : '核心技能数' }}</span>
                   </div>
                   <div class="ai-stat">
-                    <span class="stat-value">{{ aiAnalysis.competeLevel }}</span>
-                    <span class="stat-label">竞争程度</span>
+                    <span class="stat-value">{{ aiAnalysis.salaryLevel }}</span>
+                    <span class="stat-label">薪资水平</span>
                   </div>
                   <div class="ai-stat">
-                    <span class="stat-value">{{ selectedJob?.city || '-' }}</span>
-                    <span class="stat-label">岗位城市</span>
+                    <span class="stat-value">{{ aiAnalysis.cityLevel }}</span>
+                    <span class="stat-label">城市等级</span>
                   </div>
                 </div>
               </div>
@@ -823,7 +881,7 @@
               <div class="compare-row highlight">
                 <div class="compare-cell label">匹配度</div>
                 <div class="compare-cell match" v-for="(job, i) in compareList" :key="i">
-                  <span class="match-val">{{ job.matchScore || getMatchScore(job) }}%</span>
+                  <span class="match-val">{{ getDisplayScore(job) }}%</span>
                 </div>
               </div>
               <div class="compare-row">
@@ -969,7 +1027,13 @@ import axios from 'axios'
 const router = useRouter()
 
 const goBack = () => {
+  document.body.style.overflow = ''
   router.push('/dashboard')
+}
+
+const goToResume = () => {
+  document.body.style.overflow = ''
+  router.push('/ai-resume')
 }
 
 const searchKeyword = ref('')
@@ -1172,38 +1236,217 @@ const activeFilterTags = computed(() => {
   return tags
 })
 
+const cityTierMap = {
+  '北京': 1, '上海': 1, '深圳': 1, '广州': 1, '杭州': 1,
+  '成都': 2, '武汉': 2, '南京': 2, '西安': 2, '重庆': 2, '天津': 2, '苏州': 2,
+  '长沙': 3, '青岛': 3, '厦门': 3, '郑州': 3, '福州': 3, '济南': 3, '合肥': 3
+}
+
 const aiAnalysis = computed(() => {
   const job = selectedJob.value
-  if (!job) return { skillsMatch: 0, cityMatch: true, gaps: [], suggestions: [], hotScore: '-', competeLevel: '-' }
-  const skills = getJobTags(job)
-  const gaps = []
-  if (job.job_name?.includes('Java') && !skills.includes('Java')) gaps.push('Java框架')
-  if (job.job_name?.includes('前端') && !['前端'].some(s => skills.includes(s))) gaps.push('前端框架')
-  if (job.job_name?.includes('算法') || job.job_name?.includes('AI')) gaps.push('机器学习算法')
+  if (!job) return null
+
+  const userResume = getUserResumeData()
+  const jobText = (job.job_name || '').toLowerCase()
+  
+  // 基于岗位名称提取真实技能需求
+  const skillKeywords = []
+  if (jobText.includes('java')) skillKeywords.push('Java')
+  if (jobText.includes('python')) skillKeywords.push('Python')
+  if (jobText.includes('c++') || jobText.includes('c/c++')) skillKeywords.push('C/C++')
+  if (jobText.includes('js') || jobText.includes('javascript')) skillKeywords.push('JavaScript')
+  if (jobText.includes('前端') || jobText.includes('vue') || jobText.includes('react')) skillKeywords.push('前端开发')
+  if (jobText.includes('后端') || jobText.includes('服务端') || jobText.includes('server')) skillKeywords.push('后端开发')
+  if (jobText.includes('算法') || jobText.includes('ai') || jobText.includes('人工智能')) skillKeywords.push('算法/AI')
+  if (jobText.includes('测试') || jobText.includes('qa')) skillKeywords.push('软件测试')
+  if (jobText.includes('运维') || jobText.includes('devops')) skillKeywords.push('运维')
+  if (jobText.includes('大数据') || jobText.includes('spark') || jobText.includes('hadoop')) skillKeywords.push('大数据')
+  if (jobText.includes('云计算') || jobText.includes('cloud')) skillKeywords.push('云计算')
+  if (jobText.includes('嵌入式')) skillKeywords.push('嵌入式开发')
+  if (jobText.includes('网络') || jobText.includes('安全')) skillKeywords.push('网络安全')
+  if (jobText.includes('数据库') || jobText.includes('mysql')) skillKeywords.push('数据库')
+  const tags = getJobTags(job)
+  tags.forEach(t => {
+    if (!skillKeywords.includes(t)) skillKeywords.push(t)
+  })
+
+  // 基于真实薪资数据分析薪资水平
+  const salary = job.salary_avg || 0
+  let salaryLevel = '待分析'
+  let salaryAnalysis = ''
+  if (salary >= 30000) {
+    salaryLevel = '高薪'
+    salaryAnalysis = '薪资处于行业高位，竞争激烈但回报丰厚'
+  } else if (salary >= 20000) {
+    salaryLevel = '较高'
+    salaryAnalysis = '薪资处于中上水平，具有较好的竞争力'
+  } else if (salary >= 10000) {
+    salaryLevel = '中等'
+    salaryAnalysis = '薪资处于中等水平，符合行业平均'
+  } else if (salary > 0) {
+    salaryLevel = '偏低'
+    salaryAnalysis = '薪资相对较低，建议关注其他福利'
+  } else {
+    salaryLevel = '面议'
+    salaryAnalysis = '薪资面议，建议面试时沟通'
+  }
+
+  // 基于真实城市数据分析城市等级
+  const city = job.city || ''
+  const cityTier = cityTierMap[city] || 4
+  let cityLevel = '其他城市'
+  if (cityTier === 1) cityLevel = '一线城市'
+  else if (cityTier === 2) cityLevel = '新一线城市'
+  else if (cityTier === 3) cityLevel = '二线城市'
+  else if (cityTier === 4 && city) cityLevel = '其他城市'
+  else cityLevel = '未知'
+
+  // 基于真实学历要求分析门槛
+  const edu = job.education || ''
+  let eduAnalysis = ''
+  if (edu.includes('不限')) {
+    eduAnalysis = '学历要求宽松，无硬性门槛'
+  } else if (edu.includes('大专') || edu.includes('专科')) {
+    eduAnalysis = '大专及以上学历，门槛较低'
+  } else if (edu.includes('本科')) {
+    eduAnalysis = '本科学历要求，为IT行业主流门槛'
+  } else if (edu.includes('硕士') || edu.includes('研究生')) {
+    eduAnalysis = '硕士学历要求，门槛较高'
+  } else if (edu.includes('博士')) {
+    eduAnalysis = '博士学历要求，门槛很高'
+  } else {
+    eduAnalysis = '学历要求待确认'
+  }
+
+  // 基于工作经验分析
+  const exp = job.work_exp || ''
+  let expAnalysis = ''
+  if (exp.includes('不限') || exp.includes('应届')) {
+    expAnalysis = '经验要求宽松，应届生可投'
+  } else if (exp.includes('1-3') || exp.includes('1年') || exp.includes('2年')) {
+    expAnalysis = '需1-3年工作经验'
+  } else if (exp.includes('3-5') || exp.includes('3年') || exp.includes('4年') || exp.includes('5年')) {
+    expAnalysis = '需3-5年工作经验'
+  } else if (exp.includes('5-10') || exp.includes('5年以上')) {
+    expAnalysis = '需5年以上资深经验'
+  } else {
+    expAnalysis = '经验要求待确认'
+  }
+
+  // 基于用户简历数据生成真实匹配分析
+  const userSkills = userResume?.skills || []
+  const userEdu = userResume?.education || ''
+  const userCity = userResume?.residence || ''
+  const userExp = userResume?.experience || ''
+  
+  const matchedUserSkills = skillKeywords.filter(sk => 
+    userSkills.some(us => us.toLowerCase().includes(sk.toLowerCase()) || sk.toLowerCase().includes(us.toLowerCase()))
+  )
+  
+  const missingSkills = skillKeywords.filter(sk => !matchedUserSkills.includes(sk))
+  
+  let eduMatchAnalysis = ''
+  if (userResume && userEdu) {
+    const eduLevel = { '不限': 0, '大专': 1, '本科': 2, '硕士': 3, '博士': 4 }
+    const jobLevel = eduLevel[edu] || 0
+    const userLevel = eduLevel[userEdu] || 0
+    if (jobLevel === 0) {
+      eduMatchAnalysis = `您的${userEdu}学历，岗位不限学历要求`
+    } else if (userLevel >= jobLevel) {
+      eduMatchAnalysis = `您的${userEdu}学历符合岗位${edu}要求`
+    } else {
+      eduMatchAnalysis = `您的${userEdu}学历低于岗位${edu}要求，需提升学历`
+    }
+  } else {
+    eduMatchAnalysis = `${edu}学历要求`
+  }
+  
+  let cityMatchAnalysis = ''
+  if (userResume && userCity) {
+    if (userCity.includes(city) || city.includes(userCity)) {
+      cityMatchAnalysis = `岗位城市${city}与您的居住地${userCity}匹配`
+    } else {
+      cityMatchAnalysis = `岗位城市${city}，您的居住地${userCity}，注意地域差异`
+    }
+  } else {
+    cityMatchAnalysis = `${city}（${cityLevel}）`
+  }
+
+  // 基于真实数据生成建议
   const suggestions = []
-  if (gaps.length > 0) suggestions.push(`补充${gaps.join('、')}相关技能到简历中`)
-  if (!job.education || job.education === '不限') suggestions.push('学历要求宽松，重点突出项目经验')
-  if (job.salary_avg > 25000) suggestions.push('高薪岗位，建议重点准备技术面试')
-  const skillsMatch = Math.min(5, skills.length + 2)
+  if (salary >= 25000) suggestions.push('高薪岗位，建议重点准备技术面试和项目经验')
+  if (cityTier <= 2) suggestions.push(`${city}${cityLevel}，就业机会多但竞争也大`)
+  if (edu.includes('硕士') || edu.includes('博士')) suggestions.push('学历门槛较高，需确保学历符合要求')
+  if (!exp.includes('不限') && !exp.includes('应届')) suggestions.push('有经验要求，面试时需重点展示过往项目经历')
+  const welfareTags = getWelfareTags(job)
+  if (welfareTags.length > 0) suggestions.push(`包含${welfareTags.join('、')}等福利，综合待遇不错`)
+  
+  if (userResume && userSkills.length > 0) {
+    if (matchedUserSkills.length > 0) {
+      suggestions.push(`您已掌握${matchedUserSkills.join('、')}等相关技能，具备岗位基础要求`)
+    }
+    if (missingSkills.length > 0 && missingSkills.length <= 3) {
+      suggestions.push(`建议补充学习${missingSkills.join('、')}技能以提升匹配度`)
+    }
+    if (!userCity && city) {
+      suggestions.push(`岗位位于${city}，请确认工作地点是否符合预期`)
+    }
+  } else {
+    suggestions.push('完善简历信息后可获得更精准的匹配分析')
+    suggestions.push('建议仔细阅读岗位描述，了解具体要求')
+  }
+  
+  if (suggestions.length === 0) suggestions.push('建议仔细阅读岗位描述，了解具体要求')
+
   return {
-    skillsMatch,
-    cityMatch: true,
-    gaps,
-    suggestions,
-    hotScore: Math.floor(getMatchScore(job)) + '分',
-    competeLevel: getMatchScore(job) >= 75 ? '较低' : getMatchScore(job) >= 60 ? '中等' : '较高'
+    skillCount: skillKeywords.length,
+    skillKeywords: skillKeywords.slice(0, 6),
+    matchedSkillCount: matchedUserSkills.length,
+    matchedSkills: matchedUserSkills,
+    missingSkills: missingSkills.slice(0, 5),
+    hasResume: !!(userResume && userResume.skills && userResume.skills.length > 0),
+    salaryLevel,
+    salaryAnalysis,
+    salary,
+    cityLevel,
+    city,
+    eduAnalysis,
+    edu,
+    eduMatchAnalysis,
+    expAnalysis,
+    exp,
+    userExp,
+    cityMatchAnalysis,
+    suggestions
   }
 })
 
+const getDisplayScore = (job) => {
+  if (!job) return null
+  // 当用户有简历时，优先使用前端计算的匹配度
+  if (hasUserResume()) {
+    const frontScore = getMatchScore(job)
+    return frontScore
+  }
+  // 没有简历时，使用后端的通用匹配度
+  return job.matchScore || null
+}
+
 const matchLevel = (job) => {
-  const score = job?.matchScore || getMatchScore(job)
+  const score = getDisplayScore(job)
+  if (score === null || score === undefined) return 'none'
   if (score >= 75) return 'high'
   if (score >= 50) return 'medium'
   return 'low'
 }
 
 const getMatchCircleStyle = (job) => {
-  const score = job?.matchScore || getMatchScore(job)
+  const score = getDisplayScore(job)
+  if (score === null || score === undefined) {
+    return {
+      background: 'conic-gradient(rgba(150,150,150,0.3) 0deg, rgba(150,150,150,0.3) 360deg)'
+    }
+  }
   const deg = Math.round((score / 100) * 360)
   let color = '#00d4aa'
   if (score < 60) color = '#fb923c'
@@ -1483,20 +1726,119 @@ const getWelfareTags = (job) => {
   return tags.slice(0, 3)
 }
 
+const getUserResumeData = () => {
+  try {
+    const saved = localStorage.getItem('resumeData')
+    if (!saved) return null
+    return JSON.parse(saved)
+  } catch (e) {
+    return null
+  }
+}
+
+const hasUserResume = () => {
+  const userResume = getUserResumeData()
+  return !!(userResume && userResume.skills && userResume.skills.length > 0)
+}
+
 const getMatchScore = (job) => {
-  if (job?.matchScore) return job.matchScore
-  const jobText = (job?.job_name || '').toLowerCase()
-  let score = 65
-  const hotSkills = ['java', 'python', '前端', '后端', '算法', 'ai', '人工智能', '运维', '测试', '大数据', '云计算', '计算机']
-  const matchedSkills = hotSkills.filter(sk => jobText.includes(sk))
-  score += matchedSkills.length * 4
-  if (job?.salary_avg && job.salary_avg > 15000) score += 8
-  else if (job?.salary_avg && job.salary_avg > 8000) score += 4
-  if (['北京', '上海', '深圳', '杭州', '广州'].includes(job?.city)) score += 5
-  else if (['武汉', '成都', '南京', '西安'].includes(job?.city)) score += 2
-  if (job?.education === '本科' || job?.education === '硕士') score += 3
-  if (getWelfareTags(job).length >= 2) score += 3
-  return Math.min(98, Math.max(45, score))
+  if (!job) return null
+  
+  const userResume = getUserResumeData()
+  if (!userResume || !userResume.skills || userResume.skills.length === 0) {
+    return null
+  }
+  
+  const jobText = (job.job_name || '').toLowerCase()
+  let score = 0
+  
+  const userSkills = (userResume.skills || []).map(s => s.toLowerCase())
+  
+  // 技能匹配 - 60分（核心维度）
+  const jobSkillKeywords = ['java', 'python', 'c++', 'c/c++', 'js', 'javascript', 
+    '前端', 'vue', 'react', '后端', '服务端', '算法', 'ai', '人工智能', 
+    '测试', 'qa', '运维', 'devops', '大数据', 'spark', 'hadoop', 
+    '云计算', 'cloud', '嵌入式', '网络', '安全', '数据库', 'mysql']
+  
+  const jobHasSkills = jobSkillKeywords.filter(kw => jobText.includes(kw))
+  const matchedSkills = jobHasSkills.filter(kw => 
+    userSkills.some(us => us.includes(kw) || kw.includes(us))
+  )
+  
+  // 计算技能匹配率
+  let skillScore = 0
+  if (jobHasSkills.length > 0) {
+    const matchRate = matchedSkills.length / jobHasSkills.length
+    skillScore = Math.round(matchRate * 60)
+  }
+  // 即使岗位没有明确技能关键词，如果岗位名称包含"开发"等通用词，也给基础分
+  if (skillScore === 0 && (jobText.includes('开发') || jobText.includes('工程师') || jobText.includes('技术'))) {
+    // 检查用户技能是否为通用IT技能
+    const itSkills = ['java', 'python', '前端', '后端', '开发', '工程师', '编程']
+    const hasITSkills = userSkills.some(us => itSkills.some(s => us.includes(s)))
+    if (hasITSkills) {
+      skillScore = 15 // 基础分，表示技能相关但不完全匹配
+    }
+  }
+  score += skillScore
+  
+  // 学历匹配 - 10分
+  const jobEdu = job.education || ''
+  const userEdu = userResume.education || ''
+  const eduLevel = { '不限': 0, '大专': 1, '本科': 2, '硕士': 3, '博士': 4 }
+  const jobEduLevel = eduLevel[jobEdu] || 0
+  const userEduLevel = eduLevel[userEdu] || 0
+  if (jobEduLevel === 0) score += 8
+  else if (userEduLevel >= jobEduLevel) score += 10
+  else if (userEduLevel >= jobEduLevel - 1) score += 5
+  else score += 0
+  
+  // 城市匹配 - 10分
+  if (userResume.residence && job.city) {
+    if (userResume.residence.includes(job.city) || job.city.includes(userResume.residence)) {
+      score += 10
+    } else {
+      score += 2 // 不同城市只有少量基础分
+    }
+  } else {
+    score += 5
+  }
+  
+  // 经验匹配 - 10分
+  const userExpYears = userResume.experience ? parseInt(userResume.experience) : 0
+  const jobExpText = job.work_exp || ''
+  if (jobExpText.includes('应届') || jobExpText.includes('不限')) {
+    score += 8
+  } else if (jobExpText.includes('1-3') && userExpYears >= 1 && userExpYears <= 3) {
+    score += 10
+  } else if (jobExpText.includes('1-3') && userExpYears >= 1) {
+    score += 6
+  } else if (jobExpText.includes('3-5') && userExpYears >= 3 && userExpYears <= 5) {
+    score += 10
+  } else if (jobExpText.includes('3-5') && userExpYears >= 3) {
+    score += 6
+  } else if (jobExpText.includes('5-10') && userExpYears >= 5) {
+    score += 8
+  } else if (jobExpText.includes('5-10')) {
+    score += 2
+  } else if (userExpYears > 0) {
+    score += 4
+  }
+  
+  // 薪资/福利匹配 - 10分
+  const welfareCount = getWelfareTags(job).length
+  if (job.salary_avg) {
+    if (job.salary_avg >= 25000 && welfareCount >= 2) score += 10
+    else if (job.salary_avg >= 20000) score += 8
+    else if (job.salary_avg >= 15000) score += 6
+    else if (job.salary_avg >= 10000) score += 4
+    else if (job.salary_avg >= 5000) score += 2
+    else score += 1
+  } else if (welfareCount >= 2) {
+    score += 5
+  }
+  
+  return Math.min(98, Math.max(25, score))
 }
 
 const getIndustry = (job) => {
@@ -1685,7 +2027,24 @@ const handleSearchInput = async () => {
 }
 
 const optimizeResume = () => {
-  showToast('正在跳转简历优化中心...', 'success')
+  if (!selectedJob.value) return
+  
+  // 保存当前目标岗位到localStorage，供AI简历页面读取
+  const targetJob = {
+    job_name: selectedJob.value.job_name,
+    city: selectedJob.value.city,
+    education: selectedJob.value.education,
+    work_exp: selectedJob.value.work_exp,
+    salary_avg: selectedJob.value.salary_avg,
+    company: selectedJob.value.company,
+    skills: getJobTags(selectedJob.value)
+  }
+  localStorage.setItem('targetJobForResume', JSON.stringify(targetJob))
+  
+  // 跳转到AI简历页面
+  document.body.style.overflow = ''
+  router.push('/ai-resume')
+  showToast('已为您跳转至AI简历优化中心，将根据目标岗位提供优化建议', 'success')
 }
 
 const generateTrendData = () => {
@@ -2109,6 +2468,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  document.body.style.overflow = ''
   if (bgAnimationId) cancelAnimationFrame(bgAnimationId)
   if (scrollHandler) window.removeEventListener('scroll', scrollHandler)
   if (favPreviewTimer.value) {
@@ -3894,7 +4254,288 @@ onUnmounted(() => {
 
 .detail-modal { max-width: 720px; }
 .favorites-modal { max-width: 620px; }
-.ai-explanation { max-width: 560px; }
+.ai-explanation { 
+  max-width: 520px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.ai-explanation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #4a9eff, #00d4aa, #a78bfa, transparent);
+  background-size: 200% 100%;
+  animation: borderScan 3s linear infinite;
+}
+
+@keyframes borderScan {
+  0% { background-position: -100% 0; }
+  100% { background-position: 100% 0; }
+}
+
+.ai-explanation-header {
+  position: relative;
+  padding: 32px 32px 24px;
+  text-align: center;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.12);
+  background: linear-gradient(180deg, rgba(74, 158, 255, 0.05), transparent);
+}
+
+.ai-header-glow {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 100px;
+  background: radial-gradient(ellipse, rgba(74, 158, 255, 0.3), transparent 70%);
+  pointer-events: none;
+}
+
+.ai-icon-wrapper {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-icon-svg {
+  position: relative;
+  z-index: 2;
+  color: #4a9eff;
+  filter: drop-shadow(0 0 12px rgba(74, 158, 255, 0.8));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.ai-icon-ring {
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 50%;
+  animation: ringRotate 8s linear infinite;
+}
+
+.ai-icon-ring::before,
+.ai-icon-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border-top: 2px solid #4a9eff;
+  border-right: 2px solid transparent;
+}
+
+.ai-icon-ring::before {
+  animation: ringRotate 3s linear infinite;
+}
+
+.ai-icon-ring::after {
+  inset: 4px;
+  border-top-color: #00d4aa;
+  animation: ringRotate 5s linear infinite reverse;
+}
+
+@keyframes ringRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ai-explanation-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.ai-subtitle {
+  font-size: 13px;
+  color: rgba(150, 180, 220, 0.7);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.ai-explanation-body {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ai-dimension-card {
+  position: relative;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.04), rgba(0, 212, 170, 0.02));
+  border: 1px solid rgba(74, 158, 255, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.ai-dimension-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+
+.skills-dim::before { background: linear-gradient(180deg, #4a9eff, #3b82f6); }
+.salary-dim::before { background: linear-gradient(180deg, #00d4aa, #10b981); }
+.city-dim::before { background: linear-gradient(180deg, #f59e0b, #fb923c); }
+.exp-dim::before { background: linear-gradient(180deg, #a78bfa, #8b5cf6); }
+
+.ai-dimension-card:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.08), rgba(0, 212, 170, 0.04));
+  border-color: rgba(74, 158, 255, 0.25);
+  transform: translateX(4px);
+}
+
+.dim-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.dim-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.skills-dim .dim-icon-box {
+  background: rgba(74, 158, 255, 0.15);
+  color: #4a9eff;
+}
+.salary-dim .dim-icon-box {
+  background: rgba(0, 212, 170, 0.15);
+  color: #00d4aa;
+}
+.city-dim .dim-icon-box {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+.exp-dim .dim-icon-box {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.dim-header h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.dim-desc {
+  font-size: 12.5px;
+  color: rgba(150, 180, 220, 0.7);
+  line-height: 1.6;
+  margin: 0 0 12px 48px;
+}
+
+.dim-weight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 48px;
+}
+
+.weight-label {
+  font-size: 11px;
+  color: rgba(150, 180, 220, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.weight-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a9eff;
+  min-width: 42px;
+}
+
+.skills-dim .weight-value { color: #4a9eff; }
+.salary-dim .weight-value { color: #00d4aa; }
+.city-dim .weight-value { color: #f59e0b; }
+.exp-dim .weight-value { color: #a78bfa; }
+
+.weight-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(74, 158, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.weight-progress {
+  height: 100%;
+  border-radius: 2px;
+  animation: progressAnim 1.5s ease-out forwards;
+  transform-origin: left;
+}
+
+.skills-dim .weight-progress { background: linear-gradient(90deg, #4a9eff, #3b82f6); }
+.salary-dim .weight-progress { background: linear-gradient(90deg, #00d4aa, #10b981); }
+.city-dim .weight-progress { background: linear-gradient(90deg, #f59e0b, #fb923c); }
+.exp-dim .weight-progress { background: linear-gradient(90deg, #a78bfa, #8b5cf6); }
+
+@keyframes progressAnim {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.ai-explanation-footer {
+  padding: 20px 32px 28px;
+  text-align: center;
+  border-top: 1px solid rgba(74, 158, 255, 0.08);
+  background: linear-gradient(0deg, rgba(74, 158, 255, 0.03), transparent);
+}
+
+.ai-confirm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 36px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #4a9eff, #3b82f6);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.3);
+}
+
+.ai-confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(74, 158, 255, 0.45);
+  background: linear-gradient(135deg, #5ba8ff, #4a90f6);
+}
+
+.ai-confirm-btn:active {
+  transform: translateY(0);
+}
+
 .trend-modal { max-width: 680px; }
 .career-path-modal { max-width: 720px; }
 
@@ -3948,6 +4589,23 @@ onUnmounted(() => {
   font-weight: 600;
   margin-bottom: 14px;
 }
+.resume-tag {
+  margin-left: auto;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 12px;
+}
+.resume-tag.has-resume {
+  background: rgba(0, 212, 170, 0.15);
+  color: #00d4aa;
+  border: 1px solid rgba(0, 212, 170, 0.3);
+}
+.resume-tag.no-resume {
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.25);
+}
 .ai-analysis-content {
   display: flex;
   flex-direction: column;
@@ -3995,6 +4653,43 @@ onUnmounted(() => {
 .match-circle.high { box-shadow: 0 0 20px rgba(0,212,170,0.3); }
 .match-circle.medium { box-shadow: 0 0 20px rgba(74,158,255,0.3); }
 .match-circle.low { box-shadow: 0 0 20px rgba(251,146,60,0.3); }
+.match-circle.none { box-shadow: 0 0 20px rgba(150,150,150,0.2); cursor: pointer; }
+.match-circle .pct-resume {
+  position: relative;
+  z-index: 1;
+  color: rgba(150,180,220,0.6);
+  cursor: pointer;
+}
+.match-circle .pct-resume:hover {
+  color: #4a9eff;
+}
+.match-circle.none .pct-label {
+  color: #fb923c;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.job-match-score.no-resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  border-radius: 12px;
+  color: #fb923c;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.job-match-score.no-resume:hover {
+  background: rgba(251, 146, 60, 0.2);
+  border-color: rgba(251, 146, 60, 0.5);
+  transform: translateY(-1px);
+}
+.match-basis.no-resume-hint {
+  color: rgba(251, 146, 60, 0.7);
+  font-size: 11px;
+}
 .match-details {
   flex: 1;
   display: flex;
@@ -4014,6 +4709,65 @@ onUnmounted(() => {
 .match-item.good { color: #00d4aa; }
 .match-item.warn { color: #fb923c; }
 .match-item svg { flex-shrink: 0; }
+
+.ai-salary-section {
+  margin-bottom: 10px;
+}
+.salary-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(74,158,255,0.08), rgba(154,117,255,0.08));
+  border: 1px solid rgba(74,158,255,0.2);
+  border-radius: 10px;
+}
+.salary-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.salary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.salary-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4a9eff;
+}
+.salary-level {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  width: fit-content;
+}
+.salary-level.level-高薪 {
+  background: rgba(251,146,60,0.15);
+  color: #fb923c;
+}
+.salary-level.level-较高 {
+  background: rgba(74,158,255,0.15);
+  color: #4a9eff;
+}
+.salary-level.level-中等 {
+  background: rgba(0,212,170,0.15);
+  color: #00d4aa;
+}
+.salary-level.level-偏低 {
+  background: rgba(150,150,150,0.15);
+  color: #999;
+}
+.salary-level.level-面议 {
+  background: rgba(154,117,255,0.15);
+  color: #9a75ff;
+}
+.salary-desc {
+  font-size: 12px;
+  color: rgba(200,220,255,0.6);
+}
 
 .ai-suggestion {
   background: rgba(168,85,247,0.08);

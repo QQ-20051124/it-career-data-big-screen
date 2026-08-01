@@ -18,6 +18,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #app {
@@ -29,6 +30,7 @@ body {
   font-family: 'Microsoft YaHei', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #050a1e;
   color: #fff;
+  overflow-y: auto;
 }
 
 ::-webkit-scrollbar {

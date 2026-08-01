@@ -1,321 +1,431 @@
 <template>
   <div class="talent-page">
-    <div class="page-bg"></div>
-    <canvas ref="bgCanvas" class="bg-canvas"></canvas>
-
-    <div class="page-container">
-      <div class="page-header">
-        <div class="header-content">
-          <div class="header-top">
-            <button class="back-btn" @click="router.push('/dashboard')">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 18l-6-6 6-6"/>
-              </svg>
-              <span>返回</span>
-            </button>
-            <div class="header-title">
-              <h1>IT行业人才专项统计分析</h1>
-              <p>基于27,411条真实岗位数据的深度分析报告</p>
-            </div>
-          </div>
-          
-          <div class="search-container">
-            <div class="search-box">
-              <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="M21 21l-4.35-4.35"/>
-              </svg>
-              <input 
-                type="text" 
-                v-model="searchKeyword" 
-                placeholder="搜索岗位方向、政策关键词..."
-                class="search-input"
-                @keyup.enter="handleSearch"
-              />
-              <button class="search-btn" @click="handleSearch">搜索</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="stats-section">
-        <div class="stat-card" v-for="(stat, index) in statsCards" :key="index">
-          <div class="stat-icon-wrap" :style="{ background: stat.gradient }">
-            <span class="stat-num">{{ stat.num }}</span>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">{{ stat.value }}</div>
-            <div class="stat-label">{{ stat.label }}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="main-content">
-        <div class="left-panel">
-          <div class="panel-card chart-card">
-            <div class="card-header">
-              <h3 class="card-title">薪资分布分析</h3>
-              <span class="card-subtitle">平均薪资 ¥{{ avgSalary.toLocaleString() }}</span>
-            </div>
-            <div ref="salaryChart" class="chart-area"></div>
-          </div>
-
-          <div class="panel-card">
-            <div class="card-header">
-              <h3 class="card-title">学历要求分布</h3>
-            </div>
-            <div class="degree-list">
-              <div class="degree-item" v-for="(item, index) in degreeStats" :key="index">
-                <div class="degree-header">
-                  <span class="degree-name">{{ item.name }}</span>
-                  <span class="degree-value">{{ item.percentage }}%</span>
-                </div>
-                <div class="degree-bar">
-                  <div 
-                    class="degree-fill" 
-                    :style="{ width: item.percentage + '%', background: item.color }"
-                  ></div>
-                </div>
-                <span class="degree-count">{{ item.count.toLocaleString() }}个岗位</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel-card">
-            <div class="card-header">
-              <h3 class="card-title">热门岗位排行</h3>
-            </div>
-            <div class="ranking-content">
-              <div 
-                class="ranking-item" 
-                v-for="(item, index) in topJobs" 
-                :key="index"
-                @click="selectJob(item)"
-                :class="{ active: selectedJob?.name === item.name }"
-              >
-                <div class="rank-badge" :class="'rank-' + (index + 1)">
-                  {{ index + 1 }}
-                </div>
-                <div class="rank-info">
-                  <div class="rank-name">{{ item.name }}</div>
-                  <div class="rank-detail">
-                    <span>{{ item.count.toLocaleString() }}个岗位</span>
-                    <span class="rank-salary">¥{{ item.salary.toLocaleString() }}</span>
-                  </div>
-                </div>
-                <div class="rank-trend up">
-                  +{{ item.trend }}%
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel-card">
-            <div class="card-header">
-              <h3 class="card-title">城市岗位分布TOP6</h3>
-            </div>
-            <div ref="cityChart" class="chart-area-small"></div>
-          </div>
-        </div>
-
-        <div class="right-panel">
-          <div class="policy-main-card">
-            <div class="policy-card-header">
-              <div class="header-left">
-                <h2>IT行业人才政策匹配</h2>
-                <p>智能匹配相关政策，精准助力人才申报</p>
-              </div>
-              <div class="live-badge">
-                <span class="live-dot"></span>
-                <span>实时更新</span>
-              </div>
-            </div>
-
-            <div class="policy-tabs">
-              <button 
-                v-for="tab in policyTabs" 
-                :key="tab.key" 
-                class="policy-tab"
-                :class="{ active: activePolicyTab === tab.key }"
-                @click="activePolicyTab = tab.key"
-              >{{ tab.label }}</button>
-            </div>
-
-            <div class="policy-list">
-              <div 
-                class="policy-card-item" 
-                v-for="(policy, index) in filteredPolicies" 
-                :key="index"
-                :class="{ active: selectedPolicy?.title === policy.title }"
-                @click="selectPolicy(policy)"
-              >
-                <div class="policy-badge" :class="policy.level">{{ policy.level }}</div>
-                <div class="policy-content">
-                  <h4>{{ policy.title }}</h4>
-                  <div class="policy-meta">
-                    <span class="policy-city">{{ policy.city }}</span>
-                    <span class="policy-amount">{{ policy.amount }}</span>
-                  </div>
-                  <p class="policy-jobs">{{ policy.jobs }}</p>
-                  <div class="policy-match">
-                    <span class="match-icon">✓</span>
-                    <span>{{ getPolicyMatchCount(policy) }}个岗位符合条件</span>
-                  </div>
-                </div>
-                <button class="apply-btn" @click.stop="openApplyModal(policy)">立即申报</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="policy-detail-card" v-if="selectedPolicy">
-            <div class="detail-header">
-              <h3>政策详情</h3>
-              <button class="close-detail" @click="selectedPolicy = null">×</button>
-            </div>
-            <div class="detail-body">
-              <div class="detail-row">
-                <span class="detail-label">政策名称</span>
-                <span class="detail-value">{{ selectedPolicy.title }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">适用地区</span>
-                <span class="detail-value">{{ selectedPolicy.city }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">适用岗位</span>
-                <span class="detail-value">{{ selectedPolicy.jobs }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">补贴金额</span>
-                <span class="detail-value highlight">{{ selectedPolicy.amount }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">申报条件</span>
-                <span class="detail-value">{{ selectedPolicy.conditions }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">政策期限</span>
-                <span class="detail-value">{{ selectedPolicy.validity }}</span>
-              </div>
-              <div class="detail-tags">
-                <span v-for="(tag, i) in selectedPolicy.tags" :key="i" class="tag">{{ tag }}</span>
-              </div>
-            </div>
-            <button class="detail-apply-btn" @click="openApplyModal(selectedPolicy)">立即申报</button>
-          </div>
-
-          <div class="tips-card">
-            <h3>申报小贴士</h3>
-            <div class="tips-list">
-              <div class="tip-item" v-for="(tip, index) in tips" :key="index">
-                <span class="tip-num">{{ index + 1 }}</span>
-                <span class="tip-text">{{ tip }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="footer">
-        <span>数据来源：智联招聘、BOSS直聘、前程无忧等平台爬虫数据</span>
-      </div>
+    <div class="bg-deep-space">
+      <canvas ref="bgCanvas" class="bg-starfield"></canvas>
+      <div class="bg-nebula nebula-1"></div>
+      <div class="bg-nebula nebula-2"></div>
+      <div class="bg-nebula nebula-3"></div>
     </div>
 
-    <div class="apply-modal" v-if="applyModalVisible" @click.self="closeApplyModal">
-      <div class="modal-wrapper">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>{{ currentApplyPolicy?.title }}</h3>
-            <button class="close-modal" @click="closeApplyModal">×</button>
-          </div>
-          <div class="modal-body">
-            <div class="step-indicator">
-              <div class="step" :class="{ active: currentStep >= 1, done: currentStep > 1 }">
-                <span class="step-circle">1</span>
-                <span class="step-label">岗位匹配</span>
-              </div>
-              <div class="step-line" :class="{ active: currentStep > 1 }"></div>
-              <div class="step" :class="{ active: currentStep >= 2, done: currentStep > 2 }">
-                <span class="step-circle">2</span>
-                <span class="step-label">材料准备</span>
-              </div>
-              <div class="step-line" :class="{ active: currentStep > 2 }"></div>
-              <div class="step" :class="{ active: currentStep >= 3, done: currentStep > 3 }">
-                <span class="step-circle">3</span>
-                <span class="step-label">方案生成</span>
-              </div>
-              <div class="step-line" :class="{ active: currentStep > 3 }"></div>
-              <div class="step" :class="{ active: currentStep >= 4 }">
-                <span class="step-circle">4</span>
-                <span class="step-label">提交申报</span>
-              </div>
+    <div class="page-container">
+      <!-- 顶部导航 -->
+      <header class="page-header">
+        <div class="header-left">
+          <button class="back-btn" @click="router.push('/dashboard')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+            <span>返回仪表盘</span>
+          </button>
+          <div class="header-divider"></div>
+          <div class="title-area">
+            <h1 class="page-title">
+              <span class="title-glow">IT人才智能分析平台</span>
+            </h1>
+            <div class="meta-row">
+              <span class="meta-item"><span class="meta-dot online"></span> 实时在线</span>
+              <span class="meta-item">{{ totalJobs.toLocaleString() }} 个岗位</span>
+              <span class="meta-item">{{ policyUpdateTime || '今日' }} 更新</span>
             </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="search-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input type="text" v-model="searchKeyword" placeholder="搜索岗位方向、城市、学历..." class="search-input" @keydown.enter.prevent="handleSearch" />
+            <button v-if="isSearchActive" class="clear-btn" @click="clearSearch">×</button>
+            <button class="search-btn" @click="handleSearch">搜索</button>
+          </div>
+        </div>
+      </header>
 
-            <div class="step-content">
-              <div v-if="currentStep === 1" class="step-panel">
-                <h4>岗位匹配确认</h4>
-                <p>以下岗位符合申报条件，请确认：</p>
-                <div class="job-match-list">
-                  <div class="job-match-item" v-for="(job, index) in matchedJobsForPolicy.slice(0, 5)" :key="index">
-                    <div class="job-info">
-                      <span class="job-name">{{ job.job_name }}</span>
-                      <span class="job-city">{{ job.city }}</span>
-                    </div>
-                    <span class="job-salary">¥{{ job.salary_avg?.toLocaleString() }}</span>
-                  </div>
+      <!-- Bento Grid -->
+      <main class="bento-grid" v-if="filteredData.length > 0">
+        <!-- Hero大卡 -->
+        <div class="bento-card hero-card"
+          :class="{ 'card-pinned': pinnedCard === 'hero' }"
+          @mouseenter="handleCardHover('hero')"
+          @mouseleave="handleCardLeave"
+          @click.stop="handleCardClick('hero')"
+        >
+          <div class="neon-border"></div>
+          <div class="hero-inner">
+            <div class="hero-left">
+              <div class="card-kicker">TOTAL ACTIVE ROLES</div>
+              <div class="hero-value neon-text">{{ totalJobs.toLocaleString() }}</div>
+              <div class="hero-label">在招岗位总数</div>
+              <div class="hero-breakdown">
+                <div class="breakdown-item">
+                  <div class="breakdown-val cyan">¥{{ avgSalary.toLocaleString() }}</div>
+                  <div class="breakdown-label">平均薪资</div>
                 </div>
-              </div>
-
-              <div v-if="currentStep === 2" class="step-panel">
-                <h4>材料准备清单</h4>
-                <div class="material-checklist">
-                  <label class="material-item" v-for="(material, index) in materials" :key="index">
-                    <input type="checkbox" v-model="material.checked" class="material-checkbox">
-                    <div class="material-content">
-                      <span class="material-name">{{ material.name }}</span>
-                      <span class="material-desc">{{ material.desc }}</span>
-                    </div>
-                  </label>
+                <div class="breakdown-sep"></div>
+                <div class="breakdown-item">
+                  <div class="breakdown-val purple">{{ cityCount }}</div>
+                  <div class="breakdown-label">覆盖城市</div>
                 </div>
-              </div>
-
-              <div v-if="currentStep === 3" class="step-panel">
-                <h4>申报方案预览</h4>
-                <div class="plan-summary">
-                  <div class="plan-item">
-                    <span class="plan-label">申报政策</span>
-                    <span class="plan-value">{{ currentApplyPolicy?.title }}</span>
-                  </div>
-                  <div class="plan-item">
-                    <span class="plan-label">申报城市</span>
-                    <span class="plan-value">{{ currentApplyPolicy?.city }}</span>
-                  </div>
-                  <div class="plan-item">
-                    <span class="plan-label">预计补贴</span>
-                    <span class="plan-value highlight">{{ currentApplyPolicy?.amount }}</span>
-                  </div>
-                  <div class="plan-item">
-                    <span class="plan-label">材料准备</span>
-                    <span class="plan-value">{{ completedMaterials }}/{{ materials.length }} 项已准备</span>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="currentStep === 4" class="step-panel success-panel">
-                <div class="success-icon">✓</div>
-                <h4>申报提交成功！</h4>
-                <p>您的申报申请已提交，我们将在3-5个工作日内审核</p>
-                <div class="success-code">
-                  <span>申报编号：{{ applyCode }}</span>
+                <div class="breakdown-sep"></div>
+                <div class="breakdown-item">
+                  <div class="breakdown-val amber">{{ dataCompleteRate }}%</div>
+                  <div class="breakdown-label">数据完整率</div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="modal-btn secondary" v-if="currentStep > 1 && currentStep < 4" @click="currentStep--">上一步</button>
-            <button class="modal-btn primary" v-if="currentStep < 4" @click="currentStep++">下一步</button>
-            <button class="modal-btn primary" v-if="currentStep === 4" @click="closeApplyModal">完成</button>
+          <div class="hero-decoration">
+            <svg viewBox="0 0 160 160" class="hero-svg">
+              <defs>
+                <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00f0ff"/>
+                  <stop offset="100%" stop-color="#7c3aed"/>
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <circle cx="80" cy="80" r="70" fill="none" stroke="url(#heroGrad)" stroke-width="1" filter="url(#glow)" stroke-dasharray="4 8" opacity="0.7"/>
+              <circle cx="80" cy="80" r="50" fill="none" stroke="#00f0ff" stroke-width="0.8" filter="url(#glow)" opacity="0.4"/>
+              <circle cx="80" cy="80" r="30" fill="none" stroke="#7c3aed" stroke-width="0.8" filter="url(#glow)" opacity="0.5"/>
+              <circle cx="80" cy="80" r="5" fill="#00f0ff" filter="url(#glow)"/>
+            </svg>
           </div>
+          <div class="card-hint" v-if="pinnedCard !== 'hero'">悬浮查看详情 · 点击固定</div>
+        </div>
+
+        <!-- 数据卡：薪资趋势 -->
+        <div class="bento-card data-card neon-cyan"
+          :class="{ 'card-pinned': pinnedCard === 'salary' }"
+          @mouseenter="handleCardHover('salary')"
+          @mouseleave="handleCardLeave"
+          @click.stop="handleCardClick('salary')"
+        >
+          <div class="neon-border"></div>
+          <div class="card-top">
+            <span class="card-num">02</span>
+            <span class="card-label">平均薪资趋势</span>
+          </div>
+          <div class="card-value-row">
+            <div class="card-value neon-cyan-text">¥{{ avgSalary.toLocaleString() }}</div>
+            <div class="trend-indicator up">
+              <span class="trend-arrow">▲</span>
+              <span class="trend-value">{{ salaryTrend }}%</span>
+            </div>
+          </div>
+          <div ref="salarySparkRef" class="mini-chart spark-chart"></div>
+          <div class="card-insight">
+            <span class="insight-icon">💡</span>
+            <span>IT行业薪资持续上涨，高端人才溢价明显</span>
+          </div>
+          <div class="card-hint" v-if="pinnedCard !== 'salary'">悬浮查看详情 · 点击固定</div>
+        </div>
+
+        <!-- 数据卡：城市分布 -->
+        <div class="bento-card data-card neon-purple"
+          :class="{ 'card-pinned': pinnedCard === 'city' }"
+          @mouseenter="handleCardHover('city')"
+          @mouseleave="handleCardLeave"
+          @click.stop="handleCardClick('city')"
+        >
+          <div class="neon-border"></div>
+          <div class="card-top">
+            <span class="card-num">03</span>
+            <span class="card-label">城市岗位分布</span>
+          </div>
+          <div class="card-value neon-purple-text">{{ cityCount }} 个城市</div>
+          <div ref="cityBarsRef" class="mini-chart bars-chart"></div>
+          <div class="card-insight">
+            <span class="insight-icon">📍</span>
+            <span>{{ topCityName }} 岗位最集中，占比 {{ topCityPercent }}%</span>
+          </div>
+          <div class="card-hint" v-if="pinnedCard !== 'city'">悬浮查看详情 · 点击固定</div>
+        </div>
+
+        <!-- 学历分布 -->
+        <div class="bento-card info-card edu-card">
+          <div class="neon-border"></div>
+          <div class="card-header compact">
+            <div>
+              <div class="card-title">学历要求分布</div>
+              <div class="card-sub">各学历层次岗位占比</div>
+            </div>
+          </div>
+          <div class="edu-list">
+            <div class="edu-row" v-for="(item, index) in degreeStats" :key="index">
+              <div class="edu-left">
+                <span class="edu-name">{{ item.name }}</span>
+                <span class="edu-count">{{ item.count }} 个</span>
+              </div>
+              <div class="edu-progress">
+                <div class="edu-fill" :style="{ width: item.percentage + '%', background: item.color, boxShadow: '0 0 8px ' + item.color }"></div>
+              </div>
+              <span class="edu-percent" :style="{ color: item.color, textShadow: '0 0 8px ' + item.color }">{{ item.percentage }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 热门岗位 -->
+        <div class="bento-card info-card rank-card">
+          <div class="neon-border"></div>
+          <div class="card-header compact">
+            <div>
+              <div class="card-title">热门岗位排行</div>
+              <div class="card-sub">IT领域岗位需求排名</div>
+            </div>
+          </div>
+          <div class="rank-list">
+            <div class="rank-row" v-for="(item, index) in topJobs" :key="index" :class="{ active: selectedJob?.name === item.name }" @click="selectJob(item)">
+              <div class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</div>
+              <div class="rank-info">
+                <div class="rank-name">{{ item.name }}</div>
+                <div class="rank-sub">{{ item.count }} 个岗位 · ¥{{ item.salary.toLocaleString() }}</div>
+              </div>
+              <div class="rank-trend">+{{ item.trend }}%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 城市分布 -->
+        <div class="bento-card chart-card city-card">
+          <div class="neon-border"></div>
+          <div class="card-header">
+            <div>
+              <div class="card-title">城市岗位分布 TOP 6</div>
+              <div class="card-sub">热门城市 IT 岗位数量排名</div>
+            </div>
+          </div>
+          <div ref="cityChart" class="chart-box"></div>
+        </div>
+
+        <!-- 政策匹配 -->
+        <div class="bento-card policy-card">
+          <div class="neon-border neon-purple-border"></div>
+          <div class="policy-header">
+            <div class="policy-title">
+              <div class="policy-icon-wrap">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <div>
+                <div class="policy-name">IT 人才政策匹配</div>
+                <div class="policy-desc">智能匹配相关政策
+                  <span v-if="policyUpdateTime" class="update-time">· {{ policyUpdateTime }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="live-badge">
+              <span class="live-dot"></span>
+              <span>实时</span>
+            </div>
+          </div>
+
+          <div class="policy-tabs">
+            <button v-for="tab in policyTabs" :key="tab.key" class="policy-tab" :class="{ active: activePolicyTab === tab.key }" @click="activePolicyTab = tab.key">
+              {{ tab.label }}
+            </button>
+          </div>
+
+          <div class="policy-list">
+            <div class="policy-item" v-for="(policy, index) in filteredPolicies" :key="index" :class="{ active: selectedPolicy?.title === policy.title }" @click="selectPolicy(policy)">
+              <div class="policy-accent" :class="policy.type"></div>
+              <div class="policy-body">
+                <div class="policy-title-row">
+                  <h4 class="policy-item-title">{{ policy.title }}</h4>
+                  <span class="policy-level" :class="policy.type">{{ policy.level }}</span>
+                </div>
+                <div class="policy-meta-row">
+                  <span class="policy-city">
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {{ policy.city }}
+                  </span>
+                  <span class="policy-amount">{{ policy.amount }}</span>
+                </div>
+                <p class="policy-jobs">{{ policy.jobs }}</p>
+                <div class="policy-action-row">
+                  <span class="policy-match">
+                    <span class="match-dot"></span>
+                    {{ getPolicyMatchCount(policy) }} 个岗位符合
+                  </span>
+                  <button class="detail-btn" @click.stop="openPolicyUrl(policy)">查看详情 ↗</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="policy-footer">
+            <span>共 {{ allFilteredPolicies.length }} 条政策 · 每日自动同步</span>
+            <div class="policy-pagination" v-if="policyTotalPages > 1">
+              <button class="page-btn" :disabled="policyPage === 1" @click="goToPolicyPage(policyPage - 1)">‹ 上一页</button>
+              <div class="page-numbers">
+                <button
+                  v-for="p in policyTotalPages"
+                  :key="p"
+                  class="page-num"
+                  :class="{ active: p === policyPage }"
+                  @click="goToPolicyPage(p)"
+                >{{ p }}</button>
+              </div>
+              <button class="page-btn" :disabled="policyPage === policyTotalPages" @click="goToPolicyPage(policyPage + 1)">下一页 ›</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- 卡片浮窗 -->
+      <div v-if="activePopupCard" 
+           class="card-popup-overlay" 
+           :class="{ 'overlay-pinned': pinnedCard }"
+           @click="closePopup">
+        <div class="card-popup" :class="'popup-' + activePopupCard" @click.stop>
+            <button class="popup-close" @click="closePopup">×</button>
+            <div class="popup-close-hint" v-if="pinnedCard">点击空白处关闭</div>
+
+            <!-- Hero卡浮窗：中国地图 -->
+            <template v-if="activePopupCard === 'hero'">
+              <div class="popup-header">
+                <h3 class="popup-title">岗位全国分布图</h3>
+                <p class="popup-sub">{{ totalJobs.toLocaleString() }} 个岗位 · 覆盖 {{ cityCount }} 个城市 · 平均薪资 ¥{{ avgSalary.toLocaleString() }}</p>
+              </div>
+              <div ref="popupMapRef" class="popup-map-chart"></div>
+              <div class="popup-stats-row">
+                <div class="popup-stat">
+                  <div class="popup-stat-val cyan">{{ totalJobs.toLocaleString() }}</div>
+                  <div class="popup-stat-label">在招岗位</div>
+                </div>
+                <div class="popup-stat">
+                  <div class="popup-stat-val purple">{{ cityCount }}</div>
+                  <div class="popup-stat-label">覆盖城市</div>
+                </div>
+                <div class="popup-stat">
+                  <div class="popup-stat-val amber">¥{{ avgSalary.toLocaleString() }}</div>
+                  <div class="popup-stat-label">平均薪资</div>
+                </div>
+                <div class="popup-stat">
+                  <div class="popup-stat-val green">{{ topCityName }}</div>
+                  <div class="popup-stat-label">岗位最多</div>
+                </div>
+              </div>
+            </template>
+
+            <!-- 薪资卡浮窗：薪资详细分解 -->
+            <template v-if="activePopupCard === 'salary'">
+              <div class="popup-header">
+                <h3 class="popup-title">薪资详细分析</h3>
+                <p class="popup-sub">平均薪资 ¥{{ avgSalary.toLocaleString() }} · 趋势 +{{ salaryTrend }}%</p>
+              </div>
+              <div class="popup-salary-grid">
+                <div class="popup-salary-row" v-for="(range, idx) in salaryRanges" :key="idx">
+                  <div class="salary-range-label" :style="{ color: range.color }">{{ range.label }}</div>
+                  <div class="salary-range-bar-wrap">
+                    <div class="salary-range-bar" :style="{ width: range.percent + '%', background: range.color, boxShadow: '0 0 8px ' + range.color }"></div>
+                  </div>
+                  <div class="salary-range-count">{{ range.count }} 个</div>
+                  <div class="salary-range-percent">{{ range.percent }}%</div>
+                </div>
+              </div>
+              <div class="popup-divider"></div>
+              <div class="popup-edu-salary">
+                <div class="popup-sub-title">各学历平均薪资</div>
+                <div ref="popupSalaryEduRef" class="popup-edu-chart"></div>
+              </div>
+            </template>
+
+            <!-- 城市卡浮窗：完整城市排名 -->
+            <template v-if="activePopupCard === 'city'">
+              <div class="popup-header">
+                <h3 class="popup-title">城市岗位排名</h3>
+                <p class="popup-sub">{{ cityCount }} 个城市 · {{ topCityName }}占比最高 ({{ topCityPercent }}%)</p>
+              </div>
+              <div class="popup-city-list">
+                <div class="popup-city-row" v-for="(city, idx) in fullCityRanking" :key="idx">
+                  <div class="city-rank" :class="{ 'rank-top': idx < 3 }">{{ idx + 1 }}</div>
+                  <div class="city-name">{{ city.name }}</div>
+                  <div class="city-bar-wrap">
+                    <div class="city-bar" :style="{ width: city.percent + '%' }"></div>
+                  </div>
+                  <div class="city-count">{{ city.count }}</div>
+                  <div class="city-percent">{{ city.percent }}%</div>
+                </div>
+              </div>
+            </template>
+        </div>
+      </div>
+
+      <!-- 无搜索结果 -->
+      <div class="no-results" v-if="filteredData.length === 0">
+        <div class="no-results-icon">🔍</div>
+        <div class="no-results-title">未找到匹配「{{ searchKeyword }}」的岗位数据</div>
+        <div class="no-results-desc">换个关键词试试吧，如：人工智能、前端、大数据</div>
+        <button class="no-results-btn" @click="clearSearch">清空搜索</button>
+      </div>
+
+      <!-- 页脚 -->
+      <footer class="page-footer">
+        <span class="footer-dot"></span>
+        <span>数据来源：招聘平台爬虫</span>
+        <span class="footer-sep">·</span>
+        <span>政策每日自动更新</span>
+        <span class="footer-sep">·</span>
+        <span class="footer-ok">系统运行正常</span>
+      </footer>
+    </div>
+
+    <!-- 政策详情弹窗 -->
+    <div class="modal-overlay" v-if="selectedPolicy" @click.self="selectedPolicy = null">
+      <div class="modal-card">
+        <div class="modal-glow"></div>
+        <div class="modal-head">
+          <div class="modal-title-wrap">
+            <span class="modal-level" :class="selectedPolicy.type">{{ selectedPolicy.level }}</span>
+            <h3 class="modal-title">{{ selectedPolicy.title }}</h3>
+          </div>
+          <button class="modal-close" @click="selectedPolicy = null">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-row">
+            <span class="modal-row-label">适用地区</span>
+            <span class="modal-row-value">{{ selectedPolicy.city }}</span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-row-label">适用岗位</span>
+            <span class="modal-row-value">{{ selectedPolicy.jobs }}</span>
+          </div>
+          <div class="modal-row highlight">
+            <span class="modal-row-label">补贴金额</span>
+            <span class="modal-row-value amount">{{ selectedPolicy.amount }}</span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-row-label">申报条件</span>
+            <span class="modal-row-value">{{ selectedPolicy.conditions }}</span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-row-label">政策期限</span>
+            <span class="modal-row-value">{{ selectedPolicy.validity }}</span>
+          </div>
+          <div class="modal-tags">
+            <span v-for="(tag, i) in selectedPolicy.tags" :key="i" class="modal-tag">#{{ tag }}</span>
+          </div>
+          <a v-if="selectedPolicy.url" :href="selectedPolicy.url" target="_blank" rel="noopener noreferrer" class="modal-link-btn">
+            访问官方政策页面 ↗
+          </a>
         </div>
       </div>
     </div>
@@ -323,7 +433,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import jobData from '../assets/all_cleaned_jobs.json'
@@ -331,21 +441,66 @@ import jobData from '../assets/all_cleaned_jobs.json'
 const router = useRouter()
 const searchKeyword = ref('')
 const activePolicyTab = ref('all')
+const policyPage = ref(1)
+const policyPageSize = 6
 const selectedJob = ref(null)
 const selectedPolicy = ref(null)
 const bgCanvas = ref(null)
-
-const applyModalVisible = ref(false)
-const currentApplyPolicy = ref(null)
-const currentStep = ref(1)
-const applyCode = ref('')
-
 const salaryChart = ref(null)
 const cityChart = ref(null)
+const salarySparkRef = ref(null)
+const cityBarsRef = ref(null)
+const popupMapRef = ref(null)
+const popupSalaryEduRef = ref(null)
+
+const hoveredCard = ref(null)
+const pinnedCard = ref(null)
+
+const policyDatabase = ref([])
+const policyUpdateTime = ref('')
 
 let salaryInstance = null
 let cityInstance = null
+let salarySparkInstance = null
+let cityBarsInstance = null
+let popupMapInstance = null
+let popupSalaryEduInstance = null
 let animationId = null
+let chinaMapRegistered = false
+
+const activePopupCard = computed(() => pinnedCard.value || hoveredCard.value)
+let popupTimer = null
+
+const handleCardHover = (card) => {
+  if (!pinnedCard.value) {
+    if (popupTimer) clearTimeout(popupTimer)
+    hoveredCard.value = card
+  }
+}
+const handleCardLeave = () => {
+  if (!pinnedCard.value) {
+    if (popupTimer) clearTimeout(popupTimer)
+    popupTimer = setTimeout(() => {
+      if (!pinnedCard.value) {
+        hoveredCard.value = null
+      }
+    }, 300)
+  }
+}
+const handleCardClick = (card) => {
+  if (popupTimer) clearTimeout(popupTimer)
+  if (pinnedCard.value === card) {
+    pinnedCard.value = null
+  } else {
+    pinnedCard.value = card
+    hoveredCard.value = null
+  }
+}
+const closePopup = () => {
+  if (popupTimer) clearTimeout(popupTimer)
+  pinnedCard.value = null
+  hoveredCard.value = null
+}
 
 const policyTabs = [
   { key: 'all', label: '全部政策' },
@@ -354,302 +509,329 @@ const policyTabs = [
   { key: 'city', label: '市级' }
 ]
 
-const tips = [
-  '建议优先申报国家级政策，补贴力度更大',
-  '准备好学历证明和工作经历材料',
-  '关注政策截止日期，及时申报',
-  '不同城市政策可叠加申请'
-]
-
-const materials = ref([
-  { name: '身份证复印件', desc: '正反面复印', checked: false },
-  { name: '学历学位证明', desc: '本科及以上', checked: false },
-  { name: '工作经历证明', desc: '劳动合同或社保记录', checked: false },
-  { name: '成果证明材料', desc: '论文、专利、项目证明', checked: false },
-  { name: '个人简历', desc: '详细工作经历', checked: false }
-])
-
 const validData = computed(() => {
   return jobData.filter(item => !isNaN(item.salary_avg) && item.salary_avg > 0 && item.salary_avg < 200000)
 })
 
-const totalJobs = computed(() => validData.value.length)
+const filteredData = computed(() => {
+  const kw = searchKeyword.value.trim().toLowerCase()
+  if (!kw) return validData.value
+  return validData.value.filter(item => {
+    const name = (item.job_name || '').toLowerCase()
+    const city = (item.city || '').toLowerCase()
+    const edu = (item.education || '').toLowerCase()
+    const company = (item.company || '').toLowerCase()
+    return name.includes(kw) || city.includes(kw) || edu.includes(kw) || company.includes(kw)
+  })
+})
 
+const totalJobs = computed(() => filteredData.value.length)
 const avgSalary = computed(() => {
-  if (validData.value.length === 0) return 0
-  return Math.round(validData.value.reduce((sum, item) => sum + item.salary_avg, 0) / validData.value.length)
+  if (!filteredData.value.length) return 0
+  return Math.round(filteredData.value.reduce((s, i) => s + i.salary_avg, 0) / filteredData.value.length)
 })
+const cityCount = computed(() => [...new Set(filteredData.value.map(i => i.city))].length)
 
-const cityCount = computed(() => {
-  return [...new Set(validData.value.map(item => item.city))].length
-})
-
-const statsCards = computed(() => [
-  { num: '01', value: totalJobs.value.toLocaleString(), label: '岗位总数', gradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)' },
-  { num: '02', value: '¥' + avgSalary.value.toLocaleString(), label: '平均薪资', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
-  { num: '03', value: cityCount.value + '个', label: '覆盖城市', gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' },
-  { num: '04', value: '92.8%', label: '数据完整率', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' }
-])
+const cityBars = ref([20, 15, 10, 8, 5])
+const updateCityBars = () => {
+  const dist = filteredData.value.reduce((acc, item) => { acc[item.city] = (acc[item.city] || 0) + 1; return acc }, {})
+  const counts = Object.values(dist).sort((a, b) => b - a).slice(0, 5)
+  if (counts.length === 0) { cityBars.value = [20, 15, 10, 8, 5]; return }
+  const max = counts[0] || 1
+  cityBars.value = counts.map(c => Math.max(5, Math.round((c / max) * 100)))
+}
 
 const degreeStats = computed(() => {
-  const dist = validData.value.reduce((acc, item) => {
+  const dist = filteredData.value.reduce((acc, item) => {
     const edu = item.education || '其他'
     acc[edu] = (acc[edu] || 0) + 1
     return acc
   }, {})
-  
   const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 5)
-  const total = sorted.reduce((sum, [, v]) => sum + v, 0)
-  
-  const colors = ['#0ea5e9', '#10b981', '#8b5cf6', '#f59e0b', '#64748b']
-  
+  const total = sorted.reduce((s, [, v]) => s + v, 0)
+  const colors = ['#00f0ff', '#7c3aed', '#fbbf24', '#34d399', '#94a3b8']
   return sorted.map(([name, count], i) => ({
     name, count,
-    percentage: Math.round((count / total) * 100),
+    percentage: total > 0 ? Math.round((count / total) * 100) : 0,
     color: colors[i]
   }))
 })
 
 const topJobs = computed(() => {
-  const jobTypes = {
-    '人工智能': { count: 0, totalSalary: 0 },
-    '软件开发': { count: 0, totalSalary: 0 },
-    '大数据': { count: 0, totalSalary: 0 },
-    '网络安全': { count: 0, totalSalary: 0 },
-    '云计算': { count: 0, totalSalary: 0 },
-    '测试工程师': { count: 0, totalSalary: 0 },
-    '运维工程师': { count: 0, totalSalary: 0 },
-    '产品经理': { count: 0, totalSalary: 0 }
+  const types = {
+    '人工智能': { count: 0, total: 0 }, '软件开发': { count: 0, total: 0 },
+    '大数据': { count: 0, total: 0 }, '网络安全': { count: 0, total: 0 },
+    '云计算': { count: 0, total: 0 }, '测试工程师': { count: 0, total: 0 },
+    '运维工程师': { count: 0, total: 0 }, '产品经理': { count: 0, total: 0 }
   }
-  
-  validData.value.forEach(item => {
-    const name = item.job_name || ''
-    if (name.includes('人工智能') || name.includes('算法') || name.includes('机器学习')) {
-      jobTypes['人工智能'].count++
-      jobTypes['人工智能'].totalSalary += item.salary_avg
-    } else if (name.includes('开发') && !name.includes('测试') && !name.includes('运维')) {
-      jobTypes['软件开发'].count++
-      jobTypes['软件开发'].totalSalary += item.salary_avg
-    } else if (name.includes('大数据') || name.includes('数据') || name.includes('BI')) {
-      jobTypes['大数据'].count++
-      jobTypes['大数据'].totalSalary += item.salary_avg
-    } else if (name.includes('安全') || name.includes('渗透')) {
-      jobTypes['网络安全'].count++
-      jobTypes['网络安全'].totalSalary += item.salary_avg
-    } else if (name.includes('云') || name.includes('Cloud')) {
-      jobTypes['云计算'].count++
-      jobTypes['云计算'].totalSalary += item.salary_avg
-    } else if (name.includes('测试')) {
-      jobTypes['测试工程师'].count++
-      jobTypes['测试工程师'].totalSalary += item.salary_avg
-    } else if (name.includes('运维') || name.includes('DevOps')) {
-      jobTypes['运维工程师'].count++
-      jobTypes['运维工程师'].totalSalary += item.salary_avg
-    } else if (name.includes('产品') || name.includes('经理')) {
-      jobTypes['产品经理'].count++
-      jobTypes['产品经理'].totalSalary += item.salary_avg
-    }
+  filteredData.value.forEach(item => {
+    const n = item.job_name || ''
+    if (n.includes('人工智能') || n.includes('算法') || n.includes('机器学习')) { types['人工智能'].count++; types['人工智能'].total += item.salary_avg }
+    else if (n.includes('开发') && !n.includes('测试') && !n.includes('运维')) { types['软件开发'].count++; types['软件开发'].total += item.salary_avg }
+    else if (n.includes('大数据') || n.includes('数据') || n.includes('BI')) { types['大数据'].count++; types['大数据'].total += item.salary_avg }
+    else if (n.includes('安全') || n.includes('渗透')) { types['网络安全'].count++; types['网络安全'].total += item.salary_avg }
+    else if (n.includes('云') || n.includes('Cloud')) { types['云计算'].count++; types['云计算'].total += item.salary_avg }
+    else if (n.includes('测试')) { types['测试工程师'].count++; types['测试工程师'].total += item.salary_avg }
+    else if (n.includes('运维') || n.includes('DevOps')) { types['运维工程师'].count++; types['运维工程师'].total += item.salary_avg }
+    else if (n.includes('产品') || n.includes('经理')) { types['产品经理'].count++; types['产品经理'].total += item.salary_avg }
   })
-  
-  return Object.entries(jobTypes)
-    .filter(([, v]) => v.count > 0)
-    .map(([name, v]) => ({
-      name,
-      count: v.count,
-      salary: v.count > 0 ? Math.round(v.totalSalary / v.count) : 0,
-      trend: Math.floor(Math.random() * 20) + 5
-    }))
-    .sort((a, b) => b.count - a.count)
+  const result = Object.entries(types).filter(([, v]) => v.count > 0)
+    .map(([name, v]) => ({ name, count: v.count, salary: v.count ? Math.round(v.total / v.count) : 0 }))
+    .sort((a, b) => b.count - a.count).slice(0, 6)
+  const maxCount = result.length ? result[0].count : 1
+  result.forEach(item => { item.trend = Math.max(1, Math.round((item.count / maxCount) * 15)) })
+  return result
+})
+
+const dataCompleteRate = computed(() => {
+  if (!filteredData.value.length) return 0
+  const withSalary = filteredData.value.filter(i => i.salary_avg > 0).length
+  const withCity = filteredData.value.filter(i => i.city && i.city.trim()).length
+  const withEdu = filteredData.value.filter(i => i.education && i.education.trim()).length
+  const total = filteredData.value.length * 3
+  return Math.round(((withSalary + withCity + withEdu) / total) * 100)
+})
+
+const salaryRanges = computed(() => {
+  const ranges = [
+    { label: '5K以下', min: 0, max: 5000, color: '#60a5fa' },
+    { label: '5-10K', min: 5000, max: 10000, color: '#34d399' },
+    { label: '10-15K', min: 10000, max: 15000, color: '#00f0ff' },
+    { label: '15-20K', min: 15000, max: 20000, color: '#a78bfa' },
+    { label: '20-30K', min: 20000, max: 30000, color: '#fbbf24' },
+    { label: '30K以上', min: 30000, max: Infinity, color: '#f87171' }
+  ]
+  const total = filteredData.value.length || 1
+  return ranges.map(r => {
+    const count = filteredData.value.filter(i => i.salary_avg >= r.min && i.salary_avg < r.max).length
+    return { ...r, count, percent: Math.round((count / total) * 100) }
+  })
+})
+
+const fullCityRanking = computed(() => {
+  const dist = filteredData.value.reduce((acc, item) => {
+    acc[item.city] = (acc[item.city] || 0) + 1
+    return acc
+  }, {})
+  const total = filteredData.value.length || 1
+  return Object.entries(dist)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15)
+    .map(([name, count]) => ({ name, count, percent: Math.round((count / total) * 100) }))
+})
+
+const eduSalaryStats = computed(() => {
+  const dist = {}
+  filteredData.value.forEach(item => {
+    const edu = item.education || '其他'
+    if (!dist[edu]) dist[edu] = { count: 0, total: 0 }
+    dist[edu].count++
+    dist[edu].total += item.salary_avg
+  })
+  return Object.entries(dist)
+    .map(([name, v]) => ({ name, avg: v.count ? Math.round(v.total / v.count) : 0 }))
+    .sort((a, b) => b.avg - a.avg)
     .slice(0, 6)
 })
 
-const policyDatabase = [
-  {
-    title: '新一代人工智能创新人才支持计划',
-    level: '国家级',
-    city: '全国',
-    jobs: '人工智能算法工程师、机器学习工程师、深度学习工程师',
-    amount: '最高50万元',
-    conditions: '本科及以上，35岁以下，从事AI研发3年以上',
-    validity: '2024-2026年',
-    tags: ['AI', '研发', '青年人才'],
-    type: 'national'
-  },
-  {
-    title: '集成电路产业人才专项计划',
-    level: '国家级',
-    city: '全国',
-    jobs: '芯片设计工程师、IC验证工程师、半导体工艺工程师',
-    amount: '最高50万元',
-    conditions: '本科及以上，集成电路相关专业，2年以上经验',
-    validity: '2024-2026年',
-    tags: ['芯片', '集成电路', '紧缺人才'],
-    type: 'national'
-  },
-  {
-    title: '上海软件和信息技术服务业人才补贴',
-    level: '市级',
-    city: '上海',
-    jobs: '软件工程师、前端开发、后端开发、全栈工程师',
-    amount: '最高20万元',
-    conditions: '本科及以上，在上海IT企业工作满1年',
-    validity: '2024-2025年',
-    tags: ['软件开发', '上海', '补贴'],
-    type: 'city'
-  },
-  {
-    title: '深圳高层次人才认定及补贴',
-    level: '市级',
-    city: '深圳',
-    jobs: '人工智能、大数据、云计算、物联网相关岗位',
-    amount: '最高60万元',
-    conditions: '硕士及以上，符合深圳人才认定标准',
-    validity: '长期有效',
-    tags: ['深圳', '高层次', 'AI'],
-    type: 'city'
-  },
-  {
-    title: '杭州数字经济人才专项计划',
-    level: '市级',
-    city: '杭州',
-    jobs: '大数据分析师、数据科学家、算法工程师',
-    amount: '最高30万元',
-    conditions: '本科及以上，数字经济相关领域工作2年以上',
-    validity: '2024-2026年',
-    tags: ['大数据', '杭州', '数字经济'],
-    type: 'city'
-  },
-  {
-    title: '广东省网络安全人才培养计划',
-    level: '省级',
-    city: '广东',
-    jobs: '网络安全工程师、信息安全工程师、渗透测试工程师',
-    amount: '最高25万元',
-    conditions: '本科及以上，网络安全相关专业或认证',
-    validity: '2024-2026年',
-    tags: ['网络安全', '广东', '培养'],
-    type: 'provincial'
-  },
-  {
-    title: '北京市科技创新人才计划',
-    level: '市级',
-    city: '北京',
-    jobs: '云计算工程师、云原生架构师、DevOps工程师',
-    amount: '最高35万元',
-    conditions: '硕士及以上，在京高新技术企业工作',
-    validity: '2024-2025年',
-    tags: ['云计算', '北京', '创新'],
-    type: 'city'
-  },
-  {
-    title: '江苏省软件人才引进计划',
-    level: '省级',
-    city: '江苏',
-    jobs: 'Java开发、Python开发、C++开发工程师',
-    amount: '最高15万元',
-    conditions: '本科及以上，软件相关专业，3年以上经验',
-    validity: '2024-2026年',
-    tags: ['软件开发', '江苏', '引进'],
-    type: 'provincial'
-  },
-  {
-    title: '成都人工智能产业人才补贴',
-    level: '市级',
-    city: '成都',
-    jobs: 'AI产品经理、智能算法工程师、AI应用开发',
-    amount: '最高20万元',
-    conditions: '本科及以上，人工智能相关工作经验',
-    validity: '2024-2025年',
-    tags: ['AI', '成都', '产业'],
-    type: 'city'
-  },
-  {
-    title: '浙江省大数据产业人才支持计划',
-    level: '省级',
-    city: '浙江',
-    jobs: '大数据开发工程师、数据挖掘工程师、BI工程师',
-    amount: '最高22万元',
-    conditions: '本科及以上，大数据相关领域工作2年以上',
-    validity: '2024-2026年',
-    tags: ['大数据', '浙江', '支持'],
-    type: 'provincial'
+const salaryTrend = computed(() => {
+  const base = avgSalary.value
+  if (!base) return 0
+  const trend = ((base % 1000) / 100) + 2.5
+  return trend.toFixed(1)
+})
+
+const topCityName = computed(() => {
+  const dist = filteredData.value.reduce((acc, item) => {
+    acc[item.city] = (acc[item.city] || 0) + 1
+    return acc
+  }, {})
+  const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1])
+  return sorted.length ? sorted[0][0] : '北京'
+})
+
+const topCityPercent = computed(() => {
+  const dist = filteredData.value.reduce((acc, item) => {
+    acc[item.city] = (acc[item.city] || 0) + 1
+    return acc
+  }, {})
+  const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1])
+  if (!sorted.length) return 0
+  const topCount = sorted[0][1]
+  const total = filteredData.value.length
+  return total > 0 ? Math.round((topCount / total) * 100) : 0
+})
+
+const initSalarySpark = () => {
+  if (!salarySparkRef.value) return
+  if (salarySparkInstance) salarySparkInstance.dispose()
+  salarySparkInstance = echarts.init(salarySparkRef.value)
+  const base = avgSalary.value || 15000
+  const points = []
+  for (let i = 0; i < 12; i++) {
+    const variance = Math.sin(i * 0.8) * 800 + Math.random() * 400
+    points.push(Math.round(base + variance + i * 50))
   }
+  const option = {
+    grid: { top: 5, right: 5, bottom: 5, left: 5 },
+    xAxis: { type: 'category', show: false, data: points.map((_, i) => i) },
+    yAxis: { type: 'value', show: false },
+    series: [{
+      type: 'line',
+      data: points,
+      smooth: true,
+      symbol: 'none',
+      lineStyle: { color: '#00f0ff', width: 2, shadowColor: '#00f0ff', shadowBlur: 10 },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: 'rgba(0, 240, 255, 0.4)' },
+          { offset: 1, color: 'rgba(0, 240, 255, 0.02)' }
+        ])
+      },
+      animationDuration: 1500,
+      animationEasing: 'cubicOut'
+    }]
+  }
+  salarySparkInstance.setOption(option)
+}
+
+const initCityBars = () => {
+  if (!cityBarsRef.value) return
+  if (cityBarsInstance) cityBarsInstance.dispose()
+  cityBarsInstance = echarts.init(cityBarsRef.value)
+  const dist = filteredData.value.reduce((acc, item) => {
+    acc[item.city] = (acc[item.city] || 0) + 1
+    return acc
+  }, {})
+  const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 5)
+  const cities = sorted.map(([c]) => c)
+  const counts = sorted.map(([, v]) => v)
+  const option = {
+    grid: { top: 10, right: 5, bottom: 20, left: 5 },
+    xAxis: {
+      type: 'category',
+      data: cities,
+      axisLine: { lineStyle: { color: 'rgba(124, 58, 237, 0.3)' } },
+      axisLabel: { color: '#a78bfa', fontSize: 10, interval: 0, rotate: 0 }
+    },
+    yAxis: { type: 'value', show: false },
+    series: [{
+      type: 'bar',
+      data: counts,
+      barWidth: '60%',
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#a78bfa' },
+          { offset: 1, color: 'rgba(124, 58, 237, 0.3)' }
+        ]),
+        borderRadius: [4, 4, 0, 0],
+        shadowColor: 'rgba(124, 58, 237, 0.5)',
+        shadowBlur: 8
+      },
+      animationDuration: 1200,
+      animationDelay: (idx) => idx * 150,
+      animationEasing: 'elasticOut'
+    }]
+  }
+  cityBarsInstance.setOption(option)
+}
+
+const initMiniCharts = () => {
+  nextTick(() => {
+    initSalarySpark()
+    initCityBars()
+  })
+}
+
+const FALLBACK_POLICIES = [
+  { title: '新一代人工智能创新人才支持计划', level: '国家级', city: '全国', jobs: '人工智能算法工程师、机器学习工程师', amount: '最高50万元', conditions: '本科及以上，35岁以下', validity: '2024-2026年', tags: ['AI', '研发'], type: 'national' },
+  { title: '集成电路产业人才专项计划', level: '国家级', city: '全国', jobs: '芯片设计工程师、IC验证工程师', amount: '最高50万元', conditions: '本科及以上，相关专业', validity: '2024-2026年', tags: ['芯片', '紧缺'], type: 'national' },
+  { title: '上海软件和信息技术服务业人才补贴', level: '市级', city: '上海', jobs: '软件工程师、前端开发', amount: '最高20万元', conditions: '本科及以上，在沪工作满1年', validity: '2024-2025年', tags: ['软件开发', '上海'], type: 'city' },
+  { title: '深圳高层次人才认定及补贴', level: '市级', city: '深圳', jobs: '人工智能、大数据、云计算相关岗位', amount: '最高60万元', conditions: '硕士及以上，符合认定标准', validity: '长期有效', tags: ['深圳', '高层次'], type: 'city' },
+  { title: '杭州数字经济人才专项计划', level: '市级', city: '杭州', jobs: '大数据分析师、数据科学家', amount: '最高30万元', conditions: '本科及以上，2年以上经验', validity: '2024-2026年', tags: ['大数据', '杭州'], type: 'city' },
+  { title: '广东省网络安全人才培养计划', level: '省级', city: '广东', jobs: '网络安全工程师、渗透测试工程师', amount: '最高25万元', conditions: '本科及以上，相关认证', validity: '2024-2026年', tags: ['网络安全', '广东'], type: 'provincial' },
+  { title: '北京市科技创新人才计划', level: '市级', city: '北京', jobs: '云计算工程师、DevOps工程师', amount: '最高35万元', conditions: '硕士及以上，在京高新企业', validity: '2024-2025年', tags: ['云计算', '北京'], type: 'city' },
+  { title: '江苏省软件人才引进计划', level: '省级', city: '江苏', jobs: 'Java/Python/C++开发工程师', amount: '最高15万元', conditions: '本科及以上，3年以上经验', validity: '2024-2026年', tags: ['软件开发', '江苏'], type: 'provincial' }
 ]
 
+const loadPolicyData = async () => {
+  try {
+    const resp = await fetch('/policy_data.json', { cache: 'no-cache' })
+    if (!resp.ok) throw new Error('HTTP ' + resp.status)
+    const data = await resp.json()
+    const list = Array.isArray(data) ? data : (data.policies || [])
+    if (Array.isArray(list) && list.length > 0) {
+      policyDatabase.value = list
+      policyUpdateTime.value = data.update_time || ''
+      return
+    }
+    throw new Error('empty')
+  } catch {
+    policyDatabase.value = FALLBACK_POLICIES
+  }
+}
+
+const allFilteredPolicies = computed(() => {
+  let result = policyDatabase.value
+  if (activePolicyTab.value !== 'all') result = result.filter(p => p.type === activePolicyTab.value)
+  if (selectedJob.value) result = result.filter(p => p.jobs.includes(selectedJob.value.name))
+  const kw = searchKeyword.value.trim()
+  if (kw) result = result.filter(p => p.title.includes(kw) || p.jobs.includes(kw) || p.tags.some(t => t.includes(kw)))
+  return result
+})
+
+const policyTotalPages = computed(() => Math.max(1, Math.ceil(allFilteredPolicies.value.length / policyPageSize)))
+
 const filteredPolicies = computed(() => {
-  let result = policyDatabase
-  
-  if (activePolicyTab.value !== 'all') {
-    result = result.filter(p => p.type === activePolicyTab.value)
-  }
-  
-  if (selectedJob.value) {
-    result = result.filter(p => 
-      p.jobs.includes(selectedJob.value.name) ||
-      p.tags.some(tag => selectedJob.value.name.includes(tag))
-    )
-  }
-  
-  if (searchKeyword.value.trim()) {
-    const keyword = searchKeyword.value.trim()
-    result = result.filter(p => 
-      p.title.includes(keyword) || 
-      p.jobs.includes(keyword) ||
-      p.tags.some(tag => tag.includes(keyword))
-    )
-  }
-  
-  return result.slice(0, 5)
+  const start = (policyPage.value - 1) * policyPageSize
+  return allFilteredPolicies.value.slice(start, start + policyPageSize)
 })
 
-const completedMaterials = computed(() => materials.value.filter(m => m.checked).length)
+const goToPolicyPage = (page) => {
+  if (page < 1 || page > policyTotalPages.value) return
+  policyPage.value = page
+}
 
-const matchedJobsForPolicy = computed(() => {
-  if (!currentApplyPolicy.value) return []
-  return validData.value.filter(job => 
-    currentApplyPolicy.value.jobs.split('、').some(jobType => 
-      job.job_name.includes(jobType) || job.job_name.includes(currentApplyPolicy.value.tags[0])
-    )
-  )
-})
+const openPolicyUrl = (policy) => {
+  if (policy.url) window.open(policy.url, '_blank', 'noopener,noreferrer')
+}
 
 const getPolicyMatchCount = (policy) => {
-  return validData.value.filter(job => 
-    policy.jobs.split('、').some(jobType => 
-      job.job_name.includes(jobType) || job.job_name.includes(policy.tags[0])
-    )
-  ).length
+  return filteredData.value.filter(job => policy.jobs.split('、').some(t => job.job_name.includes(t))).length
 }
 
-const handleSearch = () => {}
-
-const selectJob = (job) => {
-  selectedJob.value = job
+const handleSearch = () => {
+  selectedJob.value = null
+  selectedPolicy.value = null
+  policyPage.value = 1
+  nextTick(() => {
+    initSalaryChart()
+    initCityChart()
+    updateCityBars()
+  })
 }
-
-const selectPolicy = (policy) => {
-  selectedPolicy.value = policy
+const clearSearch = () => {
+  searchKeyword.value = ''
+  selectedJob.value = null
+  selectedPolicy.value = null
+  policyPage.value = 1
+  nextTick(() => {
+    initSalaryChart()
+    initCityChart()
+    updateCityBars()
+  })
 }
+const isSearchActive = computed(() => searchKeyword.value.trim().length > 0)
+const selectJob = (job) => { selectedJob.value = job }
+const selectPolicy = (policy) => { selectedPolicy.value = policy }
 
-const openApplyModal = (policy) => {
-  currentApplyPolicy.value = policy
-  currentStep.value = 1
-  materials.value.forEach(m => m.checked = false)
-  applyCode.value = 'TJ' + Date.now().toString().slice(-8) + Math.random().toString(36).slice(-4).toUpperCase()
-  applyModalVisible.value = true
-}
-
-const closeApplyModal = () => {
-  applyModalVisible.value = false
-  currentApplyPolicy.value = null
-}
-
+// 图表初始化
 const initSalaryChart = () => {
   if (!salaryChart.value) return
+  if (salaryInstance) salaryInstance.dispose()
   salaryInstance = echarts.init(salaryChart.value)
-  
   const dist = { '5K以下': 0, '5-10K': 0, '10-15K': 0, '15-20K': 0, '20-30K': 0, '30K以上': 0 }
-  validData.value.forEach(item => {
+  filteredData.value.forEach(item => {
     const s = item.salary_avg
     if (s < 5000) dist['5K以下']++
     else if (s < 10000) dist['5-10K']++
@@ -658,182 +840,174 @@ const initSalaryChart = () => {
     else if (s < 30000) dist['20-30K']++
     else dist['30K以上']++
   })
-
-  const option = {
+  salaryInstance.setOption({
     backgroundColor: 'transparent',
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(15, 25, 45, 0.95)',
-      borderColor: 'rgba(14, 165, 233, 0.3)',
-      borderWidth: 1,
-      textStyle: { color: '#e2e8f0', fontSize: 12 },
-      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(14, 165, 233, 0.1)' } }
-    },
-    grid: { left: '4%', right: '4%', bottom: '8%', top: '8%', containLabel: true },
-    xAxis: {
-      type: 'category',
-      data: Object.keys(dist),
-      axisLine: { lineStyle: { color: 'rgba(14, 165, 233, 0.2)' } },
-      axisLabel: { color: '#64748b', fontSize: 11 },
-      axisTick: { show: false }
-    },
-    yAxis: {
-      type: 'value',
-      axisLine: { show: false },
-      axisLabel: { color: '#64748b', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(14, 165, 233, 0.06)' } }
-    },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(5, 8, 20, 0.95)', borderColor: 'rgba(0,240,255,0.3)', borderWidth: 1, padding: [10, 14], textStyle: { color: '#e2e8f0', fontSize: 11 } },
+    grid: { left: '8%', right: '4%', bottom: '12%', top: '8%', containLabel: true },
+    xAxis: { type: 'category', data: Object.keys(dist), axisLine: { lineStyle: { color: 'rgba(0,240,255,0.1)' } }, axisLabel: { color: 'rgba(200,210,230,0.6)', fontSize: 11 }, axisTick: { show: false } },
+    yAxis: { type: 'value', axisLine: { show: false }, axisLabel: { color: 'rgba(200,210,230,0.5)', fontSize: 10 }, splitLine: { lineStyle: { color: 'rgba(0,240,255,0.06)', type: 'dashed' } } },
     series: [{
-      type: 'bar',
-      data: Object.values(dist),
-      barWidth: '40%',
+      type: 'bar', data: Object.values(dist), barWidth: '38%',
       itemStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: 'rgba(14, 165, 233, 0.9)' },
-          { offset: 0.5, color: 'rgba(14, 165, 233, 0.6)' },
-          { offset: 1, color: 'rgba(16, 185, 129, 0.4)' }
+          { offset: 0, color: '#00f0ff' },
+          { offset: 0.5, color: '#00a8b5' },
+          { offset: 1, color: 'rgba(0,240,255,0.1)' }
         ]),
-        borderRadius: [6, 6, 0, 0]
+        borderRadius: [6, 6, 0, 0],
+        shadowColor: 'rgba(0,240,255,0.4)', shadowBlur: 20
       },
-      emphasis: {
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(14, 165, 233, 1)' },
-            { offset: 0.5, color: 'rgba(14, 165, 233, 0.8)' },
-            { offset: 1, color: 'rgba(16, 185, 129, 0.6)' }
-          ])
-        }
-      },
-      animationDuration: 1500,
-      animationEasing: 'cubicOut'
+      emphasis: { itemStyle: { shadowColor: 'rgba(0,240,255,0.6)', shadowBlur: 30 } },
+      animationDuration: 1000
     }]
-  }
-  salaryInstance.setOption(option)
+  })
 }
 
 const initCityChart = () => {
   if (!cityChart.value) return
+  if (cityInstance) cityInstance.dispose()
   cityInstance = echarts.init(cityChart.value)
-  
-  const dist = validData.value.reduce((acc, item) => {
-    acc[item.city] = (acc[item.city] || 0) + 1
-    return acc
-  }, {})
-  
+  const dist = filteredData.value.reduce((acc, item) => { acc[item.city] = (acc[item.city] || 0) + 1; return acc }, {})
   const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 6)
-
-  const option = {
+  cityInstance.setOption({
     backgroundColor: 'transparent',
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(15, 25, 45, 0.95)',
-      borderColor: 'rgba(14, 165, 233, 0.3)',
-      borderWidth: 1,
-      textStyle: { color: '#e2e8f0', fontSize: 12 },
-      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(14, 165, 233, 0.1)' } }
-    },
-    grid: { left: '8%', right: '4%', bottom: '5%', top: '5%', containLabel: true },
-    xAxis: {
-      type: 'value',
-      axisLine: { show: false },
-      axisLabel: { color: '#64748b', fontSize: 10 },
-      splitLine: { lineStyle: { color: 'rgba(14, 165, 233, 0.06)' } }
-    },
-    yAxis: {
-      type: 'category',
-      data: sorted.map(([name]) => name),
-      axisLine: { lineStyle: { color: 'rgba(14, 165, 233, 0.2)' } },
-      axisLabel: { color: '#94a3b8', fontSize: 11 },
-      axisTick: { show: false }
-    },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(5, 8, 20, 0.95)', borderColor: 'rgba(191,0,255,0.3)', borderWidth: 1, padding: [10, 14], textStyle: { color: '#e2e8f0', fontSize: 11 } },
+    grid: { left: '20%', right: '10%', bottom: '8%', top: '8%', containLabel: true },
+    xAxis: { type: 'value', axisLine: { show: false }, axisLabel: { color: 'rgba(200,210,230,0.5)', fontSize: 10 }, splitLine: { lineStyle: { color: 'rgba(191,0,255,0.06)', type: 'dashed' } } },
+    yAxis: { type: 'category', data: sorted.map(([n]) => n).reverse(), axisLine: { show: false }, axisLabel: { color: 'rgba(220,230,240,0.8)', fontSize: 12 }, axisTick: { show: false } },
     series: [{
-      type: 'bar',
-      data: sorted.map(([, value]) => value),
-      barWidth: '30%',
+      type: 'bar', data: sorted.map(([, v]) => v).reverse(), barWidth: '45%',
       itemStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-          { offset: 0, color: 'rgba(14, 165, 233, 0.8)' },
-          { offset: 1, color: 'rgba(139, 92, 246, 0.6)' }
+          { offset: 0, color: '#7c3aed' },
+          { offset: 0.5, color: '#8a00b8' },
+          { offset: 1, color: 'rgba(191,0,255,0.1)' }
         ]),
-        borderRadius: [0, 6, 6, 0]
+        borderRadius: [0, 4, 4, 0],
+        shadowColor: 'rgba(191,0,255,0.35)', shadowBlur: 16
       },
-      animationDuration: 1500,
-      animationDelay: (idx) => idx * 100
+      animationDuration: 1000
     }]
-  }
-  cityInstance.setOption(option)
+  })
 }
 
+// Canvas背景 - 星空+流星
 const initBackground = () => {
   const canvas = bgCanvas.value
   if (!canvas) return
-  
   const ctx = canvas.getContext('2d')
-  let width, height
-  let particles = []
+  let w, h, stars = [], shootingStars = [], particles = []
   
-  const resize = () => {
-    width = canvas.width = window.innerWidth
-    height = canvas.height = window.innerHeight
+  const resize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight }
+  
+  class Star {
+    constructor() { this.reset() }
+    reset() {
+      this.x = Math.random() * w; this.y = Math.random() * h
+      this.r = Math.random() * 1.5 + 0.3
+      this.alpha = Math.random() * 0.8 + 0.2
+      this.twinkle = Math.random() * 0.02 + 0.005
+      this.color = Math.random() > 0.9 ? '#7c3aed' : (Math.random() > 0.7 ? '#00f0ff' : '#ffffff')
+    }
+    draw() {
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2)
+      ctx.fillStyle = this.color
+      ctx.globalAlpha = this.alpha
+      ctx.shadowColor = this.color
+      ctx.shadowBlur = this.r * 4
+      ctx.fill()
+      ctx.globalAlpha = 1
+      ctx.shadowBlur = 0
+      this.alpha += (Math.random() - 0.5) * this.twinkle
+      if (this.alpha > 1) this.alpha = 1
+      if (this.alpha < 0.1) this.alpha = 0.1
+    }
+  }
+  
+  class ShootingStar {
+    constructor() { this.reset() }
+    reset() {
+      this.x = Math.random() * w * 0.5
+      this.y = Math.random() * h * 0.3
+      this.length = Math.random() * 80 + 60
+      this.speed = Math.random() * 8 + 6
+      this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.5
+      this.alpha = 1
+      this.active = false
+      this.timer = Math.random() * 200 + 100
+    }
+    update() {
+      if (!this.active) {
+        this.timer--
+        if (this.timer <= 0) this.active = true
+        return
+      }
+      this.x += Math.cos(this.angle) * this.speed
+      this.y += Math.sin(this.angle) * this.speed
+      this.alpha -= 0.01
+      if (this.alpha <= 0 || this.x > w || this.y > h) this.reset()
+    }
+    draw() {
+      if (!this.active) return
+      const tailX = this.x - Math.cos(this.angle) * this.length
+      const tailY = this.y - Math.sin(this.angle) * this.length
+      const grad = ctx.createLinearGradient(this.x, this.y, tailX, tailY)
+      grad.addColorStop(0, `rgba(0,240,255,${this.alpha})`)
+      grad.addColorStop(0.5, `rgba(191,0,255,${this.alpha * 0.5})`)
+      grad.addColorStop(1, 'transparent')
+      ctx.beginPath()
+      ctx.moveTo(this.x, this.y)
+      ctx.lineTo(tailX, tailY)
+      ctx.strokeStyle = grad
+      ctx.lineWidth = 2
+      ctx.lineCap = 'round'
+      ctx.shadowColor = '#00f0ff'
+      ctx.shadowBlur = 10
+      ctx.stroke()
+      ctx.shadowBlur = 0
+    }
   }
   
   class Particle {
-    constructor() {
-      this.reset()
-    }
-    
+    constructor() { this.reset() }
     reset() {
-      this.x = Math.random() * width
-      this.y = Math.random() * height
-      this.vx = (Math.random() - 0.5) * 0.3
-      this.vy = (Math.random() - 0.5) * 0.3
-      this.size = Math.random() * 2 + 0.5
-      this.alpha = Math.random() * 0.5 + 0.2
-      this.color = Math.random() > 0.5 ? '#0ea5e9' : '#10b981'
+      this.x = Math.random() * w; this.y = Math.random() * h
+      this.vx = (Math.random() - 0.5) * 0.15
+      this.vy = (Math.random() - 0.5) * 0.15
+      this.r = Math.random() * 1.5 + 0.5
+      this.c = Math.random() > 0.5 ? '#00f0ff' : '#7c3aed'
     }
-    
     update() {
-      this.x += this.vx
-      this.y += this.vy
-      
-      if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
-        this.reset()
-      }
-      
-      this.alpha += (Math.random() - 0.5) * 0.02
-      this.alpha = Math.max(0.2, Math.min(0.8, this.alpha))
+      this.x += this.vx; this.y += this.vy
+      if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset()
     }
-    
     draw() {
+      const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r * 4)
+      g.addColorStop(0, this.c + '44')
+      g.addColorStop(1, 'transparent')
+      ctx.fillStyle = g
       ctx.beginPath()
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-      ctx.fillStyle = this.color
-      ctx.globalAlpha = this.alpha
+      ctx.arc(this.x, this.y, this.r * 4, 0, Math.PI * 2)
       ctx.fill()
-      ctx.globalAlpha = 1
     }
   }
   
-  const initParticles = () => {
-    particles = []
-    for (let i = 0; i < 60; i++) {
-      particles.push(new Particle())
-    }
+  const init = () => {
+    stars = []; shootingStars = []; particles = []
+    for (let i = 0; i < 200; i++) stars.push(new Star())
+    for (let i = 0; i < 3; i++) shootingStars.push(new ShootingStar())
+    for (let i = 0; i < 25; i++) particles.push(new Particle())
   }
   
-  const connectParticles = () => {
+  const connect = () => {
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x
-        const dy = particles[i].y - particles[j].y
-        const distance = Math.sqrt(dx * dx + dy * dy)
-        
-        if (distance < 120) {
-          ctx.beginPath()
-          ctx.moveTo(particles[i].x, particles[i].y)
-          ctx.lineTo(particles[j].x, particles[j].y)
-          ctx.strokeStyle = 'rgba(14, 165, 233, 0.08)'
-          ctx.lineWidth = 0.5
+        const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y
+        const d = Math.sqrt(dx * dx + dy * dy)
+        if (d < 120) {
+          ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y)
+          ctx.strokeStyle = `rgba(0,240,255,${(1 - d / 120) * 0.08})`
+          ctx.lineWidth = 0.4
           ctx.stroke()
         }
       }
@@ -841,1159 +1015,1678 @@ const initBackground = () => {
   }
   
   const animate = () => {
-    ctx.clearRect(0, 0, width, height)
-    
-    particles.forEach(p => {
-      p.update()
-      p.draw()
-    })
-    
-    connectParticles()
+    ctx.clearRect(0, 0, w, h)
+    stars.forEach(s => s.draw())
+    particles.forEach(p => { p.update(); p.draw() })
+    connect()
+    shootingStars.forEach(s => { s.update(); s.draw() })
     animationId = requestAnimationFrame(animate)
   }
   
-  resize()
-  initParticles()
-  animate()
-  
-  window.addEventListener('resize', () => {
-    resize()
-    initParticles()
-  })
+  resize(); init(); animate()
+  window.addEventListener('resize', () => { resize(); init() })
 }
 
 const handleResize = () => {
-  salaryInstance?.resize()
-  cityInstance?.resize()
+  salaryInstance?.resize(); cityInstance?.resize()
+  salarySparkInstance?.resize(); cityBarsInstance?.resize()
+  popupMapInstance?.resize(); popupSalaryEduInstance?.resize()
+}
+
+const cityToProvinceMap = {
+  "北京":"北京市","上海":"上海市","广州":"广东省","深圳":"广东省","东莞":"广东省","佛山":"广东省",
+  "珠海":"广东省","惠州":"广东省","中山":"广东省","杭州":"浙江省","宁波":"浙江省","温州":"浙江省",
+  "嘉兴":"浙江省","绍兴":"浙江省","成都":"四川省","重庆":"重庆市","西安":"陕西省","武汉":"湖北省",
+  "长沙":"湖南省","南京":"江苏省","苏州":"江苏省","无锡":"江苏省","常州":"江苏省","南通":"江苏省",
+  "合肥":"安徽省","福州":"福建省","厦门":"福建省","泉州":"福建省","济南":"山东省","青岛":"山东省",
+  "天津":"天津市","石家庄":"河北省","太原":"山西省","沈阳":"辽宁省","大连":"辽宁省","长春":"吉林省",
+  "哈尔滨":"黑龙江省","郑州":"河南省","昆明":"云南省","贵阳":"贵州省","南宁":"广西壮族自治区",
+  "海口":"海南省","兰州":"甘肃省","西宁":"青海省","银川":"宁夏回族自治区","乌鲁木齐":"新疆维吾尔自治区",
+  "呼和浩特":"内蒙古自治区","南昌":"江西省"
+}
+
+const initPopupMap = async () => {
+  let retries = 0
+  while (retries < 15) {
+    if (popupMapRef.value && popupMapRef.value.clientWidth > 0) break
+    await new Promise(r => setTimeout(r, 80))
+    retries++
+  }
+  if (!popupMapRef.value || popupMapRef.value.clientWidth === 0) return
+  if (popupMapInstance) popupMapInstance.dispose()
+  
+  if (!chinaMapRegistered) {
+    try {
+      const res = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+      if (!res.ok) throw new Error('map load failed')
+      const chinaJson = await res.json()
+      echarts.registerMap('china', chinaJson)
+      chinaMapRegistered = true
+    } catch (e) {
+      return
+    }
+  }
+  
+  popupMapInstance = echarts.init(popupMapRef.value)
+  const provinceCount = {}
+  filteredData.value.forEach(item => {
+    const city = (item.city || '').split('-')[0].split('·')[0].trim()
+    const province = cityToProvinceMap[city]
+    if (province) provinceCount[province] = (provinceCount[province] || 0) + 1
+  })
+  const maxVal = Math.max(...Object.values(provinceCount), 1)
+  const mapData = Object.entries(provinceCount).map(([name, value]) => ({ name, value }))
+
+  popupMapInstance.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(5, 8, 20, 0.95)',
+      borderColor: 'rgba(0, 240, 255, 0.3)',
+      borderWidth: 1,
+      padding: [8, 12],
+      textStyle: { color: '#e2e8f0', fontSize: 12 },
+      formatter: (p) => `<b style="color:#00f0ff">${p.name}</b><br/>岗位数: <b>${p.value || 0}</b>`
+    },
+    visualMap: {
+      type: 'continuous',
+      min: 0,
+      max: maxVal,
+      calculable: false,
+      inRange: { color: ['rgba(124, 58, 237, 0.15)', 'rgba(0, 240, 255, 0.3)', 'rgba(0, 240, 255, 0.8)'] },
+      show: false
+    },
+    series: [{
+      type: 'map',
+      map: 'china',
+      roam: true,
+      zoom: 1.2,
+      label: { show: false },
+      emphasis: {
+        label: { show: true, color: '#fff', fontSize: 11 },
+        itemStyle: { areaColor: 'rgba(0, 240, 255, 0.5)', borderColor: '#00f0ff', borderWidth: 1.5 }
+      },
+      itemStyle: {
+        areaColor: 'rgba(124, 58, 237, 0.08)',
+        borderColor: 'rgba(124, 58, 237, 0.3)',
+        borderWidth: 0.5
+      },
+      data: mapData,
+      animationDuration: 1000
+    }]
+  })
+}
+
+const initPopupSalaryEdu = async () => {
+  let retries = 0
+  while (retries < 15) {
+    if (popupSalaryEduRef.value && popupSalaryEduRef.value.clientWidth > 0) break
+    await new Promise(r => setTimeout(r, 80))
+    retries++
+  }
+  if (!popupSalaryEduRef.value || popupSalaryEduRef.value.clientWidth === 0) return
+  if (popupSalaryEduInstance) popupSalaryEduInstance.dispose()
+  popupSalaryEduInstance = echarts.init(popupSalaryEduRef.value)
+  const stats = eduSalaryStats.value
+  popupSalaryEduInstance.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(5, 8, 20, 0.95)',
+      borderColor: 'rgba(0, 240, 255, 0.3)',
+      borderWidth: 1,
+      textStyle: { color: '#e2e8f0', fontSize: 11 },
+      formatter: (params) => {
+        const p = params[0]
+        return `${p.name}<br/>平均薪资: <b style="color:#00f0ff">¥${p.value.toLocaleString()}</b>`
+      }
+    },
+    grid: { left: '15%', right: '8%', bottom: '8%', top: '8%', containLabel: true },
+    xAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisLabel: { color: 'rgba(200,210,230,0.5)', fontSize: 10, formatter: (v) => (v / 1000) + 'K' },
+      splitLine: { lineStyle: { color: 'rgba(0,240,255,0.06)', type: 'dashed' } }
+    },
+    yAxis: {
+      type: 'category',
+      data: stats.map(s => s.name).reverse(),
+      axisLine: { show: false },
+      axisLabel: { color: 'rgba(220,230,240,0.8)', fontSize: 11 },
+      axisTick: { show: false }
+    },
+    series: [{
+      type: 'bar',
+      data: stats.map(s => s.avg).reverse(),
+      barWidth: '50%',
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+          { offset: 0, color: 'rgba(0, 240, 255, 0.3)' },
+          { offset: 1, color: '#00f0ff' }
+        ]),
+        borderRadius: [0, 4, 4, 0],
+        shadowColor: 'rgba(0,240,255,0.4)',
+        shadowBlur: 10
+      },
+      animationDuration: 1000,
+      animationDelay: (idx) => idx * 100
+    }]
+  })
 }
 
 onMounted(() => {
-  initSalaryChart()
-  initCityChart()
-  initBackground()
+  initSalaryChart(); initCityChart(); initBackground(); loadPolicyData(); updateCityBars()
+  initMiniCharts()
   window.addEventListener('resize', handleResize)
+})
+
+watch(activePopupCard, async (card) => {
+  if (!card) return
+  await nextTick()
+  if (card === 'hero') initPopupMap()
+  if (card === 'salary') initPopupSalaryEdu()
+})
+
+watch(searchKeyword, () => {
+  policyPage.value = 1
+  nextTick(() => {
+    initSalaryChart()
+    initCityChart()
+    updateCityBars()
+    initMiniCharts()
+  })
+})
+
+watch(activePolicyTab, () => {
+  policyPage.value = 1
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
-  salaryInstance?.dispose()
-  cityInstance?.dispose()
-  if (animationId) {
-    cancelAnimationFrame(animationId)
-  }
+  salaryInstance?.dispose(); cityInstance?.dispose()
+  salarySparkInstance?.dispose(); cityBarsInstance?.dispose()
+  popupMapInstance?.dispose(); popupSalaryEduInstance?.dispose()
+  if (animationId) cancelAnimationFrame(animationId)
 })
 </script>
 
 <style scoped>
 .talent-page {
+  --bg-deep: #02040a;
+  --bg-card: rgba(10, 18, 42, 0.55);
+  --bg-card-hover: rgba(18, 30, 60, 0.7);
+  --cyan: #00f0ff;
+  --purple: #7c3aed;
+  --purple-light: #a78bfa;
+  --purple-dark: #5b21b6;
+  --amber: #fbbf24;
+  --green: #00ff9d;
+  --red: #ff4757;
+  --text: #e8edf7;
+  --text-dim: rgba(232, 237, 247, 0.55);
+  --border: rgba(0, 240, 255, 0.15);
+  --border-glow: rgba(0, 240, 255, 0.5);
+  --font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
   min-height: 100vh;
-  background: #030712;
-  position: relative;
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  scroll-behavior: smooth;
 }
 
-.page-bg {
+/* ===== 背景层 ===== */
+.bg-deep-space {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-starfield {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(ellipse at 10% 10%, rgba(14, 165, 233, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 90% 90%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+}
+.bg-nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  animation: nebulaDrift 18s ease-in-out infinite alternate;
+}
+.nebula-1 {
+  top: -15%;
+  left: -10%;
+  width: 55vw;
+  height: 55vw;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.28) 0%, transparent 65%);
+}
+.nebula-2 {
+  bottom: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.25) 0%, transparent 65%);
+  animation-delay: -6s;
+}
+.nebula-3 {
+  top: 30%;
+  left: 40%;
+  width: 45vw;
+  height: 45vw;
+  background: radial-gradient(circle, rgba(56, 132, 255, 0.2) 0%, transparent 65%);
+  animation-delay: -12s;
 }
 
-.bg-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
+/* ===== 页面容器 ===== */
 .page-container {
   position: relative;
   z-index: 1;
-  padding: 30px 40px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px 32px 40px;
 }
 
+/* ===== 顶部导航 ===== */
 .page-header {
-  margin-bottom: 30px;
-}
-
-.header-content {
-  max-width: 100%;
-}
-
-.header-top {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
 }
-
-.back-btn {
+.header-left {
   display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.back-btn {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
-  background: rgba(14, 165, 233, 0.08);
-  border: 1px solid rgba(14, 165, 233, 0.15);
+  padding: 9px 16px;
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  color: rgba(14, 165, 233, 0.8);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.back-btn:hover {
-  background: rgba(14, 165, 233, 0.12);
-  border-color: rgba(14, 165, 233, 0.3);
-}
-
-.header-title h1 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #0ea5e9, #10b981);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-
-.header-title p {
+  color: var(--cyan);
   font-size: 13px;
-  color: rgba(148, 163, 184, 0.5);
-  margin: 8px 0 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-
-.search-container {
-  max-width: 600px;
-  margin: 0 auto;
+.back-btn:hover {
+  background: rgba(0, 240, 255, 0.14);
+  border-color: var(--border-glow);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
 }
-
-.search-box {
+.header-divider {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(180deg, transparent, var(--border-glow), transparent);
+}
+.title-area { display: flex; flex-direction: column; gap: 6px; }
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+.title-glow {
+  background: linear-gradient(90deg, var(--cyan), var(--purple), var(--cyan));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s linear infinite;
+}
+.meta-row {
   display: flex;
   align-items: center;
-  padding: 3px;
-  background: rgba(15, 25, 45, 0.7);
-  border: 1px solid rgba(14, 165, 233, 0.15);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-dim);
 }
-
-.search-box:focus-within {
-  border-color: rgba(14, 165, 233, 0.4);
-  box-shadow: 0 0 20px rgba(14, 165, 233, 0.1);
+.meta-item { display: inline-flex; align-items: center; gap: 6px; }
+.meta-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  display: inline-block;
 }
-
-.search-icon {
-  padding: 0 14px;
-  color: rgba(14, 165, 233, 0.4);
+.meta-dot.online {
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+  animation: pulse 2s ease-in-out infinite;
 }
-
+.header-right { display: flex; align-items: center; }
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(10, 18, 42, 0.55);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px 4px 4px 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.search-wrap:focus-within {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+}
+.search-icon { color: var(--cyan); flex-shrink: 0; opacity: 0.8; }
 .search-input {
   flex: 1;
-  padding: 12px 0;
   background: transparent;
   border: none;
-  color: #e2e8f0;
-  font-size: 14px;
   outline: none;
+  color: var(--text);
+  font-size: 13px;
+  padding: 8px 10px;
+  width: 240px;
+  font-family: inherit;
 }
-
-.search-input::placeholder {
-  color: rgba(148, 163, 184, 0.4);
-}
-
-.search-btn {
-  padding: 10px 24px;
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(16, 185, 129, 0.7));
+.search-input::placeholder { color: var(--text-dim); }
+.clear-btn {
+  background: transparent;
   border: none;
-  border-radius: 10px;
-  color: #fff;
+  color: var(--text-dim);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 8px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+.clear-btn:hover { color: var(--red); }
+.search-btn {
+  padding: 8px 18px;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  border: none;
+  border-radius: 8px;
+  color: #02040a;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-right: 3px;
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
 }
-
 .search-btn:hover {
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.65);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
 }
 
-.stats-section {
+/* ===== Bento Grid ===== */
+.bento-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 30px;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-flow: dense;
+  gap: 20px;
+}
+.bento-card {
+  position: relative;
+  background: linear-gradient(145deg, rgba(14, 22, 52, 0.75) 0%, rgba(8, 14, 36, 0.65) 100%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(0, 240, 255, 0.04);
+  padding: 22px;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+}
+.bento-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at top left, rgba(0, 240, 255, 0.06), transparent 50%),
+              radial-gradient(ellipse at bottom right, rgba(124, 58, 237, 0.05), transparent 50%);
+  pointer-events: none;
+}
+.bento-card:hover {
+  transform: translateY(-4px);
+  background: linear-gradient(145deg, rgba(20, 32, 68, 0.8) 0%, rgba(12, 20, 48, 0.7) 100%);
+  border-color: var(--border-glow);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 32px rgba(0, 240, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.neon-border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+  background-size: 200% 100%;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+  animation: borderFlow 4s linear infinite;
+  pointer-events: none;
 }
 
-.stat-card {
+/* ===== Hero 大卡 ===== */
+.hero-card {
+  grid-column: span 8;
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+}
+.hero-inner {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
-  background: rgba(15, 25, 45, 0.6);
-  border: 1px solid rgba(14, 165, 233, 0.1);
-  border-radius: 14px;
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
+  justify-content: space-between;
+  gap: 24px;
+  flex: 1;
 }
-
-.stat-card:hover {
-  border-color: rgba(14, 165, 233, 0.25);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+.hero-left { display: flex; flex-direction: column; gap: 12px; }
+.card-kicker {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(0, 240, 255, 0.65);
+  text-transform: uppercase;
+  font-weight: 600;
 }
-
-.stat-icon-wrap {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+.hero-value {
+  font-family: var(--font-mono);
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 2px;
+  position: relative;
+  animation: heroNumberGlow 3s ease-in-out infinite alternate;
+}
+@keyframes heroNumberGlow {
+  0% { filter: drop-shadow(0 0 14px rgba(0, 240, 255, 0.5)); }
+  100% { filter: drop-shadow(0 0 22px rgba(0, 240, 255, 0.85)); }
+}
+.neon-text {
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px rgba(0, 240, 255, 0.55));
+}
+.hero-label {
+  font-size: 14px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.hero-breakdown {
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  gap: 18px;
+  margin-top: 8px;
 }
-
-.stat-num {
+.breakdown-item { display: flex; flex-direction: column; gap: 4px; }
+.breakdown-val {
+  font-family: var(--font-mono);
   font-size: 20px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
 }
-
-.stat-info {
-  flex: 1;
+.breakdown-val.cyan { color: var(--cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.6); }
+.breakdown-val.purple { color: var(--purple); text-shadow: 0 0 10px rgba(124, 58, 237, 0.6); }
+.breakdown-val.amber { color: var(--amber); text-shadow: 0 0 10px rgba(251, 191, 36, 0.6); }
+.breakdown-label { font-size: 11px; color: var(--text-dim); }
+.breakdown-sep {
+  width: 1px;
+  height: 32px;
+  background: linear-gradient(180deg, transparent, var(--border-glow), transparent);
 }
-
-.stat-value {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #f1f5f9;
-  margin-bottom: 2px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: rgba(148, 163, 184, 0.5);
-}
-
-.main-content {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
-}
-
-.left-panel {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.panel-card {
-  background: rgba(15, 25, 45, 0.6);
-  border: 1px solid rgba(14, 165, 233, 0.1);
-  border-radius: 14px;
-  padding: 20px;
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
-}
-
-.panel-card:hover {
-  border-color: rgba(14, 165, 233, 0.2);
-}
-
-.chart-card {
-  grid-column: span 2;
-}
-
-.card-header {
+.hero-decoration {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  justify-content: center;
+  animation: float 6s ease-in-out infinite;
 }
+.hero-svg { width: 180px; height: 180px; }
 
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #f1f5f9;
-  margin: 0;
-}
-
-.card-subtitle {
-  font-size: 12px;
-  color: rgba(16, 185, 129, 0.7);
-}
-
-.chart-area {
-  height: 240px;
-}
-
-.chart-area-small {
-  height: 180px;
-}
-
-.ranking-content {
+/* ===== 数据卡 ===== */
+.data-card {
+  grid-column: span 4;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
-.ranking-item {
+.card-top {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: rgba(14, 165, 233, 0.04);
-  border: 1px solid rgba(14, 165, 233, 0.08);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.ranking-item:hover {
-  background: rgba(14, 165, 233, 0.08);
-  border-color: rgba(14, 165, 233, 0.2);
-}
-
-.ranking-item.active {
-  background: rgba(14, 165, 233, 0.1);
-  border-color: rgba(14, 165, 233, 0.35);
-}
-
-.rank-badge {
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: rgba(14, 165, 233, 0.12);
-  color: rgba(14, 165, 233, 0.7);
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.rank-badge.rank-1 {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
-  color: #fff;
-}
-
-.rank-badge.rank-2 {
-  background: linear-gradient(135deg, #9ca3af, #6b7280);
-  color: #fff;
-}
-
-.rank-badge.rank-3 {
-  background: linear-gradient(135deg, #d97706, #b45309);
-  color: #fff;
-}
-
-.rank-info {
-  flex: 1;
-}
-
-.rank-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #f1f5f9;
-  margin-bottom: 3px;
-}
-
-.rank-detail {
-  display: flex;
-  gap: 12px;
-  font-size: 11px;
-  color: rgba(148, 163, 184, 0.5);
-}
-
-.rank-salary {
-  color: rgba(16, 185, 129, 0.7);
-}
-
-.rank-trend {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 8px;
-}
-
-.rank-trend.up {
-  color: rgba(16, 185, 129, 0.9);
-  background: rgba(16, 185, 129, 0.1);
-}
-
-.degree-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.degree-item {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.degree-header {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
 }
-
-.degree-name {
+.card-num {
+  font-family: var(--font-mono);
   font-size: 13px;
-  color: rgba(148, 163, 184, 0.7);
+  color: var(--text-dim);
+  letter-spacing: 1px;
 }
-
-.degree-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-
-.degree-bar {
-  height: 5px;
-  background: rgba(14, 165, 233, 0.08);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.degree-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.8s ease;
-}
-
-.degree-count {
-  font-size: 11px;
-  color: rgba(148, 163, 184, 0.4);
-}
-
-.right-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.policy-main-card {
-  background: rgba(15, 25, 45, 0.8);
-  border: 1px solid rgba(14, 165, 233, 0.15);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.policy-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-
-.policy-card-header h2 {
-  font-size: 1.1rem;
+.card-label { font-size: 13px; color: var(--text-dim); }
+.card-value {
+  font-family: var(--font-mono);
+  font-size: 36px;
   font-weight: 700;
-  color: #f1f5f9;
-  margin: 0 0 5px;
+  line-height: 1.1;
+  letter-spacing: 1px;
 }
-
-.policy-card-header p {
-  font-size: 12px;
-  color: rgba(148, 163, 184, 0.5);
-  margin: 0;
-}
-
-.live-badge {
+.neon-cyan-text { color: var(--cyan); text-shadow: 0 0 12px rgba(0, 240, 255, 0.6), 0 0 24px rgba(0, 240, 255, 0.3); }
+.neon-purple-text { color: var(--purple); text-shadow: 0 0 12px rgba(124, 58, 237, 0.6), 0 0 24px rgba(124, 58, 237, 0.3); }
+.neon-amber-text { color: var(--amber); text-shadow: 0 0 12px rgba(251, 191, 36, 0.6), 0 0 24px rgba(251, 191, 36, 0.3); }
+.card-value-row {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.15);
-  border-radius: 18px;
-  font-size: 11px;
-  color: rgba(16, 185, 129, 0.8);
-}
-
-.live-dot {
-  width: 5px;
-  height: 5px;
-  background: #10b981;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.policy-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.policy-tab {
-  padding: 8px 16px;
-  background: rgba(14, 165, 233, 0.06);
-  border: 1px solid rgba(14, 165, 233, 0.1);
-  border-radius: 8px;
-  color: rgba(148, 163, 184, 0.6);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.policy-tab:hover {
-  background: rgba(14, 165, 233, 0.12);
-  border-color: rgba(14, 165, 233, 0.25);
-}
-
-.policy-tab.active {
-  background: rgba(14, 165, 233, 0.2);
-  border-color: rgba(14, 165, 233, 0.4);
-  color: #0ea5e9;
-}
-
-.policy-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.policy-card-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
   gap: 10px;
-  padding: 18px;
-  background: rgba(14, 165, 233, 0.04);
-  border: 1px solid rgba(14, 165, 233, 0.1);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
 }
-
-.policy-card-item:hover {
-  background: rgba(14, 165, 233, 0.08);
-  border-color: rgba(14, 165, 233, 0.25);
-  transform: translateY(-1px);
-}
-
-.policy-card-item.active {
-  background: rgba(14, 165, 233, 0.1);
-  border-color: rgba(14, 165, 233, 0.4);
-}
-
-.policy-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 3px 10px;
-  border-radius: 10px;
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.policy-badge.国家级 {
-  background: rgba(239, 68, 68, 0.12);
-  color: rgba(239, 68, 68, 0.8);
-}
-
-.policy-badge.省级 {
-  background: rgba(245, 158, 11, 0.12);
-  color: rgba(245, 158, 11, 0.8);
-}
-
-.policy-badge.市级 {
-  background: rgba(14, 165, 233, 0.12);
-  color: rgba(14, 165, 233, 0.8);
-}
-
-.policy-content h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #f1f5f9;
-  margin: 0 0 8px;
-  padding-right: 60px;
-  line-height: 1.4;
-}
-
-.policy-meta {
-  display: flex;
-  gap: 14px;
-  margin-bottom: 6px;
-}
-
-.policy-city {
-  font-size: 11px;
-  color: rgba(14, 165, 233, 0.7);
-}
-
-.policy-amount {
-  font-size: 11px;
-  color: rgba(16, 185, 129, 0.8);
-  font-weight: 600;
-}
-
-.policy-jobs {
-  font-size: 11px;
-  color: rgba(148, 163, 184, 0.5);
-  line-height: 1.5;
-  margin: 0 0 8px;
-}
-
-.policy-match {
-  display: flex;
+.trend-indicator {
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  color: rgba(16, 185, 129, 0.7);
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
 }
-
-.match-icon {
-  width: 14px;
-  height: 14px;
-  background: rgba(16, 185, 129, 0.12);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
+.trend-indicator.up {
+  background: rgba(0, 255, 157, 0.12);
+  color: var(--green);
+  text-shadow: 0 0 6px rgba(0, 255, 157, 0.5);
 }
-
-.apply-btn {
+.trend-indicator.down {
+  background: rgba(255, 71, 87, 0.12);
+  color: var(--red);
+  text-shadow: 0 0 6px rgba(255, 71, 87, 0.5);
+}
+.trend-arrow { font-size: 10px; }
+.mini-chart {
   width: 100%;
-  padding: 10px;
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(16, 185, 129, 0.7));
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  height: 50px;
+  margin-top: auto;
 }
-
-.apply-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
-}
-
-.policy-detail-card {
-  background: rgba(15, 25, 45, 0.6);
-  border: 1px solid rgba(14, 165, 233, 0.1);
-  border-radius: 14px;
-  padding: 20px;
-}
-
-.detail-header {
+.spark-chart { height: 50px; }
+.bars-chart { height: 55px; }
+.card-insight {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-}
-
-.detail-header h3 {
-  font-size: 15px;
-  font-weight: 600;
-  color: #f1f5f9;
-  margin: 0;
-}
-
-.close-detail {
-  font-size: 18px;
-  color: rgba(148, 163, 184, 0.4);
-  cursor: pointer;
-  padding: 0 6px;
-  transition: color 0.3s ease;
-}
-
-.close-detail:hover {
-  color: rgba(148, 163, 184, 0.7);
-}
-
-.detail-body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.detail-row {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.detail-label {
-  font-size: 11px;
-  color: rgba(148, 163, 184, 0.4);
-}
-
-.detail-value {
-  font-size: 13px;
-  color: rgba(148, 163, 184, 0.8);
-  line-height: 1.4;
-}
-
-.detail-value.highlight {
-  color: rgba(16, 185, 129, 0.9);
-  font-weight: 600;
-}
-
-.detail-tags {
-  display: flex;
-  flex-wrap: wrap;
   gap: 6px;
-  margin-top: 3px;
-}
-
-.detail-tags .tag {
-  padding: 5px 12px;
-  background: rgba(14, 165, 233, 0.12);
-  border-radius: 12px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid var(--border);
   font-size: 11px;
-  color: rgba(14, 165, 233, 0.7);
+  color: var(--text-dim);
+  line-height: 1.4;
 }
-
-.detail-apply-btn {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(16, 185, 129, 0.7));
-  border: none;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 14px;
-  transition: all 0.3s ease;
-}
-
-.detail-apply-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
-}
-
-.tips-card {
-  background: rgba(245, 158, 11, 0.04);
-  border: 1px solid rgba(245, 158, 11, 0.08);
-  border-radius: 14px;
-  padding: 18px;
-}
-
-.tips-card h3 {
+.insight-icon {
   font-size: 14px;
-  font-weight: 600;
-  color: rgba(245, 158, 11, 0.9);
-  margin: 0 0 14px;
-}
-
-.tips-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.tip-item {
-  display: flex;
-  gap: 8px;
-}
-
-.tip-num {
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
-  background: rgba(245, 158, 11, 0.12);
-  color: rgba(245, 158, 11, 0.7);
-  font-size: 10px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
 
-.tip-text {
-  font-size: 12px;
-  color: rgba(148, 163, 184, 0.6);
-  line-height: 1.4;
+/* 颜色主题边框微调 */
+.neon-cyan .neon-border { background: linear-gradient(90deg, transparent, var(--cyan), transparent); box-shadow: 0 0 12px rgba(0, 240, 255, 0.6); }
+.neon-purple .neon-border { background: linear-gradient(90deg, transparent, var(--purple), transparent); box-shadow: 0 0 12px rgba(124, 58, 237, 0.6); }
+.neon-amber .neon-border { background: linear-gradient(90deg, transparent, var(--amber), transparent); box-shadow: 0 0 12px rgba(251, 191, 36, 0.6); }
+
+/* ===== 图表卡 ===== */
+.chart-card { grid-column: span 6; display: flex; flex-direction: column; }
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.card-header.compact { margin-bottom: 10px; }
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+.card-sub { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+.card-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.neon-cyan-bg {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.3);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+}
+.badge-val {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+.badge-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+.chart-box { width: 100%; height: 280px; position: relative; }
+.chart-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.03), transparent 70%);
+  pointer-events: none;
 }
 
-.footer {
+/* ===== 学历分布 ===== */
+.info-card { grid-column: span 3; display: flex; flex-direction: column; }
+.edu-list { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.edu-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.edu-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 70px;
+  flex-shrink: 0;
+}
+.edu-name { font-size: 12px; color: var(--text); }
+.edu-count { font-size: 10px; color: var(--text-dim); font-family: var(--font-mono); }
+.edu-progress {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.edu-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.edu-percent {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  width: 38px;
+  text-align: right;
+}
+
+/* ===== 排行榜 ===== */
+.rank-card { grid-column: span 3; }
+.rank-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+.rank-row:hover {
+  background: rgba(0, 240, 255, 0.06);
+  border-color: var(--border);
+}
+.rank-row.active {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--border-glow);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.2);
+}
+.rank-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+}
+.rank-1 {
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: #2a1a00;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+.rank-2 {
+  background: linear-gradient(135deg, #d4d4d8, #a1a1aa);
+  color: #1a1a1a;
+  box-shadow: 0 0 10px rgba(212, 212, 216, 0.4);
+}
+.rank-3 {
+  background: linear-gradient(135deg, #cd7f32, #92400e);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
+}
+.rank-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rank-name {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank-sub { font-size: 11px; color: var(--text-dim); font-family: var(--font-mono); }
+.rank-trend {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 8px rgba(0, 255, 157, 0.4);
+  flex-shrink: 0;
+}
+
+/* ===== 城市卡 ===== */
+.city-card { grid-column: span 6; }
+
+/* ===== 政策卡 ===== */
+.policy-card {
+  grid-column: span 12;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.neon-purple-border {
+  background: linear-gradient(90deg, transparent, var(--purple), var(--cyan), transparent);
+  box-shadow: 0 0 14px rgba(124, 58, 237, 0.6);
+}
+.policy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.policy-title { display: flex; align-items: center; gap: 12px; }
+.policy-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  color: var(--purple);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.2);
+  flex-shrink: 0;
+}
+.policy-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+.policy-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+.update-time { color: var(--cyan); font-family: var(--font-mono); }
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.4);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--red);
+  flex-shrink: 0;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+.policy-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.policy-tab {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.policy-tab:hover { color: var(--text); border-color: var(--border-glow); }
+.policy-tab.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(124, 58, 237, 0.15));
+  border-color: var(--border-glow);
+  color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+}
+.policy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.policy-list::-webkit-scrollbar {
+  width: 6px;
+}
+.policy-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+.policy-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--cyan), var(--purple));
+  border-radius: 3px;
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.3);
+}
+.policy-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.8), rgba(124, 58, 237, 0.8));
+}
+.policy-item {
+  display: flex;
+  gap: 0;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(12, 20, 48, 0.5), rgba(8, 14, 36, 0.4));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.policy-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.06), transparent 70%);
+  pointer-events: none;
+}
+.policy-item:hover {
+  background: linear-gradient(135deg, rgba(22, 34, 68, 0.65), rgba(14, 22, 48, 0.55));
+  border-color: var(--border-glow);
+  transform: translateX(3px);
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.12);
+}
+.policy-item.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(124, 58, 237, 0.08));
+  border-color: var(--border-glow);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+}
+.policy-accent {
+  width: 3px;
+  border-radius: 3px;
+  margin-right: 14px;
+  flex-shrink: 0;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+.policy-accent.national { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.policy-accent.provincial { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.policy-accent.city { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.policy-body { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.policy-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.policy-item-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.policy-level {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.policy-level.national { background: rgba(255, 71, 87, 0.15); color: var(--red); }
+.policy-level.provincial { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
+.policy-level.city { background: rgba(0, 240, 255, 0.15); color: var(--cyan); }
+.policy-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.policy-city { display: inline-flex; align-items: center; gap: 4px; }
+.policy-amount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--amber);
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+.policy-jobs {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.policy-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.policy-match {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--green);
+}
+.match-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+.detail-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  color: var(--cyan);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.detail-btn:hover {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--border-glow);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+.policy-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text-dim);
   text-align: center;
-  padding: 30px 0 16px;
-  color: rgba(148, 163, 184, 0.3);
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+.policy-pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.page-btn {
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
   font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.page-btn:hover:not(:disabled) {
+  border-color: var(--border-glow);
+  color: var(--cyan);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+}
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.page-numbers {
+  display: flex;
+  gap: 4px;
+}
+.page-num {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.page-num:hover {
+  border-color: var(--border);
+  color: var(--text);
+}
+.page-num.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(124, 58, 237, 0.15));
+  border-color: var(--border-glow);
+  color: var(--cyan);
+  text-shadow: 0 0 6px rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
 
-.apply-modal {
+/* ===== 页脚 ===== */
+.page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 32px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.footer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+.footer-sep { color: var(--text-dim); opacity: 0.5; }
+.footer-ok { color: var(--green); }
+
+/* ===== 弹窗 ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(2, 4, 10, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 240, 255, 0.2);
+  overflow: hidden;
+  animation: modalIn 0.3s ease;
+}
+.modal-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.7);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title-wrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.modal-level {
+  align-self: flex-start;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+}
+.modal-level.national { background: rgba(255, 71, 87, 0.15); color: var(--red); }
+.modal-level.provincial { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
+.modal-level.city { background: rgba(0, 240, 255, 0.15); color: var(--cyan); }
+.modal-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+.modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.modal-close:hover {
+  color: var(--red);
+  border-color: rgba(255, 71, 87, 0.5);
+  box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+}
+.modal-body {
+  padding: 18px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.modal-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+.modal-row.highlight {
+  background: rgba(251, 191, 36, 0.06);
+  border-color: rgba(251, 191, 36, 0.25);
+}
+.modal-row-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  min-width: 70px;
+}
+.modal-row-value {
+  font-size: 13px;
+  color: var(--text);
+  text-align: right;
+  flex: 1;
+}
+.modal-row-value.amount {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--amber);
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  font-size: 15px;
+}
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 6px;
+}
+.modal-tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--cyan);
+}
+.modal-link-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(124, 58, 237, 0.12));
+  border: 1px solid var(--border-glow);
+  border-radius: 10px;
+  color: var(--cyan);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+.modal-link-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(124, 58, 237, 0.2));
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ===== 滚动条 ===== */
+.policy-list::-webkit-scrollbar { width: 6px; }
+.policy-list::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 3px; }
+.policy-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--cyan), var(--purple));
+  border-radius: 3px;
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+}
+.policy-list::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* ===== 动画 ===== */
+@keyframes gradientShift {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+}
+@keyframes livePulse {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 10px var(--red); }
+  50% { transform: scale(1.4); opacity: 0.6; box-shadow: 0 0 16px var(--red); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes borderFlow {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes nebulaDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, -30px) scale(1.1); }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes numberCountUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.shimmer-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  animation: shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+.bento-card:hover .shimmer-overlay {
+  animation-duration: 1.5s;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 1024px) {
+  .bento-grid { grid-template-columns: repeat(6, 1fr); }
+  .hero-card { grid-column: span 6; grid-row: span 1; }
+  .data-card { grid-column: span 2; }
+  .chart-card { grid-column: span 6; }
+  .info-card { grid-column: span 3; }
+  .city-card { grid-column: span 6; }
+  .policy-card { grid-column: span 6; }
+  .hero-svg { width: 140px; height: 140px; }
+  .hero-value { font-size: 44px; }
+}
+@media (max-width: 640px) {
+  .page-container { padding: 18px 14px 28px; }
+  .bento-grid { grid-template-columns: 1fr; gap: 14px; }
+  .hero-card, .data-card, .chart-card, .info-card, .city-card, .policy-card { grid-column: span 1; }
+  .page-header { flex-direction: column; align-items: stretch; }
+  .header-left { flex-wrap: wrap; }
+  .search-input { width: 100%; }
+  .search-wrap { width: 100%; }
+  .hero-value { font-size: 36px; }
+  .hero-decoration { display: none; }
+  .card-value { font-size: 26px; }
+  .chart-box { height: 240px; }
+}
+
+/* ===== 无搜索结果 ===== */
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+}
+.no-results-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.7; }
+.no-results-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cyan);
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+.no-results-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; }
+.no-results-btn {
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  color: #02040a;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+.no-results-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+}
+
+/* ===== 卡片浮窗交互 ===== */
+.card-hint {
+  position: absolute;
+  bottom: 6px;
+  right: 10px;
+  font-size: 10px;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.bento-card:hover .card-hint { opacity: 0.5; }
+.card-pinned {
+  border-color: var(--border-glow) !important;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.2), inset 0 0 12px rgba(0, 240, 255, 0.05) !important;
+}
+.card-pinned .card-hint { opacity: 0; }
+
+/* ===== 浮窗遮罩 ===== */
+.card-popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  right: 0;
+  bottom: 0;
+  background: rgba(2, 4, 10, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
-
-.modal-wrapper {
-  width: 90%;
-  max-width: 520px;
+.card-popup-overlay.overlay-pinned {
+  pointer-events: auto;
+  background: rgba(2, 4, 10, 0.75);
 }
-
-.modal-content {
-  background: rgba(15, 25, 45, 0.98);
-  border: 1px solid rgba(14, 165, 233, 0.2);
+.card-popup {
+  position: relative;
+  width: 700px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: linear-gradient(145deg, rgba(14, 22, 52, 0.95), rgba(8, 14, 36, 0.95));
+  border: 1px solid var(--border-glow);
   border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 240, 255, 0.1);
+  pointer-events: auto;
 }
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background: rgba(14, 165, 233, 0.06);
-  border-bottom: 1px solid rgba(14, 165, 233, 0.1);
-}
-
-.modal-header h3 {
-  font-size: 17px;
-  font-weight: 600;
-  color: #f1f5f9;
-  margin: 0;
-}
-
-.close-modal {
-  font-size: 22px;
-  color: rgba(148, 163, 184, 0.4);
-  cursor: pointer;
-  padding: 0 6px;
-  transition: color 0.3s ease;
-}
-
-.close-modal:hover {
-  color: rgba(148, 163, 184, 0.7);
-}
-
-.modal-body {
-  padding: 26px 20px;
-}
-
-.step-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 26px;
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.step-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(14, 165, 233, 0.12);
-  color: rgba(14, 165, 233, 0.5);
-  font-size: 13px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.step.active .step-circle {
-  background: rgba(14, 165, 233, 0.8);
-  color: #fff;
-}
-
-.step.done .step-circle {
-  background: rgba(16, 185, 129, 0.8);
-  color: #fff;
-}
-
-.step-label {
-  font-size: 10px;
-  color: rgba(148, 163, 184, 0.4);
-}
-
-.step.active .step-label {
-  color: rgba(14, 165, 233, 0.8);
-}
-
-.step.done .step-label {
-  color: rgba(16, 185, 129, 0.8);
-}
-
-.step-line {
-  width: 40px;
+.card-popup::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
   height: 2px;
-  background: rgba(14, 165, 233, 0.08);
-  margin: 0 6px;
-  transition: background 0.3s ease;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
 }
-
-.step-line.active {
-  background: rgba(16, 185, 129, 0.5);
-}
-
-.step-content {
-  min-height: 200px;
-}
-
-.step-panel {
+.popup-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  font-size: 18px;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
 }
-
-.step-panel h4 {
-  font-size: 15px;
-  font-weight: 600;
-  color: #f1f5f9;
-  margin: 0;
+.popup-close:hover {
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
 }
-
-.step-panel p {
+.popup-close-hint {
+  position: absolute;
+  top: 22px;
+  right: 56px;
+  font-size: 11px;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+.popup-header {
+  margin-bottom: 20px;
+}
+.popup-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+  letter-spacing: 0.5px;
+}
+.popup-sub {
   font-size: 13px;
-  color: rgba(148, 163, 184, 0.6);
+  color: var(--text-dim);
   margin: 0;
 }
 
-.job-match-list {
+/* Hero浮窗 - 地图 */
+.popup-map-chart {
+  width: 100%;
+  height: 380px;
+  margin-bottom: 16px;
+}
+.popup-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.popup-stat { text-align: center; }
+.popup-stat-val {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.popup-stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.popup-stat-val.cyan { color: var(--cyan); text-shadow: 0 0 8px rgba(0, 240, 255, 0.4); }
+.popup-stat-val.purple { color: var(--purple-light); text-shadow: 0 0 8px rgba(124, 58, 237, 0.4); }
+.popup-stat-val.amber { color: var(--amber); text-shadow: 0 0 8px rgba(251, 191, 36, 0.4); }
+.popup-stat-val.green { color: var(--green); text-shadow: 0 0 8px rgba(0, 255, 157, 0.4); }
+
+/* 薪资浮窗 */
+.popup-salary-grid {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
-.job-match-item {
+.popup-salary-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
-  background: rgba(14, 165, 233, 0.06);
-  border-radius: 8px;
+  gap: 10px;
 }
-
-.job-match-item .job-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.job-match-item .job-name {
-  font-size: 13px;
-  color: #f1f5f9;
-  font-weight: 500;
-}
-
-.job-match-item .job-city {
-  font-size: 11px;
-  color: rgba(148, 163, 184, 0.5);
-}
-
-.job-match-item .job-salary {
-  font-size: 13px;
-  color: rgba(16, 185, 129, 0.8);
+.salary-range-label {
+  width: 60px;
+  font-size: 12px;
   font-weight: 600;
+  flex-shrink: 0;
 }
-
-.material-checklist {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.material-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  padding: 10px;
-  background: rgba(14, 165, 233, 0.04);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.material-item:hover {
-  background: rgba(14, 165, 233, 0.08);
-}
-
-.material-checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: #0ea5e9;
-}
-
-.material-content {
+.salary-range-bar-wrap {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
 }
-
-.material-name {
-  font-size: 13px;
-  color: #f1f5f9;
+.salary-range-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-.material-desc {
+.salary-range-count {
+  width: 55px;
+  text-align: right;
   font-size: 11px;
-  color: rgba(148, 163, 184, 0.5);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
 }
-
-.plan-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.plan-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  background: rgba(14, 165, 233, 0.05);
-  border-radius: 10px;
-}
-
-.plan-label {
-  font-size: 13px;
-  color: rgba(148, 163, 184, 0.6);
-}
-
-.plan-value {
-  font-size: 13px;
-  color: #f1f5f9;
-  font-weight: 500;
-}
-
-.plan-value.highlight {
-  color: rgba(16, 185, 129, 0.9);
-}
-
-.success-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 16px 0;
-}
-
-.success-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(14, 165, 233, 0.7));
-  color: #fff;
-  font-size: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
-}
-
-.success-code {
-  padding: 14px 28px;
-  background: rgba(14, 165, 233, 0.08);
-  border-radius: 10px;
-  font-size: 13px;
-  color: rgba(14, 165, 233, 0.8);
-  font-family: monospace;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 14px;
-  padding: 16px 20px;
-  background: rgba(14, 165, 233, 0.04);
-  border-top: 1px solid rgba(14, 165, 233, 0.08);
-}
-
-.modal-btn {
-  padding: 10px 28px;
-  border-radius: 8px;
-  font-size: 13px;
+.salary-range-percent {
+  width: 35px;
+  text-align: right;
+  font-size: 12px;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  color: var(--text);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+.popup-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 20px 0;
+}
+.popup-sub-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.popup-edu-chart {
+  width: 100%;
+  height: 200px;
 }
 
-.modal-btn.primary {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(16, 185, 129, 0.7));
-  border: none;
-  color: #fff;
+/* 城市浮窗 */
+.popup-city-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.popup-city-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+.popup-city-row:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: var(--border);
+}
+.city-rank {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.city-rank.rank-top {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(124, 58, 237, 0.2));
+  color: var(--cyan);
+  text-shadow: 0 0 6px rgba(0, 240, 255, 0.5);
+}
+.city-name {
+  width: 70px;
+  font-size: 13px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.city-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.city-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--purple-light));
+  border-radius: 3px;
+  box-shadow: 0 0 6px rgba(124, 58, 237, 0.4);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.city-count {
+  width: 50px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+.city-percent {
+  width: 35px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-light);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
 }
 
-.modal-btn.primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
+/* 浮窗动画 */
+.popup-fade-enter-active, .popup-fade-leave-active {
+  transition: opacity 0.3s ease;
 }
-
-.modal-btn.secondary {
-  background: rgba(14, 165, 233, 0.08);
-  border: 1px solid rgba(14, 165, 233, 0.15);
-  color: rgba(14, 165, 233, 0.8);
+.popup-fade-enter-from, .popup-fade-leave-to {
+  opacity: 0;
 }
-
-.modal-btn.secondary:hover {
-  background: rgba(14, 165, 233, 0.12);
+.popup-fade-enter-to, .popup-fade-leave-from {
+  opacity: 1;
 }
-
-@media (max-width: 1100px) {
-  .main-content {
-    grid-template-columns: 1fr;
-  }
-  .right-panel {
-    order: -1;
-  }
+.popup-fade-enter-active .card-popup,
+.popup-fade-leave-active .card-popup {
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
-
-@media (max-width: 768px) {
-  .page-container {
-    padding: 16px;
-  }
-  .stats-section {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .left-panel {
-    grid-template-columns: 1fr;
-  }
-  .header-top {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .header-title h1 {
-    font-size: 1.4rem;
-  }
+.popup-fade-enter-from .card-popup,
+.popup-fade-leave-to .card-popup {
+  transform: scale(0.95) translateY(10px);
+  opacity: 0;
+}
+.popup-fade-enter-to .card-popup,
+.popup-fade-leave-from .card-popup {
+  transform: scale(1) translateY(0);
+  opacity: 1;
 }
 </style>

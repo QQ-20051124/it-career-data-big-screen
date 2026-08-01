@@ -267,17 +267,20 @@
             </div>
 
             <div class="social-buttons">
-              <button class="social-btn wechat" @click="handleSocialLogin('wechat')">
+              <button class="social-btn wechat" @click="handleSocialLogin('wechat')" title="使用微信账号授权登录">
                 <div class="social-ring"></div>
                 <i class="fa-brands fa-weixin"></i>
+                <span class="social-label">微信</span>
               </button>
-              <button class="social-btn qq" @click="handleSocialLogin('qq')">
+              <button class="social-btn qq" @click="handleSocialLogin('qq')" title="使用QQ账号授权登录">
                 <div class="social-ring"></div>
                 <i class="fa-brands fa-qq"></i>
+                <span class="social-label">QQ</span>
               </button>
-              <button class="social-btn email" @click="handleEmailLogin">
+              <button class="social-btn email" @click="handleEmailLogin" title="使用邮箱账号登录">
                 <div class="social-ring"></div>
                 <i class="fa-solid fa-envelope"></i>
+                <span class="social-label">邮箱</span>
               </button>
             </div>
 
@@ -288,19 +291,144 @@
         </div>
       </div>
     </div>
+
+    <!-- 邮箱登录弹窗 -->
+    <Teleport to="body">
+      <div v-if="showEmailModal" class="email-modal-overlay" @click.self="showEmailModal = false">
+        <div class="email-modal">
+          <button class="modal-close" @click="showEmailModal = false">×</button>
+          <h3>邮箱登录</h3>
+          <p class="modal-desc">使用您的邮箱账号登录系统</p>
+          
+          <form @submit.prevent="submitEmailLogin" class="email-form">
+            <div class="form-group">
+              <label>邮箱地址</label>
+              <input 
+                type="email" 
+                v-model="emailForm.email" 
+                placeholder="请输入邮箱地址"
+                @input="emailError = ''"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>密码</label>
+              <input 
+                type="password" 
+                v-model="emailForm.password" 
+                placeholder="请输入密码"
+                @input="emailError = ''"
+              />
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" @click="showEmailModal = false">取消</button>
+              <button type="submit" class="btn-submit" :disabled="emailForm.loading">
+                {{ emailForm.loading ? '登录中...' : '登录' }}
+              </button>
+            </div>
+            
+            <div v-if="emailError" class="form-error">{{ emailError }}</div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- OAuth授权弹窗 -->
+    <Teleport to="body">
+      <div v-if="showAuthModal" class="auth-modal-overlay" @click.self="!authLoading && handleAuthCancel()">
+        <div class="auth-modal">
+          <div class="auth-provider-header">
+            <div class="auth-provider-icon" :style="{ background: authConfig[authProvider]?.color }">
+              <i :class="authConfig[authProvider]?.icon"></i>
+            </div>
+            <h3>{{ authConfig[authProvider]?.name }}授权登录</h3>
+            <p class="auth-provider-desc">「计程·职道」申请获取以下权限</p>
+          </div>
+
+          <div class="auth-permissions">
+            <div class="auth-perm-item" v-for="perm in authConfig[authProvider]?.permissions" :key="perm.key">
+              <div class="auth-perm-check">✓</div>
+              <div class="auth-perm-info">
+                <div class="auth-perm-name">{{ perm.name }}</div>
+                <div class="auth-perm-desc">{{ perm.desc }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-user-info">
+            <div class="auth-user-avatar">
+              <i :class="authConfig[authProvider]?.icon"></i>
+            </div>
+            <div class="auth-user-tip">您即将使用{{ authConfig[authProvider]?.name }}账号登录</div>
+          </div>
+
+          <div class="auth-actions">
+            <button class="auth-btn-cancel" :disabled="authLoading" @click="handleAuthCancel">
+              拒绝
+            </button>
+            <button class="auth-btn-confirm" :disabled="authLoading" @click="handleAuthorize">
+              <span v-if="authLoading" class="auth-spinner"></span>
+              {{ authLoading ? '授权中...' : '同意授权' }}
+            </button>
+          </div>
+
+          <div class="auth-security-tip">
+            🔒 安全提示：本应用仅获取必要的用户信息，不会获取您的密码等敏感信息
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import * as THREE from 'three'
+import { loginWithSocial, loginWithEmail, loginAsGuest, isLoggedIn } from '@/utils/auth'
 
+const route = useRoute()
 const showPassword = ref(false)
 const loading = ref(false)
 const bgCanvas = ref(null)
 const globeContainer = ref(null)
 const loginCard = ref(null)
 const focusedInput = ref(null)
+
+const showEmailModal = ref(false)
+const emailForm = reactive({
+  email: '',
+  password: '',
+  loading: false
+})
+const emailError = ref('')
+
+const showAuthModal = ref(false)
+const authProvider = ref('')
+const authLoading = ref(false)
+const authConfig = {
+  wechat: {
+    name: '微信',
+    icon: 'fa-brands fa-weixin',
+    color: '#07c160',
+    permissions: [
+      { key: 'nickname', name: '获取昵称', desc: '用于在系统中显示您的昵称' },
+      { key: 'avatar', name: '获取头像', desc: '用于在系统中显示您的头像' },
+      { key: 'login', name: '登录状态', desc: '保持您的登录状态' }
+    ]
+  },
+  qq: {
+    name: 'QQ',
+    icon: 'fa-brands fa-qq',
+    color: '#12b7f5',
+    permissions: [
+      { key: 'nickname', name: '获取QQ昵称', desc: '用于在系统中显示您的昵称' },
+      { key: 'avatar', name: '获取QQ头像', desc: '用于在系统中显示您的头像' },
+      { key: 'login', name: '登录状态', desc: '保持您的登录状态' }
+    ]
+  }
+}
 let bgAnimationId = null
 let globeAnimationId = null
 let mouseX = 0
@@ -358,37 +486,95 @@ const networkLinks = ref([
 ])
 
 const handleLogin = async () => {
+  if (!form.username || !form.password) {
+    return
+  }
   loading.value = true
-  await new Promise(resolve => setTimeout(resolve, 1500))
-  sessionStorage.setItem('isLoggedIn', 'true')
-  loading.value = false
-  window.location.href = '/dashboard'
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    loginWithEmail(form.username)
+    const redirect = route.query.redirect
+    window.location.href = redirect || '/dashboard'
+  } catch (e) {
+    alert('登录失败：' + e.message)
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleGuest = () => {
-  sessionStorage.setItem('isLoggedIn', 'true')
-  sessionStorage.setItem('isGuest', 'true')
+  loginAsGuest()
   window.location.href = '/dashboard'
 }
 
 const handleSocialLogin = (type) => {
-  loading.value = true
-  setTimeout(() => {
-    sessionStorage.setItem('isLoggedIn', 'true')
-    sessionStorage.setItem('loginType', type)
-    loading.value = false
-    window.location.href = '/dashboard'
-  }, 1500)
+  if (!authConfig[type]) return
+  authProvider.value = type
+  showAuthModal.value = true
+}
+
+const handleAuthorize = async () => {
+  authLoading.value = true
+  
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  
+  const randomSuffix = Math.random().toString(36).substring(2, 8)
+  const nickname = `${authConfig[authProvider.value].name}用户_${randomSuffix}`
+  
+  loginWithSocial(authProvider.value, {
+    nickname,
+    openid: 'mock_' + Date.now() + '_' + randomSuffix
+  })
+  
+  showAuthModal.value = false
+  authLoading.value = false
+  
+  const redirect = route.query.redirect
+  window.location.href = redirect || '/dashboard'
+}
+
+const handleAuthCancel = () => {
+  showAuthModal.value = false
 }
 
 const handleEmailLogin = () => {
-  loading.value = true
-  setTimeout(() => {
-    sessionStorage.setItem('isLoggedIn', 'true')
-    sessionStorage.setItem('loginType', 'email')
-    loading.value = false
-    window.location.href = '/dashboard'
-  }, 1500)
+  emailError.value = ''
+  emailForm.email = ''
+  emailForm.password = ''
+  showEmailModal.value = true
+}
+
+const submitEmailLogin = async () => {
+  if (!emailForm.email || !emailForm.password) {
+    emailError.value = '请填写邮箱和密码'
+    return
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(emailForm.email)) {
+    emailError.value = '请输入有效的邮箱地址'
+    return
+  }
+
+  if (emailForm.password.length < 6) {
+    emailError.value = '密码长度不能少于6位'
+    return
+  }
+
+  emailForm.loading = true
+  emailError.value = ''
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    loginWithEmail(emailForm.email)
+    showEmailModal.value = false
+    const redirect = route.query.redirect
+    window.location.href = redirect || '/dashboard'
+  } catch (e) {
+    emailError.value = '登录失败：' + e.message
+  } finally {
+    emailForm.loading = false
+  }
 }
 
 const handleRegister = () => {
@@ -2666,7 +2852,7 @@ onUnmounted(() => {
   border-radius: 50%;
   border: 1px solid rgba(74, 158, 255, 0.5);
   background: rgba(5, 12, 30, 0.9);
-  color: rgba(120, 160, 220, 0.7);
+  color: #78a0dc;
   font-size: 26px;
   cursor: pointer;
   display: flex;
@@ -2678,6 +2864,30 @@ onUnmounted(() => {
   box-shadow: 
     0 0 30px rgba(74, 158, 255, 0.2),
     0 0 50px rgba(167, 139, 250, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.social-btn.wechat {
+  color: #07c160;
+  border-color: rgba(7, 193, 96, 0.5);
+  box-shadow: 
+    0 0 20px rgba(7, 193, 96, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.social-btn.qq {
+  color: #12b7f5;
+  border-color: rgba(18, 183, 245, 0.5);
+  box-shadow: 
+    0 0 20px rgba(18, 183, 245, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.social-btn.email {
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.5);
+  box-shadow: 
+    0 0 20px rgba(96, 165, 250, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
@@ -2820,5 +3030,398 @@ onUnmounted(() => {
   .card-corner::after {
     width: 15px;
   }
+}
+
+/* 社交按钮标签 */
+.social-btn {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center;
+  gap: 4px;
+}
+
+.social-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+}
+
+/* 邮箱登录弹窗 */
+.email-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.email-modal {
+  background: linear-gradient(135deg, #1a1a3e 0%, #2d1f5e 50%, #1a1a3e 100%);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 16px;
+  padding: 40px;
+  width: 400px;
+  max-width: 90%;
+  position: relative;
+  box-shadow: 
+    0 0 40px rgba(96, 165, 250, 0.2),
+    0 0 80px rgba(129, 140, 248, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.email-modal h3 {
+  color: #fff;
+  font-size: 22px;
+  margin: 0 0 8px;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.modal-desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin: 0 0 30px;
+}
+
+.email-form .form-group {
+  margin-bottom: 20px;
+}
+
+.email-form label {
+  display: block;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.email-form input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.email-form input:focus {
+  outline: none;
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.1);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+.email-form input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-cancel, .btn-submit {
+  flex: 1;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  color: #fff;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(96, 165, 250, 0.4);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-error {
+  color: #ff4757;
+  font-size: 14px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 71, 87, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+}
+
+/* OAuth授权弹窗 */
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: authFadeIn 0.3s ease;
+}
+
+@keyframes authFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.auth-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  width: 440px;
+  max-width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: authSlideIn 0.3s ease;
+}
+
+@keyframes authSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-provider-header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.auth-provider-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #fff;
+  margin: 0 auto 12px;
+}
+
+.auth-provider-header h3 {
+  font-size: 18px;
+  color: #333;
+  margin: 0 0 6px;
+}
+
+.auth-provider-desc {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.auth-permissions {
+  margin-bottom: 20px;
+}
+
+.auth-perm-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.auth-perm-item:last-child {
+  border-bottom: none;
+}
+
+.auth-perm-check {
+  width: 22px;
+  height: 22px;
+  background: #e8f5e9;
+  color: #4caf50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.auth-perm-name {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.auth-perm-desc {
+  font-size: 12px;
+  color: #999;
+}
+
+.auth-user-info {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+
+.auth-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  margin-right: 12px;
+}
+
+.auth-user-tip {
+  font-size: 13px;
+  color: #666;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.auth-btn-cancel,
+.auth-btn-confirm {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.auth-btn-cancel {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.auth-btn-cancel:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+.auth-btn-confirm {
+  background: linear-gradient(135deg, #07c160, #06ad56);
+  color: #fff;
+}
+
+.auth-btn-confirm:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(7, 193, 96, 0.3);
+}
+
+.auth-btn-cancel:disabled,
+.auth-btn-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: authSpin 0.8s linear infinite;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
+
+.auth-security-tip {
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  line-height: 1.6;
 }
 </style>
