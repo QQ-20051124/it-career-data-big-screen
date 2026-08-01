@@ -259,7 +259,8 @@
                     <span class="match-dot"></span>
                     {{ getPolicyMatchCount(policy) }} 个岗位符合
                   </span>
-                  <button class="detail-btn" @click.stop="openPolicyUrl(policy)">查看详情 ↗</button>
+                  <button v-if="policy.url" class="detail-btn" @click.stop="openPolicyUrl(policy)">查看详情 ↗</button>
+                  <span v-else class="detail-btn disabled">暂无链接</span>
                 </div>
               </div>
             </div>
@@ -472,20 +473,13 @@ const activePopupCard = computed(() => pinnedCard.value || hoveredCard.value)
 let popupTimer = null
 
 const handleCardHover = (card) => {
-  if (!pinnedCard.value) {
-    if (popupTimer) clearTimeout(popupTimer)
-    hoveredCard.value = card
-  }
+  if (pinnedCard.value) return
+  hoveredCard.value = card
 }
 const handleCardLeave = () => {
-  if (!pinnedCard.value) {
-    if (popupTimer) clearTimeout(popupTimer)
-    popupTimer = setTimeout(() => {
-      if (!pinnedCard.value) {
-        hoveredCard.value = null
-      }
-    }, 300)
-  }
+  if (pinnedCard.value) return
+  if (popupTimer) clearTimeout(popupTimer)
+  hoveredCard.value = null
 }
 const handleCardClick = (card) => {
   if (popupTimer) clearTimeout(popupTimer)
@@ -744,14 +738,14 @@ const initMiniCharts = () => {
 }
 
 const FALLBACK_POLICIES = [
-  { title: '新一代人工智能创新人才支持计划', level: '国家级', city: '全国', jobs: '人工智能算法工程师、机器学习工程师', amount: '最高50万元', conditions: '本科及以上，35岁以下', validity: '2024-2026年', tags: ['AI', '研发'], type: 'national' },
-  { title: '集成电路产业人才专项计划', level: '国家级', city: '全国', jobs: '芯片设计工程师、IC验证工程师', amount: '最高50万元', conditions: '本科及以上，相关专业', validity: '2024-2026年', tags: ['芯片', '紧缺'], type: 'national' },
-  { title: '上海软件和信息技术服务业人才补贴', level: '市级', city: '上海', jobs: '软件工程师、前端开发', amount: '最高20万元', conditions: '本科及以上，在沪工作满1年', validity: '2024-2025年', tags: ['软件开发', '上海'], type: 'city' },
-  { title: '深圳高层次人才认定及补贴', level: '市级', city: '深圳', jobs: '人工智能、大数据、云计算相关岗位', amount: '最高60万元', conditions: '硕士及以上，符合认定标准', validity: '长期有效', tags: ['深圳', '高层次'], type: 'city' },
-  { title: '杭州数字经济人才专项计划', level: '市级', city: '杭州', jobs: '大数据分析师、数据科学家', amount: '最高30万元', conditions: '本科及以上，2年以上经验', validity: '2024-2026年', tags: ['大数据', '杭州'], type: 'city' },
-  { title: '广东省网络安全人才培养计划', level: '省级', city: '广东', jobs: '网络安全工程师、渗透测试工程师', amount: '最高25万元', conditions: '本科及以上，相关认证', validity: '2024-2026年', tags: ['网络安全', '广东'], type: 'provincial' },
-  { title: '北京市科技创新人才计划', level: '市级', city: '北京', jobs: '云计算工程师、DevOps工程师', amount: '最高35万元', conditions: '硕士及以上，在京高新企业', validity: '2024-2025年', tags: ['云计算', '北京'], type: 'city' },
-  { title: '江苏省软件人才引进计划', level: '省级', city: '江苏', jobs: 'Java/Python/C++开发工程师', amount: '最高15万元', conditions: '本科及以上，3年以上经验', validity: '2024-2026年', tags: ['软件开发', '江苏'], type: 'provincial' }
+  { title: '新一代人工智能创新人才支持计划', level: '国家级', city: '全国', jobs: '人工智能算法工程师、机器学习工程师', amount: '最高50万元', conditions: '本科及以上，35岁以下', validity: '2024-2026年', tags: ['AI', '研发'], type: 'national', url: 'https://www.gov.cn/zhengce/content/2017-07/20/content_5211996.htm' },
+  { title: '集成电路产业人才专项计划', level: '国家级', city: '全国', jobs: '芯片设计工程师、IC验证工程师', amount: '最高50万元', conditions: '本科及以上，相关专业', validity: '2024-2026年', tags: ['芯片', '紧缺'], type: 'national', url: 'https://www.gov.cn/zhengce/content/2020-08/04/content_5532370.htm' },
+  { title: '上海软件和信息技术服务业人才补贴', level: '市级', city: '上海', jobs: '软件工程师、前端开发', amount: '最高20万元', conditions: '本科及以上，在沪工作满1年', validity: '2024-2025年', tags: ['软件开发', '上海'], type: 'city', url: 'https://rsj.sh.gov.cn/zcfg/index.html' },
+  { title: '深圳高层次人才认定及补贴', level: '市级', city: '深圳', jobs: '人工智能、大数据、云计算相关岗位', amount: '最高60万元', conditions: '硕士及以上，符合认定标准', validity: '长期有效', tags: ['深圳', '高层次'], type: 'city', url: 'http://hrss.sz.gov.cn/zfxxgk/fdzdgknr/tzgg/' },
+  { title: '杭州数字经济人才专项计划', level: '市级', city: '杭州', jobs: '大数据分析师、数据科学家', amount: '最高30万元', conditions: '本科及以上，2年以上经验', validity: '2024-2026年', tags: ['大数据', '杭州'], type: 'city', url: 'http://hrss.hangzhou.gov.cn/col/col1228968956/index.html' },
+  { title: '广东省网络安全人才培养计划', level: '省级', city: '广东', jobs: '网络安全工程师、渗透测试工程师', amount: '最高25万元', conditions: '本科及以上，相关认证', validity: '2024-2026年', tags: ['网络安全', '广东'], type: 'provincial', url: 'http://hrss.gd.gov.cn/zcfg/' },
+  { title: '北京市科技创新人才计划', level: '市级', city: '北京', jobs: '云计算工程师、DevOps工程师', amount: '最高35万元', conditions: '硕士及以上，在京高新企业', validity: '2024-2025年', tags: ['云计算', '北京'], type: 'city', url: 'https://rsj.beijing.gov.cn/xxgk/zcwj/' },
+  { title: '江苏省软件人才引进计划', level: '省级', city: '江苏', jobs: 'Java/Python/C++开发工程师', amount: '最高15万元', conditions: '本科及以上，3年以上经验', validity: '2024-2026年', tags: ['软件开发', '江苏'], type: 'provincial', url: 'https://jshrss.jiangsu.gov.cn/col/col77832/index.html' }
 ]
 
 const loadPolicyData = async () => {
@@ -2016,6 +2010,17 @@ onUnmounted(() => {
   background: rgba(0, 240, 255, 0.1);
   border-color: var(--border-glow);
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+.detail-btn.disabled {
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  padding: 4px 10px;
+}
+.detail-btn.disabled:hover {
+  background: transparent;
+  box-shadow: none;
 }
 .policy-footer {
   display: flex;

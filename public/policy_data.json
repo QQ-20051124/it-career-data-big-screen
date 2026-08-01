@@ -1,6 +1,6 @@
 {
-  "update_time": "2026-08-01 13:06:56",
-  "total": 44,
+  "update_time": "2026-08-01 14:40:00",
+  "total": 18,
   "policies": [
     {
       "title": "新一代人工智能创新人才支持计划",
@@ -10,11 +10,7 @@
       "amount": "最高50万元",
       "conditions": "本科及以上，35岁以下，从事AI研发3年以上",
       "validity": "2024-2026年",
-      "tags": [
-        "AI",
-        "研发",
-        "青年人才"
-      ],
+      "tags": ["AI", "研发", "青年人才"],
       "type": "national",
       "url": "https://www.gov.cn/zhengce/content/2017-07/20/content_5211996.htm"
     },
@@ -26,11 +22,7 @@
       "amount": "最高50万元",
       "conditions": "本科及以上，集成电路相关专业，2年以上经验",
       "validity": "2024-2026年",
-      "tags": [
-        "芯片",
-        "集成电路",
-        "紧缺人才"
-      ],
+      "tags": ["芯片", "集成电路", "紧缺人才"],
       "type": "national",
       "url": "https://www.gov.cn/zhengce/content/2020-08/04/content_5532370.htm"
     },
@@ -42,11 +34,7 @@
       "amount": "最高80万元",
       "conditions": "硕士及以上，主持过国家级科技项目或创办高新技术企业",
       "validity": "2024-2027年",
-      "tags": [
-        "高层次",
-        "创业",
-        "科技"
-      ],
+      "tags": ["高层次", "创业", "科技"],
       "type": "national",
       "url": "https://www.gov.cn/jrzg/2012-09/19/content_2227845.htm"
     },
@@ -58,11 +46,7 @@
       "amount": "培训补贴最高1万元",
       "conditions": "相关专业本科在读或毕业，参加指定培训机构课程",
       "validity": "2024-2026年",
-      "tags": [
-        "数字技术",
-        "培训",
-        "工程师"
-      ],
+      "tags": ["数字技术", "培训", "工程师"],
       "type": "national",
       "url": "https://www.mohrss.gov.cn/xxgk2020/fdzdgknr/zcfg/gfxwj/rcrs/202110/t20211011_425199.html"
     },
@@ -74,11 +58,7 @@
       "amount": "两年63万元",
       "conditions": "获博士学位3年内，进入设站单位从事博士后研究",
       "validity": "2024-2026年",
-      "tags": [
-        "博士后",
-        "科研",
-        "青年人才"
-      ],
+      "tags": ["博士后", "科研", "青年人才"],
       "type": "national",
       "url": "https://www.chinapostdoctor.org.cn/article?inid=ee639fdb-f816-431b-933a-36f1b913d437"
     },
@@ -90,11 +70,7 @@
       "amount": "企业所得税减免",
       "conditions": "符合条件软件/集成电路企业，核心技术岗位人员",
       "validity": "长期有效",
-      "tags": [
-        "软件",
-        "集成电路",
-        "税收优惠"
-      ],
+      "tags": ["软件", "集成电路", "税收优惠"],
       "type": "national",
       "url": "https://www.gov.cn/zhengce/content/2020-08/04/content_5532370.htm"
     },
@@ -106,11 +82,7 @@
       "amount": "最高25万元",
       "conditions": "本科及以上，网络安全相关专业或认证",
       "validity": "2024-2026年",
-      "tags": [
-        "网络安全",
-        "广东",
-        "培养"
-      ],
+      "tags": ["网络安全", "广东", "培养"],
       "type": "provincial",
       "url": "http://hrss.gd.gov.cn/zcfg/"
     },
@@ -122,11 +94,7 @@
       "amount": "最高15万元",
       "conditions": "本科及以上，软件相关专业，3年以上经验",
       "validity": "2024-2026年",
-      "tags": [
-        "软件开发",
-        "江苏",
-        "引进"
-      ],
+      "tags": ["软件开发", "江苏", "引进"],
       "type": "provincial",
       "url": "https://jshrss.jiangsu.gov.cn/col/col77832/index.html"
     },
@@ -138,93 +106,9 @@
       "amount": "最高22万元",
       "conditions": "本科及以上，大数据相关领域工作2年以上",
       "validity": "2024-2026年",
-      "tags": [
-        "大数据",
-        "浙江",
-        "支持"
-      ],
+      "tags": ["大数据", "浙江", "支持"],
       "type": "provincial",
       "url": "https://rlsbt.zj.gov.cn/col/col1228968912/index.html"
-    },
-    {
-      "title": "江苏省数字经济发展专项资金（人才方向）",
-      "level": "省级",
-      "city": "江苏",
-      "jobs": "数字经济相关技术研发、产品、运营岗位",
-      "amount": "项目资助最高200万元",
-      "conditions": "在江苏注册的数字经济企业核心团队",
-      "validity": "2024-2025年",
-      "tags": [
-        "数字经济",
-        "江苏",
-        "专项"
-      ],
-      "type": "provincial",
-      "url": "https://jshrss.jiangsu.gov.cn/col/col77832/index.html"
-    },
-    {
-      "title": "广东省\"数字工匠\"培育工程",
-      "level": "省级",
-      "city": "广东",
-      "jobs": "智能制造工程师、工业互联网工程师、数字孪生工程师",
-      "amount": "培训补贴最高5000元",
-      "conditions": "在粤制造业企业技能岗位人员",
-      "validity": "2024-2026年",
-      "tags": [
-        "智能制造",
-        "广东",
-        "技能"
-      ],
-      "type": "provincial",
-      "url": "http://hrss.gd.gov.cn/zcfg/"
-    },
-    {
-      "title": "山东省软件和信息服务业人才工程",
-      "level": "省级",
-      "city": "山东",
-      "jobs": "软件架构师、全栈工程师、测试开发工程师",
-      "amount": "最高18万元",
-      "conditions": "本科及以上，在山东软件企业工作满2年",
-      "validity": "2024-2026年",
-      "tags": [
-        "软件",
-        "山东",
-        "人才工程"
-      ],
-      "type": "provincial",
-      "url": "http://hrss.shandong.gov.cn/"
-    },
-    {
-      "title": "四川省人工智能产业人才专项",
-      "level": "省级",
-      "city": "四川",
-      "jobs": "AI算法工程师、计算机视觉工程师、NLP工程师",
-      "amount": "最高20万元",
-      "conditions": "硕士及以上，人工智能相关研究方向",
-      "validity": "2024-2025年",
-      "tags": [
-        "AI",
-        "四川",
-        "产业"
-      ],
-      "type": "provincial",
-      "url": "http://rst.sc.gov.cn/"
-    },
-    {
-      "title": "湖北省\"光谷\"数字经济人才政策",
-      "level": "省级",
-      "city": "湖北",
-      "jobs": "光通信工程师、芯片工程师、软件工程师",
-      "amount": "最高30万元",
-      "conditions": "在武汉东湖高新区企业全职工作",
-      "validity": "2024-2026年",
-      "tags": [
-        "数字经济",
-        "湖北",
-        "光谷"
-      ],
-      "type": "provincial",
-      "url": "http://rsj.hubei.gov.cn/"
     },
     {
       "title": "上海软件和信息技术服务业人才补贴",
@@ -234,11 +118,7 @@
       "amount": "最高20万元",
       "conditions": "本科及以上，在上海IT企业工作满1年",
       "validity": "2024-2025年",
-      "tags": [
-        "软件开发",
-        "上海",
-        "补贴"
-      ],
+      "tags": ["软件开发", "上海", "补贴"],
       "type": "city",
       "url": "https://rsj.sh.gov.cn/zcfg/index.html"
     },
@@ -250,11 +130,7 @@
       "amount": "最高60万元",
       "conditions": "硕士及以上，符合深圳人才认定标准",
       "validity": "长期有效",
-      "tags": [
-        "深圳",
-        "高层次",
-        "AI"
-      ],
+      "tags": ["深圳", "高层次", "AI"],
       "type": "city",
       "url": "http://hrss.sz.gov.cn/zfxxgk/fdzdgknr/tzgg/"
     },
@@ -266,11 +142,7 @@
       "amount": "最高30万元",
       "conditions": "本科及以上，数字经济相关领域工作2年以上",
       "validity": "2024-2026年",
-      "tags": [
-        "大数据",
-        "杭州",
-        "数字经济"
-      ],
+      "tags": ["大数据", "杭州", "数字经济"],
       "type": "city",
       "url": "http://hrss.hangzhou.gov.cn/col/col1228968956/index.html"
     },
@@ -282,11 +154,7 @@
       "amount": "最高35万元",
       "conditions": "硕士及以上，在京高新技术企业工作",
       "validity": "2024-2025年",
-      "tags": [
-        "云计算",
-        "北京",
-        "创新"
-      ],
+      "tags": ["云计算", "北京", "创新"],
       "type": "city",
       "url": "https://rsj.beijing.gov.cn/xxgk/zcwj/"
     },
@@ -298,11 +166,7 @@
       "amount": "最高20万元",
       "conditions": "本科及以上，人工智能相关工作经验",
       "validity": "2024-2025年",
-      "tags": [
-        "AI",
-        "成都",
-        "产业"
-      ],
+      "tags": ["AI", "成都", "产业"],
       "type": "city",
       "url": "http://cdhrss.chengdu.gov.cn/cdrsj/c109985/zcfg_list.shtml"
     },
@@ -314,141 +178,9 @@
       "amount": "最高100万元",
       "conditions": "博士学历或知名AI企业核心岗位",
       "validity": "2024-2026年",
-      "tags": [
-        "AI",
-        "广州",
-        "奖励"
-      ],
+      "tags": ["AI", "广州", "奖励"],
       "type": "city",
       "url": "http://rsj.gz.gov.cn/zfxxgk/zcfgjl/"
-    },
-    {
-      "title": "武汉\"光谷人才十条\"",
-      "level": "市级",
-      "city": "武汉",
-      "jobs": "集成电路、光电子、软件工程师",
-      "amount": "最高1亿元项目资助",
-      "conditions": "顶尖人才团队，落地光谷",
-      "validity": "2024-2027年",
-      "tags": [
-        "集成电路",
-        "武汉",
-        "光谷"
-      ],
-      "type": "city",
-      "url": "http://rsj.wuhan.gov.cn/"
-    },
-    {
-      "title": "南京紫金山英才计划",
-      "level": "市级",
-      "city": "南京",
-      "jobs": "软件工程师、AI工程师、通信工程师",
-      "amount": "最高50万元",
-      "conditions": "硕士及以上，在宁高新技术企业工作",
-      "validity": "2024-2026年",
-      "tags": [
-        "高层次",
-        "南京",
-        "英才"
-      ],
-      "type": "city",
-      "url": "http://rsj.nanjing.gov.cn/"
-    },
-    {
-      "title": "苏州姑苏创新创业领军人才计划",
-      "level": "市级",
-      "city": "苏州",
-      "jobs": "科技创业人才、技术负责人",
-      "amount": "最高500万元项目资助",
-      "conditions": "在苏州创办科技企业或担任技术负责人",
-      "validity": "2024-2026年",
-      "tags": [
-        "创业",
-        "苏州",
-        "领军"
-      ],
-      "type": "city",
-      "url": "http://rsj.suzhou.gov.cn/"
-    },
-    {
-      "title": "西安硬科技人才集聚计划",
-      "level": "市级",
-      "city": "西安",
-      "jobs": "航空航天、芯片、人工智能工程师",
-      "amount": "最高30万元",
-      "conditions": "硕士及以上，硬科技领域研发岗位",
-      "validity": "2024-2026年",
-      "tags": [
-        "硬科技",
-        "西安",
-        "集聚"
-      ],
-      "type": "city",
-      "url": "http://rsj.xa.gov.cn/"
-    },
-    {
-      "title": "合肥集成电路人才专项",
-      "level": "市级",
-      "city": "合肥",
-      "jobs": "芯片设计、封测、材料工程师",
-      "amount": "最高25万元",
-      "conditions": "本科及以上，集成电路企业核心岗位",
-      "validity": "2024-2025年",
-      "tags": [
-        "集成电路",
-        "合肥",
-        "专项"
-      ],
-      "type": "city",
-      "url": "http://rsj.hefei.gov.cn/"
-    },
-    {
-      "title": "厦门数字经济人才计划",
-      "level": "市级",
-      "city": "厦门",
-      "jobs": "软件开发、数据分析、电商技术岗位",
-      "amount": "最高15万元",
-      "conditions": "本科及以上，在厦数字经济企业工作",
-      "validity": "2024-2026年",
-      "tags": [
-        "数字经济",
-        "厦门",
-        "人才"
-      ],
-      "type": "city",
-      "url": "http://hrss.xm.gov.cn/"
-    },
-    {
-      "title": "青岛拔尖人才计划（IT方向）",
-      "level": "市级",
-      "city": "青岛",
-      "jobs": "软件架构师、数据科学家、AI工程师",
-      "amount": "最高20万元",
-      "conditions": "在青IT企业技术骨干，5年以上经验",
-      "validity": "2024-2026年",
-      "tags": [
-        "拔尖",
-        "青岛",
-        "IT"
-      ],
-      "type": "city",
-      "url": "http://hrss.qingdao.gov.cn/"
-    },
-    {
-      "title": "长沙软件产业再出发人才政策",
-      "level": "市级",
-      "city": "长沙",
-      "jobs": "软件开发、测试、产品经理",
-      "amount": "最高12万元",
-      "conditions": "本科及以上，在长沙软件企业就业",
-      "validity": "2024-2025年",
-      "tags": [
-        "软件",
-        "长沙",
-        "产业"
-      ],
-      "type": "city",
-      "url": "http://rsj.changsha.gov.cn/"
     },
     {
       "title": "天津人工智能应用场景人才奖励",
@@ -458,45 +190,9 @@
       "amount": "最高18万元",
       "conditions": "参与天津AI应用场景建设项目",
       "validity": "2024-2026年",
-      "tags": [
-        "AI",
-        "天津",
-        "应用"
-      ],
+      "tags": ["AI", "天津", "应用"],
       "type": "city",
       "url": "https://hrss.tj.gov.cn/"
-    },
-    {
-      "title": "重庆英才计划（数字领域）",
-      "level": "市级",
-      "city": "重庆",
-      "jobs": "大数据、软件、智能产业工程师",
-      "amount": "最高30万元",
-      "conditions": "在渝数字产业企业全职工作",
-      "validity": "2024-2026年",
-      "tags": [
-        "英才",
-        "重庆",
-        "数字"
-      ],
-      "type": "city",
-      "url": "http://rlsbj.cq.gov.cn/"
-    },
-    {
-      "title": "郑州数字人才培养计划",
-      "level": "市级",
-      "city": "郑州",
-      "jobs": "软件工程师、数字营销、数据分析师",
-      "amount": "最高10万元",
-      "conditions": "本科及以上，在郑数字经济企业就业",
-      "validity": "2024-2025年",
-      "tags": [
-        "数字",
-        "郑州",
-        "培养"
-      ],
-      "type": "city",
-      "url": "http://rsj.zhengzhou.gov.cn/"
     },
     {
       "title": "深圳鹏城孔雀计划",
@@ -506,205 +202,21 @@
       "amount": "最高150万元",
       "conditions": "海外知名高校博士或知名企业核心岗位",
       "validity": "2024-2027年",
-      "tags": [
-        "高层次",
-        "深圳",
-        "海外"
-      ],
+      "tags": ["高层次", "深圳", "海外"],
       "type": "city",
       "url": "http://hrss.sz.gov.cn/zfxxgk/fdzdgknr/tzgg/"
     },
     {
-      "title": "上海浦东新区张江人才政策",
+      "title": "重庆英才计划（数字领域）",
       "level": "市级",
-      "city": "上海",
-      "jobs": "集成电路、生物医药、软件工程师",
-      "amount": "最高50万元",
-      "conditions": "在张江科学城核心企业工作",
-      "validity": "2024-2026年",
-      "tags": [
-        "张江",
-        "上海",
-        "集成电路"
-      ],
-      "type": "city",
-      "url": "https://rsj.sh.gov.cn/zcfg/index.html"
-    },
-    {
-      "title": "北京中关村高聚工程",
-      "level": "市级",
-      "city": "北京",
-      "jobs": "科技企业领军人才、核心技术专家",
-      "amount": "最高100万元",
-      "conditions": "在中关村企业担任核心技术研发",
-      "validity": "2024-2026年",
-      "tags": [
-        "中关村",
-        "北京",
-        "领军"
-      ],
-      "type": "city",
-      "url": "https://rsj.beijing.gov.cn/xxgk/zcwj/"
-    },
-    {
-      "title": "杭州拱墅区数字经济人才租房补贴",
-      "level": "市级",
-      "city": "杭州",
-      "jobs": "前端、后端、数据分析师",
-      "amount": "每年最高3万元",
-      "conditions": "本科及以上，新引进应届数字人才",
-      "validity": "2024-2025年",
-      "tags": [
-        "租房补贴",
-        "杭州",
-        "应届"
-      ],
-      "type": "city",
-      "url": "http://hrss.hangzhou.gov.cn/col/col1228968956/index.html"
-    },
-    {
-      "title": "深圳新引进人才租房和生活补贴",
-      "level": "市级",
-      "city": "深圳",
-      "jobs": "全日制本科及以上IT人才",
-      "amount": "本科1.5万 / 硕士2.5万 / 博士3万",
-      "conditions": "新引进深圳，未享受过购房优惠",
-      "validity": "2024-2025年",
-      "tags": [
-        "租房补贴",
-        "深圳",
-        "新引进"
-      ],
-      "type": "city",
-      "url": "http://hrss.sz.gov.cn/zfxxgk/fdzdgknr/tzgg/"
-    },
-    {
-      "title": "广州高层次人才认定（IT类）",
-      "level": "市级",
-      "city": "广州",
-      "jobs": "AI、大数据、集成电路高端人才",
-      "amount": "最高50万元住房补贴",
-      "conditions": "经认定的高层次人才，在穗全职工作",
-      "validity": "2024-2026年",
-      "tags": [
-        "高层次",
-        "广州",
-        "认定"
-      ],
-      "type": "city",
-      "url": "http://rsj.gz.gov.cn/zfxxgk/zcfgjl/"
-    },
-    {
-      "title": "成都蓉漂计划（数字经济）",
-      "level": "市级",
-      "city": "成都",
-      "jobs": "软件开发、AI、大数据工程师",
-      "amount": "最高40万元",
-      "conditions": "来蓉发展的数字经济领域青年人才",
-      "validity": "2024-2026年",
-      "tags": [
-        "蓉漂",
-        "成都",
-        "数字"
-      ],
-      "type": "city",
-      "url": "http://cdhrss.chengdu.gov.cn/cdrsj/c109985/zcfg_list.shtml"
-    },
-    {
-      "title": "武汉黄鹤英才计划",
-      "level": "市级",
-      "city": "武汉",
-      "jobs": "高新技术研发、IT技术专家",
+      "city": "重庆",
+      "jobs": "大数据、软件、智能产业工程师",
       "amount": "最高30万元",
-      "conditions": "在汉企业全职工作的技术领军人才",
+      "conditions": "在渝数字产业企业全职工作",
       "validity": "2024-2026年",
-      "tags": [
-        "黄鹤",
-        "武汉",
-        "英才"
-      ],
+      "tags": ["英才", "重庆", "数字"],
       "type": "city",
-      "url": "http://rsj.wuhan.gov.cn/"
-    },
-    {
-      "title": "南京创新型企业家培育计划",
-      "level": "市级",
-      "city": "南京",
-      "jobs": "科技企业创始人、CEO、CTO",
-      "amount": "最高100万元",
-      "conditions": "在宁创办科技企业且为企业实际控制人",
-      "validity": "2024-2026年",
-      "tags": [
-        "企业家",
-        "南京",
-        "培育"
-      ],
-      "type": "city",
-      "url": "http://rsj.nanjing.gov.cn/"
-    },
-    {
-      "title": "苏州工业园区领军人才计划",
-      "level": "市级",
-      "city": "苏州",
-      "jobs": "集成电路、软件、AI研发人才",
-      "amount": "最高500万元项目资助",
-      "conditions": "在苏州工业园区创办科技企业",
-      "validity": "2024-2027年",
-      "tags": [
-        "领军",
-        "苏州",
-        "园区"
-      ],
-      "type": "city",
-      "url": "http://rsj.suzhou.gov.cn/"
-    },
-    {
-      "title": "陕西省\"三秦学者\"计划（IT方向）",
-      "level": "省级",
-      "city": "陕西",
-      "jobs": "高校IT学科带头人、企业技术专家",
-      "amount": "最高50万元",
-      "conditions": "在陕高校或企业从事IT研究/研发",
-      "validity": "2024-2026年",
-      "tags": [
-        "三秦学者",
-        "陕西",
-        "学术"
-      ],
-      "type": "provincial",
-      "url": "http://rst.shaanxi.gov.cn/"
-    },
-    {
-      "title": "福建省数字经济领军人才计划",
-      "level": "省级",
-      "city": "福建",
-      "jobs": "数字经济研发、产品、管理人才",
-      "amount": "最高25万元",
-      "conditions": "在闽数字经济企业核心岗位",
-      "validity": "2024-2026年",
-      "tags": [
-        "数字经济",
-        "福建",
-        "领军"
-      ],
-      "type": "provincial",
-      "url": "https://rst.fujian.gov.cn/"
-    },
-    {
-      "title": "河南省\"中原英才计划\"（数字领域）",
-      "level": "省级",
-      "city": "河南",
-      "jobs": "软件、大数据、智能产业人才",
-      "amount": "最高20万元",
-      "conditions": "在豫数字产业领域工作3年以上",
-      "validity": "2024-2026年",
-      "tags": [
-        "中原英才",
-        "河南",
-        "数字"
-      ],
-      "type": "provincial",
-      "url": "https://hrss.henan.gov.cn/"
+      "url": "http://rlsbj.cq.gov.cn/"
     }
   ]
 }

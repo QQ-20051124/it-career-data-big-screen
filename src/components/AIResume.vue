@@ -435,7 +435,17 @@
         </div>
 
         <div class="form-actions">
-          <button class="save-btn" @click="handleSaveNext">保存并下一步</button>
+          <button class="save-btn" @click="handleSaveNext">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            <span>保存并下一步</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
         </div>
 
       <!-- 简历评分面板 -->
@@ -537,11 +547,21 @@
           </div>
         </div>
         
+        <!-- AI优化提示 -->
+        <div class="target-job-hint">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <span>选择目标岗位后，下方 AI 将根据岗位要求针对性优化您的简历，匹配度越高优化效果越好</span>
+        </div>
+        
         <!-- 岗位匹配度仪表盘 -->
         <div v-if="jobMatchAnalysis" class="match-dashboard">
           <div class="match-ring">
             <svg viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
               <circle 
                 cx="60" cy="60" r="52" 
                 fill="none" 
@@ -552,6 +572,7 @@
                 transform="rotate(-90 60 60)"
                 class="match-progress"
               />
+              <circle cx="60" cy="60" r="42" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4 6"/>
             </svg>
             <div class="match-value">
               <span>{{ jobMatchAnalysis.overall }}%</span>
@@ -582,15 +603,6 @@
           </div>
         </div>
         
-        <div class="target-job-actions">
-          <button class="optimize-btn" @click="smartOptimizeResume" :disabled="isOptimizing">
-            <svg v-if="!isOptimizing" viewBox="0 0 24 24" width="16" height="16">
-              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#ffc107"/>
-            </svg>
-            <div v-else class="loading-spinner small"></div>
-            <span>{{ isOptimizing ? '分析中...' : 'AI一键优化简历' }}</span>
-          </button>
-        </div>
       </div>
 
       <!-- AI分析结果面板 -->
@@ -2667,10 +2679,11 @@ onUnmounted(() => {
 
 <style scoped>
 .ai-resume-page {
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #050a1e 0%, #0a1628 50%, #050a1e 100%);
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 30px 50px;
   display: flex;
   flex-direction: column;
@@ -2733,9 +2746,8 @@ onUnmounted(() => {
   margin: 0 auto;
   position: relative;
   z-index: 10;
-  flex: 1;
-  min-height: 0;
   width: 100%;
+  align-items: flex-start;
 }
 
 .step-nav {
@@ -2822,7 +2834,6 @@ onUnmounted(() => {
   border-radius: 20px;
   padding: 30px;
   position: relative;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -3070,21 +3081,32 @@ onUnmounted(() => {
 }
 
 .save-btn {
-  padding: 12px 30px;
+  padding: 14px 32px;
   background: linear-gradient(135deg, #4a9eff 0%, #00d4aa 100%);
+  background-size: 200% 200%;
   border: none;
-  border-radius: 8px;
+  border-radius: 14px;
   color: #fff;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(74, 158, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+  animation: btnGradShift 4s ease infinite;
+}
+
+@keyframes btnGradShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .save-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(74, 158, 255, 0.6);
+  box-shadow: 0 8px 28px rgba(74, 158, 255, 0.6);
 }
 
 /* 岗位选择器卡片样式 */
@@ -3376,14 +3398,15 @@ onUnmounted(() => {
 
 /* 目标岗位卡片样式 */
 .target-job-card {
-  width: 320px;
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(74, 158, 255, 0.1));
-  border: 1px solid rgba(255, 193, 7, 0.4);
+  width: 100%;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.08), rgba(0, 212, 170, 0.05));
+  border: 1px solid rgba(74, 158, 255, 0.25);
   border-radius: 20px;
-  padding: 20px;
+  padding: 24px;
   margin-bottom: 20px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.08);
 }
 
 .target-job-card::before {
@@ -3393,24 +3416,25 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #ffc107, #4a9eff);
+  background: linear-gradient(90deg, #4a9eff, #00d4aa, #a855f7);
 }
 
 .target-job-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 15px;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .target-job-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  background: rgba(255, 193, 7, 0.2);
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.25), rgba(0, 212, 170, 0.15));
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .target-job-title {
@@ -3418,24 +3442,31 @@ onUnmounted(() => {
 }
 
 .target-job-title .job-label {
-  font-size: 12px;
-  color: rgba(255, 193, 7, 0.8);
-  font-weight: 500;
+  display: inline-block;
+  font-size: 13px;
+  color: #4a9eff;
+  font-weight: 600;
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  padding: 3px 12px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
 }
 
 .target-job-title h3 {
-  font-size: 16px;
+  font-size: 18px;
   color: #fff;
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-weight: 600;
+  text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
 }
 
 .clear-target-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.6);
   font-size: 18px;
   cursor: pointer;
@@ -3443,47 +3474,75 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .clear-target-btn:hover {
   background: rgba(255, 71, 87, 0.3);
   color: #ff4757;
+  border-color: rgba(255, 71, 87, 0.4);
 }
 
 .target-job-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 15px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .info-tag {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 6px 10px;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 10px;
+  padding: 7px 12px;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .info-tag .tag-icon {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .skill-tags {
   display: flex;
-  gap: 4px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 
 .skill-tag {
-  background: rgba(74, 158, 255, 0.3);
-  color: #4a9eff;
-  border-radius: 6px;
-  padding: 2px 6px;
+  background: rgba(0, 212, 170, 0.2);
+  color: #00d4aa;
+  border-radius: 8px;
+  padding: 3px 8px;
   font-size: 11px;
+  border: 1px solid rgba(0, 212, 170, 0.25);
+}
+
+.target-job-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: rgba(74, 158, 255, 0.12);
+  border: 1px dashed rgba(74, 158, 255, 0.3);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.target-job-hint svg {
+  flex-shrink: 0;
+  color: #4a9eff;
+  margin-top: 2px;
+}
+
+.target-job-hint span {
+  flex: 1;
 }
 
 .target-job-actions {
@@ -3493,8 +3552,8 @@ onUnmounted(() => {
 
 .optimize-btn {
   flex: 1;
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  color: #1a1a2e;
+  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  color: #fff;
   border: none;
   border-radius: 12px;
   padding: 12px 16px;
@@ -3506,11 +3565,12 @@ onUnmounted(() => {
   justify-content: center;
   gap: 8px;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
 }
 
 .optimize-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+  box-shadow: 0 8px 25px rgba(74, 158, 255, 0.4);
 }
 
 /* 简历评分面板样式 */
@@ -3520,16 +3580,16 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  flex-shrink: 0;
 }
 
 .score-card {
-  background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(0, 212, 170, 0.1));
-  border: 1px solid rgba(74, 158, 255, 0.3);
+  background: linear-gradient(135deg, rgba(10, 20, 50, 0.85), rgba(15, 25, 60, 0.9));
+  border: 1px solid rgba(74, 158, 255, 0.25);
   border-radius: 20px;
-  padding: 20px;
+  padding: 24px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 60px rgba(74, 158, 255, 0.08);
 }
 
 .score-card::before {
@@ -3539,98 +3599,174 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #4a9eff, #00d4aa);
+  background: linear-gradient(90deg, #4a9eff, #00d4aa, #a855f7);
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+}
+
+.score-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(74, 158, 255, 0.08), transparent 50%),
+              radial-gradient(circle at 70% 70%, rgba(168, 85, 247, 0.06), transparent 50%);
+  pointer-events: none;
+  animation: cardGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes cardGlow {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(2%, 2%); }
 }
 
 .score-circle {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: rgba(15, 25, 55, 0.8);
-  border: 3px solid rgba(74, 158, 255, 0.5);
+  background: radial-gradient(circle at 35% 35%, rgba(74, 158, 255, 0.2), rgba(15, 25, 55, 0.95));
+  border: 3px solid rgba(74, 158, 255, 0.4);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 15px;
+  margin: 0 auto 18px;
   position: relative;
+  box-shadow: 
+    0 0 40px rgba(74, 158, 255, 0.25),
+    inset 0 0 30px rgba(74, 158, 255, 0.1);
+  animation: scorePulse 3s ease-in-out infinite;
+}
+
+.score-circle::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  animation: ringRotate 10s linear infinite;
+}
+
+.score-circle::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px dashed rgba(74, 158, 255, 0.2);
+  animation: ringRotate 15s linear infinite reverse;
+}
+
+@keyframes scorePulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(74, 158, 255, 0.25), inset 0 0 30px rgba(74, 158, 255, 0.1); }
+  50% { box-shadow: 0 0 60px rgba(74, 158, 255, 0.4), inset 0 0 40px rgba(74, 158, 255, 0.15); }
+}
+
+@keyframes ringRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .score-circle.excellent {
   border-color: #00d4aa;
-  box-shadow: 0 0 30px rgba(0, 212, 170, 0.4);
+  background: radial-gradient(circle at 35% 35%, rgba(0, 212, 170, 0.2), rgba(15, 25, 55, 0.95));
+  box-shadow: 
+    0 0 40px rgba(0, 212, 170, 0.35),
+    inset 0 0 30px rgba(0, 212, 170, 0.1);
 }
 
 .score-circle.good {
   border-color: #4a9eff;
-  box-shadow: 0 0 30px rgba(74, 158, 255, 0.4);
+  background: radial-gradient(circle at 35% 35%, rgba(74, 158, 255, 0.2), rgba(15, 25, 55, 0.95));
+  box-shadow: 
+    0 0 40px rgba(74, 158, 255, 0.35),
+    inset 0 0 30px rgba(74, 158, 255, 0.1);
 }
 
 .score-circle.normal {
   border-color: #ffc107;
-  box-shadow: 0 0 30px rgba(255, 193, 7, 0.4);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 193, 7, 0.2), rgba(15, 25, 55, 0.95));
+  box-shadow: 
+    0 0 40px rgba(255, 193, 7, 0.35),
+    inset 0 0 30px rgba(255, 193, 7, 0.1);
 }
 
 .score-circle.pending {
   border-color: #ff9800;
-  box-shadow: 0 0 30px rgba(255, 152, 0, 0.4);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 152, 0, 0.2), rgba(15, 25, 55, 0.95));
+  box-shadow: 
+    0 0 40px rgba(255, 152, 0, 0.35),
+    inset 0 0 30px rgba(255, 152, 0, 0.1);
 }
 
 .score-value {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
   color: #fff;
   line-height: 1;
+  text-shadow: 0 0 20px currentColor;
+  font-family: 'Orbitron', 'Rajdhani', sans-serif;
 }
 
 .score-max {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
 }
 
 .score-info {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 .score-label {
   color: rgba(255, 255, 255, 0.7);
   font-size: 13px;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
 }
 
 .score-level {
   display: inline-block;
-  padding: 4px 12px;
+  padding: 5px 16px;
   border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 1px;
 }
 
 .score-level.excellent {
   background: rgba(0, 212, 170, 0.2);
   color: #00d4aa;
+  border: 1px solid rgba(0, 212, 170, 0.3);
+  box-shadow: 0 0 15px rgba(0, 212, 170, 0.2);
 }
 
 .score-level.good {
   background: rgba(74, 158, 255, 0.2);
   color: #4a9eff;
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.2);
 }
 
 .score-level.normal {
   background: rgba(255, 193, 7, 0.2);
   color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
 }
 
 .score-level.pending {
   background: rgba(255, 152, 0, 0.2);
   color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  box-shadow: 0 0 15px rgba(255, 152, 0, 0.2);
 }
 
 .score-details {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
 }
 
 .score-item {
@@ -3648,7 +3784,7 @@ onUnmounted(() => {
 .item-bar {
   flex: 1;
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -3657,7 +3793,8 @@ onUnmounted(() => {
   height: 100%;
   background: linear-gradient(90deg, #4a9eff, #00d4aa);
   border-radius: 3px;
-  transition: width 0.5s ease;
+  transition: width 0.8s ease;
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.4);
 }
 
 .item-score {
@@ -3665,26 +3802,28 @@ onUnmounted(() => {
   text-align: right;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
 }
 
 .quick-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .action-btn {
   flex: 1;
-  padding: 12px;
+  padding: 14px 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   transition: all 0.3s ease;
+  letter-spacing: 0.5px;
 }
 
 .action-btn:disabled {
@@ -3693,51 +3832,75 @@ onUnmounted(() => {
 }
 
 .action-btn.smart-optimize {
-  background: linear-gradient(135deg, #a855f7, #4a9eff);
+  background: linear-gradient(135deg, #a855f7, #4a9eff, #00d4aa);
+  background-size: 200% 200%;
   color: #fff;
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+  animation: btnGradShift 4s ease infinite;
+}
+
+@keyframes btnGradShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .action-btn.smart-optimize:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.6);
 }
 
 .action-btn.quick-save {
-  background: rgba(74, 158, 255, 0.2);
-  color: #4a9eff;
-  border: 1px solid rgba(74, 158, 255, 0.3);
+  background: rgba(74, 158, 255, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(74, 158, 255, 0.35);
 }
 
 .action-btn.quick-save:hover:not(:disabled) {
-  background: rgba(74, 158, 255, 0.3);
+  background: rgba(74, 158, 255, 0.25);
+  border-color: rgba(74, 158, 255, 0.5);
+  box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
 }
 
 .action-btn.quick-generate {
-  background: rgba(0, 212, 170, 0.2);
+  background: rgba(0, 212, 170, 0.15);
   color: #00d4aa;
-  border: 1px solid rgba(0, 212, 170, 0.3);
+  border: 1px solid rgba(0, 212, 170, 0.35);
 }
 
 .action-btn.quick-generate:hover:not(:disabled) {
-  background: rgba(0, 212, 170, 0.3);
+  background: rgba(0, 212, 170, 0.25);
+  border-color: rgba(0, 212, 170, 0.5);
+  box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
 }
 
 /* 岗位匹配度仪表盘 */
 .match-dashboard {
   display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-  padding: 15px;
-  background: rgba(15, 25, 55, 0.4);
-  border-radius: 12px;
-  border: 1px solid rgba(74, 158, 255, 0.2);
+  gap: 24px;
+  margin: 0;
+  padding: 20px 22px;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  position: relative;
+  overflow: visible;
+}
+
+.match-dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.4), rgba(0, 212, 170, 0.4), rgba(168, 85, 247, 0.4), transparent);
 }
 
 .match-ring {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   flex-shrink: 0;
 }
 
@@ -3748,8 +3911,8 @@ onUnmounted(() => {
 }
 
 .match-progress {
-  transition: stroke-dasharray 0.5s ease;
-  filter: drop-shadow(0 0 6px currentColor);
+  transition: stroke-dasharray 0.8s ease;
+  filter: drop-shadow(0 0 8px currentColor);
 }
 
 .match-value {
@@ -3762,71 +3925,79 @@ onUnmounted(() => {
 
 .match-value span {
   display: block;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   color: #fff;
+  font-family: 'Orbitron', 'Rajdhani', sans-serif;
+  text-shadow: 0 0 15px currentColor;
 }
 
 .match-value small {
-  font-size: 11px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 1px;
 }
 
 .match-details {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+  align-content: center;
 }
 
 .match-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .match-label {
   width: 32px;
-  font-size: 11px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
 }
 
 .match-bar {
   flex: 1;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .match-progress-bar {
   height: 100%;
-  border-radius: 2px;
-  transition: width 0.5s ease;
+  border-radius: 3px;
+  transition: width 0.8s ease;
 }
 
 .match-progress-bar.skill {
   background: linear-gradient(90deg, #4a9eff, #00d4aa);
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.4);
 }
 
 .match-progress-bar.edu {
   background: linear-gradient(90deg, #a855f7, #4a9eff);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
 }
 
 .match-progress-bar.city {
   background: linear-gradient(90deg, #ffc107, #ff9800);
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
 }
 
 .match-progress-bar.exp {
   background: linear-gradient(90deg, #00d4aa, #4a9eff);
+  box-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
 }
 
 .match-score {
-  width: 35px;
+  width: 38px;
   text-align: right;
-  font-size: 11px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
 }
 
 .ai-section {

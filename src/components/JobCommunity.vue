@@ -103,7 +103,8 @@
                         <div class="card-meta">
                           <span class="card-author">{{ item.author }}</span>
                           <span class="card-time">{{ item.time }}</span>
-                          <span class="card-status" :class="getOnlineStatus(item.author)">在线</span>
+                          <span v-if="getOnlineStatus(item.author) === 'online'" class="card-status online">在线</span>
+                          <span v-else class="card-status offline">离线</span>
                         </div>
                       </div>
                     </div>
@@ -233,6 +234,7 @@
             <h4>在线用户</h4>
             <div class="avatar-stack">
               <img v-for="user in onlineUsers" :key="user.name" :src="user.avatar" class="mini-avatar" />
+              <span v-if="onlineUsers.length === 0" class="empty-tip">暂无在线用户</span>
             </div>
             <span class="online-count">{{ onlineUsers.length }}人在线</span>
           </div>
@@ -853,9 +855,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import jobData from '../assets/all_cleaned_jobs.json'
+import { isLoggedIn, getAuthInfo, logout as authLogout } from '../utils/auth'
+import * as communityStore from '../utils/communityStore'
 
 const router = useRouter()
 
@@ -900,9 +904,17 @@ const publishForm = ref({
   content: ''
 })
 
+// 当前用户：基于真实登录态，未登录则为游客
+const loggedIn = ref(isLoggedIn())
+const currentUserName = computed(() => {
+  if (!loggedIn.value) return '游客'
+  const info = getAuthInfo()
+  if (!info) return '游客'
+  return info.name || info.email || info.nickname || (info.loginType === 'guest' ? '游客' : '社区用户')
+})
 const currentUser = ref({
-  name: '求职者小王',
-  avatar: generateAvatar('求职者小王')
+  name: currentUserName.value,
+  avatar: generateAvatar(currentUserName.value)
 })
 
 function generateAvatar(name) {
@@ -965,267 +977,46 @@ const stats = computed(() => ({
   interviews: hotInterviews.value.length.toLocaleString(),
   jobs: realJobs.value.length.toLocaleString(),
   questions: qaList.value.length.toLocaleString(),
-  online: onlineUsers.length.toLocaleString()
+  online: onlineUsers.value.length.toLocaleString()
 }))
 const hotKeywords = ['计算机', '前端', '后端', '算法', '数据', '测试', '运维', '开发']
 
 const goBack = () => { router.push('/dashboard') }
 
-const hotInterviews = ref([
-  { 
-    title: '分享计算机技术员面试经验', 
-    author: '求职者小王', 
-    avatar: generateAvatar('求职者小王'), 
-    time: '5分钟前', 
-    tags: ['面试', '计算机'], 
-    comments: 29, 
-    likes: 56, 
-    views: 320, 
-    liked: false, 
-    collected: false,
-    preview: '分享一下我最近面试技术员岗位的经验，主要考察了计算机基础知识、网络配置和故障排查能力...',
-    commentList: [
-      { author: '应届生小李', avatar: generateAvatar('应届生小李'), time: '3分钟前', content: '请问面试会问哪些技术问题？', likes: 5, liked: false },
-      { author: '技术达人', avatar: generateAvatar('技术达人'), time: '1分钟前', content: '好好准备，祝你成功！', likes: 3, liked: false },
-      { author: 'HR小姐姐', avatar: generateAvatar('HR小姐姐'), time: '刚刚', content: '计算机基础一定要扎实！', likes: 8, liked: false },
-      { author: '转行程序员', avatar: generateAvatar('转行程序员'), time: '2分钟前', content: 'TCP/IP协议重点复习', likes: 12, liked: false },
-      { author: '硬件工程师', avatar: generateAvatar('硬件工程师'), time: '4分钟前', content: '网络故障排查经验很重要', likes: 7, liked: false }
-    ]
-  },
-  { 
-    title: '急招普工/操作工，薪资优厚', 
-    author: '技术达人', 
-    avatar: generateAvatar('技术达人'), 
-    time: '12分钟前', 
-    tags: ['招聘', '普工', '操作工'], 
-    comments: 148, 
-    likes: 234, 
-    views: 1500, 
-    liked: true, 
-    collected: false,
-    preview: '公司急招普工和操作工，薪资优厚，福利齐全。要求：年龄18-45岁，身体健康，能吃苦耐劳...',
-    commentList: [
-      { author: '求职者小王', avatar: generateAvatar('求职者小王'), time: '10分钟前', content: '请问工作地点在哪里？', likes: 28, liked: false },
-      { author: 'HR小姐姐', avatar: generateAvatar('HR小姐姐'), time: '8分钟前', content: '在工业园区，包吃住', likes: 45, liked: false },
-      { author: '应届生小李', avatar: generateAvatar('应届生小李'), time: '6分钟前', content: '有五险一金吗？', likes: 36, liked: false },
-      { author: '转行程序员', avatar: generateAvatar('转行程序员'), time: '4分钟前', content: '加班多吗？', likes: 22, liked: false },
-      { author: '技术达人', avatar: generateAvatar('技术达人'), time: '2分钟前', content: '有五险一金，加班有加班费', likes: 52, liked: false },
-      { author: '求职者小王', avatar: generateAvatar('求职者小王'), time: '1分钟前', content: '太好了，我想投递！', likes: 18, liked: false }
-    ]
-  },
-  { 
-    title: '计算机老师薪资待遇怎么样', 
-    author: 'HR小姐姐', 
-    avatar: generateAvatar('HR小姐姐'), 
-    time: '28分钟前', 
-    tags: ['教师', '薪资', '计算机'], 
-    comments: 91, 
-    likes: 167, 
-    views: 980, 
-    liked: false, 
-    collected: true,
-    preview: '很多同学问计算机老师的薪资待遇怎么样，在这里给大家分享一下行业情况。公立学校和培训机构薪资差异较大...',
-    commentList: [
-      { author: '应届生小李', avatar: generateAvatar('应届生小李'), time: '25分钟前', content: '一线城市公立学校薪资多少？', likes: 34, liked: false },
-      { author: '转行程序员', avatar: generateAvatar('转行程序员'), time: '20分钟前', content: '培训机构薪资更高吗？', likes: 56, liked: false },
-      { author: '求职者小王', avatar: generateAvatar('求职者小王'), time: '18分钟前', content: '私立学校怎么样？', likes: 28, liked: false },
-      { author: '技术达人', avatar: generateAvatar('技术达人'), time: '15分钟前', content: '公立稳定，培训薪资高但不稳定', likes: 67, liked: false },
-      { author: 'HR小姐姐', avatar: generateAvatar('HR小姐姐'), time: '12分钟前', content: '一线城市公立学校教师月薪8K-12K', likes: 89, liked: false },
-      { author: '应届生小李', avatar: generateAvatar('应届生小李'), time: '10分钟前', content: '培训机构能到20K吗？', likes: 45, liked: false },
-      { author: '转行程序员', avatar: generateAvatar('转行程序员'), time: '8分钟前', content: '头部机构优秀老师可以', likes: 52, liked: false }
-    ]
-  },
-  { 
-    title: '在计算机硬件维护工作是一种什么体验', 
-    author: '应届生小李', 
-    avatar: generateAvatar('应届生小李'), 
-    time: '45分钟前', 
-    tags: ['硬件', '维护', '体验'], 
-    comments: 210, 
-    likes: 345, 
-    views: 2100, 
-    liked: true, 
-    collected: false,
-    preview: '作为一名计算机硬件维护工程师，分享一下我的工作体验。日常工作包括电脑维修、网络维护、设备管理等...',
-    commentList: [
-      { author: '求职者小王', avatar: generateAvatar('求职者小王'), time: '40分钟前', content: '需要懂软件知识吗？', likes: 78, liked: false },
-      { author: '技术达人', avatar: generateAvatar('技术达人'), time: '35分钟前', content: '硬件和软件都要懂一些', likes: 95, liked: false },
-      { author: 'HR小姐姐', avatar: generateAvatar('HR小姐姐'), time: '30分钟前', content: '这份工作累吗？', likes: 46, liked: false },
-      { author: '应届生小李', avatar: generateAvatar('应届生小李'), time: '28分钟前', content: '有时候需要上门维修，体力活比较多', likes: 67, liked: false },
-      { author: '转行程序员', avatar: generateAvatar('转行程序员'), time: '25分钟前', content: '薪资待遇如何？', likes: 88, liked: false },
-      { author: '求职者小王', avatar: generateAvatar('求职者小王'), time: '22分钟前', content: '有发展前景吗？', likes: 56, liked: false },
-      { author: '技术达人', avatar: generateAvatar('技术达人'), time: '20分钟前', content: '可以往网络工程师方向发展', likes: 72, liked: false },
-      { author: '硬件工程师', avatar: generateAvatar('硬件工程师'), time: '18分钟前', content: '建议考个华为认证', likes: 95, liked: false }
-    ]
-  },
-  { 
-    title: '计算机编程老师岗位推荐', 
-    author: '转行程序员', 
-    avatar: generateAvatar('转行程序员'), 
-    time: '1小时前', 
-    tags: ['教师', '编程', '推荐'], 
-    comments: 197, 
-    likes: 412, 
-    views: 1800, 
-    liked: false, 
-    collected: true,
-    preview: '给大家推荐几个不错的计算机编程老师岗位，包括线上教育平台和线下培训机构...',
-    commentList: [
-      { author: 'HR小姐姐', avatar: generateAvatar('HR小姐姐'), time: '55分钟前', content: '需要什么学历要求？', likes: 67, liked: false },
-      { author: '应届生小李', avatar: generateAvatar('应届生小李'), time: '50分钟前', content: '线上教学时间自由吗？', likes: 89, liked: false },
-      { author: '求职者小王', avatar: generateAvatar('求职者小王'), time: '45分钟前', content: '有哪些平台推荐？', likes: 56, liked: false },
-      { author: '技术达人', avatar: generateAvatar('技术达人'), time: '40分钟前', content: '猿辅导、学而思、作业帮都不错', likes: 78, liked: false },
-      { author: '转行程序员', avatar: generateAvatar('转行程序员'), time: '35分钟前', content: '大专学历也可以，主要看能力', likes: 92, liked: false },
-      { author: 'HR小姐姐', avatar: generateAvatar('HR小姐姐'), time: '30分钟前', content: '兼职可以吗？', likes: 45, liked: false },
-      { author: '应届生小李', avatar: generateAvatar('应届生小李'), time: '25分钟前', content: '线上兼职时间比较灵活', likes: 67, liked: false },
-      { author: '求职者小王', avatar: generateAvatar('求职者小王'), time: '20分钟前', content: '怎么投递简历？', likes: 34, liked: false },
-      { author: '技术达人', avatar: generateAvatar('技术达人'), time: '15分钟前', content: 'BOSS直聘上有很多岗位', likes: 52, liked: false }
-    ]
-  }
-])
+const hotInterviews = ref([])
 
-const qaList = ref([
-  { 
-    title: '计算机专业应届生应该选择什么方向？前端、后端还是算法？', 
-    author: '迷茫的应届生', 
-    avatar: generateAvatar('迷茫的应届生'), 
-    time: '1小时前', 
-    tags: ['计算机', '职业规划'], 
-    answers: 23, 
-    solved: false,
-    preview: '作为计算机专业的应届生，不知道该选择哪个方向发展，前端、后端、算法各有什么优缺点？',
-    bestAnswer: {
-      author: '资深程序员',
-      avatar: generateAvatar('资深程序员'),
-      time: '30分钟前',
-      content: '建议根据自己的兴趣和优势来选择。前端入门快，可视化效果强，适合喜欢创意设计的人；后端技术栈稳定，薪资较高，适合喜欢逻辑推理的人；算法门槛高，但薪资最高，适合数学基础好的人。建议先尝试不同方向的课程，找到自己真正喜欢的领域。',
-      likes: 128,
-      liked: false
+const loadCommunityData = () => {
+  const posts = communityStore.getPosts()
+  const currentName = currentUserName.value
+  hotInterviews.value = posts.map(p => {
+    const liked = communityStore.isLiked(currentName, String(p.id), 'post')
+    const collected = communityStore.isCollected(currentName, String(p.id), 'post')
+    return {
+      ...p,
+      liked,
+      collected,
+      avatar: p.avatar || generateAvatar(p.author)
     }
-  },
-  { 
-    title: '计算机硬件维护工程师需要掌握哪些技能？', 
-    author: '转行小白', 
-    avatar: generateAvatar('转行小白'), 
-    time: '3小时前', 
-    tags: ['硬件', '技能'], 
-    answers: 18, 
-    solved: true,
-    preview: '想转行做计算机硬件维护工程师，需要掌握哪些专业技能？',
-    bestAnswer: {
-      author: '硬件工程师',
-      avatar: generateAvatar('硬件工程师'),
-      time: '2小时前',
-      content: '主要需要掌握计算机组成原理、硬件故障排查、操作系统安装与维护、网络基础知识等。建议学习CCNA、CompTIA A+等认证，这些证书对找工作很有帮助。',
-      likes: 89,
-      liked: false
-    }
-  },
-  { 
-    title: '大专学历能找到好的计算机工作吗？', 
-    author: '大专生求职', 
-    avatar: generateAvatar('大专生求职'), 
-    time: '5小时前', 
-    tags: ['学历', '计算机'], 
-    answers: 45, 
-    solved: false,
-    preview: '大专学历，学的是计算机专业，担心找不到好工作，该怎么办？',
-    bestAnswer: {
-      author: 'HR经理',
-      avatar: generateAvatar('HR经理'),
-      time: '4小时前',
-      content: '当然可以！很多公司更看重实际技能和项目经验。建议多做项目，积累实战经验，可以从外包公司或小型创业公司起步，积累经验后再跳槽到更好的平台。',
-      likes: 234,
-      liked: false
-    }
-  },
-  { 
-    title: '计算机教师岗位待遇怎么样？', 
-    author: '教育行业咨询', 
-    avatar: generateAvatar('教育行业咨询'), 
-    time: '8小时前', 
-    tags: ['教师', '待遇'], 
-    answers: 34, 
-    solved: true,
-    preview: '想了解计算机教师岗位的薪资待遇和发展前景',
-    bestAnswer: {
-      author: '高校教师',
-      avatar: generateAvatar('高校教师'),
-      time: '6小时前',
-      content: '计算机教师薪资因学校类型而异。公办学校薪资稳定，有寒暑假；培训机构薪资较高，但工作强度大。建议根据自己的职业规划选择。',
-      likes: 156,
-      liked: false
-    }
-  },
-  { 
-    title: '计算机网络工程师和软件工程师哪个发展前景更好？', 
-    author: '职业选择', 
-    avatar: generateAvatar('职业选择'), 
-    time: '10小时前', 
-    tags: ['网络', '软件', '前景'], 
-    answers: 28, 
-    solved: false,
-    preview: '纠结于选择网络工程师还是软件工程师方向，哪个更有发展前景？',
-    bestAnswer: {
-      author: '技术总监',
-      avatar: generateAvatar('技术总监'),
-      time: '8小时前',
-      content: '两个方向都有很好的发展前景。网络工程师在云计算、网络安全领域需求很大；软件工程师在互联网行业需求量最大。建议根据自己的兴趣选择，兴趣是最好的老师。',
-      likes: 189,
-      liked: false
-    }
-  },
-  { 
-    title: '计算机实习生应该怎么找？薪资大概多少？', 
-    author: '找实习', 
-    avatar: generateAvatar('找实习'), 
-    time: '12小时前', 
-    tags: ['实习', '计算机'], 
-    answers: 52, 
-    solved: true,
-    preview: '大三学生，想找计算机相关的实习，不知道怎么找，薪资大概多少？',
-    bestAnswer: {
-      author: '求职导师',
-      avatar: generateAvatar('求职导师'),
-      time: '10小时前',
-      content: '可以通过实习僧、拉勾网、BOSS直聘等平台找实习，也可以关注各大公司官网的校招实习板块。一线城市实习生薪资一般在2000-5000元/月，互联网大厂实习薪资较高。',
-      likes: 345,
-      liked: false
-    }
-  }
-])
+  })
+}
 
-const groupList = ref([
-  { name: '计算机专业求职交流', desc: '计算机相关岗位求职讨论', members: 3280, posts: 890, joined: true },
-  { name: '计算机硬件维护群', desc: '硬件维护经验分享', members: 1560, posts: 450, joined: false },
-  { name: '计算机教师交流', desc: '教师岗位求职与教学经验', members: 1890, posts: 560, joined: true },
-  { name: '计算机网络工程师', desc: '网络技术与运维讨论', members: 2150, posts: 680, joined: false },
-  { name: '校招实习交流', desc: '应届生校招与实习经验', members: 4560, posts: 1200, joined: false },
-  { name: '计算机软件编程', desc: '编程技术交流', members: 3450, posts: 980, joined: false }
-])
+loadCommunityData()
 
-const onlineUsers = [
-  { name: '张三', avatar: generateAvatar('张三') },
-  { name: '李四', avatar: generateAvatar('李四') },
-  { name: '王五', avatar: generateAvatar('王五') },
-  { name: '赵六', avatar: generateAvatar('赵六') },
-  { name: '孙七', avatar: generateAvatar('孙七') },
-  { name: '周八', avatar: generateAvatar('周八') }
-]
-const hotTopics = ref([
-  { name: '计算机求职', posts: 1256, trend: '+12%', related: ['面试', '计算机', '技术员', '招聘'] },
-  { name: '硬件维护', posts: 890, trend: '+8%', related: ['硬件', '维护', '体验', '电脑'] },
-  { name: '教师岗位', posts: 678, trend: '+15%', related: ['教师', '薪资', '编程', '教育'] },
-  { name: '网络工程师', posts: 543, trend: '+5%', related: ['网络', '工程师', '运维', '计算机'] },
-  { name: '校招实习', posts: 2340, trend: '+25%', related: ['应届生', '实习', '校招', '经验不限'] },
-  { name: '编程技巧', posts: 1890, trend: '+18%', related: ['编程', '开发', '代码', '计算机'] }
-])
-const recommendUsers = ref([
-  { name: '计算机求职达人', title: '分享30+面经', avatar: generateAvatar('计算机求职达人'), followed: false },
-  { name: '硬件工程师小李', title: '10年硬件经验', avatar: generateAvatar('硬件工程师小李'), followed: true },
-  { name: '高校教师张老师', title: '计算机教育专家', avatar: generateAvatar('高校教师张老师'), followed: false },
-  { name: '网络技术大牛', title: 'CCIE认证', avatar: generateAvatar('网络技术大牛'), followed: false }
-])
+watch(currentUserName, () => {
+  loadCommunityData()
+})
+
+const qaList = ref([])
+
+const groupList = ref([])
+
+// 在线用户：仅有真实登录的当前用户，未登录则为空
+const onlineUsers = computed(() => {
+  if (!loggedIn.value) return []
+  return [{ name: currentUser.value.name, avatar: currentUser.value.avatar }]
+})
+const hotTopics = ref([])
+const recommendUsers = ref([])
 const weeklyRank = computed(() => {
   const scoreMap = new Map()
   const addScore = (name, avatar, score) => {
@@ -1235,31 +1026,15 @@ const weeklyRank = computed(() => {
     if (!cur.avatar && avatar) cur.avatar = avatar
     scoreMap.set(name, cur)
   }
-  // 面经作者：点赞 + 评论*2 + 浏览/10
   hotInterviews.value.forEach(it => {
     addScore(it.author, it.avatar, (it.likes || 0) + (it.comments || 0) * 2 + Math.floor((it.views || 0) / 10))
-  })
-  // 问答作者：回答数*5 + 最佳回答点赞
-  qaList.value.forEach(qa => {
-    addScore(qa.author, qa.avatar, (qa.answers || 0) * 5 + (qa.bestAnswer ? qa.bestAnswer.likes || 0 : 0))
-    if (qa.bestAnswer) {
-      addScore(qa.bestAnswer.author, qa.bestAnswer.avatar, qa.bestAnswer.likes || 0)
-    }
-  })
-  // 推荐用户基础活跃分
-  recommendUsers.value.forEach(u => {
-    addScore(u.name, u.avatar, u.followed ? 200 : 100)
   })
   return Array.from(scoreMap.values())
     .sort((a, b) => b.score - a.score)
     .slice(0, 5)
 })
 
-const groupPosts = [
-  { title: '分享今天的面试经历', preview: '今天面试了XX公司，感觉表现不错...', author: '求职达人', time: '2小时前', comments: 12, likes: 34 },
-  { title: '求内推！', preview: '本人计算机专业，求各位大佬内推...', author: '应届生小李', time: '5小时前', comments: 8, likes: 15 },
-  { title: '聊聊薪资待遇', preview: '大家的薪资待遇怎么样？来聊聊...', author: '薪资讨论', time: '8小时前', comments: 45, likes: 67 }
-]
+const groupPosts = []
 
 const filteredJobs = computed(() => {
   let result = realJobs.value
@@ -1276,7 +1051,7 @@ const filteredJobs = computed(() => {
 })
 
 const filteredQAs = computed(() => {
-  let result = qaList
+  let result = qaList.value
   if (qaFilter.value === 'unsolved') result = result.filter(q => !q.solved)
   if (qaFilter.value === 'solved') result = result.filter(q => q.solved)
   if (searchQuery.value.trim()) {
@@ -1353,27 +1128,43 @@ const getRankClass = (index) => {
   return ''
 }
 
-const activeAuthors = ['求职者小王', '技术达人', '应届生小李']
+// 在线状态：只有当前真实登录用户自己的帖子显示在线，其余均为离线
 const getOnlineStatus = (author) => {
-  return activeAuthors.includes(author) ? 'online' : 'offline'
+  if (!loggedIn.value) return 'offline'
+  return author === currentUser.value.name ? 'online' : 'offline'
 }
 
 const toggleLike = (item) => {
-  if (item.liked) {
-    item.likes--
-    item.liked = false
+  const itemId = String(item.id)
+  const isPost = !item.campus
+  const type = isPost ? 'post' : 'job'
+  const likedNow = communityStore.toggleLike(currentUserName.value, itemId, type)
+  item.liked = likedNow
+  if (likedNow) {
+    item.likes = (item.likes || 0) + 1
   } else {
-    item.likes++
-    item.liked = true
+    item.likes = Math.max(0, (item.likes || 0) - 1)
+  }
+  if (isPost) {
+    communityStore.updatePost(itemId, { likes: item.likes, liked: item.liked })
   }
 }
 
 const toggleCollect = (item) => {
-  item.collected = !item.collected
+  const itemId = String(item.id)
+  const collectedNow = communityStore.toggleCollect(currentUserName.value, itemId, 'post')
+  item.collected = collectedNow
+  if (collectedNow) {
+    communityStore.updatePost(itemId, { collected: true })
+  } else {
+    communityStore.updatePost(itemId, { collected: false })
+  }
 }
 
 const toggleJobCollect = (job) => {
-  job.collected = !job.collected
+  const itemId = String(job.id)
+  const collectedNow = communityStore.toggleCollect(currentUserName.value, itemId, 'job')
+  job.collected = collectedNow
 }
 
 const toggleCommentLike = (comment) => {
@@ -1463,10 +1254,16 @@ const markAsSolved = (qa) => {
 }
 
 const shareItem = (item) => {
-  const url = window.location.href + '?id=' + encodeURIComponent(item.title)
-  navigator.clipboard.writeText(url).then(() => {
-    alert('分享链接已复制到剪贴板！')
-  })
+  const url = `${window.location.origin}/community?post=${encodeURIComponent(String(item.id))}`
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      alert('分享链接已复制到剪贴板！\n链接：' + url)
+    }).catch(() => {
+      prompt('复制以下分享链接：', url)
+    })
+  } else {
+    prompt('复制以下分享链接：', url)
+  }
 }
 
 const openDetail = (type, data) => {
@@ -1475,6 +1272,9 @@ const openDetail = (type, data) => {
   showDetail.value = true
   if (data && typeof data.views === 'number') {
     data.views++
+    if (type === 'post') {
+      communityStore.updatePost(String(data.id), { views: data.views })
+    }
   }
   if (type === 'qa' && data && !data.answerList) {
     data.answerList = data.bestAnswer ? [{ ...data.bestAnswer }] : []
@@ -1511,7 +1311,8 @@ const handleMenuClick = (action) => {
       showSettings.value = true
       break
     case 'logout':
-      router.push('/')
+      authLogout()
+      router.replace('/')
       break
   }
 }
@@ -1558,7 +1359,13 @@ const handleKeywordSearch = (kw) => {
 }
 
 const handleApply = (job) => {
-  if (appliedJobIds.value.has(job.id)) {
+  const username = currentUserName.value
+  if (communityStore.hasApplied(username, job.id)) {
+    alert('您已经投递过该岗位了！')
+    return
+  }
+  const record = communityStore.applyJob(username, job)
+  if (!record) {
     alert('您已经投递过该岗位了！')
     return
   }
@@ -1651,7 +1458,8 @@ const submitPublish = () => {
     return
   }
   
-  hotInterviews.value.unshift({
+  const newPost = {
+    id: 'post_' + Date.now(),
     title: publishForm.value.title,
     author: currentUser.value.name,
     avatar: currentUser.value.avatar,
@@ -1663,8 +1471,12 @@ const submitPublish = () => {
     liked: false,
     collected: false,
     preview: publishForm.value.content.slice(0, 100) + '...',
+    content: publishForm.value.content,
     commentList: []
-  })
+  }
+  
+  communityStore.addPost(newPost)
+  hotInterviews.value.unshift(newPost)
   
   closePublishModal()
   activeTab.value = 'interview'
@@ -1714,7 +1526,21 @@ const initBackground = () => {
 }
 
 onMounted(() => {
+  loggedIn.value = isLoggedIn()
+  const name = currentUserName.value
+  currentUser.value = { name, avatar: generateAvatar(name) }
   initBackground()
+
+  const applies = communityStore.getUserApplies(name)
+  appliedJobs.value = applies.map(a => ({
+    id: a.jobId,
+    title: a.jobTitle,
+    company: a.company,
+    city: a.city,
+    salary: a.salary,
+    applyTime: a.applyTime
+  }))
+  appliedJobIds.value = new Set(applies.map(a => a.jobId))
 })
 
 onUnmounted(() => {
@@ -2336,6 +2162,7 @@ onUnmounted(() => {
   box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
 }
 .mini-avatar:first-child { margin-left: 0; }
+.empty-tip { font-size: 0.8rem; color: rgba(230, 241, 255, 0.4); }
 .online-count {
   font-size: 0.85rem; color: var(--green); display: block; margin-top: 12px;
   font-family: var(--font-mono);

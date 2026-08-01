@@ -214,11 +214,11 @@
                 <div class="input-ring"></div>
                 <div class="input-icon">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
                   </svg>
                 </div>
-                <input type="text" v-model="form.username" placeholder="账号" required />
+                <input type="email" v-model="form.username" placeholder="请输入邮箱" required />
                 <div class="input-status-dot"></div>
               </div>
 
@@ -260,37 +260,88 @@
               </button>
             </form>
 
-            <div class="divider">
+            <div class="divider" v-if="!showRegister">
               <span class="divider-line"></span>
-              <span class="divider-text">快捷登录</span>
+              <span class="divider-text">邮箱登录</span>
               <span class="divider-line"></span>
             </div>
 
-            <div class="social-buttons">
-              <button class="social-btn wechat" @click="handleSocialLogin('wechat')" title="使用微信账号授权登录">
-                <div class="social-ring"></div>
-                <i class="fa-brands fa-weixin"></i>
-                <span class="social-label">微信</span>
-              </button>
-              <button class="social-btn qq" @click="handleSocialLogin('qq')" title="使用QQ账号授权登录">
-                <div class="social-ring"></div>
-                <i class="fa-brands fa-qq"></i>
-                <span class="social-label">QQ</span>
-              </button>
+            <div class="social-buttons" v-if="!showRegister">
               <button class="social-btn email" @click="handleEmailLogin" title="使用邮箱账号登录">
                 <div class="social-ring"></div>
                 <i class="fa-solid fa-envelope"></i>
-                <span class="social-label">邮箱</span>
               </button>
             </div>
 
             <div class="register-link">
-              还没有账号? <a href="#" @click.prevent="handleRegister">立即注册</a>
+              还没有账号? <a href="#" @click.prevent="toggleRegister">{{ showRegister ? '返回登录' : '立即注册' }}</a>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 注册弹窗 -->
+    <Teleport to="body">
+      <div v-if="showRegister" class="email-modal-overlay" @click.self="showRegister = false">
+        <div class="email-modal">
+          <button class="modal-close" @click="showRegister = false">×</button>
+          <h3>注册新账号</h3>
+          <p class="modal-desc">使用邮箱注册，注册后可登录系统</p>
+          
+          <form @submit.prevent="submitRegister" class="email-form">
+            <div class="form-group">
+              <label>昵称</label>
+              <input 
+                type="text" 
+                v-model="registerForm.name" 
+                placeholder="请输入昵称"
+                @input="registerError = ''"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>邮箱地址</label>
+              <input 
+                type="email" 
+                v-model="registerForm.email" 
+                placeholder="请输入邮箱地址"
+                @input="registerError = ''"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>密码</label>
+              <input 
+                type="password" 
+                v-model="registerForm.password" 
+                placeholder="至少6位字符"
+                @input="registerError = ''"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>确认密码</label>
+              <input 
+                type="password" 
+                v-model="registerForm.confirmPassword" 
+                placeholder="再次输入密码"
+                @input="registerError = ''"
+              />
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" @click="showRegister = false">取消</button>
+              <button type="submit" class="btn-submit" :disabled="registerForm.loading">
+                {{ registerForm.loading ? '注册中...' : '注册并登录' }}
+              </button>
+            </div>
+            
+            <div v-if="registerError" class="form-error">{{ registerError }}</div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- 邮箱登录弹窗 -->
     <Teleport to="body">
@@ -334,33 +385,47 @@
       </div>
     </Teleport>
 
-    <!-- OAuth授权弹窗 -->
+    <!-- 邮箱授权弹窗 -->
     <Teleport to="body">
       <div v-if="showAuthModal" class="auth-modal-overlay" @click.self="!authLoading && handleAuthCancel()">
         <div class="auth-modal">
           <div class="auth-provider-header">
-            <div class="auth-provider-icon" :style="{ background: authConfig[authProvider]?.color }">
-              <i :class="authConfig[authProvider]?.icon"></i>
+            <div class="auth-provider-icon" style="background: linear-gradient(135deg, #60a5fa, #a78bfa);">
+              <i class="fa-solid fa-envelope"></i>
             </div>
-            <h3>{{ authConfig[authProvider]?.name }}授权登录</h3>
+            <h3>邮箱授权登录</h3>
             <p class="auth-provider-desc">「计程·职道」申请获取以下权限</p>
           </div>
 
           <div class="auth-permissions">
-            <div class="auth-perm-item" v-for="perm in authConfig[authProvider]?.permissions" :key="perm.key">
+            <div class="auth-perm-item">
               <div class="auth-perm-check">✓</div>
               <div class="auth-perm-info">
-                <div class="auth-perm-name">{{ perm.name }}</div>
-                <div class="auth-perm-desc">{{ perm.desc }}</div>
+                <div class="auth-perm-name">获取邮箱</div>
+                <div class="auth-perm-desc">用于识别您的账号身份</div>
+              </div>
+            </div>
+            <div class="auth-perm-item">
+              <div class="auth-perm-check">✓</div>
+              <div class="auth-perm-info">
+                <div class="auth-perm-name">获取昵称</div>
+                <div class="auth-perm-desc">用于在系统中显示您的昵称</div>
+              </div>
+            </div>
+            <div class="auth-perm-item">
+              <div class="auth-perm-check">✓</div>
+              <div class="auth-perm-info">
+                <div class="auth-perm-name">登录状态</div>
+                <div class="auth-perm-desc">保持您的登录状态</div>
               </div>
             </div>
           </div>
 
           <div class="auth-user-info">
             <div class="auth-user-avatar">
-              <i :class="authConfig[authProvider]?.icon"></i>
+              <i class="fa-solid fa-envelope"></i>
             </div>
-            <div class="auth-user-tip">您即将使用{{ authConfig[authProvider]?.name }}账号登录</div>
+            <div class="auth-user-tip">您即将使用邮箱账号登录</div>
           </div>
 
           <div class="auth-actions">
@@ -386,7 +451,8 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import * as THREE from 'three'
-import { loginWithSocial, loginWithEmail, loginAsGuest, isLoggedIn } from '@/utils/auth'
+import { loginWithEmail, loginAsGuest, registerWithEmail } from '@/utils/auth'
+import { validateEmailFormat } from '@/utils/userStore'
 
 const route = useRoute()
 const showPassword = ref(false)
@@ -404,31 +470,19 @@ const emailForm = reactive({
 })
 const emailError = ref('')
 
+const showRegister = ref(false)
+const registerForm = reactive({
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  loading: false
+})
+const registerError = ref('')
+
 const showAuthModal = ref(false)
-const authProvider = ref('')
 const authLoading = ref(false)
-const authConfig = {
-  wechat: {
-    name: '微信',
-    icon: 'fa-brands fa-weixin',
-    color: '#07c160',
-    permissions: [
-      { key: 'nickname', name: '获取昵称', desc: '用于在系统中显示您的昵称' },
-      { key: 'avatar', name: '获取头像', desc: '用于在系统中显示您的头像' },
-      { key: 'login', name: '登录状态', desc: '保持您的登录状态' }
-    ]
-  },
-  qq: {
-    name: 'QQ',
-    icon: 'fa-brands fa-qq',
-    color: '#12b7f5',
-    permissions: [
-      { key: 'nickname', name: '获取QQ昵称', desc: '用于在系统中显示您的昵称' },
-      { key: 'avatar', name: '获取QQ头像', desc: '用于在系统中显示您的头像' },
-      { key: 'login', name: '登录状态', desc: '保持您的登录状态' }
-    ]
-  }
-}
+
 let bgAnimationId = null
 let globeAnimationId = null
 let mouseX = 0
@@ -489,14 +543,17 @@ const handleLogin = async () => {
   if (!form.username || !form.password) {
     return
   }
+  if (!validateEmailFormat(form.username)) {
+    alert('请输入正确的邮箱格式')
+    return
+  }
   loading.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    loginWithEmail(form.username)
+    await loginWithEmail(form.username, form.password)
     const redirect = route.query.redirect
     window.location.href = redirect || '/dashboard'
   } catch (e) {
-    alert('登录失败：' + e.message)
+    alert('登录失败：' + (e.message || '账号或密码错误'))
   } finally {
     loading.value = false
   }
@@ -507,41 +564,29 @@ const handleGuest = () => {
   window.location.href = '/dashboard'
 }
 
-const handleSocialLogin = (type) => {
-  if (!authConfig[type]) return
-  authProvider.value = type
-  showAuthModal.value = true
-}
-
-const handleAuthorize = async () => {
-  authLoading.value = true
-  
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  const randomSuffix = Math.random().toString(36).substring(2, 8)
-  const nickname = `${authConfig[authProvider.value].name}用户_${randomSuffix}`
-  
-  loginWithSocial(authProvider.value, {
-    nickname,
-    openid: 'mock_' + Date.now() + '_' + randomSuffix
-  })
-  
-  showAuthModal.value = false
-  authLoading.value = false
-  
-  const redirect = route.query.redirect
-  window.location.href = redirect || '/dashboard'
-}
-
-const handleAuthCancel = () => {
-  showAuthModal.value = false
-}
-
 const handleEmailLogin = () => {
   emailError.value = ''
   emailForm.email = ''
   emailForm.password = ''
   showEmailModal.value = true
+}
+
+const handleAuthorize = async () => {
+  authLoading.value = true
+  try {
+    await new Promise(resolve => setTimeout(resolve, 800))
+    showAuthModal.value = false
+    showEmailModal.value = true
+  } catch {
+    showAuthModal.value = false
+    authLoading.value = false
+  } finally {
+    authLoading.value = false
+  }
+}
+
+const handleAuthCancel = () => {
+  showAuthModal.value = false
 }
 
 const submitEmailLogin = async () => {
@@ -550,8 +595,7 @@ const submitEmailLogin = async () => {
     return
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(emailForm.email)) {
+  if (!validateEmailFormat(emailForm.email)) {
     emailError.value = '请输入有效的邮箱地址'
     return
   }
@@ -565,20 +609,64 @@ const submitEmailLogin = async () => {
   emailError.value = ''
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    loginWithEmail(emailForm.email)
+    await loginWithEmail(emailForm.email, emailForm.password)
     showEmailModal.value = false
     const redirect = route.query.redirect
     window.location.href = redirect || '/dashboard'
   } catch (e) {
-    emailError.value = '登录失败：' + e.message
+    emailError.value = e.message || '登录失败：账号或密码错误'
   } finally {
     emailForm.loading = false
   }
 }
 
-const handleRegister = () => {
-  alert('注册功能正在开发中，敬请期待！')
+const toggleRegister = () => {
+  if (showRegister.value) {
+    showRegister.value = false
+  } else {
+    registerError.value = ''
+    registerForm.name = ''
+    registerForm.email = ''
+    registerForm.password = ''
+    registerForm.confirmPassword = ''
+    showRegister.value = true
+  }
+}
+
+const submitRegister = async () => {
+  if (!registerForm.name || !registerForm.email || !registerForm.password || !registerForm.confirmPassword) {
+    registerError.value = '请填写完整信息'
+    return
+  }
+
+  if (!validateEmailFormat(registerForm.email)) {
+    registerError.value = '邮箱格式不正确'
+    return
+  }
+
+  if (registerForm.password.length < 6) {
+    registerError.value = '密码长度不能少于6位'
+    return
+  }
+
+  if (registerForm.password !== registerForm.confirmPassword) {
+    registerError.value = '两次输入的密码不一致'
+    return
+  }
+
+  registerForm.loading = true
+  registerError.value = ''
+
+  try {
+    await registerWithEmail(registerForm.email, registerForm.password, registerForm.name)
+    showRegister.value = false
+    const redirect = route.query.redirect
+    window.location.href = redirect || '/dashboard'
+  } catch (e) {
+    registerError.value = e.message || '注册失败'
+  } finally {
+    registerForm.loading = false
+  }
 }
 
 const handleCardMouseMove = (e) => {
@@ -2850,9 +2938,9 @@ onUnmounted(() => {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  border: 1px solid rgba(74, 158, 255, 0.5);
+  border: 1px solid rgba(96, 165, 250, 0.5);
   background: rgba(5, 12, 30, 0.9);
-  color: #78a0dc;
+  color: #60a5fa;
   font-size: 26px;
   cursor: pointer;
   display: flex;
@@ -2862,24 +2950,8 @@ onUnmounted(() => {
   position: relative;
   overflow: hidden;
   box-shadow: 
-    0 0 30px rgba(74, 158, 255, 0.2),
+    0 0 30px rgba(96, 165, 250, 0.2),
     0 0 50px rgba(167, 139, 250, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.social-btn.wechat {
-  color: #07c160;
-  border-color: rgba(7, 193, 96, 0.5);
-  box-shadow: 
-    0 0 20px rgba(7, 193, 96, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.social-btn.qq {
-  color: #12b7f5;
-  border-color: rgba(18, 183, 245, 0.5);
-  box-shadow: 
-    0 0 20px rgba(18, 183, 245, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
@@ -2933,26 +3005,14 @@ onUnmounted(() => {
 
 .social-btn:hover {
   transform: translateY(-4px) scale(1.12);
-  border-color: rgba(74, 158, 255, 0.8);
-  box-shadow: 0 0 30px rgba(74, 158, 255, 0.3);
-}
-
-.social-btn.wechat:hover {
-  color: #07c160;
-  border-color: rgba(7, 193, 96, 0.4);
-  box-shadow: 0 8px 25px rgba(7, 193, 96, 0.25);
-}
-
-.social-btn.qq:hover {
-  color: #12b7f5;
-  border-color: rgba(18, 183, 245, 0.4);
-  box-shadow: 0 8px 25px rgba(18, 183, 245, 0.25);
+  border-color: rgba(96, 165, 250, 0.8);
+  box-shadow: 0 0 30px rgba(96, 165, 250, 0.3);
 }
 
 .social-btn.email:hover {
-  color: #60a5fa;
-  border-color: rgba(96, 165, 250, 0.5);
-  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.3);
+  color: #93c5fd;
+  border-color: rgba(147, 197, 253, 0.5);
+  box-shadow: 0 8px 25px rgba(96, 165, 250, 0.4);
 }
 
 .register-link {
@@ -3040,11 +3100,7 @@ onUnmounted(() => {
   gap: 4px;
 }
 
-.social-label {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 4px;
-}
+.social-label { display: none; }
 
 /* 邮箱登录弹窗 */
 .email-modal-overlay {
