@@ -249,7 +249,7 @@
                   <span class="check-icon"></span>
                   <span>记住我</span>
                 </label>
-                <a href="#" class="forgot-link">忘记密码?</a>
+                <a href="#" class="forgot-link" @click.prevent="openForgotPassword">忘记密码?</a>
               </div>
 
               <button type="submit" class="login-btn" :disabled="loading">
@@ -488,11 +488,38 @@ let globeAnimationId = null
 let mouseX = 0
 let mouseY = 0
 
+const REMEMBER_KEY = 'remembered_login'
+
 const form = reactive({
   username: '',
   password: '',
   remember: false
 })
+
+const loadRememberedLogin = () => {
+  try {
+    const saved = localStorage.getItem(REMEMBER_KEY)
+    if (saved) {
+      const data = JSON.parse(saved)
+      form.username = data.username || ''
+      form.password = data.password || ''
+      form.remember = true
+    }
+  } catch {
+    form.remember = false
+  }
+}
+
+const saveRememberedLogin = () => {
+  if (form.remember) {
+    localStorage.setItem(REMEMBER_KEY, JSON.stringify({
+      username: form.username,
+      password: form.password
+    }))
+  } else {
+    localStorage.removeItem(REMEMBER_KEY)
+  }
+}
 
 const careerTags = ref([
   { name: '前端开发', x: 10, y: 15, delay: 0, color: '#4a9eff' },
@@ -541,6 +568,7 @@ const networkLinks = ref([
 
 const handleLogin = async () => {
   if (!form.username || !form.password) {
+    alert('请输入账号和密码')
     return
   }
   if (!validateEmailFormat(form.username)) {
@@ -1228,6 +1256,7 @@ const initGlobe = () => {
 onMounted(() => {
   initBackground()
   setTimeout(initGlobe, 100)
+  loadRememberedLogin()
 })
 
 onUnmounted(() => {

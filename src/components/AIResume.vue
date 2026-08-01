@@ -836,7 +836,28 @@
       <div class="resume-header">
         <h2>个人简历</h2>
         <div class="resume-actions">
-          <button class="export-btn" @click="exportWordResume">导出简历</button>
+          <div class="export-dropdown" ref="exportDropdownRef">
+            <button class="export-btn" @click.stop="toggleExportDropdown">
+              导出简历
+              <span class="export-arrow" :class="{ rotated: showExportDropdown }">▼</span>
+            </button>
+            <div v-if="showExportDropdown" class="export-menu">
+              <div class="export-menu-item" @click="exportWordResume">
+                <span class="export-icon">📄</span>
+                <div class="export-menu-text">
+                  <div class="export-menu-title">导出 Word</div>
+                  <div class="export-menu-desc">.docx 格式</div>
+                </div>
+              </div>
+              <div class="export-menu-item" @click="exportPdfResume">
+                <span class="export-icon">📑</span>
+                <div class="export-menu-text">
+                  <div class="export-menu-title">导出 PDF</div>
+                  <div class="export-menu-desc">.pdf 格式</div>
+                </div>
+              </div>
+            </div>
+          </div>
           <button class="close-btn" @click="closeResume">×</button>
         </div>
       </div>
@@ -1009,6 +1030,7 @@
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { Document, Packer, Paragraph, TextRun, AlignmentType, Table, TableRow, TableCell, ShadingType, WidthType, BorderStyle, ImageRun, HeightRule } from 'docx'
+import html2pdf from 'html2pdf.js'
 
 const router = useRouter()
 
@@ -2060,6 +2082,54 @@ const generateResume = () => {
 
 const closeResume = () => {
   showResume.value = false
+  showExportDropdown.value = false
+}
+
+const showExportDropdown = ref(false)
+const exportDropdownRef = ref(null)
+
+const toggleExportDropdown = () => {
+  showExportDropdown.value = !showExportDropdown.value
+}
+
+const handleExportClickOutside = (e) => {
+  if (exportDropdownRef.value && !exportDropdownRef.value.contains(e.target)) {
+    showExportDropdown.value = false
+  }
+}
+
+const exportPdfResume = async () => {
+  showExportDropdown.value = false
+  try {
+    const element = document.querySelector('.resume-content')
+    if (!element) {
+      alert('未找到简历内容')
+      return
+    }
+    const name = formData.value.name || '未填写'
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `resume_${name}_${Date.now()}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#f8f9fa'
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    }
+    await html2pdf().set(opt).from(element).save()
+  } catch (error) {
+    console.error(error)
+    alert('PDF导出失败：' + error.message)
+  }
 }
 
 const exportWordResume = async () => {
@@ -2668,12 +2738,15 @@ onMounted(() => {
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
   })
+
+  document.addEventListener('click', handleExportClickOutside)
 })
 
 onUnmounted(() => {
   if (bgAnimationId) {
     cancelAnimationFrame(bgAnimationId)
   }
+  document.removeEventListener('click', handleExportClickOutside)
 })
 </script>
 
@@ -5046,20 +5119,104 @@ onUnmounted(() => {
   align-items: center;
 }
 
+.export-dropdown {
+  position: relative;
+}
+
 .export-btn {
   background: transparent;
   border: 1px solid #d4a853;
   color: #d4a853;
-  padding: 8px 20px;
+  padding: 8px 16px;
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
 }
 
 .export-btn:hover {
   background: #d4a853;
   color: #2c3e50;
+}
+
+.export-arrow {
+  font-size: 10px;
+  transition: transform 0.3s ease;
+}
+
+.export-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.export-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  min-width: 180px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: exportMenuFadeIn 0.2s ease;
+}
+
+@keyframes exportMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.export-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.export-menu-item:last-child {
+  border-bottom: none;
+}
+
+.export-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.export-menu-item:active {
+  background: #eef1f4;
+}
+
+.export-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.export-menu-text {
+  flex: 1;
+}
+
+.export-menu-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 2px;
+}
+
+.export-menu-desc {
+  font-size: 12px;
+  color: #888;
 }
 
 .close-btn {

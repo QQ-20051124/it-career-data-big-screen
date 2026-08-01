@@ -1208,6 +1208,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { clearAuthInfo } from '@/utils/auth'
 import jobData from '../assets/all_cleaned_jobs.json'
 import { logout as authLogout } from '../utils/auth'
 import { getUserList, updateUserStatus, deleteUser, resetUserPassword, isAdmin } from '../utils/userStore'
@@ -1627,6 +1628,7 @@ const navigateTo = (module) => {
 
 const logout = () => {
   authLogout()
+  showProfilePanel.value = false
   router.replace('/')
 }
 

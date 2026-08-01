@@ -14,6 +14,7 @@
     "echarts": "^5.4.3",
     "echarts-gl": "^2.0.9",
     "echarts-wordcloud": "^2.1.0",
+    "html2pdf.js": "^0.14.0",
     "three": "^0.185.1",
     "vue": "^3.2.13",
     "vue-router": "^4.6.4"
@@ -44,7 +45,12 @@
     "rules": {
       "vue/multi-word-component-names": "off",
       "no-undef": "off",
-      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
+      "no-unused-vars": [
+        "warn",
+        {
+          "argsIgnorePattern": "^_"
+        }
+      ]
     },
     "globals": {
       "defineProps": "readonly",
