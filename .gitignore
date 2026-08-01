@@ -17,3 +17,6 @@ my-vue3/
 **/.env
 **/.env.local
 **/.env.*.local
+
+# 用户数据（含密码哈希，禁止提交）
+backend/data/users.json

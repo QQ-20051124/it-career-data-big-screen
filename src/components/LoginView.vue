@@ -249,7 +249,7 @@
                   <span class="check-icon"></span>
                   <span>记住我</span>
                 </label>
-                <a href="#" class="forgot-link">忘记密码?</a>
+                <a href="#" class="forgot-link" @click.prevent="openForgotPassword">忘记密码?</a>
               </div>
 
               <button type="submit" class="login-btn" :disabled="loading">
@@ -285,7 +285,7 @@
             </div>
 
             <div class="register-link">
-              还没有账号? <a href="#" @click.prevent="handleRegister">立即注册</a>
+              还没有账号? <a href="#" @click.prevent="openRegister">立即注册</a>
             </div>
           </div>
         </div>
@@ -329,6 +329,130 @@
             </div>
             
             <div v-if="emailError" class="form-error">{{ emailError }}</div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- 注册弹窗 -->
+    <Teleport to="body">
+      <div v-if="showRegisterModal" class="email-modal-overlay" @click.self="showRegisterModal = false">
+        <div class="email-modal">
+          <button class="modal-close" @click="showRegisterModal = false">×</button>
+          <h3>注册新账号</h3>
+          <p class="modal-desc">创建账号后即可登录系统</p>
+          
+          <form @submit.prevent="submitRegister" class="email-form">
+            <div class="form-group">
+              <label>用户名</label>
+              <input 
+                type="text" 
+                v-model="registerForm.username" 
+                placeholder="至少3位字符"
+                @input="registerError = ''"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>密码</label>
+              <input 
+                type="password" 
+                v-model="registerForm.password" 
+                placeholder="至少6位字符"
+                @input="registerError = ''"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>确认密码</label>
+              <input 
+                type="password" 
+                v-model="registerForm.confirmPassword" 
+                placeholder="再次输入密码"
+                @input="registerError = ''"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>邮箱（可选）</label>
+              <input 
+                type="email" 
+                v-model="registerForm.email" 
+                placeholder="选填"
+                @input="registerError = ''"
+              />
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" @click="showRegisterModal = false">取消</button>
+              <button type="submit" class="btn-submit" :disabled="registerLoading">
+                {{ registerLoading ? '注册中...' : '立即注册' }}
+              </button>
+            </div>
+            
+            <div v-if="registerError" class="form-error">{{ registerError }}</div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- 忘记密码弹窗 -->
+    <Teleport to="body">
+      <div v-if="showForgotModal" class="email-modal-overlay" @click.self="showForgotModal = false">
+        <div class="email-modal">
+          <button class="modal-close" @click="showForgotModal = false">×</button>
+          <h3>重置密码</h3>
+          <p class="modal-desc">输入账号信息重置您的登录密码</p>
+          
+          <form @submit.prevent="submitForgotPassword" class="email-form">
+            <div class="form-group">
+              <label>用户名</label>
+              <input 
+                type="text" 
+                v-model="forgotForm.username" 
+                placeholder="请输入注册时的用户名"
+                @input="forgotError = ''"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>注册邮箱（选填，用于验证身份）</label>
+              <input 
+                type="email" 
+                v-model="forgotForm.email" 
+                placeholder="如果注册时填写了邮箱请输入"
+                @input="forgotError = ''"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>新密码</label>
+              <input 
+                type="password" 
+                v-model="forgotForm.newPassword" 
+                placeholder="至少6位字符"
+                @input="forgotError = ''"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>确认新密码</label>
+              <input 
+                type="password" 
+                v-model="forgotForm.confirmPassword" 
+                placeholder="再次输入新密码"
+                @input="forgotError = ''"
+              />
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" @click="showForgotModal = false">取消</button>
+              <button type="submit" class="btn-submit" :disabled="forgotLoading">
+                {{ forgotLoading ? '重置中...' : '重置密码' }}
+              </button>
+            </div>
+            
+            <div v-if="forgotError" class="form-error">{{ forgotError }}</div>
           </form>
         </div>
       </div>
@@ -386,7 +510,7 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import * as THREE from 'three'
-import { loginWithSocial, loginWithEmail, loginAsGuest, isLoggedIn } from '@/utils/auth'
+import { loginWithSocial, loginWithEmail, loginAsGuest, isLoggedIn, registerUser, loginWithCredentials, resetPassword } from '@/utils/auth'
 
 const route = useRoute()
 const showPassword = ref(false)
@@ -434,11 +558,38 @@ let globeAnimationId = null
 let mouseX = 0
 let mouseY = 0
 
+const REMEMBER_KEY = 'remembered_login'
+
 const form = reactive({
   username: '',
   password: '',
   remember: false
 })
+
+const loadRememberedLogin = () => {
+  try {
+    const saved = localStorage.getItem(REMEMBER_KEY)
+    if (saved) {
+      const data = JSON.parse(saved)
+      form.username = data.username || ''
+      form.password = data.password || ''
+      form.remember = true
+    }
+  } catch {
+    form.remember = false
+  }
+}
+
+const saveRememberedLogin = () => {
+  if (form.remember) {
+    localStorage.setItem(REMEMBER_KEY, JSON.stringify({
+      username: form.username,
+      password: form.password
+    }))
+  } else {
+    localStorage.removeItem(REMEMBER_KEY)
+  }
+}
 
 const careerTags = ref([
   { name: '前端开发', x: 10, y: 15, delay: 0, color: '#4a9eff' },
@@ -487,12 +638,13 @@ const networkLinks = ref([
 
 const handleLogin = async () => {
   if (!form.username || !form.password) {
+    alert('请输入账号和密码')
     return
   }
   loading.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    loginWithEmail(form.username)
+    await loginWithCredentials(form.username, form.password)
+    saveRememberedLogin()
     const redirect = route.query.redirect
     window.location.href = redirect || '/dashboard'
   } catch (e) {
@@ -577,8 +729,107 @@ const submitEmailLogin = async () => {
   }
 }
 
-const handleRegister = () => {
-  alert('注册功能正在开发中，敬请期待！')
+const showRegisterModal = ref(false)
+const registerLoading = ref(false)
+const registerError = ref('')
+const registerForm = reactive({
+  username: '',
+  password: '',
+  confirmPassword: '',
+  email: ''
+})
+
+const openRegister = () => {
+  registerForm.username = ''
+  registerForm.password = ''
+  registerForm.confirmPassword = ''
+  registerForm.email = ''
+  registerError.value = ''
+  showRegisterModal.value = true
+}
+
+const submitRegister = async () => {
+  if (!registerForm.username || !registerForm.password) {
+    registerError.value = '请填写用户名和密码'
+    return
+  }
+  if (registerForm.username.length < 3) {
+    registerError.value = '用户名至少3位'
+    return
+  }
+  if (registerForm.password.length < 6) {
+    registerError.value = '密码至少6位'
+    return
+  }
+  if (registerForm.password !== registerForm.confirmPassword) {
+    registerError.value = '两次密码输入不一致'
+    return
+  }
+  if (registerForm.email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(registerForm.email)) {
+      registerError.value = '请输入有效的邮箱地址'
+      return
+    }
+  }
+
+  registerLoading.value = true
+  registerError.value = ''
+  try {
+    await registerUser(registerForm.username, registerForm.password, registerForm.email || undefined)
+    showRegisterModal.value = false
+    alert('注册成功！请使用新账号登录')
+  } catch (e) {
+    registerError.value = e.message
+  } finally {
+    registerLoading.value = false
+  }
+}
+
+const showForgotModal = ref(false)
+const forgotLoading = ref(false)
+const forgotError = ref('')
+const forgotForm = reactive({
+  username: '',
+  email: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const openForgotPassword = () => {
+  forgotForm.username = ''
+  forgotForm.email = ''
+  forgotForm.newPassword = ''
+  forgotForm.confirmPassword = ''
+  forgotError.value = ''
+  showForgotModal.value = true
+}
+
+const submitForgotPassword = async () => {
+  if (!forgotForm.username || !forgotForm.newPassword) {
+    forgotError.value = '请填写用户名和新密码'
+    return
+  }
+  if (forgotForm.newPassword.length < 6) {
+    forgotError.value = '新密码至少6位'
+    return
+  }
+  if (forgotForm.newPassword !== forgotForm.confirmPassword) {
+    forgotError.value = '两次密码输入不一致'
+    return
+  }
+
+  forgotLoading.value = true
+  forgotError.value = ''
+  try {
+    await resetPassword(forgotForm.username, forgotForm.newPassword, forgotForm.email || undefined)
+    showForgotModal.value = false
+    alert('密码重置成功！请使用新密码登录')
+  } catch (e) {
+    forgotError.value = e.message
+  } finally {
+    forgotLoading.value = false
+  }
 }
 
 const handleCardMouseMove = (e) => {
@@ -1140,6 +1391,7 @@ const initGlobe = () => {
 onMounted(() => {
   initBackground()
   setTimeout(initGlobe, 100)
+  loadRememberedLogin()
 })
 
 onUnmounted(() => {
