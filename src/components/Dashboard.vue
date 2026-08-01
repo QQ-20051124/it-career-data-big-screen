@@ -665,12 +665,7 @@
             </div>
             <div class="icon-reflection"></div>
           </div>
-          <h3>功能模块</h3>
-          <div class="module-arrow">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </div>
+          <h3 class="module-title">功能模块</h3>
         </div>
         <div class="module-corner tl"></div>
         <div class="module-corner tr"></div>
@@ -722,12 +717,7 @@
             </div>
             <div class="icon-reflection"></div>
           </div>
-          <h3>可视化模块</h3>
-          <div class="module-arrow">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </div>
+          <h3 class="module-title">可视化模块</h3>
         </div>
         <div class="module-corner tl"></div>
         <div class="module-corner tr"></div>
@@ -2262,7 +2252,8 @@ onUnmounted(() => {
 .module-content {
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: center;
+  gap: 24px;
   position: relative;
   z-index: 2;
   width: 100%;
@@ -2348,37 +2339,37 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.module-card h3 {
-  font-size: 1.6rem;
-  font-weight: 700;
+.module-title {
+  font-size: 1.8rem;
+  font-weight: 800;
   margin: 0;
-  transition: all 0.4s ease;
-  letter-spacing: 2px;
+  letter-spacing: 4px;
   position: relative;
+  font-family: 'Orbitron', 'Rajdhani', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, var(--module-color-light), #fff, var(--module-color-start));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  transition: all 0.4s ease;
+  animation: titleShimmer 3s ease-in-out infinite;
+  filter: drop-shadow(0 2px 8px var(--module-glow-color));
 }
 
-/* 箭头指示器 */
-.module-arrow {
-  margin-left: auto;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--module-icon-bg-1), var(--module-icon-bg-2));
-  border: 1px solid var(--module-color-start);
-  color: var(--module-color-start);
-  opacity: 0.6;
-  transform: translateX(-10px);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+@keyframes titleShimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
-.module-card:hover .module-arrow {
-  opacity: 1;
-  transform: translateX(0);
-  color: #fff;
-  box-shadow: 0 0 15px var(--module-glow-color);
+.module-card:hover .module-title {
+  animation: titleShimmer 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 4px 16px var(--module-glow-color));
+  transform: scale(1.05);
 }
 
 /* 功能模块 - 冰青蓝主题 */
@@ -2398,10 +2389,6 @@ onUnmounted(() => {
   --border-gradient: linear-gradient(135deg, #4a9eff, #00d4aa, #4a9eff);
 }
 
-.function-module h3 {
-  color: rgba(200, 230, 255, 0.75);
-}
-
 .function-module.active {
   --card-bg: linear-gradient(145deg, 
     rgba(35, 60, 100, 0.92) 0%, 
@@ -2409,11 +2396,6 @@ onUnmounted(() => {
     rgba(18, 35, 65, 0.92) 100%);
   --card-border: rgba(74, 158, 255, 0.7);
   --module-glow-color: rgba(74, 158, 255, 0.5);
-}
-
-.function-module.active h3 {
-  color: #ffffff;
-  text-shadow: 0 0 25px rgba(74, 158, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* 可视化模块 - 电光紫主题 */
@@ -2433,10 +2415,6 @@ onUnmounted(() => {
   --border-gradient: linear-gradient(135deg, #7b68ee, #4a9eff, #7b68ee);
 }
 
-.visualization-module h3 {
-  color: rgba(210, 195, 255, 0.75);
-}
-
 .visualization-module.active {
   --card-bg: linear-gradient(145deg, 
     rgba(55, 42, 95, 0.92) 0%, 
@@ -2444,11 +2422,6 @@ onUnmounted(() => {
     rgba(32, 24, 62, 0.92) 100%);
   --card-border: rgba(123, 104, 238, 0.7);
   --module-glow-color: rgba(123, 104, 238, 0.5);
-}
-
-.visualization-module.active h3 {
-  color: #ffffff;
-  text-shadow: 0 0 25px rgba(123, 104, 238, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* 模块内部光效 */
