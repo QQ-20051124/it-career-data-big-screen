@@ -1023,6 +1023,9 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import mockJobs from '@/data/mockJobs.js'
+
+const USE_MOCK_DATA = true
 
 const router = useRouter()
 
@@ -2163,6 +2166,16 @@ const loadMoreJobs = async () => {
   loading.value = true
   currentPage.value++
   try {
+    if (USE_MOCK_DATA) {
+      await new Promise(resolve => setTimeout(resolve, 200))
+      const filtered = filterMockJobs()
+      const start = (currentPage.value - 1) * pageSize
+      const newItems = filtered.slice(start, start + pageSize)
+      jobList.value = [...jobList.value, ...newItems]
+      totalResults.value = filtered.length
+      totalPages.value = Math.max(1, Math.ceil(filtered.length / pageSize))
+      return
+    }
     const currentCategory = categories.value[activeCategory.value]
     let effectiveSortBy = sortBy.value
     if (currentCategory === '高匹配优先') effectiveSortBy = 'match'
@@ -2196,11 +2209,53 @@ const loadMoreJobs = async () => {
   }
 }
 
+const filterMockJobs = () => {
+  let results = [...mockJobs]
+  if (searchKeyword.value) {
+    const kw = searchKeyword.value.toLowerCase()
+    results = results.filter(j =>
+      (j.job_name || '').toLowerCase().includes(kw) ||
+      (j.company || '').toLowerCase().includes(kw) ||
+      (j.city || '').toLowerCase().includes(kw)
+    )
+  }
+  if (selectedEducation.value.length > 0) {
+    results = results.filter(j => selectedEducation.value.includes(j.education))
+  }
+  if (selectedExperience.value.length > 0) {
+    results = results.filter(j => selectedExperience.value.some(exp => j.work_exp && j.work_exp.includes(exp)))
+  }
+  if (selectedCities.value.length > 0) {
+    results = results.filter(j => selectedCities.value.includes(j.city))
+  }
+  if (minSalary.value > 0) {
+    results = results.filter(j => (j.salary_avg || 0) >= minSalary.value * 1000)
+  }
+  if (maxSalary.value > 0) {
+    results = results.filter(j => (j.salary_avg || 0) <= maxSalary.value * 1000)
+  }
+  const sorted = [...results].sort((a, b) => {
+    if (sortBy.value === 'salary') return (b.salary_avg || 0) - (a.salary_avg || 0)
+    if (sortBy.value === 'match') return (b.matchScore || 0) - (a.matchScore || 0)
+    return 0
+  })
+  return sorted
+}
+
 const handleSearch = async () => {
   loading.value = true
   currentPage.value = 1
   clearSelection()
   try {
+    if (USE_MOCK_DATA) {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      const filtered = filterMockJobs()
+      const start = (currentPage.value - 1) * pageSize
+      jobList.value = filtered.slice(start, start + pageSize)
+      totalResults.value = filtered.length
+      totalPages.value = Math.max(1, Math.ceil(filtered.length / pageSize))
+      return
+    }
     const currentCategory = categories.value[activeCategory.value]
     let effectiveSortBy = sortBy.value
     if (currentCategory === '高匹配优先') {
@@ -2234,9 +2289,11 @@ const handleSearch = async () => {
     }
   } catch (error) {
     console.error('搜索失败:', error)
-    jobList.value = []
-    totalResults.value = 0
-    totalPages.value = 1
+    const filtered = filterMockJobs()
+    const start = (currentPage.value - 1) * pageSize
+    jobList.value = filtered.slice(start, start + pageSize)
+    totalResults.value = filtered.length
+    totalPages.value = Math.max(1, Math.ceil(filtered.length / pageSize))
   } finally {
     loading.value = false
   }

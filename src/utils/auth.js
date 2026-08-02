@@ -27,19 +27,6 @@ export function clearAuthInfo() {
   localStorage.removeItem(AUTH_KEY)
 }
 
-export async function registerUser(username, password, email) {
-  const res = await fetch(`${API_BASE}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, email })
-  })
-  const data = await res.json()
-  if (!data.success) {
-    throw new Error(data.message)
-  }
-  return data.user
-}
-
 export async function loginWithCredentials(username, password) {
   const res = await fetch(`${API_BASE}/login`, {
     method: 'POST',

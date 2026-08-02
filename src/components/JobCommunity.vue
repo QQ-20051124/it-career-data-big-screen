@@ -33,17 +33,17 @@
         </div>
         <div class="nav-right">
           <button class="publish-btn" @click="showPublishModal = true">+ 发布经验</button>
-          <div class="user-profile" @click="toggleUserMenu">
+          <button class="user-profile" type="button" @click="toggleUserMenu">
             <img :src="currentUser.avatar" alt="头像" />
-          </div>
+          </button>
           <div v-if="showUserMenu" class="user-menu">
-            <div class="menu-item" @click="handleMenuClick('profile')">👤 个人主页</div>
-            <div class="menu-item" @click="handleMenuClick('publish')">📝 我的发布</div>
-            <div class="menu-item" @click="handleMenuClick('applies')">📋 我的投递</div>
-            <div class="menu-item" @click="handleMenuClick('collect')">💾 我的收藏</div>
-            <div class="menu-item" @click="handleMenuClick('settings')">⚙️ 设置</div>
+            <button class="menu-item" type="button" @click.stop="handleMenuClick('profile')">👤 个人主页</button>
+            <button class="menu-item" type="button" @click.stop="handleMenuClick('publish')">📝 我的发布</button>
+            <button class="menu-item" type="button" @click.stop="handleMenuClick('applies')">📋 我的投递</button>
+            <button class="menu-item" type="button" @click.stop="handleMenuClick('collect')">💾 我的收藏</button>
+            <button class="menu-item" type="button" @click.stop="handleMenuClick('settings')">⚙️ 设置</button>
             <div class="menu-divider"></div>
-            <div class="menu-item logout" @click="handleMenuClick('logout')">🚪 退出登录</div>
+            <button class="menu-item logout" type="button" @click.stop="handleMenuClick('logout')">🚪 退出登录</button>
           </div>
         </div>
       </nav>
@@ -89,6 +89,11 @@
               </div>
             </div>
             <div class="interview-list">
+              <div v-if="filteredInterviews.length === 0" class="empty-state">
+                <div class="empty-icon">📝</div>
+                <p>暂无面试经验分享</p>
+                <span class="empty-hint">点击右上角"发布经验"分享你的面试经历</span>
+              </div>
               <div v-for="(item, index) in filteredInterviews" :key="index" class="interview-card" @click="openDetail('interview', item)">
                 <div class="card-rank" :class="getRankClass(index)">{{ index + 1 }}</div>
                 <div class="card-main">
@@ -149,6 +154,11 @@
               </div>
             </div>
             <div class="job-grid">
+              <div v-if="filteredJobs.length === 0" class="empty-state">
+                <div class="empty-icon">💼</div>
+                <p>暂无匹配的岗位</p>
+                <span class="empty-hint">调整筛选条件或搜索关键词</span>
+              </div>
               <div v-for="(job, index) in filteredJobs" :key="job.id" class="job-card" @click="openDetail('job', job)">
                 <h3 class="job-title">{{ job.title }}</h3>
                 <p class="job-company">{{ job.company }}</p>
@@ -182,6 +192,11 @@
               </div>
             </div>
             <div class="qa-list">
+              <div v-if="filteredQAs.length === 0" class="empty-state">
+                <div class="empty-icon">❓</div>
+                <p>暂无问答内容</p>
+                <span class="empty-hint">发布你的第一个问题吧</span>
+              </div>
               <div v-for="(qa, index) in filteredQAs" :key="index" class="qa-card" @click="openDetail('qa', qa)">
                 <div class="qa-header">
                   <img :src="qa.avatar" class="qa-avatar" />
@@ -215,6 +230,11 @@
               <span class="section-title">👨‍👩‍👧‍👦 {{ searchQuery ? `搜索 "${searchQuery}" 的结果` : '求职小组' }}</span>
             </div>
             <div class="group-grid">
+              <div v-if="groupList.length === 0" class="empty-state">
+                <div class="empty-icon">👥</div>
+                <p>暂无小组</p>
+                <span class="empty-hint">创建或加入感兴趣的小组</span>
+              </div>
               <div v-for="(group, index) in groupList" :key="index" class="group-card" @click="openDetail('group', group)">
                 <div class="group-icon">{{ group.name.charAt(0) }}</div>
                 <h3 class="group-name">{{ group.name }}</h3>
@@ -241,7 +261,8 @@
 
           <div class="hot-topics">
             <h4>热门话题</h4>
-            <div class="topic-list">
+            <div v-if="hotTopics.length === 0" class="empty-tip">暂无热门话题</div>
+            <div v-else class="topic-list">
               <div v-for="(topic, index) in hotTopics" :key="index" class="topic-item" @click="openTopicDetail(topic)">
                 <span class="topic-rank">{{ index + 1 }}</span>
                 <span class="topic-name">{{ topic.name }}</span>
@@ -252,7 +273,8 @@
 
           <div class="recommend-users">
             <h4>推荐关注</h4>
-            <div class="user-list">
+            <div v-if="recommendUsers.length === 0" class="empty-tip">暂无推荐用户</div>
+            <div v-else class="user-list">
               <div v-for="(user, index) in recommendUsers" :key="index" class="user-item">
                 <img :src="user.avatar" class="user-avatar" />
                 <div class="user-detail">
@@ -584,10 +606,12 @@
             <img :src="currentUser.avatar" class="profile-avatar" />
             <div class="profile-info">
               <h3>{{ currentUser.name }}</h3>
-              <p class="profile-title">求职者</p>
+              <p class="profile-title">{{ isLoggedIn() ? '社区成员' : '游客' }}</p>
               <div class="profile-tags">
-                <span class="profile-tag">计算机专业</span>
-                <span class="profile-tag">应届毕业生</span>
+                <span v-if="myPublishedPosts.length > 0" class="profile-tag">活跃作者</span>
+                <span v-if="myCollectedPosts.length + myCollectedJobs.length > 0" class="profile-tag">收藏爱好者</span>
+                <span v-if="appliedJobs.length > 0" class="profile-tag">求职者</span>
+                <span v-if="myPublishedPosts.length === 0 && myCollectedPosts.length === 0 && appliedJobs.length === 0" class="profile-tag">新成员</span>
               </div>
             </div>
           </div>
@@ -855,11 +879,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import jobData from '../assets/all_cleaned_jobs.json'
 import { isLoggedIn, getAuthInfo, logout as authLogout } from '../utils/auth'
 import * as communityStore from '../utils/communityStore'
+
+const { initCommunityData } = communityStore
 
 const router = useRouter()
 
@@ -958,6 +984,7 @@ const formatSalary = (salary) => {
 const companies = ['智联招聘', '前程无忧', 'BOSS直聘', '拉勾网', '猎聘网', '人才市场', '科技公司', '互联网企业', '软件公司', 'IT公司']
 
 const realJobs = computed(() => {
+  const currentName = currentUserName.value
   return jobData.slice(0, 50).map((job, index) => ({
     id: index,
     title: job.job_name,
@@ -968,8 +995,8 @@ const realJobs = computed(() => {
     education: job.education,
     tags: extractTags(job.job_name),
     campus: job.work_exp === '经验不限' || job.job_name.includes('应届') || job.job_name.includes('实习') || job.job_name.includes('校招'),
-    collected: false,
-    applied: false
+    collected: communityStore.isCollected(currentName, String(index), 'job'),
+    applied: communityStore.hasApplied(currentName, index)
   }))
 })
 
@@ -981,23 +1008,44 @@ const stats = computed(() => ({
 }))
 const hotKeywords = ['计算机', '前端', '后端', '算法', '数据', '测试', '运维', '开发']
 
+const resetAndReinit = () => {
+  if (!confirm('确定要重置社区数据吗？这将清除所有本地帖子、点赞、收藏和投递记录。')) return
+  communityStore.resetCommunityData()
+  location.reload()
+}
+
 const goBack = () => { router.push('/dashboard') }
 
 const hotInterviews = ref([])
 
-const loadCommunityData = () => {
-  const posts = communityStore.getPosts()
+const loadCommunityData = async () => {
   const currentName = currentUserName.value
-  hotInterviews.value = posts.map(p => {
-    const liked = communityStore.isLiked(currentName, String(p.id), 'post')
-    const collected = communityStore.isCollected(currentName, String(p.id), 'post')
-    return {
-      ...p,
-      liked,
-      collected,
-      avatar: p.avatar || generateAvatar(p.author)
-    }
-  })
+  try {
+    const posts = await communityStore.fetchPosts()
+    hotInterviews.value = posts.map(p => {
+      const liked = communityStore.isLiked(currentName, String(p.id), 'post')
+      const collected = communityStore.isCollected(currentName, String(p.id), 'post')
+      return {
+        ...p,
+        liked,
+        collected,
+        avatar: p.avatar || generateAvatar(p.author)
+      }
+    })
+  } catch (e) {
+    console.warn('Failed to load community data from backend:', e.message)
+    const posts = communityStore.getPosts()
+    hotInterviews.value = posts.map(p => {
+      const liked = communityStore.isLiked(currentName, String(p.id), 'post')
+      const collected = communityStore.isCollected(currentName, String(p.id), 'post')
+      return {
+        ...p,
+        liked,
+        collected,
+        avatar: p.avatar || generateAvatar(p.author)
+      }
+    })
+  }
 }
 
 loadCommunityData()
@@ -1016,6 +1064,7 @@ const onlineUsers = computed(() => {
   return [{ name: currentUser.value.name, avatar: currentUser.value.avatar }]
 })
 const hotTopics = ref([])
+
 const recommendUsers = ref([])
 const weeklyRank = computed(() => {
   const scoreMap = new Map()
@@ -1134,11 +1183,11 @@ const getOnlineStatus = (author) => {
   return author === currentUser.value.name ? 'online' : 'offline'
 }
 
-const toggleLike = (item) => {
+const toggleLike = async (item) => {
   const itemId = String(item.id)
   const isPost = !item.campus
   const type = isPost ? 'post' : 'job'
-  const likedNow = communityStore.toggleLike(currentUserName.value, itemId, type)
+  const likedNow = await communityStore.toggleLikeApi(currentUserName.value, itemId, type)
   item.liked = likedNow
   if (likedNow) {
     item.likes = (item.likes || 0) + 1
@@ -1150,20 +1199,29 @@ const toggleLike = (item) => {
   }
 }
 
-const toggleCollect = (item) => {
+const toggleCollect = async (item) => {
   const itemId = String(item.id)
-  const collectedNow = communityStore.toggleCollect(currentUserName.value, itemId, 'post')
+  const collectedNow = await communityStore.toggleCollectApi(currentUserName.value, itemId, 'post', {
+    id: item.id,
+    title: item.title,
+    tags: item.tags,
+    views: item.views,
+    likes: item.likes,
+    author: item.author
+  })
   item.collected = collectedNow
-  if (collectedNow) {
-    communityStore.updatePost(itemId, { collected: true })
-  } else {
-    communityStore.updatePost(itemId, { collected: false })
-  }
+  communityStore.updatePost(itemId, { collected: collectedNow })
 }
 
-const toggleJobCollect = (job) => {
+const toggleJobCollect = async (job) => {
   const itemId = String(job.id)
-  const collectedNow = communityStore.toggleCollect(currentUserName.value, itemId, 'job')
+  const collectedNow = await communityStore.toggleCollectApi(currentUserName.value, itemId, 'job', {
+    id: job.id,
+    title: job.title,
+    company: job.company,
+    city: job.city,
+    salary: job.salary
+  })
   job.collected = collectedNow
 }
 
@@ -1288,12 +1346,14 @@ const closeDetail = () => {
   newComment.value = ''
 }
 
+const noop = () => {}
+
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
 
-const handleMenuClick = (action) => {
-  showUserMenu.value = false
+const handleMenuClick = async (action) => {
+  // 先设置模态框状态，再关闭菜单
   switch (action) {
     case 'profile':
       showProfile.value = true
@@ -1311,10 +1371,15 @@ const handleMenuClick = (action) => {
       showSettings.value = true
       break
     case 'logout':
+      showUserMenu.value = false
       authLogout()
       router.replace('/')
-      break
+      return
   }
+  
+  // 使用 nextTick 确保模态框渲染后再关闭菜单
+  await nextTick()
+  showUserMenu.value = false
 }
 
 const handleSearch = () => {
@@ -1358,13 +1423,13 @@ const handleKeywordSearch = (kw) => {
   handleSearch()
 }
 
-const handleApply = (job) => {
+const handleApply = async (job) => {
   const username = currentUserName.value
   if (communityStore.hasApplied(username, job.id)) {
     alert('您已经投递过该岗位了！')
     return
   }
-  const record = communityStore.applyJob(username, job)
+  const record = await communityStore.applyJobApi(username, job)
   if (!record) {
     alert('您已经投递过该岗位了！')
     return
@@ -1386,45 +1451,50 @@ const toggleFollow = (user) => {
   user.followed = !user.followed
 }
 
-const openChat = (user) => {
+const openChat = async (user) => {
+  if (!user.avatar) {
+    user.avatar = generateAvatar(user.name)
+  }
   chatTarget.value = user
-  chatMessages.value = [
-    { from: 'them', author: user.name, avatar: user.avatar, content: `你好！我是${user.name}，很高兴认识你～`, time: '刚刚' }
-  ]
+  try {
+    const savedMessages = await communityStore.fetchChats(currentUserName.value, user.name)
+    chatMessages.value = savedMessages.length > 0 ? savedMessages : []
+  } catch (e) {
+    console.warn('Failed to load chat from backend:', e.message)
+    const savedMessages = communityStore.getChats(currentUserName.value, user.name)
+    chatMessages.value = savedMessages.length > 0 ? savedMessages : []
+  }
   showChat.value = true
 }
 
-const sendChatMessage = () => {
+const sendChatMessage = async () => {
   if (!chatInput.value.trim()) return
-  chatMessages.value.push({
+  const msg = {
     from: 'me',
     author: currentUser.value.name,
     avatar: currentUser.value.avatar,
     content: chatInput.value,
     time: '刚刚'
-  })
+  }
+  chatMessages.value.push(msg)
   chatInput.value = ''
-  setTimeout(() => {
-    chatMessages.value.push({
-      from: 'them',
-      author: chatTarget.value.name,
-      avatar: chatTarget.value.avatar,
-      content: '收到你的消息啦！稍后回复你～',
-      time: '刚刚'
-    })
-  }, 1200)
+  await communityStore.saveChatApi(currentUserName.value, chatTarget.value.name, chatMessages.value)
 }
 
-const openGroupChat = (group) => {
+const openGroupChat = async (group) => {
   groupChatTarget.value = group
-  groupChatMessages.value = [
-    { from: 'them', author: '群成员A', avatar: generateAvatar('群成员A'), content: `欢迎加入【${group.name}】！`, time: '10分钟前' },
-    { from: 'them', author: '群成员B', avatar: generateAvatar('群成员B'), content: '新人你好呀，有什么问题可以随时问', time: '5分钟前' }
-  ]
+  try {
+    const savedMessages = await communityStore.fetchChats(currentUserName.value, 'group_' + group.name)
+    groupChatMessages.value = savedMessages.length > 0 ? savedMessages : []
+  } catch (e) {
+    console.warn('Failed to load group chat from backend:', e.message)
+    const savedMessages = communityStore.getChats(currentUserName.value, 'group_' + group.name)
+    groupChatMessages.value = savedMessages.length > 0 ? savedMessages : []
+  }
   showGroupChat.value = true
 }
 
-const sendGroupChatMessage = () => {
+const sendGroupChatMessage = async () => {
   if (!groupChatInput.value.trim()) return
   groupChatMessages.value.push({
     from: 'me',
@@ -1434,6 +1504,7 @@ const sendGroupChatMessage = () => {
     time: '刚刚'
   })
   groupChatInput.value = ''
+  await communityStore.saveChatApi(currentUserName.value, 'group_' + groupChatTarget.value.name, groupChatMessages.value)
 }
 
 const addTag = () => {
@@ -1452,31 +1523,39 @@ const closePublishModal = () => {
   publishForm.value = { title: '', tags: [], tagInput: '', content: '' }
 }
 
-const submitPublish = () => {
+const submitPublish = async () => {
   if (!publishForm.value.title.trim() || !publishForm.value.content.trim()) {
     alert('请填写标题和内容')
     return
   }
   
   const newPost = {
-    id: 'post_' + Date.now(),
     title: publishForm.value.title,
     author: currentUser.value.name,
     avatar: currentUser.value.avatar,
-    time: '刚刚',
     tags: publishForm.value.tags.length > 0 ? publishForm.value.tags : ['计算机'],
-    comments: 0,
-    likes: 0,
-    views: 0,
-    liked: false,
-    collected: false,
-    preview: publishForm.value.content.slice(0, 100) + '...',
     content: publishForm.value.content,
-    commentList: []
+    type: 'interview'
   }
   
-  communityStore.addPost(newPost)
-  hotInterviews.value.unshift(newPost)
+  try {
+    const saved = await communityStore.createPost(newPost)
+    if (saved) {
+      hotInterviews.value.unshift({
+        ...saved,
+        liked: false,
+        collected: false,
+        avatar: saved.avatar || currentUser.value.avatar
+      })
+    } else {
+      communityStore.addPost({ ...newPost, id: 'post_' + Date.now(), time: new Date().toISOString(), likes: 0, views: 0, comments: 0, liked: false, collected: false })
+      hotInterviews.value.unshift({ ...newPost, id: 'post_' + Date.now(), time: '刚刚', likes: 0, views: 0, comments: 0, liked: false, collected: false, avatar: currentUser.value.avatar })
+    }
+  } catch (e) {
+    console.warn('Publish failed:', e.message)
+    communityStore.addPost({ ...newPost, id: 'post_' + Date.now(), time: new Date().toISOString(), likes: 0, views: 0, comments: 0, liked: false, collected: false })
+    hotInterviews.value.unshift({ ...newPost, id: 'post_' + Date.now(), time: '刚刚', likes: 0, views: 0, comments: 0, liked: false, collected: false, avatar: currentUser.value.avatar })
+  }
   
   closePublishModal()
   activeTab.value = 'interview'
@@ -1525,22 +1604,40 @@ const initBackground = () => {
   animate()
 }
 
-onMounted(() => {
+onMounted(async () => {
   loggedIn.value = isLoggedIn()
   const name = currentUserName.value
   currentUser.value = { name, avatar: generateAvatar(name) }
+  
+  initCommunityData(name)
+  await loadCommunityData()
+  
   initBackground()
 
-  const applies = communityStore.getUserApplies(name)
-  appliedJobs.value = applies.map(a => ({
-    id: a.jobId,
-    title: a.jobTitle,
-    company: a.company,
-    city: a.city,
-    salary: a.salary,
-    applyTime: a.applyTime
-  }))
-  appliedJobIds.value = new Set(applies.map(a => a.jobId))
+  try {
+    const applies = await communityStore.fetchApplies(name)
+    appliedJobs.value = applies.map(a => ({
+      id: a.jobId,
+      title: a.jobTitle,
+      company: a.company,
+      city: a.city,
+      salary: a.salary,
+      applyTime: a.applyTime
+    }))
+    appliedJobIds.value = new Set(applies.map(a => a.jobId))
+  } catch (e) {
+    console.warn('Failed to load applies from backend:', e.message)
+    const applies = communityStore.getUserApplies(name)
+    appliedJobs.value = applies.map(a => ({
+      id: a.jobId,
+      title: a.jobTitle,
+      company: a.company,
+      city: a.city,
+      salary: a.salary,
+      applyTime: a.applyTime
+    }))
+    appliedJobIds.value = new Set(applies.map(a => a.jobId))
+  }
 })
 
 onUnmounted(() => {
@@ -1674,7 +1771,7 @@ onUnmounted(() => {
 }
 .nav-icon { font-size: 1.3rem; }
 
-.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-right { display: flex; align-items: center; gap: 20px; position: relative; }
 .publish-btn {
   padding: 14px 32px;
   background: linear-gradient(135deg, var(--cyan), var(--magenta));
@@ -1688,26 +1785,43 @@ onUnmounted(() => {
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(0, 229, 255, 0.65), 0 0 18px rgba(196, 113, 255, 0.5);
 }
-.user-profile { position: relative; cursor: pointer; }
+.user-profile { 
+  position: relative; 
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .user-profile img {
   width: 48px; height: 48px; border-radius: 50%;
   border: 2px solid var(--cyan);
   box-shadow: 0 0 14px rgba(0, 229, 255, 0.5);
+  pointer-events: none;
 }
 
 .user-menu {
-  position: absolute; top: 60px; right: 0; width: 220px;
+  position: fixed; top: 70px; right: 30px; width: 220px;
   background: rgba(12, 22, 48, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-glow);
-  border-radius: 15px; padding: 12px; z-index: 100;
+  border-radius: 15px; padding: 12px; z-index: 1000;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 0 20px rgba(0, 229, 255, 0.15);
 }
 .menu-item {
+  display: block; width: 100%; text-align: left;
   padding: 14px 16px; border-radius: 10px;
   color: rgba(230, 241, 255, 0.75); font-size: 0.95rem; cursor: pointer;
   transition: all 0.2s;
+  user-select: none;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
 }
 .menu-item:hover {
   background: rgba(0, 229, 255, 0.15);
@@ -2153,7 +2267,6 @@ onUnmounted(() => {
   box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
 }
 
-.online-users { }
 .avatar-stack { display: flex; }
 .mini-avatar {
   width: 38px; height: 38px; border-radius: 50%;
@@ -2169,8 +2282,6 @@ onUnmounted(() => {
   text-shadow: 0 0 8px rgba(0, 255, 163, 0.5);
 }
 
-.hot-topics { }
-.topic-list { }
 .topic-item {
   display: flex; align-items: center; gap: 12px; padding: 10px 0;
   border-bottom: 1px solid rgba(0, 229, 255, 0.12);
@@ -2192,9 +2303,7 @@ onUnmounted(() => {
 }
 .topic-name { font-size: 0.9rem; color: rgba(230, 241, 255, 0.75); }
 
-.recommend-users { }
-.user-list { }
-.user-item {
+.user-card {
   display: flex; align-items: center; gap: 12px; padding: 12px 0;
   border-bottom: 1px solid rgba(0, 229, 255, 0.12);
 }
@@ -2221,8 +2330,6 @@ onUnmounted(() => {
   box-shadow: 0 0 16px rgba(0, 229, 255, 0.55);
 }
 
-.weekly-rank { }
-.rank-list { }
 .rank-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
 .rank-num {
   width: 24px; height: 24px; border-radius: 50%;
@@ -2285,7 +2392,7 @@ onUnmounted(() => {
   border: 2px solid var(--cyan);
   box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
 }
-.detail-author { }
+.detail-company
 .detail-meta { display: flex; gap: 20px; margin-top: 10px; }
 .detail-meta span { font-size: 0.9rem; color: rgba(230, 241, 255, 0.55); font-family: var(--font-mono); }
 .detail-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
@@ -2326,7 +2433,6 @@ onUnmounted(() => {
   box-shadow: 0 0 14px rgba(255, 71, 87, 0.4);
 }
 
-.comment-section { }
 .comment-section h3 {
   font-size: 1.3rem; font-weight: 600; color: #fff; margin-bottom: 20px;
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
@@ -2733,6 +2839,8 @@ onUnmounted(() => {
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-icon { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.5)); }
 .empty-state p { font-size: 1rem; color: rgba(230, 241, 255, 0.6); margin-bottom: 25px; }
+.empty-hint { font-size: 0.85rem; color: rgba(230, 241, 255, 0.4); display: block; }
+.empty-tip { font-size: 0.85rem; color: rgba(230, 241, 255, 0.4); text-align: center; padding: 10px 0; }
 .empty-btn {
   padding: 14px 35px; border-radius: 20px;
   background: linear-gradient(135deg, var(--cyan), var(--magenta));

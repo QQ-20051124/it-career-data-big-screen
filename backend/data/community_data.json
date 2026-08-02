@@ -1,0 +1,132 @@
+{
+  "posts": [
+    {
+      "id": "msbawlg4znpxj",
+      "title": "字节跳动前端面试经验分享（3轮全通过）",
+      "content": "刚刚拿到了字节的offer！分享一下面试经验：\n\n1. 一面主要问了Vue的响应式原理、虚拟DOM、diff算法等\n2. 二面深入考察了JavaScript核心知识，包括原型链、闭包、事件循环\n3. 三面是HR面，主要聊了职业规划和薪资\n\n建议大家好好准备Vue3的Composition API和TypeScript！",
+      "author": "小张同学",
+      "avatar": "",
+      "tags": [
+        "前端",
+        "Vue",
+        "字节跳动"
+      ],
+      "type": "interview",
+      "time": "2026-07-31T04:29:20.404Z",
+      "views": 342,
+      "likes": 58,
+      "comments": 23,
+      "liked": false,
+      "collected": false
+    },
+    {
+      "id": "msbawlg5yd378",
+      "title": "阿里后端面试 - Java基础到高级的全方位考察",
+      "content": "阿里的后端面试真的很硬核，分享一下准备要点：\n\nJava基础：HashMap、ConcurrentHashMap的源码\n并发：synchronized、ReentrantLock、线程池\nJVM：内存模型、GC算法、类加载\n框架：Spring、MyBatis、Dubbo\n数据库：MySQL索引优化、Redis缓存\n\n最重要的是要有项目经验！",
+      "author": "Java小王子",
+      "avatar": "",
+      "tags": [
+        "后端",
+        "Java",
+        "阿里巴巴"
+      ],
+      "type": "interview",
+      "time": "2026-07-28T04:29:20.405Z",
+      "views": 567,
+      "likes": 89,
+      "comments": 34,
+      "liked": false,
+      "collected": false
+    },
+    {
+      "id": "msbawlg5l523l",
+      "title": "腾讯算法面试实录 - 从LeetCode到系统设计",
+      "content": "腾讯算法岗面试流程：\n\n1. 在线笔试：3道LeetCode Hard难度\n2. 技术一面：算法题+基础知识\n3. 技术二面：系统设计+深入技术\n4. 交叉面：文化匹配+技术广度\n5. HR面：职业发展\n\n推荐刷题顺序：剑指offer -> LeetCode HOT 100 -> 腾讯真题",
+      "author": "AI开发者",
+      "avatar": "",
+      "tags": [
+        "算法",
+        "Python",
+        "腾讯"
+      ],
+      "type": "interview",
+      "time": "2026-07-26T04:29:20.405Z",
+      "views": 891,
+      "likes": 156,
+      "comments": 67,
+      "liked": false,
+      "collected": false
+    },
+    {
+      "id": "msbawlg5yd05h",
+      "title": "美团数据分析面试 - SQL+统计学+业务理解",
+      "content": "美团数据分析面试重点：\n\nSQL：窗口函数、复杂查询、性能优化\n统计学：假设检验、A/B测试、回归分析\n业务：外卖市场、用户增长、订单分析\n\n案例题很重要，要展示你的业务思维！",
+      "author": "数据分析师",
+      "avatar": "",
+      "tags": [
+        "数据",
+        "SQL",
+        "美团"
+      ],
+      "type": "interview",
+      "time": "2026-07-23T04:29:20.405Z",
+      "views": 234,
+      "likes": 45,
+      "comments": 12,
+      "liked": false,
+      "collected": false
+    },
+    {
+      "id": "msbawlg594wy0",
+      "title": "百度运维工程师面试 - 从Linux到Kubernetes",
+      "content": "百度运维面试涵盖：\n\n1. Linux基础：常用命令、shell脚本\n2. 网络：TCP/IP、OSPF、BGP\n3. 云计算：Docker、Kubernetes、OpenStack\n4. 自动化：Ansible、Puppet、Shell\n5. 故障排查：实战演练\n\n建议准备Prometheus+Grafana监控体系！",
+      "author": "运维老兵",
+      "avatar": "",
+      "tags": [
+        "运维",
+        "Linux",
+        "百度"
+      ],
+      "type": "interview",
+      "time": "2026-07-19T04:29:20.405Z",
+      "views": 178,
+      "likes": 34,
+      "comments": 8,
+      "liked": false,
+      "collected": false
+    }
+  ],
+  "qas": [
+    {
+      "id": "msbawlg5cue6h",
+      "title": "Vue3 Composition API 和 Options API 该怎么选？",
+      "content": "从Vue2迁移到Vue3，不知道该用Composition API还是Options API，有经验的大佬分享一下？",
+      "author": "前端小白",
+      "avatar": "",
+      "tags": [
+        "前端",
+        "Vue"
+      ],
+      "time": "2026-07-30T04:29:20.405Z",
+      "answers": 12
+    },
+    {
+      "id": "msbawlg52duw3",
+      "title": "Redis缓存穿透、击穿、雪崩怎么解决？",
+      "content": "面试频繁被问到Redis的三大问题，大家有什么好的总结吗？",
+      "author": "后端开发",
+      "avatar": "",
+      "tags": [
+        "后端",
+        "Redis",
+        "数据库"
+      ],
+      "time": "2026-07-27T04:29:20.405Z",
+      "answers": 28
+    }
+  ],
+  "likes": [],
+  "collects": [],
+  "applies": [],
+  "chats": []
+}

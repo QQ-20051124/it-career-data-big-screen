@@ -1,9 +1,14 @@
+import axios from 'axios'
+
+const API_BASE = '/api/community'
+
 const POSTS_KEY = 'community_posts'
 const QAS_KEY = 'community_qas'
 const LIKES_KEY = 'community_likes'
 const COLLECTS_KEY = 'community_collects'
 const APPLIES_KEY = 'community_applies'
 const CHATS_KEY = 'community_chats'
+const INIT_FLAG_KEY = 'community_initialized_v3'
 
 function readStore(key) {
   try {
@@ -18,8 +23,65 @@ function writeStore(key, value) {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
+// ==================== 初始化 ====================
+
+export async function initCommunityData(username) {
+  if (!username) return
+  
+  if (localStorage.getItem('community_initialized_v2')) {
+    localStorage.removeItem('community_initialized_v2')
+    clearCommunityData()
+  }
+  
+  try {
+    const res = await axios.post(`${API_BASE}/init`)
+    if (res.data.success) {
+      localStorage.setItem(INIT_FLAG_KEY, '1')
+      return true
+    }
+  } catch (e) {
+    console.warn('Backend init failed, using local data:', e.message)
+  }
+  
+  if (!localStorage.getItem(INIT_FLAG_KEY)) {
+    writeStore(POSTS_KEY, [])
+    localStorage.setItem(INIT_FLAG_KEY, '1')
+  }
+}
+
+export function resetCommunityData() {
+  localStorage.removeItem(INIT_FLAG_KEY)
+  clearCommunityData()
+}
+
+// ==================== 帖子 ====================
+
+export async function fetchPosts(params = {}) {
+  try {
+    const res = await axios.get(`${API_BASE}/posts`, { params })
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('fetchPosts failed:', e.message)
+  }
+  return readStore(POSTS_KEY)
+}
+
 export function getPosts() {
   return readStore(POSTS_KEY)
+}
+
+export async function createPost(post) {
+  try {
+    const res = await axios.post(`${API_BASE}/posts`, post)
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('createPost failed:', e.message)
+  }
+  const posts = readStore(POSTS_KEY)
+  const newPost = { ...post, id: 'p_' + Date.now(), time: new Date().toISOString(), views: 0, likes: 0, comments: 0 }
+  posts.unshift(newPost)
+  writeStore(POSTS_KEY, posts)
+  return newPost
 }
 
 export function savePosts(posts) {
@@ -55,6 +117,18 @@ export function updatePost(postId, updates) {
   return null
 }
 
+// ==================== 问答 ====================
+
+export async function fetchQAs(params = {}) {
+  try {
+    const res = await axios.get(`${API_BASE}/qas`, { params })
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('fetchQAs failed:', e.message)
+  }
+  return readStore(QAS_KEY)
+}
+
 export function getQAs() {
   return readStore(QAS_KEY)
 }
@@ -67,6 +141,18 @@ export function addQA(qa) {
   const qas = readStore(QAS_KEY)
   qas.unshift(qa)
   writeStore(QAS_KEY, qas)
+}
+
+// ==================== 点赞 ====================
+
+export async function toggleLikeApi(username, itemId, itemType = 'post') {
+  try {
+    const res = await axios.post(`${API_BASE}/likes/toggle`, { username, itemId, itemType })
+    if (res.data.success) return res.data.liked
+  } catch (e) {
+    console.warn('toggleLikeApi failed:', e.message)
+  }
+  return toggleLike(username, itemId, itemType)
 }
 
 export function getUserLikes(username) {
@@ -92,6 +178,28 @@ export function isLiked(username, itemId, itemType = 'post') {
   return likes.some(l => l.username === username && l.itemId === itemId && l.type === itemType)
 }
 
+// ==================== 收藏 ====================
+
+export async function fetchCollects(username) {
+  try {
+    const res = await axios.get(`${API_BASE}/collects/${encodeURIComponent(username)}`)
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('fetchCollects failed:', e.message)
+  }
+  return readStore(COLLECTS_KEY).filter(c => c.username === username)
+}
+
+export async function toggleCollectApi(username, itemId, itemType = 'post', itemData = null) {
+  try {
+    const res = await axios.post(`${API_BASE}/collects/toggle`, { username, itemId, itemType, itemData })
+    if (res.data.success) return res.data.collected
+  } catch (e) {
+    console.warn('toggleCollectApi failed:', e.message)
+  }
+  return toggleCollect(username, itemId, itemType)
+}
+
 export function getUserCollects(username) {
   const collects = readStore(COLLECTS_KEY)
   return collects.filter(c => c.username === username)
@@ -113,6 +221,36 @@ export function toggleCollect(username, itemId, itemType = 'post') {
 export function isCollected(username, itemId, itemType = 'post') {
   const collects = readStore(COLLECTS_KEY)
   return collects.some(c => c.username === username && c.itemId === itemId && c.type === itemType)
+}
+
+// ==================== 投递 ====================
+
+export async function fetchApplies(username) {
+  try {
+    const res = await axios.get(`${API_BASE}/applies/${encodeURIComponent(username)}`)
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('fetchApplies failed:', e.message)
+  }
+  return readStore(APPLIES_KEY).filter(a => a.username === username)
+}
+
+export async function applyJobApi(username, job) {
+  try {
+    const res = await axios.post(`${API_BASE}/applies`, {
+      username,
+      jobId: job.id,
+      jobData: { title: job.title, company: job.company, city: job.city, salary: job.salary }
+    })
+    if (res.data.success) return res.data.data
+    if (res.data.message) {
+      console.warn(res.data.message)
+      return null
+    }
+  } catch (e) {
+    console.warn('applyJobApi failed:', e.message)
+  }
+  return applyJob(username, job)
 }
 
 export function getUserApplies(username) {
@@ -144,6 +282,29 @@ export function hasApplied(username, jobId) {
   return applies.some(a => a.username === username && a.jobId === jobId)
 }
 
+// ==================== 聊天 ====================
+
+export async function fetchChats(username, otherName) {
+  try {
+    const res = await axios.get(`${API_BASE}/chats/${encodeURIComponent(username)}/${encodeURIComponent(otherName)}`)
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('fetchChats failed:', e.message)
+  }
+  return getChats(username, otherName)
+}
+
+export async function saveChatApi(username, otherName, messages) {
+  try {
+    const res = await axios.post(`${API_BASE}/chats`, { username, otherName, messages })
+    if (res.data.success) return true
+  } catch (e) {
+    console.warn('saveChatApi failed:', e.message)
+  }
+  saveChat(username, otherName, messages)
+  return true
+}
+
 export function getChats(username, otherName) {
   const chats = readStore(CHATS_KEY)
   const key1 = `${username}__${otherName}`
@@ -170,6 +331,20 @@ export function addChatMessage(username, otherName, message) {
   saveChat(username, otherName, messages)
   return messages
 }
+
+// ==================== 用户统计 ====================
+
+export async function fetchUserStats(username) {
+  try {
+    const res = await axios.get(`${API_BASE}/stats/${encodeURIComponent(username)}`)
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('fetchUserStats failed:', e.message)
+  }
+  return { posts: 0, collects: 0, applies: 0, likes: 0, totalLikes: 0 }
+}
+
+// ==================== 清理 ====================
 
 export function clearCommunityData() {
   localStorage.removeItem(POSTS_KEY)

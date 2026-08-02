@@ -1,0 +1,35 @@
+// Mock job data for fallback when backend is unavailable
+const mockJobs = [
+  { job_name: 'Java开发工程师', city: '北京', education: '本科', work_exp: '1-3年', company: '字节跳动', salary_avg: 28000, data_source: 'BOSS直聘', matchScore: 82 },
+  { job_name: 'Python数据分析师', city: '上海', education: '本科', work_exp: '1-3年', company: '美团', salary_avg: 22000, data_source: '前程无忧', matchScore: 78 },
+  { job_name: '前端开发工程师(Vue)', city: '深圳', education: '本科', work_exp: '1-3年', company: '腾讯科技', salary_avg: 25000, data_source: 'BOSS直聘', matchScore: 85 },
+  { job_name: 'AI算法工程师', city: '北京', education: '硕士', work_exp: '3-5年', company: '百度', salary_avg: 45000, data_source: '拉勾网', matchScore: 91 },
+  { job_name: '大数据开发工程师', city: '杭州', education: '本科', work_exp: '3-5年', company: '阿里巴巴', salary_avg: 35000, data_source: '前程无忧', matchScore: 80 },
+  { job_name: '运维工程师', city: '成都', education: '本科', work_exp: '1-3年', company: '京东科技', salary_avg: 18000, data_source: 'BOSS直聘', matchScore: 68 },
+  { job_name: '软件测试工程师', city: '武汉', education: '本科', work_exp: '1-3年', company: '小米科技', salary_avg: 15000, data_source: '前程无忧', matchScore: 65 },
+  { job_name: '网络安全工程师', city: '上海', education: '本科', work_exp: '3-5年', company: '绿盟科技', salary_avg: 32000, data_source: '拉勾网', matchScore: 77 },
+  { job_name: '产品经理', city: '广州', education: '本科', work_exp: '3-5年', company: '网易游戏', salary_avg: 30000, data_source: 'BOSS直聘', matchScore: 72 },
+  { job_name: 'UI/UX设计师', city: '杭州', education: '本科', work_exp: '1-3年', company: '蚂蚁集团', salary_avg: 20000, data_source: '前程无忧', matchScore: 70 },
+  { job_name: '全栈开发工程师', city: '深圳', education: '本科', work_exp: '3-5年', company: '华为技术', salary_avg: 38000, data_source: 'BOSS直聘', matchScore: 84 },
+  { job_name: '机器学习工程师', city: '北京', education: '硕士', work_exp: '1-3年', company: '商汤科技', salary_avg: 40000, data_source: '拉勾网', matchScore: 88 },
+  { job_name: '云计算工程师', city: '上海', education: '本科', work_exp: '3-5年', company: '携程旅行', salary_avg: 32000, data_source: '前程无忧', matchScore: 79 },
+  { job_name: '嵌入式开发工程师', city: '苏州', education: '本科', work_exp: '1-3年', company: '大疆创新', salary_avg: 22000, data_source: 'BOSS直聘', matchScore: 74 },
+  { job_name: 'DBA数据库管理员', city: '北京', education: '本科', work_exp: '3-5年', company: '中国银行', salary_avg: 28000, data_source: '前程无忧', matchScore: 76 },
+  { job_name: '移动开发工程师(Android)', city: '广州', education: '本科', work_exp: '1-3年', company: '唯品会', salary_avg: 20000, data_source: 'BOSS直聘', matchScore: 71 },
+  { job_name: 'Go后端开发工程师', city: '杭州', education: '本科', work_exp: '3-5年', company: '网易云音乐', salary_avg: 30000, data_source: '拉勾网', matchScore: 81 },
+  { job_name: '数据工程师', city: '上海', education: '本科', work_exp: '3-5年', company: '拼多多', salary_avg: 35000, data_source: '前程无忧', matchScore: 83 },
+  { job_name: '信息安全工程师', city: '北京', education: '本科', work_exp: '3-5年', company: '奇安信', salary_avg: 26000, data_source: 'BOSS直聘', matchScore: 73 },
+  { job_name: '教育科技讲师', city: '在线', education: '硕士', work_exp: '经验不限', company: '新东方教育', salary_avg: 18000, data_source: '前程无忧', matchScore: 60 },
+  { job_name: '计算机技术员', city: '深圳', education: '大专', work_exp: '经验不限', company: '立即投递收藏', salary_avg: 9500, data_source: '智联', matchScore: 52 },
+  { job_name: '高级Java工程师', city: '上海', education: '本科', work_exp: '5-10年', company: '携程旅行网', salary_avg: 50000, data_source: '拉勾网', matchScore: 90 },
+  { job_name: 'AI产品经理', city: '北京', education: '硕士', work_exp: '3-5年', company: '字节跳动', salary_avg: 42000, data_source: 'BOSS直聘', matchScore: 87 },
+  { job_name: '资深前端架构师', city: '杭州', education: '本科', work_exp: '5-10年', company: '阿里巴巴', salary_avg: 55000, data_source: '前程无忧', matchScore: 93 },
+  { job_name: '区块链开发工程师', city: '深圳', education: '本科', work_exp: '3-5年', company: '腾讯区块链', salary_avg: 40000, data_source: '拉勾网', matchScore: 86 },
+  { job_name: 'DevOps工程师', city: '上海', education: '本科', work_exp: '3-5年', company: '饿了么', salary_avg: 32000, data_source: 'BOSS直聘', matchScore: 78 },
+  { job_name: '数据科学家', city: '北京', education: '硕士', work_exp: '3-5年', company: '京东数科', salary_avg: 45000, data_source: '前程无忧', matchScore: 89 },
+  { job_name: '游戏开发工程师', city: '广州', education: '本科', work_exp: '1-3年', company: '腾讯游戏', salary_avg: 25000, data_source: 'BOSS直聘', matchScore: 75 },
+  { job_name: 'IT项目经理', city: '成都', education: '本科', work_exp: '5-10年', company: '中国电信', salary_avg: 28000, data_source: '前程无忧', matchScore: 69 },
+  { job_name: '算法专家', city: '北京', education: '博士', work_exp: '5-10年', company: '商汤科技', salary_avg: 80000, data_source: '猎聘网', matchScore: 95 }
+]
+
+export default mockJobs
