@@ -1497,7 +1497,46 @@ const posSkillData = {
   'k8s-engineer': ['Kubernetes架构', 'Pod/Service/Deployment', 'Helm', 'Docker', '容器技术'],
   'devops': ['Jenkins/GitLab CI', 'Docker', 'Kubernetes', 'Linux', 'Prometheus/Grafana'],
   'android': ['Java/Kotlin', 'Android SDK', 'Jetpack', 'Jetpack Compose', 'MVVM/MVI架构'],
-  'ios-developer': ['Swift/Objective-C', 'UIKit/SwiftUI', 'Swift Concurrency', 'CocoaPods/SPM']
+  'ios-developer': ['Swift/Objective-C', 'UIKit/SwiftUI', 'Swift Concurrency', 'CocoaPods/SPM'],
+  'mobile-h5': ['HTML5/CSS3适配', '移动端事件(touch)', '响应式布局', 'Vue.js', 'Vant/Element Mobile', '小程序开发'],
+  'web-frontend': ['HTML5/CSS3', 'JavaScript/ES6+', 'DOM/BOM', 'Ajax/Fetch', 'Vue.js', 'React', 'Webpack/Vite'],
+  'backend-node': ['Node.js基础', '事件循环', '模块系统(CommonJS/ESM)', 'Express/Koa', 'NestJS', 'MongoDB/Mongoose', 'MySQL/Sequelize', 'Redis', 'TypeScript'],
+  'php-developer': ['PHP基础语法', 'OOP编程', 'Composer', 'PHP 8.x新特性', 'Laravel', 'ThinkPHP', 'MySQL', 'Redis'],
+  'ruby-developer': ['Ruby基础', 'Ruby元编程', 'Bundler', 'RSpec', 'Ruby on Rails', 'Sinatra'],
+  'fullstack': ['Vue.js/React', 'JavaScript/TypeScript', 'HTML5/CSS3', 'Node.js/Python/Java', 'RESTful API', 'GraphQL', 'MySQL/PostgreSQL', 'Redis', 'Docker/K8s'],
+  'fullstack-web': ['Vue/React', 'Webpack/Vite', 'Node.js', 'Express/NestJS', 'MySQL', 'Next.js/Nuxt', 'SSR/SSG', 'CI/CD'],
+  'fullstack-mobile': ['Flutter/React Native', 'iOS/Android原生', 'Node.js/Go', 'Firebase/后端即服务'],
+  '推荐算法': ['协同过滤', '矩阵分解', '内容推荐', '混合推荐', 'Spark/Flink', 'TensorFlow/PyTorch', 'Redis缓存'],
+  'data-engineer': ['ETL开发', '数据仓库设计', '数据治理', 'Airflow/DolphinScheduler', 'Spark/Flink', 'Kafka', 'Hadoop/HDFS'],
+  'data-analyst': ['SQL', '统计学', '数据可视化', '业务分析', 'Python(Pandas)', 'Excel', 'Tableau/Power BI'],
+  'etl-engineer': ['Kettle/DataX', 'Airflow', 'Spark/Flink', '数据清洗', '数据转换', 'MySQL/Hive', 'Kafka'],
+  'spark-developer': ['Spark SQL', 'Spark Streaming', 'Spark MLlib', 'Scala', 'Python(PySpark)', 'Java'],
+  'ic-design': ['Verilog/SystemVerilog', 'RTL编码', 'FSM设计', '低功耗设计', 'Cadence Spectre', '综合/布局布线', '时序分析', '形式验证'],
+  'ic-verification': ['UVM', 'SystemVerilog', '覆盖率驱动验证', '断言验证(SVA)', '验证计划制定', '测试用例编写', 'Bug管理', '回归测试'],
+  'fpga-engineer': ['Verilog/VHDL', 'FPGA架构(Xilinx/Altera)', '时序约束', 'IP核使用', 'Vivado/Quartus', 'ModelSim', 'Matlab', '数字信号处理'],
+  'hardware': ['原理图设计', 'PCB Layout', '信号完整性', 'Altium Designer', 'Cadence Allegro', '硬件调试', '示波器/万用表'],
+  'soc-engineer': ['SoC架构设计', '总线协议(AXI/APB)', 'IP集成', '时钟/复位设计', '子系统验证', 'FPGA原型验证'],
+  'flutter': ['Dart', 'Flutter Widget', '状态管理(Riverpod/Bloc)', '路由与导航', '自定义Widget', 'Platform Channel'],
+  'rn-developer': ['JavaScript/TypeScript', 'React Native核心', '原生模块', 'Expo', 'Redux/MobX'],
+  'sre': ['Site Reliability', 'SLA/SLO/SLI', '故障排查', '容量规划', '监控系统', '日志系统(ELK/Loki)', '链路追踪(Jaeger)', 'Prometheus/Grafana'],
+  'cloud': ['虚拟化(KVM/Xen)', '容器技术', '微服务架构', '阿里云/腾讯云', 'AWS', 'OpenStack', 'Linux'],
+  'security': ['网络安全', '密码学基础', '操作系统安全', 'Web安全', 'Burp Suite', 'Nmap', 'Wireshark', 'Metasploit'],
+  'penetration': ['Web渗透', '系统渗透', 'API渗透', 'Python渗透', 'Burp Suite', 'SQL注入/XSS'],
+  'network': ['TCP/IP协议', '路由协议(OSPF/BGP)', '交换技术', '网络安全', '华为/Cisco设备', 'Linux网络配置', 'SDN/NFV'],
+  'qa-engineer': ['测试理论', '测试用例设计', '缺陷管理', '需求分析', 'JMeter/LoadRunner', 'Postman', 'Jira', 'Selenium/Appium'],
+  'autotest': ['Selenium/Cypress', 'Pytest/TestNG', 'Playwright', '框架设计', 'Python/Java', 'Git/SVN'],
+  'perf-test': ['JMeter', 'LoadRunner', 'Gatling', '瓶颈定位', '性能调优', '监控分析'],
+  'test-dev': ['自动化框架开发', '平台工具开发', 'Java/Python', 'Jenkins', 'GitLab CI'],
+  'game-dev': ['游戏引擎(Unity/Unreal)', 'C++/C#', '游戏物理', '游戏AI', '网络编程', '分布式系统'],
+  'game-client': ['Unity/Unreal Engine', 'C++/C#', '渲染管线', 'UI/UX实现'],
+  'game-server': ['C++/Go/Java', '网络编程', '高并发', '游戏逻辑', '分布式架构', 'Redis/MySQL'],
+  'blockchain': ['共识算法', '智能合约', '密码学', 'P2P网络', 'Solidity', 'Go/Rust', 'Ethereum/Hyperledger'],
+  'robotics': ['ROS/ROS2', 'C++/Python', '运动控制', 'SLAM', '计算机视觉', '机器学习', '路径规划'],
+  'database': ['MySQL/PostgreSQL', '索引优化', 'SQL调优', '事务与锁', '分布式数据库', '分库分表', 'TiDB/CockroachDB'],
+  'dba': ['数据库安装部署', '备份恢复', '性能调优', '高可用方案', '数据库监控', '慢查询分析', '空间管理'],
+  'tech-lead': ['技术规划', '团队管理', '项目管理', '技术选型', '系统架构', '代码评审', '技术分享'],
+  'architect': ['分布式架构', '微服务', '高可用设计', '可扩展性设计', '多技术栈', '行业理解', '技术趋势'],
+  'algorithm': ['数据结构与算法', '动态规划', '图论算法', '复杂度分析', 'C++/Java', 'Python', 'LeetCode刷题', '线性代数', '概率论与数理统计']
 }
 
 // ============================================================
@@ -1604,8 +1643,39 @@ const evaluateResourceRelevance = (resource, searchSkills) => {
 // 强制约束：仅强相关资源参与系统推送
 // ============================================================
 export function findMatchingResources(positionKey, userProgress = 0) {
-  const searchSkills = posSkillData[positionKey] || []
-  if (searchSkills.length === 0) return []
+  let searchSkills = posSkillData[positionKey] || []
+
+  // 如果岗位未在字典中，尝试从资源库中反推相关技能
+  if (searchSkills.length === 0) {
+    const keyLower = positionKey.toLowerCase()
+    const relatedTags = new Set()
+    for (const resource of resourceDatabase) {
+      for (const tag of resource.skillTags) {
+        if (tag.toLowerCase().includes(keyLower) || keyLower.includes(tag.toLowerCase())) {
+          relatedTags.add(tag)
+        }
+      }
+    }
+    // 收集该岗位可能相关的技能标签（取前8个）
+    searchSkills = Array.from(relatedTags).slice(0, 8)
+  }
+
+  // 如果仍未找到任何技能关键词，直接走兜底逻辑
+  if (searchSkills.length === 0) {
+    const generalFallback = resourceDatabase
+      .filter(r => r.rating >= 4.5)
+      .sort((a, b) => b.rating - a.rating || b.students - a.students)
+      .slice(0, 6)
+      .map(r => ({
+        ...r,
+        score: 10,
+        matchedSkills: r.skillTags.slice(0, 3).map(tag => ({ name: tag, level: 'bonus', relevance: 30 })),
+        skillCoverage: 0.3,
+        relevanceScore: 30,
+        isHighlyRelevant: false
+      }))
+    return generalFallback
+  }
 
   // 技能分级：must=必备前40%, prefer=优先35%, bonus=加分25%
   const mustSkills = searchSkills.slice(0, Math.ceil(searchSkills.length * 0.4))
@@ -1741,6 +1811,24 @@ export function findMatchingResources(positionKey, userProgress = 0) {
       .sort((a, b) => b.score - a.score)
       .slice(0, 5 - result.length)
     return [...result, ...fallbackItems]
+  }
+
+  // 最后兜底：如果完全没有匹配结果（如小众岗位），
+  // 返回通用高质量资源，确保用户始终能看到内容
+  if (result.length === 0) {
+    const generalFallback = resourceDatabase
+      .filter(r => r.rating >= 4.5)
+      .sort((a, b) => b.rating - a.rating || b.students - a.students)
+      .slice(0, 6)
+      .map(r => ({
+        ...r,
+        score: 10,
+        matchedSkills: r.skillTags.slice(0, 3).map(tag => ({ name: tag, level: 'bonus', relevance: 30 })),
+        skillCoverage: 0.3,
+        relevanceScore: 30,
+        isHighlyRelevant: false
+      }))
+    return generalFallback
   }
 
   return result

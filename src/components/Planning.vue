@@ -155,7 +155,7 @@
               <span>选择目标岗位</span>
             </div>
             <div class="selector-wrapper">
-              <select v-model="selectedPosition" class="position-select">
+              <select v-model="selectedPosition" class="position-select" @change="onPositionChange">
                 <option value="">-- 请选择目标就业岗位 --</option>
                 <optgroup v-for="group in positionGroups" :key="group.name" :label="group.name">
                   <option v-for="pos in group.positions" :key="pos.key" :value="pos.key">{{ pos.label }}</option>
@@ -202,6 +202,11 @@
                 <span class="block-subtitle">系统主动推送 · 每项技能至少匹配1份权威资源</span>
               </div>
               <div class="section-block-deco"></div>
+            </div>
+            <!-- 资源匹配加载提示横幅（岗位切换时显示，区域锁定防止重复请求） -->
+            <div v-if="loadingResources" class="resource-loading-banner">
+              <span class="loading-spinner"></span>
+              <span>正在匹配对应技能学习资源，请稍等...</span>
             </div>
             <div class="resource-cards">
               <div
@@ -275,6 +280,12 @@
                 </div>
               </div>
             </div>
+            <!-- 游客模式：资源被截断底部提示（资源不足2条时不展示，避免误导） -->
+            <div v-if="hasTruncatedResources" class="resource-truncate-hint" @click="showLoginModal()">
+              <span class="truncate-icon">🔒</span>
+              <span>还有更多权威学习资源，登录账号解锁全部内容</span>
+              <span class="truncate-arrow">→</span>
+            </div>
           </section>
 
           <div class="rules-section">
@@ -301,7 +312,17 @@
         <div v-else-if="currentNav === 'ai-assistant'" class="view-section ai-view">
           <div class="content-header">
             <h2>AI学习顾问</h2>
-            <p class="content-desc">基于Coze智能体的AI学习助手，为你解答学习疑问、规划学习路径、推荐练习方案</p>
+            <p class="content-desc">AI学习助手，为你规划学习路径、解答技术疑问、模拟面试、推荐学习资源</p>
+            <div v-if="isLocalFallbackMode" class="ai-offline-banner">
+              <span class="offline-icon">{{ cozeCreditExhausted ? '💡' : '📚' }}</span>
+              <span v-if="cozeCreditExhausted">AI服务额度不足，当前使用本地知识库回答。核心功能（学习路线/模拟面试/技术问答）仍可使用。</span>
+              <span v-else>当前为本地知识库模式，回答基于本地数据。核心功能（学习路线/模拟面试/技术问答）仍可使用。</span>
+              <button class="offline-close" @click="isLocalFallbackMode = false; cozeCreditExhausted = false">✕</button>
+            </div>
+            <div class="ai-header-actions">
+              <span v-if="aiMessages.length > 1" class="ai-memory-hint">📝 已记住你的对话历史</span>
+              <button v-if="aiMessages.length > 1" class="ai-clear-btn" @click="clearAIHistory">🗑️ 清除历史</button>
+            </div>
           </div>
           <div class="ai-chat-container">
             <div class="ai-chat-messages" ref="aiChatMessagesRef">
@@ -343,26 +364,38 @@
                 </div>
               </div>
             </div>
-            <div class="ai-chat-input" :class="{ locked: aiLoading }">
+            <!-- 游客模式：剩余对话次数提示 -->
+            <div v-if="isGuestMode && !aiChatLocked" class="ai-guest-hint">
+              <span class="guest-hint-icon">🎫</span>
+              <span>游客模式：剩余 <strong>{{ guestAIChatRemaining }}</strong>/{{ GUEST_LIMITS.MAX_AI_CHAT_ROUNDS }} 轮对话</span>
+            </div>
+            <!-- 游客模式：对话次数已用完提示 -->
+            <div v-if="isGuestMode && aiChatLocked" class="ai-guest-hint exhausted">
+              <span class="guest-hint-icon">🔒</span>
+              <span>对话次数已用完，登录后可无限制使用</span>
+            </div>
+            <div class="ai-chat-input" :class="{ locked: aiLoading || aiChatLocked }">
               <input 
                 v-model="aiMessageInput" 
                 type="text" 
-                placeholder="输入你的学习问题..." 
+                :placeholder="aiChatLocked ? '对话次数已用完，请登录解锁' : '输入你的学习问题...'" 
                 @keydown.enter="sendAIMessage"
-                :disabled="aiLoading"
+                :disabled="aiLoading || aiChatLocked"
               >
               <button 
                 class="ai-send-btn" 
                 @click="sendAIMessage"
-                :disabled="aiLoading || !aiMessageInput.trim()"
+                :disabled="aiLoading || !aiMessageInput.trim() || aiChatLocked"
               >
-                {{ aiLoading ? '思考中...' : '发送' }}
+                {{ aiLoading ? '思考中...' : (aiChatLocked ? '已锁定' : '发送') }}
               </button>
             </div>
           </div>
         </div>
       </main>
     </div>
+    <!-- 登录弹窗（游客模式功能受限时唤起，页面内弹窗+蒙层，禁止底层滚动） -->
+    <LoginModal />
   </div>
 </template>
 
@@ -370,12 +403,54 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { findMatchingResources, typeLabels } from '@/data/resources.js'
+import { useGuestMode } from '@/composables/useGuestMode'
+import { authFetch, getAuthHeaders } from '@/utils/auth'
+import LoginModal from '@/components/LoginModal.vue'
 
 const router = useRouter()
 const bgCanvas = ref(null)
-const currentNav = ref('dashboard')
+const currentNav = ref('resource-lib')
 const aiInput = ref('')
 const selectedPosition = ref('')
+
+// ========== 游客模式状态（统一权限管理） ==========
+const {
+  isGuestMode,
+  guestAIChatCount,
+  guestAIChatRemaining,
+  GUEST_LIMITS,
+  checkPermission,
+  isGuestAIChatExhausted,
+  incrementGuestAIChat,
+  resetGuestAIChatCount,
+  showLoginModal,
+  refreshAuthState
+} = useGuestMode()
+
+// 资源截断标记：记录每个技能是否还有更多资源被隐藏（用于展示"解锁更多资源"提示）
+const resourceTruncatedMap = ref({})
+
+// 游客AI对话是否已锁定（达到3轮上限）
+const aiChatLocked = computed(() => isGuestAIChatExhausted())
+
+// 是否有资源被截断（游客模式下，某技能资源数超过配额时显示"解锁更多资源"提示）
+// 边界优化：资源不足2条时不展示提示，避免误导
+const hasTruncatedResources = computed(() => {
+  if (!isGuestMode.value) return false
+  for (const skillName of Object.keys(resourceMap.value)) {
+    const resources = resourceMap.value[skillName]?.resources || []
+    if (resources.length > GUEST_LIMITS.MAX_RESOURCES_PER_SKILL) {
+      return true
+    }
+  }
+  return false
+})
+
+// ========== 学习资源后端驱动状态 ==========
+// 三级匹配：后端 /match-position 返回按技能分组的资源；失败时降级到本地 findMatchingResources
+const resourceMap = ref({})         // 后端返回的按技能分组数据 { [skillName]: { resources, practiceTip, tools } }
+const loadingResources = ref(false)  // 加载状态（区域锁定，防止重复请求）
+const resourceError = ref(false)     // 错误标志（触发本地兜底，前端不弹报错）
 
 // 学习数据统计
 const learnedCount = ref(3)
@@ -428,14 +503,98 @@ const studyPlans = computed(() => {
 })
 
 // AI聊天相关变量
-const aiMessages = ref([{ role: 'assistant', content: '', isStreaming: false }])
+const AI_HISTORY_KEY = 'ai-chat-history'
+const AI_CONVERSATION_KEY = 'ai-conversation-id'
+const AI_USER_KEY = 'ai-user-id'
+const AI_HISTORY_MAX = 100
+
+const DEFAULT_WELCOME_MESSAGE = { role: 'assistant', content: '', isStreaming: false }
+
+const loadAIHistory = () => {
+  try {
+    const saved = localStorage.getItem(AI_HISTORY_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.filter(m => m && m.role && !m.isStreaming)
+      }
+    }
+  } catch (e) {
+    console.warn('[AI] 历史记录加载失败:', e)
+  }
+  return null
+}
+
+const saveAIHistory = () => {
+  try {
+    const toSave = aiMessages.value
+      .filter(m => !m.isStreaming)
+      .map(m => ({ role: m.role, content: m.content, id: m.id }))
+      .slice(-AI_HISTORY_MAX)
+    localStorage.setItem(AI_HISTORY_KEY, JSON.stringify(toSave))
+  } catch (e) {
+    console.warn('[AI] 历史记录保存失败:', e)
+  }
+}
+
+const loadAIConversationId = () => {
+  try {
+    const saved = localStorage.getItem(AI_CONVERSATION_KEY)
+    if (saved) return saved
+  } catch (e) {}
+  return ''
+}
+
+const saveAIConversationId = (id) => {
+  if (id) {
+    localStorage.setItem(AI_CONVERSATION_KEY, id)
+    aiConversationId.value = id
+  }
+}
+
+const loadAIUserId = () => {
+  try {
+    const saved = localStorage.getItem(AI_USER_KEY)
+    if (saved) return saved
+  } catch (e) {}
+  const newId = 'user-' + Date.now()
+  localStorage.setItem(AI_USER_KEY, newId)
+  return newId
+}
+
+const aiMessages = ref([])
 const aiMessageInput = ref('')
 const aiLoading = ref(false)
 const aiStreamStarted = ref(false)
 const aiConversationId = ref('')
-const aiUserId = ref('user-' + Date.now())
+const aiUserId = ref('')
 const aiChatMessagesRef = ref(null)
+const isLocalFallbackMode = ref(false)
+const cozeCreditExhausted = ref(false)
 let msgIdCounter = 0
+
+const clearAIHistory = () => {
+  if (!confirm('确定要清除所有对话历史吗？这将删除与AI顾问的所有对话记录。')) return
+  localStorage.removeItem(AI_HISTORY_KEY)
+  localStorage.removeItem(AI_CONVERSATION_KEY)
+  aiMessages.value = [{ ...DEFAULT_WELCOME_MESSAGE }]
+  aiConversationId.value = ''
+  msgIdCounter = 0
+  console.log('[AI] 历史记录已清除')
+}
+
+const initAIHistory = () => {
+  aiUserId.value = loadAIUserId()
+  aiConversationId.value = loadAIConversationId()
+  const history = loadAIHistory()
+  if (history && history.length > 0) {
+    aiMessages.value = history
+    msgIdCounter = history.length
+    console.log('[AI] 历史记录已加载，共', history.length, '条消息')
+  } else {
+    aiMessages.value = [{ ...DEFAULT_WELCOME_MESSAGE }]
+  }
+}
 
 const aiSuggestions = [
   '如何系统学习前端开发？',
@@ -460,9 +619,20 @@ const sendAIMessage = async () => {
   const message = aiMessageInput.value.trim()
   if (!message || aiLoading.value) return
 
+  // 游客对话次数校验：达到3轮上限后锁定输入框，弹出登录提示
+  if (isGuestMode.value && isGuestAIChatExhausted()) {
+    showLoginModal('您当前为游客模式，对话次数已用完。注册登录后，可无限制使用AI学习顾问！')
+    return
+  }
+
   aiLoading.value = true
   aiStreamStarted.value = false
   aiMessageInput.value = ''
+
+  // 游客发送消息后增加计数（一轮 = 用户发送一条消息算作一轮）
+  if (isGuestMode.value) {
+    incrementGuestAIChat()
+  }
 
   msgIdCounter++
   aiMessages.value.push({
@@ -477,7 +647,12 @@ const sendAIMessage = async () => {
   scrollChatToBottom()
 
   try {
-    const response = await fetch('/api/ai/chat', {
+    const historyForContext = aiMessages.value
+      .filter(m => !m.isStreaming && m.content)
+      .slice(-10)
+      .map(m => ({ role: m.role, content: m.content }))
+
+    const response = await authFetch('/api/ai/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -485,9 +660,23 @@ const sendAIMessage = async () => {
       body: JSON.stringify({
         message: message,
         conversation_id: aiConversationId.value,
-        user_id: aiUserId.value
+        user_id: aiUserId.value,
+        history: historyForContext
       })
     })
+
+    // 后端鉴权拦截：游客对话次数用完或游客调用受限接口，后端返回403
+    if (response.status === 403) {
+      const errData = await response.json().catch(() => ({}))
+      // 移除已添加的用户消息（发送被后端拒绝）
+      aiMessages.value.pop()
+      if (errData.code === 'GUEST_FORBIDDEN' || errData.code === 'GUEST_AI_LIMIT_EXCEEDED') {
+        showLoginModal('您当前为游客模式，对话次数已用完。注册登录后，可无限制使用AI学习顾问！')
+      } else {
+        showLoginModal(errData.message || '游客模式功能受限，请登录账号解锁完整功能')
+      }
+      return
+    }
 
     if (!response.ok) {
       throw new Error('请求失败')
@@ -541,6 +730,7 @@ const sendAIMessage = async () => {
   } finally {
     aiLoading.value = false
     aiStreamStarted.value = false
+    saveAIHistory()
   }
 }
 
@@ -565,6 +755,15 @@ const handleAIResponse = (data, msgIndex) => {
       break
 
     case 'completed':
+      if (data.mode === 'local_fallback') {
+        isLocalFallbackMode.value = true
+        if (data.cozeNote === 'coze_credit_exhausted') {
+          cozeCreditExhausted.value = true
+        }
+      } else if (data.mode && data.mode !== 'local_fallback') {
+        isLocalFallbackMode.value = false
+        cozeCreditExhausted.value = false
+      }
       if (data.content) {
         if (!aiMessages.value[msgIndex]) {
           msgIdCounter++
@@ -585,8 +784,16 @@ const handleAIResponse = (data, msgIndex) => {
 
     case 'conversation_id':
       if (data.conversation_id) {
-        aiConversationId.value = data.conversation_id
+        saveAIConversationId(data.conversation_id)
       }
+      break
+
+    case 'guest_limit':
+      // 后端拦截：游客对话次数已用完，移除用户消息并弹出登录提示
+      if (aiMessages.value.length > 0 && aiMessages.value[aiMessages.value.length - 1].role === 'user') {
+        aiMessages.value.pop()
+      }
+      showLoginModal(data.message || '您当前为游客模式，对话次数已用完。注册登录后，可无限制使用AI学习顾问！')
       break
 
     case 'error':
@@ -1663,34 +1870,157 @@ const getRelevanceLevel = (score) => {
   return 'low'
 }
 
+const onPositionChange = async () => {
+  const key = selectedPosition.value
+  if (!key) {
+    resourceMap.value = {}
+    localStorage.removeItem('selectedPosition')
+    return
+  }
+  localStorage.setItem('selectedPosition', key)
+  loadingResources.value = true
+  try {
+    const userProgress = parseInt(localStorage.getItem('learningProgress_' + key) || '0', 10)
+    const matched = findMatchingResources(key, userProgress)
+    const grouped = {}
+    if (matched && matched.length > 0) {
+      const skills = currentSkills.value.length > 0
+        ? currentSkills.value.map(s => s.name)
+        : (positionSkillMap[key] ? Object.values(positionSkillMap[key]).flat().map(s => s.name) : [])
+      skills.forEach(skillName => {
+        const related = matched.filter(m =>
+          m.matchedSkills && m.matchedSkills.some(ms => ms.name === skillName)
+        )
+        if (related.length > 0) {
+          grouped[skillName] = { resources: related, source: 'local' }
+        }
+      })
+      if (Object.keys(grouped).length === 0) {
+        grouped['综合推荐'] = { resources: matched, source: 'local' }
+      }
+    }
+    resourceMap.value = grouped
+  } catch (e) {
+    console.error('[Planning] 本地资源匹配失败:', e)
+    resourceMap.value = {}
+  } finally {
+    loadingResources.value = false
+  }
+}
+
+const fetchResources = async (positionKey) => {
+  const key = positionKey || selectedPosition.value
+  if (!key) {
+    resourceMap.value = {}
+    return
+  }
+  loadingResources.value = true
+  try {
+    const userProgress = parseInt(localStorage.getItem('learningProgress_' + key) || '0', 10)
+    const matched = findMatchingResources(key, userProgress)
+    const grouped = {}
+    if (matched && matched.length > 0) {
+      const skillData = positionSkillMap[key]
+      const skills = []
+      if (skillData) {
+        for (const [, list] of Object.entries(skillData)) {
+          for (const s of list) {
+            skills.push(s.name)
+          }
+        }
+      }
+      skills.forEach(skillName => {
+        const related = matched.filter(m =>
+          m.matchedSkills && m.matchedSkills.some(ms => ms.name === skillName)
+        )
+        if (related.length > 0) {
+          grouped[skillName] = { resources: related, source: 'local' }
+        }
+      })
+      if (Object.keys(grouped).length === 0) {
+        grouped['综合推荐'] = { resources: matched, source: 'local' }
+      }
+    }
+    resourceMap.value = grouped
+  } catch (e) {
+    console.error('[Planning] 本地资源匹配失败:', e)
+    resourceMap.value = {}
+  } finally {
+    loadingResources.value = false
+  }
+}
+
 const resourceCards = computed(() => {
   if (!selectedPosition.value) {
     return defaultResourceCards
   }
-  const userProgress = parseInt(localStorage.getItem('learningProgress_' + selectedPosition.value) || '0', 10)
-  const matched = findMatchingResources(selectedPosition.value, userProgress)
-  if (!matched || matched.length === 0) {
+  if (loadingResources.value) {
+    return []
+  }
+  const cards = []
+  const guestLimit = GUEST_LIMITS.MAX_RESOURCES_PER_SKILL
+  const shouldTruncate = isGuestMode.value
+  for (const [skillName, skillData] of Object.entries(resourceMap.value)) {
+    let resources = skillData.resources || []
+    // 游客模式：每个技能最多展示 guestLimit 条资源
+    // （后端 /api/resources/match-position 亦有截断兜底，此处前端截断为纯本地资源库场景）
+    if (shouldTruncate && resources.length > guestLimit) {
+      resources = resources.slice(0, guestLimit)
+    }
+    for (const res of resources) {
+      cards.push({
+        id: res.id,
+        title: res.title,
+        desc: res.description || res.desc || '',
+        typeLabel: typeLabels[res.type] || res.type || '学习资源',
+        difficulty: res.difficulty || res.level || '入门',
+        durationText: formatDuration(res.duration || 0),
+        provider: res.provider || res.sourceName || '',
+        matchedSkills: res.matchedSkills ? res.matchedSkills.slice(0, 4) : [{ name: skillName }],
+        rating: res.rating || 0,
+        students: res.students || 0,
+        url: res.url || res.externalUrl || '',
+        externalUrl: res.externalUrl || res.url || '',
+        practicePlan: res.practicePlan || [],
+        recommendedTools: res.recommendedTools || [],
+        featured: cards.length === 0,
+        relevanceScore: res.relevanceScore || 0,
+        isHighlyRelevant: res.isHighlyRelevant || false
+      })
+    }
+  }
+  if (cards.length === 0) {
+    const userProgress = parseInt(localStorage.getItem('learningProgress_' + selectedPosition.value) || '0', 10)
+    const matched = findMatchingResources(selectedPosition.value, userProgress)
+    if (matched && matched.length > 0) {
+      let displayMatched = matched
+      // 游客模式兜底场景：限制综合推荐展示数量（不按技能分组，取配额×3为合理上限）
+      if (shouldTruncate && displayMatched.length > guestLimit * 3) {
+        displayMatched = displayMatched.slice(0, guestLimit * 3)
+      }
+      return displayMatched.map((item, idx) => ({
+        id: item.id,
+        title: item.title,
+        desc: item.description,
+        typeLabel: typeLabels[item.type] || item.type,
+        difficulty: item.difficulty,
+        durationText: formatDuration(item.duration),
+        provider: item.provider,
+        matchedSkills: item.matchedSkills.slice(0, 4),
+        rating: item.rating,
+        students: item.students,
+        url: item.url || item.externalUrl,
+        externalUrl: item.externalUrl,
+        practicePlan: item.practicePlan || [],
+        recommendedTools: item.recommendedTools || [],
+        featured: idx === 0,
+        relevanceScore: item.relevanceScore || 0,
+        isHighlyRelevant: item.isHighlyRelevant || false
+      }))
+    }
     return defaultResourceCards
   }
-  return matched.map((item, idx) => ({
-    id: item.id,
-    title: item.title,
-    desc: item.description,
-    typeLabel: typeLabels[item.type] || item.type,
-    difficulty: item.difficulty,
-    durationText: formatDuration(item.duration),
-    provider: item.provider,
-    matchedSkills: item.matchedSkills.slice(0, 4),
-    rating: item.rating,
-    students: item.students,
-    url: item.url || item.externalUrl,
-    externalUrl: item.externalUrl,
-    practicePlan: item.practicePlan || [],
-    recommendedTools: item.recommendedTools || [],
-    featured: idx === 0,
-    relevanceScore: item.relevanceScore || 0,
-    isHighlyRelevant: item.isHighlyRelevant || false
-  }))
+  return cards
 })
 
 const currentSkills = computed(() => {
@@ -1805,10 +2135,19 @@ const drawBackground = () => {
 
 let animFrame = null
 
-onMounted(() => {
+onMounted(async () => {
+  initAIHistory()
+  // 游客模式：页面加载/刷新时重置权限状态
+  // refreshAuthState 会重新生成 guestSessionId（后端计数自动清零）并重置前端计数
+  // 符合需求第5条："刷新页面、重新打开对话面板，对话次数重置为0"
+  // 符合需求第9条："游客会话无持久化，刷新页面后所有临时计数重置"
+  if (isGuestMode.value) {
+    refreshAuthState()
+  }
   const saved = localStorage.getItem('selectedPosition')
   if (saved) {
     selectedPosition.value = saved
+    await fetchResources(saved)
   }
   drawBackground()
   window.addEventListener('resize', () => {
@@ -2006,6 +2345,15 @@ onUnmounted(() => {
 
 .content-header {
   margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.content-header > div:first-child {
+  flex: 1;
 }
 
 .content-header h2 {
@@ -2019,6 +2367,88 @@ onUnmounted(() => {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.5);
   margin: 0;
+}
+
+.ai-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.ai-memory-hint {
+  font-size: 0.8rem;
+  color: rgba(74, 158, 255, 0.8);
+  background: rgba(74, 158, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.ai-clear-btn {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 82, 82, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 82, 82, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-clear-btn:hover {
+  color: #fff;
+  background: rgba(255, 82, 82, 0.2);
+  border-color: rgba(255, 82, 82, 0.4);
+}
+
+.ai-offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin: 12px 0;
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 10px;
+  color: #fbbf24;
+  font-size: 0.85rem;
+  animation: fadeInDown 0.3s ease-out;
+}
+
+.ai-offline-banner .offline-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.ai-offline-banner span:last-of-type {
+  flex: 1;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ai-offline-banner .offline-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.ai-offline-banner .offline-close:hover {
+  color: #fff;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .job-selector {
@@ -3324,5 +3754,112 @@ onUnmounted(() => {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* 资源匹配加载提示横幅（岗位切换时显示，区域锁定防止重复请求） */
+.resource-loading-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 24px;
+  margin: 12px 0;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  color: #a5b4fc;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(165, 180, 252, 0.3);
+  border-top-color: #a5b4fc;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========== 游客模式UI样式（统一使用系统现有蓝/青配色，保持风格一致） ========== */
+
+/* 游客AI对话剩余次数提示 */
+.ai-guest-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.12), rgba(0, 212, 170, 0.08));
+  border-top: 1px solid rgba(74, 158, 255, 0.2);
+  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+  color: rgba(165, 180, 252, 0.9);
+  font-size: 0.82rem;
+  letter-spacing: 0.3px;
+}
+
+.ai-guest-hint .guest-hint-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.ai-guest-hint strong {
+  color: #4a9eff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* 游客AI对话次数用完提示（警示色） */
+.ai-guest-hint.exhausted {
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+  border-color: rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+}
+
+.ai-guest-hint.exhausted .guest-hint-icon {
+  color: #fbbf24;
+}
+
+/* 游客资源截断提示（可点击，引导登录） */
+.resource-truncate-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 20px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.1), rgba(0, 212, 170, 0.1));
+  border: 1px dashed rgba(74, 158, 255, 0.4);
+  border-radius: 10px;
+  color: rgba(165, 180, 252, 0.9);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.resource-truncate-hint:hover {
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.2), rgba(0, 212, 170, 0.15));
+  border-color: rgba(74, 158, 255, 0.6);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(74, 158, 255, 0.2);
+}
+
+.resource-truncate-hint .truncate-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.resource-truncate-hint .truncate-arrow {
+  color: #4a9eff;
+  font-weight: 700;
+  transition: transform 0.3s;
+}
+
+.resource-truncate-hint:hover .truncate-arrow {
+  transform: translateX(4px);
 }
 </style>

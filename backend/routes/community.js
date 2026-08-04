@@ -3,6 +3,8 @@ const router = express.Router()
 const fs = require('fs')
 const path = require('path')
 
+const { requireUser } = require('../middleware/auth')
+
 const DATA_FILE = path.join(__dirname, '../data/community_data.json')
 
 function loadData() {
@@ -55,7 +57,7 @@ router.get('/posts', (req, res) => {
   res.json({ success: true, data: posts })
 })
 
-router.post('/posts', (req, res) => {
+router.post('/posts', requireUser, (req, res) => {
   const data = loadData()
   const post = {
     id: genId(),
@@ -87,7 +89,7 @@ router.post('/posts/:id/view', (req, res) => {
   res.json({ success: true, data: post })
 })
 
-router.delete('/posts/:id', (req, res) => {
+router.delete('/posts/:id', requireUser, (req, res) => {
   const data = loadData()
   const idx = data.posts.findIndex(p => String(p.id) === String(req.params.id))
   if (idx !== -1) {
@@ -109,7 +111,7 @@ router.get('/qas', (req, res) => {
   res.json({ success: true, data: qas })
 })
 
-router.post('/qas', (req, res) => {
+router.post('/qas', requireUser, (req, res) => {
   const data = loadData()
   const qa = {
     id: genId(),
@@ -128,7 +130,7 @@ router.post('/qas', (req, res) => {
 
 // ==================== 点赞 ====================
 
-router.post('/likes/toggle', (req, res) => {
+router.post('/likes/toggle', requireUser, (req, res) => {
   const data = loadData()
   const { username, itemId, itemType } = req.body
   const existing = data.likes.find(l =>
@@ -161,7 +163,7 @@ router.get('/collects/:username', (req, res) => {
   res.json({ success: true, data: collects })
 })
 
-router.post('/collects/toggle', (req, res) => {
+router.post('/collects/toggle', requireUser, (req, res) => {
   const data = loadData()
   const { username, itemId, itemType, itemData } = req.body
   const existing = data.collects.find(c =>
@@ -200,7 +202,7 @@ router.get('/applies/:username', (req, res) => {
   res.json({ success: true, data: applies })
 })
 
-router.post('/applies', (req, res) => {
+router.post('/applies', requireUser, (req, res) => {
   const data = loadData()
   const { username, jobId, jobData } = req.body
   const exists = data.applies.some(a => a.username === username && a.jobId === jobId)
@@ -222,7 +224,7 @@ router.post('/applies', (req, res) => {
   res.json({ success: true, data: record })
 })
 
-router.delete('/applies/:username/:jobId', (req, res) => {
+router.delete('/applies/:username/:jobId', requireUser, (req, res) => {
   const data = loadData()
   data.applies = data.applies.filter(a => !(a.username === req.params.username && a.jobId === req.params.jobId))
   saveData(data)
@@ -240,7 +242,7 @@ router.get('/chats/:username/:otherName', (req, res) => {
   res.json({ success: true, data: existing ? existing.messages : [] })
 })
 
-router.post('/chats', (req, res) => {
+router.post('/chats', requireUser, (req, res) => {
   const data = loadData()
   const { username, otherName, messages } = req.body
   const key = [username, otherName].sort().join('__')

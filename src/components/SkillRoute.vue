@@ -106,6 +106,12 @@
             </div>
           </div>
 
+          <!-- 资源匹配加载提示横幅（岗位切换时显示） -->
+          <div v-if="loadingResources" class="resource-loading-banner">
+            <span class="loading-spinner"></span>
+            <span>正在匹配对应技能学习资源，请稍等...</span>
+          </div>
+
           <div class="timeline-container">
             <div v-for="(stage, idx) in routeStages" :key="stage.id" class="stage-card" :class="{ 'stage-active': idx === currentStageIdx, 'stage-done': idx < currentStageIdx }">
               <div class="stage-connector" v-if="idx < routeStages.length - 1">
@@ -126,16 +132,94 @@
               </div>
 
               <div class="stage-body">
-                <div class="skills-grid">
-                  <div v-for="(skill, sIdx) in stage.skills" :key="sIdx" class="skill-item" :class="'level-' + skill.level">
-                    <div class="skill-checkbox">
-                      <span v-if="sIdx % 3 === 0" class="check-mark">✓</span>
+                <div class="skills-list">
+                  <div v-for="(skill, sIdx) in stage.skills" :key="sIdx" class="skill-block" :class="'level-' + skill.level">
+                    <div class="skill-item" @click="toggleSkillResources(skill.name)">
+                      <div class="skill-checkbox">
+                        <span v-if="sIdx % 3 === 0" class="check-mark">✓</span>
+                      </div>
+                      <div class="skill-info">
+                        <span class="skill-name">{{ skill.name }}</span>
+                        <span v-if="skill.category" class="skill-category">{{ skill.category }}</span>
+                      </div>
+                      <span class="skill-level" :class="'level-' + skill.level">{{ levelLabels[skill.level] }}</span>
+                      <span class="resource-toggle" :class="{ expanded: isSkillExpanded(skill.name) }" :title="isSkillExpanded(skill.name) ? '收起资源' : '查看学习资源'">
+                        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span class="toggle-text">学习资源</span>
+                      </span>
                     </div>
-                    <div class="skill-info">
-                      <span class="skill-name">{{ skill.name }}</span>
-                      <span v-if="skill.category" class="skill-category">{{ skill.category }}</span>
-                    </div>
-                    <span class="skill-level" :class="'level-' + skill.level">{{ levelLabels[skill.level] }}</span>
+
+                    <!-- 学习资源面板（展开时显示） -->
+                    <transition name="resource-expand">
+                      <div v-if="isSkillExpanded(skill.name)" class="resource-panel">
+                        <!-- 加载中提示 -->
+                        <div v-if="loadingResources" class="resource-loading">
+                          <span class="loading-spinner"></span>
+                          <span>正在匹配对应技能学习资源，请稍等...</span>
+                        </div>
+                        <template v-else-if="getSkillData(skill.name).valid.length > 0">
+                          <div class="resource-cards">
+                            <!-- 有效链接：可点击，新标签打开 -->
+                            <a
+                              v-for="res in getSkillData(skill.name).valid"
+                              :key="res.id"
+                              :href="res.url"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="resource-card"
+                              :class="'src-' + res.source"
+                            >
+                              <span class="res-icon">{{ getSourceIcon(res.source) }}</span>
+                              <div class="res-body">
+                                <div class="res-head">
+                                  <span class="res-title">{{ res.title }}</span>
+                                  <span class="res-type-tag" :class="'type-' + getTypeClass(res.type)">{{ res.type }}</span>
+                                </div>
+                                <span class="res-meta">{{ res.sourceName }} · {{ res.level }}</span>
+                                <span v-if="res.desc" class="res-desc">{{ res.desc }}</span>
+                              </div>
+                              <span class="res-source-tag" :class="'tag-' + res.source">{{ getSourceLabel(res.source) }}</span>
+                              <span class="res-open">↗</span>
+                            </a>
+                            <!-- 失效链接：置灰、禁止点击、提示失效 -->
+                            <div
+                              v-for="res in getSkillData(skill.name).invalid"
+                              :key="res.id + '_inv'"
+                              class="resource-card invalid"
+                            >
+                              <span class="res-icon">⚠️</span>
+                              <div class="res-body">
+                                <div class="res-head">
+                                  <span class="res-title">{{ res.title }}</span>
+                                  <span class="res-type-tag type-invalid">已失效</span>
+                                </div>
+                                <span class="res-meta">链接失效，已禁止跳转</span>
+                              </div>
+                              <span class="res-source-tag tag-invalid">失效</span>
+                            </div>
+                          </div>
+                          <!-- 实践练习方案 + 推荐工具 -->
+                          <div class="practice-section">
+                            <div v-if="getSkillData(skill.name).practiceTip" class="practice-tip">
+                              <span class="practice-label">🛠 实践方案</span>
+                              <span class="practice-text">{{ getSkillData(skill.name).practiceTip }}</span>
+                            </div>
+                            <div v-if="getSkillData(skill.name).tools.length > 0" class="tools-row">
+                              <span class="practice-label">🔧 推荐工具</span>
+                              <div class="tool-chips">
+                                <span v-for="tool in getSkillData(skill.name).tools" :key="tool" class="tool-chip">{{ tool }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+                        <!-- 兜底方案：全部资源失效或无资源 -->
+                        <div v-else class="resource-fallback">
+                          <span class="fallback-icon">📚</span>
+                          <span class="fallback-text">该技能暂无可用学习资源，建议咨询 <strong>AI 学习顾问</strong> 获取文字学习方案</span>
+                          <button class="fallback-btn" @click.stop="goToAIAdvisor">咨询 AI 学习顾问</button>
+                        </div>
+                      </div>
+                    </transition>
                   </div>
                 </div>
                 <div v-if="stage.skills.length === 0" class="no-skills">
@@ -160,7 +244,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { positionGroups, levelLabels, generateLearningRoute, getPositionLabel } from '@/data/positionSkills.js'
 
@@ -169,6 +253,11 @@ const bgCanvas = ref(null)
 const selectedPosition = ref('')
 const progress = ref(0)
 const currentStageIdx = ref(0)
+
+// ========== 学习资源相关状态 ==========
+const resourceMap = ref({})       // { [skillName]: { valid: [...], invalid: [...] } }
+const expandedSkills = ref({})     // { [skillName]: true/false }
+const loadingResources = ref(false)
 
 const positionLabel = computed(() => getPositionLabel(selectedPosition.value))
 
@@ -183,6 +272,125 @@ const totalSkills = computed(() => {
 })
 
 const progressPercent = computed(() => Math.round(progress.value * 100))
+
+// 标准化技能名（去除「面试高频」等后缀，保证标签严格匹配）
+const normalizeSkillName = (name) => String(name).replace(/（[^）]*）/g, '').trim()
+
+// 收集当前岗位所有技能名（去重 + 标准化）
+const allSkillNames = computed(() => {
+  const names = new Set()
+  for (const stage of routeStages.value) {
+    for (const skill of stage.skills) {
+      names.add(normalizeSkillName(skill.name))
+    }
+  }
+  return Array.from(names)
+})
+
+// 收集技能名+等级（用于三级匹配接口）
+const allSkillData = computed(() => {
+  return allSkillNames.value.map(name => {
+    let level = 'must'
+    for (const stage of routeStages.value) {
+      const found = stage.skills.find(s => normalizeSkillName(s.name) === name)
+      if (found) { level = found.level; break }
+    }
+    return { name, level }
+  })
+})
+
+// 调用后端三级匹配接口（岗位联动核心）
+const fetchResources = async () => {
+  if (allSkillData.value.length === 0) {
+    resourceMap.value = {}
+    return
+  }
+  // 区域锁定：防止重复请求
+  if (loadingResources.value) return
+  loadingResources.value = true
+  try {
+    const res = await fetch('/api/resources/match-position', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        positionKey: selectedPosition.value,
+        skills: allSkillData.value
+      })
+    })
+    const data = await res.json()
+    if (data.success) {
+      resourceMap.value = data.data
+    } else {
+      resourceMap.value = {}
+    }
+  } catch (e) {
+    console.error('[SkillRoute] 三级匹配获取资源失败:', e)
+    resourceMap.value = {}
+  } finally {
+    loadingResources.value = false
+  }
+}
+
+// 获取某技能的完整匹配结果（资源+实践方案+工具）
+const getSkillData = (skillName) => {
+  const normalized = normalizeSkillName(skillName)
+  const raw = resourceMap.value[normalized]
+  if (!raw) return { valid: [], invalid: [], practiceTip: '', tools: [], source: '' }
+  const resources = raw.resources || []
+  // valid 包含所有非 invalid 资源（后端已做备用链接切换，主链失效的已替换为备用链接）
+  return {
+    valid: resources.filter(r => r.status !== 'invalid'),
+    invalid: resources.filter(r => r.status === 'invalid'),
+    practiceTip: raw.practiceTip || '',
+    tools: raw.tools || [],
+    source: raw.source || ''
+  }
+}
+
+// 兼容旧调用
+const getSkillResources = (skillName) => {
+  const d = getSkillData(skillName)
+  return { valid: d.valid, invalid: d.invalid }
+}
+
+// 展开/收起某技能的资源面板
+const toggleSkillResources = (skillName) => {
+  const normalized = normalizeSkillName(skillName)
+  expandedSkills.value = { ...expandedSkills.value, [normalized]: !expandedSkills.value[normalized] }
+}
+
+const isSkillExpanded = (skillName) => {
+  return !!expandedSkills.value[normalizeSkillName(skillName)]
+}
+
+// 来源标签与图标
+const getSourceLabel = (source) => {
+  const map = { official: '官方', bilibili: 'B站', 'bilibili-search': 'B站搜索', github: 'GitHub', 'tech-site': '技术站', course: '课程', personal: '个人' }
+  return map[source] || source
+}
+const getSourceIcon = (source) => {
+  const map = { official: '📖', bilibili: '🎬', 'bilibili-search': '🔍', github: '🐙', 'tech-site': '🌐', course: '🎓', personal: '📝' }
+  return map[source] || '📄'
+}
+
+// 资源类型样式映射（文档/视频/实战项目）
+const getTypeClass = (type) => {
+  const t = String(type || '')
+  if (t.includes('视频')) return 'video'
+  if (t.includes('实战') || t.includes('项目')) return 'practice'
+  return 'doc'
+}
+
+// 兜底：跳转 AI 学习顾问
+const goToAIAdvisor = () => {
+  router.push('/planning')
+}
+
+// 岗位切换时重新拉取资源
+watch(() => selectedPosition.value, () => {
+  expandedSkills.value = {}
+  fetchResources()
+})
 
 const onPositionChange = () => {
   progress.value = 0
@@ -732,10 +940,22 @@ onUnmounted(() => {
   margin-bottom: 14px;
 }
 
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+.skills-list {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
+}
+
+.skill-block {
+  background: rgba(10, 15, 25, 0.5);
+  border: 1px solid rgba(74, 158, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.skill-block:hover {
+  border-color: rgba(74, 158, 255, 0.2);
 }
 
 .skill-item {
@@ -743,16 +963,385 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  background: rgba(10, 15, 25, 0.5);
-  border: 1px solid rgba(74, 158, 255, 0.08);
-  border-radius: 8px;
   font-size: 0.82rem;
+  cursor: pointer;
   transition: all 0.2s;
+  user-select: none;
 }
 
 .skill-item:hover {
   background: rgba(74, 158, 255, 0.1);
-  border-color: rgba(74, 158, 255, 0.2);
+}
+
+/* 资源展开/收起开关 */
+.resource-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(74, 158, 255, 0.12);
+  color: rgba(122, 184, 255, 0.9);
+  font-size: 0.7rem;
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+
+.resource-toggle svg {
+  transition: transform 0.25s;
+}
+
+.resource-toggle.expanded svg {
+  transform: rotate(180deg);
+}
+
+.resource-toggle.expanded {
+  background: rgba(74, 158, 255, 0.25);
+  color: #4a9eff;
+}
+
+.toggle-text {
+  white-space: nowrap;
+}
+
+/* 资源面板展开过渡 */
+.resource-expand-enter-active,
+.resource-expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.resource-expand-enter-from,
+.resource-expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-6px);
+}
+
+.resource-expand-enter-to,
+.resource-expand-leave-from {
+  opacity: 1;
+  max-height: 600px;
+}
+
+/* 资源面板容器 */
+.resource-panel {
+  padding: 10px 12px 12px;
+  background: rgba(5, 10, 20, 0.5);
+  border-top: 1px solid rgba(74, 158, 255, 0.1);
+}
+
+.resource-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 资源卡片 */
+.resource-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.08), rgba(0, 212, 170, 0.04));
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 8px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.78rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.resource-card:hover {
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.18), rgba(0, 212, 170, 0.08));
+  border-color: rgba(74, 158, 255, 0.4);
+  transform: translateX(3px);
+  box-shadow: 0 2px 10px rgba(74, 158, 255, 0.15);
+}
+
+.res-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 1px;
+}
+
+/* 资源主体内容（标题+类型+说明） */
+.res-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.res-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.res-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* 资源类型标签：文档/视频/实战项目 */
+.res-type-tag {
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.res-type-tag.type-doc {
+  background: rgba(74, 158, 255, 0.18);
+  color: #7ab8ff;
+}
+
+.res-type-tag.type-video {
+  background: rgba(255, 99, 132, 0.18);
+  color: #ff8aa0;
+}
+
+.res-type-tag.type-practice {
+  background: rgba(0, 212, 170, 0.18);
+  color: #5eead4;
+}
+
+.res-type-tag.type-invalid {
+  background: rgba(255, 99, 99, 0.15);
+  color: #ff8a8a;
+}
+
+.res-meta {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+}
+
+.res-desc {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.res-source-tag {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.64rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* 来源标签配色 */
+.tag-official {
+  background: rgba(0, 212, 170, 0.18);
+  color: #5eead4;
+}
+
+.tag-bilibili {
+  background: rgba(255, 99, 132, 0.18);
+  color: #ff8aa0;
+}
+
+.tag-tech-site {
+  background: rgba(74, 158, 255, 0.18);
+  color: #7ab8ff;
+}
+
+.tag-course {
+  background: rgba(192, 132, 252, 0.18);
+  color: #c084fc;
+}
+
+.tag-personal {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.res-open {
+  color: rgba(74, 158, 255, 0.7);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* 失效链接：置灰、禁止点击 */
+.resource-card.invalid {
+  background: rgba(60, 60, 70, 0.25);
+  border-color: rgba(120, 120, 130, 0.15);
+  color: rgba(255, 255, 255, 0.35);
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+}
+
+.resource-card.invalid:hover {
+  background: rgba(60, 60, 70, 0.25);
+  border-color: rgba(120, 120, 130, 0.15);
+  transform: none;
+  box-shadow: none;
+}
+
+.resource-card.invalid .res-title {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 99, 99, 0.4);
+}
+
+.tag-invalid {
+  background: rgba(255, 99, 99, 0.15);
+  color: #ff8a8a;
+}
+
+/* 兜底提示 */
+.resource-fallback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background: rgba(255, 187, 36, 0.06);
+  border: 1px dashed rgba(255, 187, 36, 0.3);
+  border-radius: 8px;
+}
+
+.fallback-icon {
+  font-size: 1.2rem;
+}
+
+.fallback-text {
+  flex: 1;
+  min-width: 200px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+}
+
+.fallback-text strong {
+  color: #fbbf24;
+}
+
+.fallback-btn {
+  padding: 6px 16px;
+  background: linear-gradient(90deg, #4a9eff, #00d4aa);
+  border: none;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.fallback-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(74, 158, 255, 0.3);
+}
+
+/* 加载提示 - 全局横幅 */
+.resource-loading-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.1), rgba(0, 212, 170, 0.06));
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 10px;
+  color: rgba(122, 184, 255, 0.9);
+  font-size: 0.82rem;
+}
+
+/* 加载提示 - 技能面板内 */
+.resource-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px;
+  color: rgba(122, 184, 255, 0.8);
+  font-size: 0.78rem;
+}
+
+/* 旋转加载动画 */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(74, 158, 255, 0.2);
+  border-top-color: #4a9eff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 实践练习方案 + 推荐工具 */
+.practice-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(74, 158, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.practice-tip {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.practice-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(0, 212, 170, 0.85);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.practice-text {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
+}
+
+.tools-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.tool-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tool-chip {
+  padding: 2px 9px;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 10px;
+  font-size: 0.66rem;
+  color: rgba(122, 184, 255, 0.85);
 }
 
 .skill-checkbox {
@@ -813,15 +1402,15 @@ onUnmounted(() => {
   color: #5eead4;
 }
 
-.skill-item.level-must {
+.skill-block.level-must {
   border-left: 3px solid rgba(255, 99, 99, 0.4);
 }
 
-.skill-item.level-prefer {
+.skill-block.level-prefer {
   border-left: 3px solid rgba(74, 158, 255, 0.4);
 }
 
-.skill-item.level-bonus {
+.skill-block.level-bonus {
   border-left: 3px solid rgba(0, 212, 170, 0.4);
 }
 

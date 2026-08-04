@@ -1,18 +1,68 @@
 {
+  "_comment": "本地AI学习顾问知识库 - 增强版，包含岗位详情、FAQ、面试题、常见问题等",
+  "version": "2.0",
   "positions": [
     {
+      "id": "frontend",
       "position": "前端开发工程师",
-      "aliases": ["前端", "前端开发", "前端工程师", "Frontend", "Vue开发", "React开发", "网页开发"],
-      "keywords": ["前端", "frontend", "vue", "react", "网页", "ui"],
+      "aliases": [
+        "前端",
+        "前端开发",
+        "前端工程师",
+        "Frontend",
+        "Vue开发",
+        "React开发",
+        "网页开发",
+        "Web前端"
+      ],
+      "keywords": [
+        "前端",
+        "frontend",
+        "vue",
+        "react",
+        "网页",
+        "ui",
+        "html",
+        "css",
+        "javascript"
+      ],
       "description": "负责网页/移动端前端界面开发，核心技术栈为HTML/CSS/JavaScript及主流框架",
       "requiredSkills": [
-        { "name": "HTML5/CSS3", "level": "必备", "desc": "语义化标签、Flexbox/Grid布局、响应式设计" },
-        { "name": "JavaScript", "level": "必备", "desc": "ES6+语法、DOM操作、异步编程、模块化" },
-        { "name": "Vue.js", "level": "必备", "desc": "组件化开发、Vue Router、Pinia状态管理、Composition API" },
-        { "name": "React", "level": "优先", "desc": "Hooks、Context、Redux、Next.js" },
-        { "name": "TypeScript", "level": "优先", "desc": "类型系统、接口定义、泛型" },
-        { "name": "Webpack/Vite", "level": "加分", "desc": "构建配置、性能优化" },
-        { "name": "Node.js", "level": "加分", "desc": "Express/Koa、API对接" }
+        {
+          "name": "HTML5/CSS3",
+          "level": "必备",
+          "desc": "语义化标签、Flexbox/Grid布局、响应式设计"
+        },
+        {
+          "name": "JavaScript/ES6+",
+          "level": "必备",
+          "desc": "ES6+语法、DOM操作、异步编程、模块化"
+        },
+        {
+          "name": "Vue.js",
+          "level": "必备",
+          "desc": "组件化开发、Vue Router、Pinia状态管理、Composition API"
+        },
+        {
+          "name": "React",
+          "level": "优先",
+          "desc": "Hooks、Context、Redux、Next.js"
+        },
+        {
+          "name": "TypeScript",
+          "level": "优先",
+          "desc": "类型系统、接口定义、泛型"
+        },
+        {
+          "name": "Webpack/Vite",
+          "level": "加分",
+          "desc": "构建配置、性能优化"
+        },
+        {
+          "name": "Node.js",
+          "level": "加分",
+          "desc": "Express/Koa、API对接"
+        }
       ],
       "learningPhases": [
         {
@@ -29,7 +79,7 @@
           "tasks": [
             "深入JavaScript：原型链、闭包、异步编程(Promise/async)",
             "学习Vue 3或React框架，掌握组件化思想",
-            "状态管理：Pinia/Pinia、Redux Toolkit",
+            "状态管理：Pinia、Redux Toolkit",
             "路由管理：Vue Router / React Router"
           ]
         },
@@ -53,372 +103,1508 @@
         }
       ],
       "resources": [
-        { "name": "MDN Web Docs", "url": "https://developer.mozilla.org/zh-CN/docs/Web", "type": "在线文档", "level": "入门" },
-        { "name": "Vue.js官方文档", "url": "https://cn.vuejs.org/", "type": "官方文档", "level": "入门" },
-        { "name": "React官方文档", "url": "https://react.dev/", "type": "官方文档", "level": "入门" },
-        { "name": "freeCodeCamp前端课程", "url": "https://www.freecodecamp.org/zh/learn", "type": "视频课程", "level": "入门" },
-        { "name": "极客时间-前端面试", "url": "https://time.geekbang.org/column/intro/147", "type": "视频课程", "level": "进阶" },
-        { "name": "掘金小册-React进阶", "url": "https://juejin.cn/book/6844733800308614414", "type": "实战项目", "level": "进阶" }
+        {
+          "name": "MDN Web Docs",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://developer.mozilla.org/zh-CN/"
+        },
+        {
+          "name": "Vue 3 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://cn.vuejs.org/"
+        },
+        {
+          "name": "React 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://zh-hans.react.dev/"
+        },
+        {
+          "name": "TypeScript Handbook",
+          "type": "文档",
+          "level": "优先",
+          "url": "https://www.typescriptlang.org/docs/"
+        }
       ],
-      "tools": ["VS Code", "Chrome DevTools", "Git", "npm/pnpm", "Webpack/Vite", "Figma"],
       "practicePlan": {
         "projects": [
-          "个人简历网站（HTML/CSS）",
-          "待办事项应用（JavaScript）",
-          "天气数据看板（Vue/React + API）",
-          "电商管理后台（Vue3 + TypeScript）",
-          "数据可视化大屏（ECharts + Vue）"
+          "电商管理后台",
+          "数据可视化大屏",
+          "移动端H5应用",
+          "SSR博客系统"
         ],
-        "practiceCount": "建议完成3-5个项目，累计代码量5000+行",
-        "skills": "通过实战项目强化组件化思维和工程化实践"
-      }
+        "practiceCount": "建议完成3个以上完整项目"
+      },
+      "mockInterview": [
+        {
+          "q": "请描述浏览器从输入URL到页面渲染的完整过程",
+          "a": "主要流程：1. DNS解析 2. TCP三次握手 3. HTTP请求 4. 服务器处理 5. TCP四次挥手 6. 浏览器解析HTML构建DOM 7. 解析CSS构建CSSOM 8. 合并为渲染树 9. 布局计算 10. 绘制合成"
+        },
+        {
+          "q": "Vue3的响应式原理是什么？和Vue2有什么区别？",
+          "a": "Vue3使用Proxy替代Object.defineProperty实现响应式。优势：1. 可监听新增/删除属性 2. 可监听数组变化 3. 性能更好 4. 支持Map/Set等数据结构。通过reactive/ref创建响应式对象，effect收集依赖，trigger触发更新"
+        },
+        {
+          "q": "如何优化前端性能？",
+          "a": "1. 减少HTTP请求（合并文件、使用HTTP/2）2. 代码分割（路由懒加载、动态import）3. 资源压缩（Gzip/Brotli）4. 图片优化（WebP、懒加载）5. CDN加速 6. 缓存策略（Service Worker、HTTP缓存）7. 虚拟列表处理大数据 8. 减少重排重绘"
+        },
+        {
+          "q": "请解释闭包、原型链、Event Loop",
+          "a": "闭包：函数能访问其词法作用域的变量，即使函数在其作用域外执行。原型链：每个对象都有__proto__指向构造函数的prototype，形成链式查找。Event Loop：执行栈+任务队列(宏任务/微任务)，每轮执行完同步代码后清空微任务队列，再取下一个宏任务"
+        }
+      ]
     },
     {
-      "position": "后端开发工程师",
-      "aliases": ["后端", "后端开发", "服务端", "Server", "Java开发", "Python开发", "Node开发"],
-      "keywords": ["后端", "server", "java", "python", "node", "服务端", "api"],
-      "description": "负责服务端架构设计、API开发、数据库管理，支撑前端业务",
+      "id": "backend-java",
+      "position": "Java后端开发工程师",
+      "aliases": [
+        "Java",
+        "Java后端",
+        "Java开发",
+        "Java工程师",
+        "后端Java"
+      ],
+      "keywords": [
+        "java",
+        "spring",
+        "后端",
+        "backend",
+        "jvm",
+        "spring boot",
+        "mysql",
+        "redis"
+      ],
+      "description": "使用Java技术栈开发后端服务，涵盖Spring全家桶、微服务架构、数据库设计",
       "requiredSkills": [
-        { "name": "编程语言", "level": "必备", "desc": "Java/Python/Node.js至少精通一门" },
-        { "name": "Spring Boot/Express", "level": "必备", "desc": "主流后端框架，RESTful API设计" },
-        { "name": "MySQL", "level": "必备", "desc": "SQL语句、索引优化、事务管理" },
-        { "name": "Redis", "level": "优先", "desc": "缓存设计、分布式锁" },
-        { "name": "MongoDB", "level": "加分", "desc": "文档型数据库使用场景" },
-        { "name": "Docker", "level": "加分", "desc": "容器化部署、微服务编排" },
-        { "name": "Linux", "level": "加分", "desc": "服务器运维、Shell脚本" }
+        {
+          "name": "Java基础与集合",
+          "level": "必备",
+          "desc": "集合框架、IO流、异常处理、泛型"
+        },
+        {
+          "name": "JVM原理",
+          "level": "必备",
+          "desc": "内存模型、GC算法、类加载机制、性能调优"
+        },
+        {
+          "name": "多线程与并发",
+          "level": "必备",
+          "desc": "线程池、锁机制、并发工具、异步编程"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "必备",
+          "desc": "自动配置、Starter、Actuator、AOP"
+        },
+        {
+          "name": "Spring Cloud",
+          "level": "优先",
+          "desc": "服务注册发现、配置中心、网关、链路追踪"
+        },
+        {
+          "name": "MySQL",
+          "level": "必备",
+          "desc": "SQL优化、索引原理、事务隔离、分库分表"
+        },
+        {
+          "name": "Redis",
+          "level": "必备",
+          "desc": "数据结构、缓存策略、持久化、分布式锁"
+        }
       ],
       "learningPhases": [
         {
-          "phase": "第一阶段：基础入门（1-2个月）",
+          "phase": "第一阶段：Java基础（1-3个月）",
           "tasks": [
-            "掌握至少一门后端语言语法（Java/Python/Node.js）",
-            "学习数据结构与算法基础",
-            "数据库原理：SQL基础、表设计",
-            "HTTP协议、RESTful API设计规范"
+            "Java语法基础、面向对象",
+            "集合框架与泛型",
+            "IO/NIO、多线程基础",
+            "JVM内存模型与GC"
           ]
         },
         {
-          "phase": "第二阶段：框架学习（2-3个月）",
+          "phase": "第二阶段：Spring生态（2-3个月）",
           "tasks": [
-            "学习主流后端框架：Spring Boot / Express / Django",
-            "ORM框架：MyBatis/Prisma/SQLAlchemy",
-            "认证授权：JWT、OAuth2.0",
-            "中间件：Redis缓存、消息队列"
+            "Spring IoC/DI、AOP",
+            "Spring Boot自动配置原理",
+            "MyBatis/ORM框架",
+            "RESTful API设计"
           ]
         },
         {
-          "phase": "第三阶段：实战开发（3-4个月）",
+          "phase": "第三阶段：数据库与中间件（2-3个月）",
           "tasks": [
-            "设计并开发完整的API服务（用户系统、订单系统）",
-            "数据库优化：索引、分库分表、慢查询分析",
-            "接口文档：Swagger/Knife4j",
-            "单元测试与接口测试"
+            "MySQL索引优化、SQL调优",
+            "Redis缓存设计、持久化机制",
+            "消息队列(Kafka/RabbitMQ)",
+            "Nginx反向代理"
           ]
         },
         {
-          "phase": "第四阶段：架构进阶（持续学习）",
+          "phase": "第四阶段：微服务与高并发（3-4个月）",
           "tasks": [
-            "微服务架构：Spring Cloud / NestJS",
-            "分布式系统：服务注册、配置中心、链路追踪",
-            "高并发优化：负载均衡、CDN、异步处理",
-            "DevOps：CI/CD、Kubernetes"
+            "Spring Cloud微服务架构",
+            "Docker/K8s容器化部署",
+            "分布式系统设计",
+            "高并发系统优化",
+            "系统架构设计"
           ]
         }
       ],
       "resources": [
-        { "name": "Spring Boot官方文档", "url": "https://spring.io/projects/spring-boot", "type": "官方文档", "level": "入门" },
-        { "name": "Node.js官方文档", "url": "https://nodejs.cn/", "type": "官方文档", "level": "入门" },
-        { "name": "Python官方文档", "url": "https://docs.python.org/zh-cn/3/", "type": "官方文档", "level": "入门" },
-        { "name": "MDN Web Docs", "url": "https://developer.mozilla.org/zh-CN/docs/Web", "type": "在线文档", "level": "入门" },
-        { "name": "极客时间-后端开发", "url": "https://time.geekbang.org/column/intro/139", "type": "视频课程", "level": "进阶" },
-        { "name": "掘金小册-微服务", "url": "https://juejin.cn/book/7084248767276855812", "type": "实战项目", "level": "进阶" }
-      ],
-      "tools": ["IntelliJ IDEA/VS Code", "MySQL Workbench", "Redis", "Postman", "Docker", "Git", "Nginx"],
-      "practicePlan": {
-        "projects": [
-          "用户管理系统（注册、登录、权限）",
-          "博客API服务（CRUD、评论、标签）",
-          "电商订单系统（支付、库存、物流）",
-          "实时聊天服务（WebSocket、消息推送）"
-        ],
-        "practiceCount": "建议完成2-3个完整后端项目",
-        "skills": "重点掌握API设计、数据库优化、系统架构能力"
-      }
-    },
-    {
-      "position": "全栈开发工程师",
-      "aliases": ["全栈", "全栈开发", "Fullstack", "Full Stack", "全栈工程师"],
-      "keywords": ["全栈", "fullstack", "full stack", "前后端"],
-      "description": "同时掌握前端和后端技术栈，能独立完成从UI到数据库的全流程开发",
-      "requiredSkills": [
-        { "name": "前端基础", "level": "必备", "desc": "HTML/CSS/JavaScript、Vue或React框架" },
-        { "name": "后端开发", "level": "必备", "desc": "Node.js/Python/Java、RESTful API" },
-        { "name": "数据库", "level": "必备", "desc": "MySQL、Redis基础使用" },
-        { "name": "部署运维", "level": "优先", "desc": "Linux、Docker、Nginx" },
-        { "name": "工程化", "level": "优先", "desc": "Git、CI/CD、测试" },
-        { "name": "云服务", "level": "加分", "desc": "阿里云/腾讯云/AWS基础服务" }
-      ],
-      "learningPhases": [
         {
-          "phase": "第一阶段：前端入门（1-2个月）",
-          "tasks": [
-            "HTML5/CSS3/JavaScript基础",
-            "Vue 3或React框架",
-            "能独立完成前端页面开发"
-          ]
+          "name": "Spring 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://spring.io/docs"
         },
         {
-          "phase": "第二阶段：后端入门（2-3个月）",
-          "tasks": [
-            "选择一门后端语言（推荐Node.js/Python）",
-            "学习Express/Django框架",
-            "数据库设计与API开发"
-          ]
+          "name": "MySQL 8.0 参考手册",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://dev.mysql.com/doc/refman/8.0/en/"
         },
         {
-          "phase": "第三阶段：全栈实战（3-4个月）",
-          "tasks": [
-            "前后端联调开发完整项目",
-            "用户认证、文件上传、实时通信",
-            "部署上线：云服务器+域名+HTTPS"
-          ]
+          "name": "Redis 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://redis.io/docs/"
         },
         {
-          "phase": "第四阶段：架构进阶（持续学习）",
-          "tasks": [
-            "微服务拆分、API网关",
-            "性能优化、高可用架构",
-            "多端开发：小程序、APP"
-          ]
+          "name": "《深入理解Java虚拟机》",
+          "type": "书籍",
+          "level": "必备",
+          "url": "https://book.douban.com/subject/65224838/"
         }
       ],
-      "resources": [
-        { "name": "freeCodeCamp全栈课程", "url": "https://www.freecodecamp.org/zh/learn/full-stack-programming", "type": "视频课程", "level": "入门" },
-        { "name": "MDN Web Docs", "url": "https://developer.mozilla.org/zh-CN/docs/Web", "type": "在线文档", "level": "入门" },
-        { "name": "Node.js官方文档", "url": "https://nodejs.cn/", "type": "官方文档", "level": "入门" },
-        { "name": "Vue.js官方文档", "url": "https://cn.vuejs.org/", "type": "官方文档", "level": "入门" },
-        { "name": "极客时间-全栈开发", "url": "https://time.geekbang.org/column/intro/139", "type": "视频课程", "level": "进阶" }
-      ],
-      "tools": ["VS Code", "Git", "Docker", "MySQL", "Redis", "Postman", "Nginx"],
       "practicePlan": {
         "projects": [
-          "个人博客系统（前后端+数据库）",
-          "待办事项全栈应用",
-          "实时聊天室（WebSocket）",
-          "简易电商平台"
+          "电商订单系统",
+          "秒杀/抢购系统",
+          "权限管理平台",
+          "分布式任务调度系统"
         ],
-        "practiceCount": "建议完成2-3个完整全栈项目",
-        "skills": "重点掌握全流程开发能力、系统设计能力"
-      }
+        "practiceCount": "建议完成3个以上企业级项目"
+      },
+      "mockInterview": [
+        {
+          "q": "JVM的内存结构是怎样的？各区域的作用是什么？",
+          "a": "JVM内存分为：1. 堆(Heap)：存放对象实例，线程共享，GC主要区域 2. 方法区/元空间：存放类信息、常量、静态变量 3. 虚拟机栈：存储局部变量、操作数栈，线程私有 4. 本地方法栈：为Native方法服务 5. 程序计数器：记录当前线程执行的字节码行号"
+        },
+        {
+          "q": "如何保证分布式系统的一致性？",
+          "a": "方案：1. 2PC/3PC两/三阶段提交（阻塞、性能差）2. TCC补偿事务（Try-Confirm-Cancel）3. Saga长事务（编排式/协同式）4. 基于消息队列（最终一致性）5. Seata框架支持AT/TCC/Saga模式。实际项目中通常优先选择最终一致性方案"
+        },
+        {
+          "q": "MySQL的索引类型有哪些？B+树的结构？",
+          "a": "索引类型：1. 普通索引 2. 唯一索引 3. 主键索引 4. 全文索引 5. 空间索引。B+树结构：非叶节点存索引键值+子节点指针，叶节点存数据+链表指针，特点：层级低、范围查询高效、全表扫描快"
+        },
+        {
+          "q": "Spring Bean的生命周期？",
+          "a": "1. 实例化Bean 2. 属性赋值（依赖注入）3. Aware回调（BeanName/ApplicationContext等）4. BeanPostProcessor前置处理 5. 初始化（@PostConstruct/InitializingBean）6. BeanPostProcessor后置处理 7. 使用Bean 8. 销毁（@PreDestroy/DisposableBean）"
+        }
+      ]
     },
     {
+      "id": "algorithm",
       "position": "算法工程师",
-      "aliases": ["算法", "算法开发", "AI算法", "机器学习", "ML工程师"],
-      "keywords": ["算法", "algo", "algorithm", "机器学习", "ml", "ai算法"],
-      "description": "负责算法模型研发与优化，应用于推荐、搜索、NLP、CV等场景",
+      "aliases": [
+        "算法",
+        "算法工程师",
+        "AI算法",
+        "机器学习",
+        "ML工程师"
+      ],
+      "keywords": [
+        "算法",
+        "algorithm",
+        "机器学习",
+        "深度学习",
+        "ml",
+        "ai",
+        "数据结构",
+        "leetcode"
+      ],
+      "description": "研究和实现算法，包括传统算法、机器学习、深度学习模型的设计与优化",
       "requiredSkills": [
-        { "name": "Python", "level": "必备", "desc": "Python数据处理、科学计算" },
-        { "name": "机器学习基础", "level": "必备", "desc": "sklearn、经典算法原理" },
-        { "name": "深度学习", "level": "必备", "desc": "PyTorch/TensorFlow、Transformer" },
-        { "name": "数据处理", "level": "优先", "desc": "Pandas、NumPy、数据清洗" },
-        { "name": "NLP/CV", "level": "优先", "desc": "自然语言处理/计算机视觉方向" },
-        { "name": "大数据", "level": "加分", "desc": "Spark、Hadoop基础" }
+        {
+          "name": "数据结构与算法",
+          "level": "必备",
+          "desc": "数组、链表、树、图、哈希表、排序、查找"
+        },
+        {
+          "name": "动态规划",
+          "level": "必备",
+          "desc": "状态定义、状态转移方程、空间优化"
+        },
+        {
+          "name": "C++/Java",
+          "level": "必备",
+          "desc": "熟练掌握至少一门高效编程语言"
+        },
+        {
+          "name": "Python",
+          "level": "必备",
+          "desc": "用于算法实现和数据处理"
+        },
+        {
+          "name": "线性代数",
+          "level": "必备",
+          "desc": "矩阵运算、特征值、向量空间"
+        },
+        {
+          "name": "概率论与数理统计",
+          "level": "必备",
+          "desc": "分布、假设检验、贝叶斯定理"
+        }
       ],
       "learningPhases": [
         {
-          "phase": "第一阶段：数学与编程基础（2-3个月）",
+          "phase": "第一阶段：数据结构基础（2-3个月）",
           "tasks": [
-            "线性代数、概率论、微积分基础",
-            "Python编程、NumPy/Pandas",
-            "数据结构与算法（LeetCode刷题）"
+            "数组、链表、栈、队列",
+            "二叉树、堆、字典树",
+            "哈希表设计与实现",
+            "排序算法、二分查找"
           ]
         },
         {
-          "phase": "第二阶段：机器学习（2-3个月）",
+          "phase": "第二阶段：算法进阶（2-3个月）",
           "tasks": [
-            "经典ML算法：线性回归、决策树、SVM",
-            "集成学习：XGBoost、LightGBM",
-            "特征工程、模型调优"
+            "动态规划、贪心算法",
+            "图论算法（DFS/BFS/最短路径）",
+            "回溯、分支限界",
+            "位运算、数学技巧"
           ]
         },
         {
-          "phase": "第三阶段：深度学习（3-4个月）",
+          "phase": "第三阶段：机器学习（3-4个月）",
           "tasks": [
-            "PyTorch/TensorFlow框架",
-            "CNN、RNN、Transformer架构",
-            "NLP/LLM：BERT、GPT原理",
-            "计算机视觉：目标检测、图像分割"
+            "线性回归、逻辑回归",
+            "决策树、随机森林",
+            "SVM、KNN",
+            "聚类、降维、特征工程"
           ]
         },
         {
-          "phase": "第四阶段：工程实践（持续学习）",
+          "phase": "第四阶段：深度学习（3-4个月）",
           "tasks": [
-            "模型部署：ONNX、TensorRT",
-            "MLflow实验管理",
-            "K8s + 模型服务",
-            "大模型应用：RAG、Agent开发"
+            "神经网络基础、反向传播",
+            "CNN/RNN/Transformer",
+            "PyTorch/TensorFlow实战",
+            "LLM应用开发"
           ]
         }
       ],
       "resources": [
-        { "name": "PyTorch官方文档", "url": "https://pytorch.apachecn.org/", "type": "官方文档", "level": "入门" },
-        { "name": "TensorFlow官方文档", "url": "https://tensorflow.google.cn/", "type": "官方文档", "level": "入门" },
-        { "name": "李沐-动手学深度学习", "url": "https://zh.d2l.ai/", "type": "在线教程", "level": "入门" },
-        { "name": "Scikit-learn文档", "url": "https://scikit-learn.org.cn/", "type": "官方文档", "level": "入门" },
-        { "name": "HuggingFace", "url": "https://huggingface.co/", "type": "在线平台", "level": "进阶" }
+        {
+          "name": "LeetCode",
+          "type": "实战",
+          "level": "必备",
+          "url": "https://leetcode.cn/"
+        },
+        {
+          "name": "《算法导论》",
+          "type": "书籍",
+          "level": "必备",
+          "url": "https://book.douban.com/subject/3985723/"
+        },
+        {
+          "name": "CS231n 深度学习",
+          "type": "课程",
+          "level": "必备",
+          "url": "https://cs231n.stanford.edu/"
+        },
+        {
+          "name": "PyTorch官方教程",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://pytorch.apachecn.org/"
+        }
       ],
-      "tools": ["Python", "PyTorch", "TensorFlow", "Jupyter", "VS Code", "Git", "MLflow"],
       "practicePlan": {
         "projects": [
-          "手写数字识别（CNN）",
-          "文本情感分类（BERT）",
-          "电影推荐系统",
-          "图像目标检测应用",
-          "RAG知识库问答系统"
+          "手写数字识别",
+          "文本情感分类",
+          "图像目标检测",
+          "聊天机器人"
         ],
-        "practiceCount": "建议完成3-5个算法项目",
-        "skills": "重点掌握模型原理、调优能力和工程落地"
-      }
+        "practiceCount": "建议刷300+道LeetCode题并完成3个以上ML项目"
+      },
+      "mockInterview": [
+        {
+          "q": "请实现一个LRU缓存",
+          "a": "使用哈希表+双向链表：1. 哈希表存储key->节点引用，O(1)查找 2. 双向链表维护访问顺序，头部最新、尾部最旧 3. get(key)：从哈希表获取节点，移到头部 4. put(key,val)：存在则更新并移到头；不存在则创建节点加到头部，超容量则删除尾部"
+        },
+        {
+          "q": "请解释Transformer的Attention机制",
+          "a": "Self-Attention：1. Q/K/V矩阵由输入线性变换得到 2. Attention(Q,K,V) = softmax(QK^T/√d_k)V 3. 多头注意力：并行运行多个注意力头，拼接后线性变换。核心优点：全局依赖建模、并行计算"
+        },
+        {
+          "q": "过拟合如何解决？",
+          "a": "1. 增加训练数据 2. 正则化（L1/L2）3. Dropout随机丢弃神经元 4. Early Stopping 5. 数据增强 6. 使用更简单的模型 7. 预训练+微调"
+        },
+        {
+          "q": "梯度消失/爆炸问题怎么解决？",
+          "a": "1. 梯度裁剪（爆炸）2. 权重初始化（He初始化/Xavier）3. Batch Normalization 4. 残差连接（ResNet）5. 合适的激活函数（ReLU替代Sigmoid）6. 学习率调整"
+        }
+      ]
     },
     {
-      "position": "大数据开发工程师",
-      "aliases": ["大数据", "大数据开发", "BigData", "数据工程", "ETL工程师"],
-      "keywords": ["大数据", "bigdata", "big data", "hadoop", "spark", "数据工程"],
-      "description": "负责大数据平台建设、数据处理与分析、支撑业务决策",
+      "id": "devops",
+      "position": "DevOps工程师",
+      "aliases": [
+        "DevOps",
+        "运维",
+        "运维工程师",
+        "SRE",
+        "云原生"
+      ],
+      "keywords": [
+        "devops",
+        "运维",
+        "docker",
+        "kubernetes",
+        "k8s",
+        "ci/cd",
+        "jenkins",
+        "linux"
+      ],
+      "description": "负责CI/CD流水线建设、容器化部署、监控告警、基础设施自动化",
       "requiredSkills": [
-        { "name": "Java/Scala", "level": "必备", "desc": "大数据开发主流语言" },
-        { "name": "Hadoop", "level": "必备", "desc": "HDFS、YARN、MapReduce" },
-        { "name": "Spark", "level": "必备", "desc": "Spark Core、Spark SQL、Spark Streaming" },
-        { "name": "Flink", "level": "优先", "desc": "实时流处理、CEP" },
-        { "name": "Hive/HBase", "level": "优先", "desc": "数据仓库、NoSQL数据库" },
-        { "name": "Kafka", "level": "加分", "desc": "消息队列、实时数据管道" },
-        { "name": "Airflow/DolphinScheduler", "level": "加分", "desc": "任务调度、数据管道编排" }
+        {
+          "name": "Linux",
+          "level": "必备",
+          "desc": "命令行、Shell脚本、性能调优、系统管理"
+        },
+        {
+          "name": "Docker",
+          "level": "必备",
+          "desc": "镜像构建、容器编排、Dockerfile编写"
+        },
+        {
+          "name": "Kubernetes",
+          "level": "必备",
+          "desc": "Pod/Service/Deployment、ConfigMap/Secret、Helm"
+        },
+        {
+          "name": "Jenkins/GitLab CI",
+          "level": "必备",
+          "desc": "CI/CD流水线设计与实现"
+        },
+        {
+          "name": "Prometheus/Grafana",
+          "level": "必备",
+          "desc": "监控系统搭建与告警配置"
+        },
+        {
+          "name": "Ansible/Terraform",
+          "level": "优先",
+          "desc": "基础设施即代码(IaC)"
+        },
+        {
+          "name": "Nginx",
+          "level": "必备",
+          "desc": "反向代理、负载均衡、缓存配置"
+        }
       ],
       "learningPhases": [
         {
-          "phase": "第一阶段：基础学习（2-3个月）",
+          "phase": "第一阶段：Linux基础（1-2个月）",
           "tasks": [
-            "Java/Scala语言基础",
-            "Linux系统、Shell脚本",
-            "MySQL数据库、SQL优化",
-            "计算机网络、分布式系统基础"
+            "Linux命令行、文件系统、权限管理",
+            "Shell脚本编写",
+            "进程管理、系统监控",
+            "网络基础（TCP/IP、HTTP）"
           ]
         },
         {
-          "phase": "第二阶段：Hadoop生态（2-3个月）",
+          "phase": "第二阶段：容器化（2-3个月）",
           "tasks": [
-            "HDFS分布式文件系统",
-            "MapReduce计算模型",
-            "YARN资源调度",
-            "Hive数据仓库"
+            "Docker核心概念与常用命令",
+            "Dockerfile编写最佳实践",
+            "Docker Compose多容器编排",
+            "私有仓库搭建与镜像管理"
           ]
         },
         {
-          "phase": "第三阶段：Spark/Flink（3-4个月）",
+          "phase": "第三阶段：Kubernetes（3-4个月）",
           "tasks": [
-            "Spark Core/RDD编程",
-            "Spark SQL数据处理",
-            "Spark Streaming实时计算",
-            "Flink流处理框架"
+            "K8s架构：Master/Node/Pod/Service",
+            "Deployment/StatefulSet/DaemonSet",
+            "ConfigMap/Secret/Volume",
+            "Helm Chart打包与部署"
           ]
         },
         {
-          "phase": "第四阶段：实战应用（持续学习）",
+          "phase": "第四阶段：CI/CD与监控（2-3个月）",
           "tasks": [
-            "数据仓库分层设计（ODS/DWD/DWS/ADS）",
-            "实时数据平台搭建",
-            "数据治理与血缘分析",
-            "云原生大数据：EMR、MaxCompute"
+            "Jenkins Pipeline流水线设计",
+            "GitLab CI/CD配置",
+            "Prometheus+Grafana监控体系",
+            "ELK日志系统搭建",
+            "Ansible自动化运维"
           ]
         }
       ],
       "resources": [
-        { "name": "Apache Hadoop文档", "url": "https://hadoop.apache.org/", "type": "官方文档", "level": "入门" },
-        { "name": "Apache Spark文档", "url": "https://spark.apache.org/", "type": "官方文档", "level": "入门" },
-        { "name": "Apache Flink文档", "url": "https://flink.apache.org/zh/", "type": "官方文档", "level": "入门" },
-        { "name": "Apache Hive文档", "url": "https://hive.apache.org/", "type": "官方文档", "level": "入门" },
-        { "name": "极客时间-大数据", "url": "https://time.geekbang.org/column/intro/119", "type": "视频课程", "level": "进阶" }
+        {
+          "name": "Docker 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://docs.docker.com/zh-cn/"
+        },
+        {
+          "name": "Kubernetes 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://kubernetes.io/zh-cn/"
+        },
+        {
+          "name": "Prometheus 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://prometheus.io/docs/introduction/overview/"
+        },
+        {
+          "name": "Jenkins 官方文档",
+          "type": "文档",
+          "level": "优先",
+          "url": "https://www.jenkins.io/zh/doc/"
+        }
       ],
-      "tools": ["Java/Scala", "Hadoop", "Spark", "Flink", "Hive", "Kafka", "Docker", "Git"],
       "practicePlan": {
         "projects": [
-          "离线数据仓库（Hive + Spark）",
-          "实时计算平台（Flink + Kafka）",
-          "用户行为分析系统",
-          "推荐系统数据层"
+          "微服务容器化部署",
+          "CI/CD流水线搭建",
+          "监控告警系统搭建",
+          "多租户K8s集群管理"
         ],
-        "practiceCount": "建议完成2-3个大数据项目",
-        "skills": "重点掌握数据处理链路、分布式计算能力"
-      }
+        "practiceCount": "建议搭建完整的DevOps平台"
+      },
+      "mockInterview": [
+        {
+          "q": "Docker和虚拟机的区别？",
+          "a": "1. 启动速度：Docker秒级，虚拟机分钟级 2. 资源占用：Docker共享内核更轻量 3. 隔离性：VM硬件级隔离，Docker进程级隔离（安全性略差） 4. 跨平台：VM可跨OS，Docker依赖宿主机内核"
+        },
+        {
+          "q": "K8s的Pod、Service、Deployment分别是什么？",
+          "a": "Pod：最小部署单元，包含一个或多个容器，共享网络/存储。Service：为Pod提供稳定的访问入口，解决Pod IP变化问题。Deployment：管理Pod的副本数和滚动更新，声明式管理应用生命周期"
+        },
+        {
+          "q": "如何设计高可用的K8s集群？",
+          "a": "1. 多Master节点(至少3个)用etcd集群 2. Master前面放LB(Nginx/HAProxy) 3. 使用StatefulSet部署有状态应用 4. Pod反亲和性调度 5. 持久化存储(PVC) 6. HPA/VPA自动伸缩 7. PodDisruptionBudget保护"
+        },
+        {
+          "q": "CI/CD流水线如何设计？",
+          "a": "典型流程：1. Code触发（Git push/webhook）2. Build（编译打包、Docker build）3. Test（单元测试、集成测试、代码扫描）4. Push（推送镜像到仓库）5. Deploy（部署到K8s/服务器）6. Verify（健康检查、冒烟测试）7. Notify（通知结果）"
+        }
+      ]
     },
     {
-      "position": "UI/UX设计师",
-      "aliases": ["UI", "UX", "设计师", "UI设计", "UX设计", "视觉设计"],
-      "keywords": ["ui", "ux", "设计", "design", "视觉", "交互"],
-      "description": "负责产品界面视觉设计和用户交互体验优化",
+      "id": "qa-engineer",
+      "position": "测试工程师",
+      "aliases": [
+        "测试",
+        "测试工程师",
+        "QA",
+        "质量保证",
+        "软件测试"
+      ],
+      "keywords": [
+        "测试",
+        "qa",
+        "test",
+        "jmeter",
+        "selenium",
+        "自动化",
+        "接口测试"
+      ],
+      "description": "负责软件质量保障，包括功能测试、性能测试、自动化测试",
       "requiredSkills": [
-        { "name": "Figma/Sketch", "level": "必备", "desc": "主流UI设计工具" },
-        { "name": "设计基础", "level": "必备", "desc": "配色、排版、布局原理" },
-        { "name": "交互设计", "level": "必备", "desc": "用户旅程、原型设计" },
-        { "name": "响应式设计", "level": "优先", "desc": "多端适配、设计系统" },
-        { "name": "HTML/CSS", "level": "加分", "desc": "基础前端代码，设计落地" }
+        {
+          "name": "测试理论",
+          "level": "必备",
+          "desc": "测试用例设计方法、黑盒/白盒测试"
+        },
+        {
+          "name": "缺陷管理",
+          "level": "必备",
+          "desc": "Bug生命周期、Jira/Mantis使用"
+        },
+        {
+          "name": "接口测试",
+          "level": "必备",
+          "desc": "Postman/Apifox、HTTP协议"
+        },
+        {
+          "name": "性能测试",
+          "level": "必备",
+          "desc": "JMeter/LoadRunner脚本编写与分析"
+        },
+        {
+          "name": "自动化测试",
+          "level": "优先",
+          "desc": "Selenium/Cypress/Appium框架"
+        },
+        {
+          "name": "SQL",
+          "level": "优先",
+          "desc": "数据库查询与数据验证"
+        },
+        {
+          "name": "Python/Java",
+          "level": "优先",
+          "desc": "自动化脚本编写"
+        }
       ],
       "learningPhases": [
         {
-          "phase": "第一阶段：设计基础（1-2个月）",
+          "phase": "第一阶段：测试基础（1-2个月）",
           "tasks": [
-            "色彩理论、排版设计",
-            "视觉设计原则、设计规范",
-            "Figma/Sketch工具使用"
+            "测试理论与测试用例设计",
+            "需求分析与测试计划制定",
+            "缺陷管理流程与工具",
+            "HTTP协议与接口文档"
           ]
         },
         {
-          "phase": "第二阶段：交互设计（2-3个月）",
+          "phase": "第二阶段：手工测试（2-3个月）",
           "tasks": [
-            "用户研究、需求分析",
-            "用户旅程地图、信息架构",
-            "原型设计、交互文档"
+            "功能测试用例编写与执行",
+            "接口测试（Postman/Apifox）",
+            "Web/App测试实战",
+            "兼容性测试"
           ]
         },
         {
-          "phase": "第三阶段：实战项目（2-3个月）",
+          "phase": "第三阶段：性能测试（1-2个月）",
           "tasks": [
-            "完成3个以上完整产品UI设计",
-            "建立个人作品集",
-            "学习设计系统搭建"
+            "JMeter脚本录制与参数化",
+            "场景设计与压力测试",
+            "性能瓶颈分析",
+            "测试报告撰写"
           ]
         },
         {
-          "phase": "第四阶段：进阶提升（持续学习）",
+          "phase": "第四阶段：自动化测试（3-4个月）",
           "tasks": [
-            "动效设计：After Effects、Framer",
-            "3D设计、AR/VR体验",
-            "设计管理、团队协作"
+            "Python/Java自动化脚本编写",
+            "Selenium/Cypress框架",
+            "接口自动化（pytest/testng）",
+            "CI/CD集成自动化"
           ]
         }
       ],
       "resources": [
-        { "name": "Figma官方教程", "url": "https://help.figma.com/hc/en-us/categories/360002051613", "type": "官方教程", "level": "入门" },
-        { "name": "Material Design", "url": "https://m3.material.io/", "type": "设计规范", "level": "入门" },
-        { "name": "Ant Design", "url": "https://ant.design/components/overview-cn/", "type": "设计规范", "level": "入门" },
-        { "name": "Dribbble", "url": "https://dribbble.com/", "type": "灵感网站", "level": "进阶" },
-        { "name": "站酷ZCOOL", "url": "https://www.zcool.com.cn/", "type": "灵感网站", "level": "进阶" }
+        {
+          "name": "JMeter 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://jmeter.apache.org/"
+        },
+        {
+          "name": "Selenium 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://www.selenium.dev/zh-cn/"
+        },
+        {
+          "name": "Postman 学习中心",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://learning.postman.com/"
+        },
+        {
+          "name": "pytest 官方文档",
+          "type": "文档",
+          "level": "优先",
+          "url": "https://docs.pytest.org/zh-cn/latest/"
+        }
       ],
-      "tools": ["Figma", "Sketch", "Adobe XD", "Photoshop", "Illustrator", "Principle"],
       "practicePlan": {
         "projects": [
-          "移动端APP界面设计",
-          "Web管理后台设计",
-          "数据可视化大屏UI",
-          "品牌视觉系统设计"
+          "电商系统全流程测试",
+          "APP自动化测试项目",
+          "性能测试报告",
+          "CI/CD自动化测试流水线"
         ],
-        "practiceCount": "建议完成5-8个设计项目，准备作品集",
-        "skills": "重点掌握视觉表达、用户思维、工具熟练度"
-      }
+        "practiceCount": "建议参与完整项目的测试流程"
+      },
+      "mockInterview": [
+        {
+          "q": "如何设计测试用例？",
+          "a": "方法：1. 等价类划分（有效/无效等价类）2. 边界值分析（min/max/临界值）3. 场景法（基本流+备选流）4. 判定表法（多条件组合）5. 正交实验法（多因素多水平）。结合需求文档和用户场景设计覆盖全面的用例"
+        },
+        {
+          "q": "接口测试怎么做？",
+          "a": "1. 获取接口文档（Swagger/Apifox）2. 分析接口参数和预期返回 3. 设计测试用例：正常场景、异常场景、边界值 4. 使用Postman/curl执行 5. 断言验证返回值 6. 数据库数据验证 7. 接口依赖处理"
+        },
+        {
+          "q": "如何保证测试覆盖率？",
+          "a": "1. 需求覆盖率：每个需求点至少有一个用例 2. 功能覆盖率：功能点、状态、异常都覆盖 3. 路径覆盖率：重要的业务路径都覆盖 4. 代码覆盖率：语句覆盖、分支覆盖、路径覆盖（白盒） 5. 使用覆盖率工具统计、定期评审"
+        },
+        {
+          "q": "发现线上Bug后怎么处理？",
+          "a": "1. 先定位问题（复现、日志分析）2. 评估影响范围与严重程度 3. 与开发沟通确认根因 4. 提交Bug并跟踪修复 5. 验证修复效果 6. 补充测试用例回归 7. 复盘总结预防再发"
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "position": "安全工程师",
+      "aliases": [
+        "安全",
+        "安全工程师",
+        "网络安全",
+        "渗透测试",
+        "Cyber Security"
+      ],
+      "keywords": [
+        "安全",
+        "security",
+        "渗透",
+        "penetration",
+        "漏洞",
+        "web安全",
+        "网络安全"
+      ],
+      "description": "负责系统安全评估、漏洞挖掘、渗透测试、安全加固",
+      "requiredSkills": [
+        {
+          "name": "网络安全基础",
+          "level": "必备",
+          "desc": "TCP/IP、攻击防御原理"
+        },
+        {
+          "name": "Web安全",
+          "level": "必备",
+          "desc": "XSS、SQL注入、CSRF、SSRF等"
+        },
+        {
+          "name": "渗透测试",
+          "level": "必备",
+          "desc": "信息收集、漏洞挖掘、权限提升"
+        },
+        {
+          "name": "安全工具",
+          "level": "必备",
+          "desc": "Burp Suite、Nmap、Metasploit"
+        },
+        {
+          "name": "代码审计",
+          "level": "优先",
+          "desc": "代码漏洞检测、安全编码规范"
+        },
+        {
+          "name": "密码学",
+          "level": "优先",
+          "desc": "加密算法、认证协议"
+        }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：安全基础（2-3个月）",
+          "tasks": [
+            "网络协议（TCP/IP/HTTP/DNS）",
+            "操作系统安全（Linux/Windows）",
+            "密码学基础（对称/非对称加密）",
+            "Web安全基础概念"
+          ]
+        },
+        {
+          "phase": "第二阶段：Web安全（2-3个月）",
+          "tasks": [
+            "OWASP Top 10漏洞深入",
+            "XSS/SQL注入/CSRF实战",
+            "Burp Suite使用技巧",
+            "Cookie/Session/JWT安全"
+          ]
+        },
+        {
+          "phase": "第三阶段：渗透测试（3-4个月）",
+          "tasks": [
+            "信息收集与目标分析",
+            "漏洞扫描与利用",
+            "权限提升与横向移动",
+            "Metasploit框架实战"
+          ]
+        },
+        {
+          "phase": "第四阶段：安全进阶（3-4个月）",
+          "tasks": [
+            "代码审计（SonarQube/SpotBugs）",
+            "安全加固（系统/应用/网络）",
+            "应急响应与取证",
+            "CTF竞赛与漏洞挖掘"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "OWASP 官网",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://owasp.org/www-project-top-ten/"
+        },
+        {
+          "name": "Burp Suite",
+          "type": "工具",
+          "level": "必备",
+          "url": "https://portswigger.net/burp"
+        },
+        {
+          "name": "PortSwigger Web Security Academy",
+          "type": "课程",
+          "level": "必备",
+          "url": "https://portswigger.net/web-security"
+        },
+        {
+          "name": "Metasploit",
+          "type": "工具",
+          "level": "优先",
+          "url": "https://www.metasploit.com/"
+        }
+      ],
+      "practicePlan": {
+        "projects": [
+          "CTF竞赛练习",
+          "靶场渗透测试",
+          "Web安全评估报告",
+          "代码审计项目"
+        ],
+        "practiceCount": "建议完成至少10个CTF靶机"
+      },
+      "mockInterview": [
+        {
+          "q": "请详细介绍OWASP Top 10",
+          "a": "2021版：1. 权限控制失效 2. 加密机制失败 3. 注入(SQL/命令等) 4. 不安全设计 5. 安全配置错误 6. 易受攻击和过时的组件 7. 身份识别和认证失败 8. 软件和数据完整性失败 9. 安全日志和监控失败 10. 服务器端请求伪造(SSRF)"
+        },
+        {
+          "q": "SQL注入的原理和防御方法？",
+          "a": "原理：用户输入被直接拼接到SQL语句中，改变查询逻辑。类型：联合注入、报错注入、盲注、堆叠查询。防御：1. 参数化查询/预编译 2. 输入验证与过滤 3. ORM框架 4. 最小权限原则 5. WAF"
+        },
+        {
+          "q": "XSS的分类和防御方法？",
+          "a": "分类：1. 反射型(URL直接触发) 2. 存储型(存储到数据库再渲染) 3. DOM型(前端JS直接触发)。防御：1. 输出编码(HTML/JS/URL编码) 2. 输入验证 3. CSP策略 4. HttpOnly Cookie 5. 框架默认转义(Vue/React)"
+        },
+        {
+          "q": "渗透测试的标准流程？",
+          "a": "1. 信息收集(域名/IP/端口/指纹) 2. 漏洞扫描(Nessus/Acunetix) 3. 漏洞分析与利用(Metasploit/Burp) 4. 权限提升与横向移动 5. 后渗透(持久化/数据获取) 6. 报告编写与修复建议 7. 复测验证"
+        }
+      ]
+    },
+    {
+      "id": "data-analyst",
+      "position": "数据分析师",
+      "aliases": [
+        "数据分析",
+        "数据分析师",
+        "BI",
+        "商业分析",
+        "Business Analyst"
+      ],
+      "keywords": [
+        "数据",
+        "分析",
+        "sql",
+        "bi",
+        "报表",
+        "python",
+        "可视化"
+      ],
+      "description": "负责业务数据分析、数据可视化、商业决策支持",
+      "requiredSkills": [
+        {
+          "name": "SQL",
+          "level": "必备",
+          "desc": "多表联查、聚合函数、窗口函数"
+        },
+        {
+          "name": "统计学",
+          "level": "必备",
+          "desc": "描述性统计、假设检验、回归分析"
+        },
+        {
+          "name": "数据可视化",
+          "level": "必备",
+          "desc": "Tableau/Power BI/Superset"
+        },
+        {
+          "name": "Python(Pandas)",
+          "level": "必备",
+          "desc": "数据清洗、转换、分析"
+        },
+        {
+          "name": "业务理解",
+          "level": "必备",
+          "desc": "理解业务逻辑、指标体系设计"
+        },
+        {
+          "name": "Excel",
+          "level": "必备",
+          "desc": "高级函数、数据透视表、VBA"
+        }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：SQL基础（1-2个月）",
+          "tasks": [
+            "SQL基础语法与常用函数",
+            "多表联接与子查询",
+            "窗口函数与分区计算",
+            "存储过程与性能优化"
+          ]
+        },
+        {
+          "phase": "第二阶段：数据分析方法（2-3个月）",
+          "tasks": [
+            "业务指标体系设计",
+            "对比分析、漏斗分析、留存分析",
+            "归因分析与A/B测试",
+            "统计学基础与假设检验"
+          ]
+        },
+        {
+          "phase": "第三阶段：可视化工具（1-2个月）",
+          "tasks": [
+            "Tableau/Power BI仪表板设计",
+            "数据大屏搭建",
+            "Superset开源BI使用",
+            "图表选型与设计原则"
+          ]
+        },
+        {
+          "phase": "第四阶段：Python数据分析（2-3个月）",
+          "tasks": [
+            "Pandas数据处理",
+            "NumPy数值计算",
+            "Matplotlib/Seaborn绑制",
+            "数据清洗与特征工程"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "SQL必知必会",
+          "type": "书籍",
+          "level": "必备",
+          "url": "https://book.douban.com/subject/33985299/"
+        },
+        {
+          "name": "Tableau 官方学习",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://www.tableau.com/learn"
+        },
+        {
+          "name": "Python for Data Analysis",
+          "type": "书籍",
+          "level": "必备",
+          "url": "https://book.douban.com/subject/30275875/"
+        },
+        {
+          "name": "GrowingIO 数据分析课程",
+          "type": "课程",
+          "level": "优先",
+          "url": "https://www.growingio.com/"
+        }
+      ],
+      "practicePlan": {
+        "projects": [
+          "电商用户行为分析报告",
+          "运营数据看板搭建",
+          "A/B测试分析",
+          "用户分群与精细化运营"
+        ],
+        "practiceCount": "建议完成3份以上完整分析报告"
+      },
+      "mockInterview": [
+        {
+          "q": "如何设计一个完整的指标体系？",
+          "a": "1. 明确业务目标与关键问题 2. 构建指标框架（北极星指标+过程指标+结果指标）3. 指标定义与计算公式 4. 数据来源与埋点设计 5. 数据质量验证 6. 看板与报表设计 7. 定期复盘优化"
+        },
+        {
+          "q": "A/B测试的统计显著性如何判断？",
+          "a": "1. 确定零假设和备择假设 2. 计算样本量（基于MDE、显著性水平、统计功效）3. 运行实验至所需样本量 4. 计算p值（<0.05则显著）5. 计算置信区间 6. 分析置信区间是否包含0 7. 结合业务判断实际意义"
+        },
+        {
+          "q": "如何做用户留存分析？",
+          "a": "1. 定义核心行为和留存标准 2. 计算次日/7日/30日留存率 3. 绘制留存曲线 4. 同期群分析(Cohort Analysis) 5. 留存下降原因分析 6. 对比不同渠道/版本的留存 7. 制定提升策略"
+        },
+        {
+          "q": "SQL窗口函数有哪些？如何使用？",
+          "a": "窗口函数格式：函数名(列) OVER(PARTITION BY 分组 ORDER BY 排序 ROWS 范围)。常用：ROW_NUMBER()排名、RANK()并列排名、SUM()/AVG()累计聚合、LAG/LEAD前后行取值。用于分组内排名、移动平均、累计求和等场景"
+        }
+      ]
+    },
+    {
+      "id": "mobile-android",
+      "position": "Android开发工程师",
+      "aliases": [
+        "Android",
+        "Android开发",
+        "安卓开发",
+        "移动开发"
+      ],
+      "keywords": [
+        "android",
+        "kotlin",
+        "java",
+        "移动端",
+        "app开发"
+      ],
+      "description": "负责Android应用开发，涵盖UI、数据存储、网络通信",
+      "requiredSkills": [
+        {
+          "name": "Kotlin/Java",
+          "level": "必备",
+          "desc": "Android开发主力语言"
+        },
+        {
+          "name": "Android SDK",
+          "level": "必备",
+          "desc": "四大组件、生命周期、资源管理"
+        },
+        {
+          "name": "Jetpack",
+          "level": "必备",
+          "desc": "ViewModel/LiveData/Navigation/WorkManager"
+        },
+        {
+          "name": "Jetpack Compose",
+          "level": "必备",
+          "desc": "声明式UI开发"
+        },
+        {
+          "name": "MVVM架构",
+          "level": "必备",
+          "desc": "分层架构设计与实现"
+        },
+        {
+          "name": "网络通信",
+          "level": "优先",
+          "desc": "Retrofit/OkHttp、WebSocket"
+        },
+        {
+          "name": "性能优化",
+          "level": "优先",
+          "desc": "内存优化、启动优化、卡顿优化"
+        }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：基础入门（2-3个月）",
+          "tasks": [
+            "Kotlin语法与特性",
+            "Android Studio使用",
+            "Activity/Service/Receiver/Provider",
+            "UI基础控件与事件处理"
+          ]
+        },
+        {
+          "phase": "第二阶段：核心开发（2-3个月）",
+          "tasks": [
+            "Fragment与Navigation",
+            "RecyclerView与列表优化",
+            "数据存储(Room/DataStore/MMKV)",
+            "网络请求(Retrofit/OkHttp)"
+          ]
+        },
+        {
+          "phase": "第三阶段：架构与进阶（2-3个月）",
+          "tasks": [
+            "MVVM/MVI架构实践",
+            "Jetpack Compose声明式UI",
+            "协程与Flow",
+            "依赖注入(Hilt/Koin)"
+          ]
+        },
+        {
+          "phase": "第四阶段：优化与发布（1-2个月）",
+          "tasks": [
+            "内存优化与Leak检测",
+            "启动速度优化",
+            "多分辨率适配",
+            "签名打包与发布"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "Android 开发者官网",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://developer.android.google.cn/"
+        },
+        {
+          "name": "Kotlin 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://book.kotlinlang.org/"
+        },
+        {
+          "name": "Jetpack Compose",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://developer.android.google.cn/jetpack/compose"
+        },
+        {
+          "name": "Android 官方示例",
+          "type": "代码",
+          "level": "优先",
+          "url": "https://github.com/android/architecture-samples"
+        }
+      ],
+      "practicePlan": {
+        "projects": [
+          "仿微信聊天App",
+          "天气预报App",
+          "电商购物App",
+          "记账理财App"
+        ],
+        "practiceCount": "建议完成3个以上完整App"
+      },
+      "mockInterview": [
+        {
+          "q": "Activity的生命周期？",
+          "a": "onCreate -> onStart -> onResume -> onPause -> onStop -> onDestroy。onResume：用户可交互。onPause：失去焦点。onStop：不可见。配置变化(旋转屏幕)会重建Activity，需用savedInstanceState保存状态"
+        },
+        {
+          "q": "MVVM架构的优势？",
+          "a": "1. 分离关注点：View只管显示，ViewModel管业务逻辑 2. 可测试性：ViewModel不依赖View，易于单元测试 3. 响应式：LiveData/Flow自动更新UI 4. 生命周期感知：配置变化时ViewModel保留 5. 代码更清晰易维护"
+        },
+        {
+          "q": "如何优化Android内存？",
+          "a": "1. 使用LeakCanary检测内存泄漏 2. 及时释放资源（onDestroy中关闭） 3. 使用Application Context 4. 避免在非静态内部类持有外部引用 5. 使用Glide/Coil加载图片 6. 合理使用LruCache 7. 减少不必要的对象创建"
+        },
+        {
+          "q": "Jetpack Compose和传统View的区别？",
+          "a": "1. 声明式vs命令式：描述UI状态而非操作 2. 状态驱动：状态变化自动重组 3. 重组机制：智能跳过未变化部分 4. 更简洁的代码 5. 天然支持主题、动画 6. 学习曲线陡峭，但开发效率高"
+        }
+      ]
+    },
+    {
+      "id": "ai-engineer",
+      "position": "AI工程师",
+      "aliases": [
+        "AI",
+        "AI工程师",
+        "人工智能",
+        "LLM",
+        "大模型"
+      ],
+      "keywords": [
+        "ai",
+        "人工智能",
+        "llm",
+        "大模型",
+        "nlp",
+        "chatgpt",
+        "prompt"
+      ],
+      "description": "负责AI模型应用开发、LLM应用工程化、智能系统搭建",
+      "requiredSkills": [
+        {
+          "name": "Python",
+          "level": "必备",
+          "desc": "AI开发主力语言"
+        },
+        {
+          "name": "PyTorch/TensorFlow",
+          "level": "必备",
+          "desc": "深度学习框架"
+        },
+        {
+          "name": "LLM应用开发",
+          "level": "必备",
+          "desc": "Prompt Engineering、RAG、微调"
+        },
+        {
+          "name": "LangChain",
+          "level": "必备",
+          "desc": "LLM应用框架"
+        },
+        {
+          "name": "FastAPI",
+          "level": "必备",
+          "desc": "AI服务API开发"
+        },
+        {
+          "name": "向量数据库",
+          "level": "优先",
+          "desc": "Chroma/FAISS/Milvus"
+        },
+        {
+          "name": "CUDA/GPU",
+          "level": "优先",
+          "desc": "模型部署与推理优化"
+        }
+      ],
+      "learningPhases": [
+        {
+          "phase": "第一阶段：AI基础（2-3个月）",
+          "tasks": [
+            "Python数据处理(NumPy/Pandas)",
+            "机器学习基础算法",
+            "神经网络与深度学习入门",
+            "PyTorch实战基础"
+          ]
+        },
+        {
+          "phase": "第二阶段：LLM基础（2-3个月）",
+          "tasks": [
+            "Transformer架构原理",
+            "BERT/GPT系列模型",
+            "HuggingFace Transformers库",
+            "Prompt Engineering技巧"
+          ]
+        },
+        {
+          "phase": "第三阶段：LLM应用开发（3-4个月）",
+          "tasks": [
+            "LangChain框架学习",
+            "RAG检索增强生成",
+            "向量数据库(Faiss/Milvus)",
+            "Agent与工具调用"
+          ]
+        },
+        {
+          "phase": "第四阶段：工程化部署（2-3个月）",
+          "tasks": [
+            "模型量化与优化",
+            "vLLM/TGI推理加速",
+            "FastAPI服务封装",
+            "Docker/K8s部署"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "name": "Hugging Face",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://huggingface.co/"
+        },
+        {
+          "name": "LangChain 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://python.langchain.com/"
+        },
+        {
+          "name": "FastAPI 官方文档",
+          "type": "文档",
+          "level": "必备",
+          "url": "https://fastapi.tiangolo.com/zh/"
+        },
+        {
+          "name": "CS324 LLM课程",
+          "type": "课程",
+          "level": "优先",
+          "url": "https://www.deeplearning.ai/courses"
+        }
+      ],
+      "practicePlan": {
+        "projects": [
+          "智能客服系统",
+          "文档问答RAG系统",
+          "代码辅助工具",
+          "AI Agent应用"
+        ],
+        "practiceCount": "建议完成2个以上完整AI应用"
+      },
+      "mockInterview": [
+        {
+          "q": "RAG的工作流程？",
+          "a": "RAG(Retrieval Augmented Generation)：1. 文档加载与分块 2. 文本向量化(Embedding) 3. 存入向量数据库 4. 用户问题向量化 5. 相似度检索Top-K相关文档 6. 将检索结果加入Prompt 7. LLM生成回答。优势：知识实时更新、降低幻觉"
+        },
+        {
+          "q": "如何设计一个好的Prompt？",
+          "a": "1. 清晰角色(Role) 2. 明确任务(Task) 3. 提供上下文(Context) 4. 指定格式(Format) 5. 给出示例(Few-shot) 6. 设置约束(Constraints)。技巧：用中文、分步骤思考(CoT)、角色扮演、结构化输出"
+        },
+        {
+          "q": "LLM的微调方式有哪些？",
+          "a": "1. Full Fine-tuning：全参数微调，效果最好但成本高 2. LoRA：低秩适应，只训练少量参数 3. QLoRA：量化+LoRA，显存占用极低 4. P-Tuning v2：Prefix Tuning改良版。实际中常用QLoRA在消费级GPU上微调"
+        },
+        {
+          "q": "如何避免LLM幻觉？",
+          "a": "1. RAG检索增强，基于真实知识回答 2. 提示词约束：要求基于提供信息回答 3. 引用溯源：要求模型标注信息来源 4. 多轮验证：Self-consistency 5. 后处理：事实核查 6. 更可靠的模型(如GPT-4)"
+        }
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "id": "career-transition",
+      "category": "职业转型",
+      "keywords": [
+        "转行",
+        "转型",
+        "转IT",
+        "零基础",
+        "入门"
+      ],
+      "question": "非计算机专业如何转行进入IT行业？",
+      "answer": "## 转行IT建议路径\n\n### 1. 选择方向（根据背景匹配）\n- 数学/统计背景 → 算法/数据方向\n- 英语/文科背景 → 前端/测试/产品\n- 理工科背景 → 后端/全栈\n- 设计背景 → UI/UX/前端\n\n### 2. 学习路线（6-12个月）\n\n**阶段一：打基础（2-3个月）**\n- 学习一门编程语言（推荐Python或JavaScript）\n- 了解计算机基础（数据结构、网络、操作系统）\n- 推荐资源：B站免费课程、菜鸟教程\n\n**阶段二：选方向深入（3-6个月）**\n- 前端：HTML/CSS/JS → Vue/React\n- 后端：Java/Python → Spring/Django\n- 测试：测试理论 → 自动化测试\n- 运维：Linux → Docker → K8s\n\n**阶段三：项目实战（2-3个月）**\n- 至少完成2个完整项目\n- 参与开源贡献\n- 搭建个人GitHub仓库\n\n**阶段四：求职准备（1-2个月）**\n- 刷题（LeetCode 100+道）\n- 准备简历和作品集\n- 投递实习/校招\n\n### 3. 关键建议\n- ✅ 保持学习节奏，每天至少2-3小时\n- ✅ 多做项目，简历比学历更重要\n- ✅ 关注行业动态，加入技术社区\n- ✅ 可以考虑培训机构，但要慎重选择\n- ❌ 不要贪多，精通一个方向比浅尝多个更好"
+    },
+    {
+      "id": "interview-prep",
+      "category": "面试准备",
+      "keywords": [
+        "面试",
+        "求职",
+        "找工作",
+        "笔试"
+      ],
+      "question": "如何准备技术面试？",
+      "answer": "## 技术面试准备全攻略\n\n### 1. 简历准备\n- 清晰列出技术栈、项目经验、工作经历\n- 量化成果：性能提升30%、用户增长50%\n- 项目描述使用STAR法则\n- 保持1-2页精简\n\n### 2. 笔试/算法准备\n**刷题策略：**\n- 目标：150-300道题\n- 重点：数组/链表/树/图/动态规划\n- 节奏：每天1-2道，复习旧题比做新题重要\n- 推荐：LeetCode（精选TOP面试题）\n\n**高频题型：**\n- 数组/字符串：双指针、滑动窗口\n- 链表：反转、合并环\n- 树：BST操作、遍历\n- 动态规划：背包、子序列、区间DP\n- 图：BFS/DFS、最短路径\n\n### 3. 技术一面准备\n- 扎实掌握简历上的所有技术点\n- 练习\"3分钟介绍一个项目\"\n- 准备高频八股文（看下面的知识库）\n- 理解原理，不只知其然\n\n### 4. 技术二面准备\n- 系统设计：画架构图、讨论 trade-off\n- 场景题：如何设计秒杀系统/短链服务\n- 深入原理：JVM内存模型、Redis数据结构\n\n### 5. HR面准备\n- 准备自我介绍（1分钟版）\n- 准备职业规划（与岗位匹配）\n- 展示学习能力和团队精神\n- 了解公司业务和产品\n\n### 6. 面试心态\n- 不焦虑：尽力而为\n- 不会就说：诚实+展示思考过程\n- 每次面试后复盘总结"
+    },
+    {
+      "id": "frontend-roadmap",
+      "category": "学习路线",
+      "keywords": [
+        "前端",
+        "前端路线",
+        "前端学习",
+        "vue",
+        "react"
+      ],
+      "question": "前端工程师的完整学习路线是什么？",
+      "answer": "## 前端工程师学习路线\n\n### 📘 第一阶段：基础（1-2个月）\n**必学技能：**\n- HTML5：语义化标签、表单、Canvas\n- CSS3：选择器、Flexbox、Grid、动画\n- JavaScript：ES6+、DOM操作、事件机制\n\n**推荐资源：**\n- MDN Web Docs（权威参考）\n- 《JavaScript高级程序设计》\n- B站：渡一、黑马程序员\n\n**练习项目：**\n- 个人简历页面\n- Todo List应用\n\n### 🚀 第二阶段：进阶（2-3个月）\n**必学技能：**\n- 深入JS：原型链、闭包、Event Loop\n- Vue 3 或 React 18\n- 状态管理：Pinia/Redux\n- 构建工具：Vite/Webpack\n\n**推荐资源：**\n- Vue 3 官方文档（必读）\n- React 官方文档（必读）\n- 《Vue.js设计与实现》\n\n**练习项目：**\n- 管理后台（Vue/React）\n- 数据可视化大屏\n\n### 🏆 第三阶段：高级（3-6个月）\n**必学技能：**\n- TypeScript\n- 性能优化：加载/渲染/运行时\n- 源码阅读：Vue/React核心\n- 工程化：Monorepo、微前端\n\n**推荐资源：**\n- 《深入浅出React与Redux》\n- 阮一峰《ES6入门》\n- GitHub开源项目\n\n**高级项目：**\n- SSR博客系统\n- UI组件库\n- 低代码平台\n\n### 🎯 第四阶段：专家（持续学习）\n- 架构设计与技术选型\n- 团队管理与代码规范\n- 新技术预研（AI/LLM应用）\n- 行业分享与开源贡献"
+    },
+    {
+      "id": "backend-java-roadmap",
+      "category": "学习路线",
+      "keywords": [
+        "Java",
+        "后端",
+        "Java路线",
+        "Spring"
+      ],
+      "question": "Java后端工程师的学习路线是什么？",
+      "answer": "## Java后端工程师学习路线\n\n### ☕ 第一阶段：Java基础（1-2个月）\n**核心技能：**\n- Java基础语法与面向对象\n- 集合框架(List/Map/Set)\n- IO/NIO、多线程基础\n- 异常处理、泛型\n\n**推荐资源：**\n- 《Java核心技术》卷I\n- 《Effective Java》\n- B站：韩顺平零基础Java\n\n### 🏗️ 第二阶段：Spring生态（2-3个月）\n**核心技能：**\n- Spring IoC/DI、AOP\n- Spring Boot自动配置\n- MyBatis/ORM框架\n- RESTful API设计\n\n**推荐资源：**\n- 《Spring Boot实战》\n- Spring官方文档\n- 黑马程序员Spring Boot\n\n### 🗄️ 第三阶段：数据库与中间件（2-3个月）\n**核心技能：**\n- MySQL：SQL优化、索引原理、事务\n- Redis：数据结构、缓存策略、分布式锁\n- Kafka/RabbitMQ：消息队列\n- Nginx：反向代理、负载均衡\n\n**推荐资源：**\n- 《MySQL技术内幕》\n- 《Redis设计与实现》\n- 菜鸟教程\n\n### 🌐 第四阶段：微服务（3-4个月）\n**核心技能：**\n- Spring Cloud全家桶\n- Docker/Kubernetes\n- 分布式系统设计\n- 高并发与性能优化\n\n**推荐资源：**\n- 《微服务架构设计》\n- 《深入理解Java虚拟机》\n- 极客时间《分布式协议与算法》"
+    },
+    {
+      "id": "algorithm-roadmap",
+      "category": "学习路线",
+      "keywords": [
+        "算法",
+        "算法路线",
+        "刷题",
+        "数据结构"
+      ],
+      "question": "算法工程师的学习路线是什么？",
+      "answer": "## 算法工程师学习路线\n\n### 📐 第一阶段：数据结构（2-3个月）\n**必学内容：**\n- 数组/链表/栈/队列\n- 二叉树/堆/字典树\n- 哈希表设计\n- 排序算法、二分查找\n\n**推荐资源：**\n- 《算法导论》\n- 《数据结构与算法分析》\n- LeetCode（简单题100道）\n\n### 🧮 第二阶段：算法设计（2-3个月）\n**必学内容：**\n- 动态规划（背包、区间、树形DP）\n- 贪心算法\n- 图论（BFS/DFS/最短路径）\n- 回溯、分支限界\n\n**推荐资源：**\n- 《算法竞赛入门经典》\n- 洛谷/P5754等\n- LeetCode（中等题200道）\n\n### 🤖 第三阶段：机器学习（3-4个月）\n**必学内容：**\n- 线性回归、逻辑回归\n- 决策树、随机森林、XGBoost\n- SVM、KNN、朴素贝叶斯\n- 聚类、降维\n\n**推荐资源：**\n- 《机器学习》周志华\n- 《统计学习方法》李航\n- CS229吴恩达课程\n\n### 🧠 第四阶段：深度学习（3-4个月）\n**必学内容：**\n- 神经网络基础、反向传播\n- CNN/RNN/Transformer\n- PyTorch/TensorFlow\n- LLM应用开发\n\n**推荐资源：**\n- CS231n斯坦福\n- 《动手学深度学习》\n- HuggingFace官方教程"
+    },
+    {
+      "id": "spring-boot-interview",
+      "category": "技术问答",
+      "keywords": [
+        "Spring Boot",
+        "Spring",
+        "自动配置"
+      ],
+      "question": "Spring Boot的自动配置原理是什么？",
+      "answer": "## Spring Boot自动配置原理\n\n### 核心注解：@SpringBootApplication\n包含三个注解：\n- @SpringBootConfiguration：配置类\n- @EnableAutoConfiguration：开启自动配置\n- @ComponentScan：扫描组件\n\n### 自动配置流程\n\n1. **@EnableAutoConfiguration**\n   - 导入AutoConfigurationImportSelector\n   - 扫描META-INF/spring.factories中的配置类\n\n2. **加载条件**\n   - @ConditionalOnClass：类路径存在时生效\n   - @ConditionalOnMissingBean：容器中不存在Bean时创建\n   - @ConditionalOnProperty：配置属性满足条件\n   - @ConditionalOnWebApplication：Web应用环境\n\n3. **配置类**\n   - 每个starter提供对应的@Configuration类\n   - 内部使用@Bean创建所需组件\n   - 通过条件注解实现按需加载\n\n### 实际应用\n- 引入spring-boot-starter-web自动配置DispatcherServlet\n- 引入spring-boot-starter-data-jpa自动配置JPA相关\n- 通过application.yml自定义配置\n\n### 优势\n- 零配置开箱即用\n- 按需加载，不加载不需要的组件\n- 易于扩展，自定义starter"
+    },
+    {
+      "id": "vue3-composition-api",
+      "category": "技术问答",
+      "keywords": [
+        "Vue3",
+        "Composition API",
+        "怎么用",
+        "setup",
+        "ref",
+        "reactive",
+        "computed",
+        "watch"
+      ],
+      "question": "Vue3 Composition API 怎么用？",
+      "answer": "## Vue3 Composition API 完整使用指南\n\n### 什么是Composition API\nComposition API是Vue3引入的新特性，提供更灵活的代码组织方式，替代Options API。\n\n### 核心函数\n\n**1. setup() - 组合式API入口**\n```javascript\nexport default {\n  setup(props, context) {\n    // 响应式数据\n    const count = ref(0)\n    const user = reactive({ name: 'Tom', age: 25 })\n    \n    // 计算属性\n    const doubleCount = computed(() => count.value * 2)\n    \n    // 方法\n    const increment = () => count.value++\n    \n    // 侦听器\n    watch(count, (newVal) => console.log('count变化:', newVal))\n    \n    return { count, user, doubleCount, increment }\n  }\n}\n```\n\n**2. ref - 基本类型响应式**\n```javascript\nimport { ref } from 'vue'\nconst count = ref(0)        // 数字\nconst name = ref('hello')  // 字符串\nconst list = ref([])       // 数组\n// 访问需要.value\nconsole.log(count.value) // 0\ncount.value++             // 修改\n```\n\n**3. reactive - 对象响应式**\n```javascript\nimport { reactive } from 'vue'\nconst state = reactive({\n  user: { name: 'Tom' },\n  loading: false,\n  items: [1, 2, 3]\n})\n// 直接访问，不需要.value\nstate.user.name = 'Jerry'\nstate.items.push(4)\n```\n\n**4. computed - 计算属性**\n```javascript\nimport { computed, ref } from 'vue'\nconst first = ref('John')\nconst last = ref('Doe')\nconst fullName = computed({\n  get() { return first.value + ' ' + last.value },\n  set(newVal) { [first.value, last.value] = newVal.split(' ') }\n})\n```\n\n**5. watch - 侦听器**\n```javascript\nimport { watch, ref, reactive } from 'vue'\n// 侦听ref\nwatch(count, (newVal, oldVal) => {\n  console.log(`count从${oldVal}变为${newVal}`)\n})\n// 侦听reactive\nwatch(() => state.user.name, (newName) => {\n  console.log('用户名改变:', newName)\n})\n// 侦听多个源\nwatch([count, () => state.loading], ([newCount, newLoading]) => {\n  console.log('count和loading都变了')\n})\n```\n\n**6. onMounted - 生命周期钩子**\n```javascript\nimport { onMounted, onUnmounted } from 'vue'\nonMounted(() => {\n  console.log('组件挂载')\n  fetchData()\n})\nonUnmounted(() => {\n  clearInterval(timer)\n})\n```\n\n### 代码复用 - 自定义Hook\n```javascript\n// useMousePosition.js\nimport { ref, onMounted, onUnmounted } from 'vue'\nexport function useMousePosition() {\n  const x = ref(0)\n  const y = ref(0)\n  const update = (e) => { x.value = e.clientX; y.value = e.clientY }\n  onMounted(() => window.addEventListener('mousemove', update))\n  onUnmounted(() => window.removeEventListener('mousemove', update))\n  return { x, y }\n}\n// 使用\nconst { x, y } = useMousePosition()\n```\n\n### vs Options API对比\n| 特性 | Options API | Composition API |\n|------|-------------|----------------|\n| 代码组织 | 按选项类型分散 | 按功能聚合 |\n| 逻辑复用 | Mixins（命名冲突） | 自定义Hook |\n| TypeScript | 支持有限 | 完美支持 |\n| Tree Shaking | 不支持 | 支持 |\n\n### 最佳实践\n1. 相关逻辑放在一起，而非按选项类型分开\n2. 复杂逻辑抽取为可复用函数\n3. 使用reactive处理对象，ref处理基本类型\n4. 合理使用computed缓存计算结果\n5. 避免在reactive中嵌套过多层级"
+    },
+    {
+      "id": "vue3-reactive",
+      "category": "技术问答",
+      "keywords": [
+        "Vue3",
+        "响应式",
+        "Proxy",
+        "Composition API"
+      ],
+      "question": "Vue3的响应式原理是什么？和Vue2有什么区别？",
+      "answer": "## Vue3响应式原理\n\n### 核心：Proxy替代Object.defineProperty\n\n**Vue2的局限：**\n- 无法监听对象新增/删除属性\n- 无法直接监听数组变化（需改写方法）\n- 只能劫持对象属性，需遍历每个属性\n\n**Vue3的改进：**\n- Proxy直接代理整个对象\n- 天然支持属性新增/删除\n- 支持数组、Map、Set等所有JS对象\n- 性能更好，懒递归\n\n### 响应式API\n\n1. **reactive(obj)**：创建深度响应式对象\n   - 基于Proxy代理\n   - 自动解包ref\n\n2. **ref(value)**：创建响应式值\n   - 内部用{value}包装\n   - 自动解包（在模板和reactive中）\n\n3. **computed(fn)**：计算属性\n   - 缓存结果，依赖变化时重算\n\n4. **watch(source, callback)**：侦听器\n   - 支持ref/reactive/getter/数组\n\n### 依赖收集与触发\n- 读取属性时：track()收集依赖\n- 设置属性时：trigger()触发更新\n- 批量更新：nextTick()异步队列\n\n### 优势总结\n- ✅ 支持更多数据类型\n- ✅ 性能提升\n- ✅ 更好的TypeScript支持\n- ✅ 可按需引入（Tree Shaking）"
+    },
+    {
+      "id": "react-hooks",
+      "category": "技术问答",
+      "keywords": [
+        "React",
+        "Hooks",
+        "useState",
+        "useEffect"
+      ],
+      "question": "React Hooks有哪些？常用场景是什么？",
+      "answer": "## React Hooks详解\n\n### 基础Hooks\n\n**1. useState** - 状态管理\n```javascript\nconst [count, setCount] = useState(0)\nconst [user, setUser] = useState({ name: 'Tom' })\n```\n- 函数组件中的状态\n- 返回[值, 更新函数]\n- 可以多次调用\n\n**2. useEffect** - 副作用\n```javascript\nuseEffect(() => {\n  fetchData()\n}, []) // 空依赖：只执行一次\n\nuseEffect(() => {\n  document.title = count\n}, [count]) // 依赖变化时执行\n```\n- 数据获取、DOM操作、订阅\n- 类似componentDidMount+DidUpdate\n- 返回cleanup函数\n\n**3. useContext** - 上下文\n```javascript\nconst theme = useContext(ThemeContext)\n```\n- 跨组件共享数据\n- 避免props层层传递\n\n### 进阶Hooks\n\n**4. useReducer** - 复杂状态\n```javascript\nconst [state, dispatch] = useReducer(reducer, initial)\ndispatch({ type: 'increment' })\n```\n- 适合状态逻辑复杂\n- Redux的简化版\n\n**5. useMemo** - 性能优化\n```javascript\nconst result = useMemo(() => heavyCalc(a, b), [a, b])\n```\n- 缓存计算结果\n- 仅依赖变化时重算\n\n**6. useCallback** - 缓存函数\n```javascript\nconst handleClick = useCallback(() => doSomething(id), [id])\n```\n- 避免子组件无谓渲染\n\n### 自定义Hooks\n```javascript\nfunction useFetch(url) {\n  const [data, setData] = useState(null)\n  useEffect(() => {\n    fetch(url).then(r => r.json()).then(setData)\n  }, [url])\n  return data\n}\n```\n- 复用状态逻辑\n- 以use开头命名\n- 内部可调用其他Hooks"
+    },
+    {
+      "id": "nginx-architect",
+      "category": "技术问答",
+      "keywords": [
+        "Nginx",
+        "架构",
+        "高并发",
+        "反向代理"
+      ],
+      "question": "Nginx的架构和高并发原理是什么？",
+      "answer": "## Nginx架构与高并发\n\n### 架构组成\n\n1. **主进程（Master）**\n   - 加载配置文件\n   - 创建工作进程\n   - 监控工作进程状态\n   - 不处理网络请求\n\n2. **工作进程（Worker）**\n   - 处理网络连接\n   - 执行配置指令\n   - 独立进程，互不干扰\n\n3. **事件驱动模型**\n   - 使用epoll（Linux）/kqueue（BSD）\n   - 非阻塞IO\n   - 异步事件处理\n\n### 高并发原理\n\n**1. IO多路复用**\n- 单线程处理大量连接\n- 使用epoll监听多个socket\n- 就绪通知，避免轮询\n\n**2. 非阻塞IO**\n- 读写操作不阻塞\n- 数据未就绪时返回EAGAIN\n- 基于事件通知继续\n\n**3. 零拷贝技术**\n- sendfile()系统调用\n- 数据不经用户态\n- DMA直接传输\n\n**4. 高效内存管理**\n- 内存池减少碎片\n- slab分配器\n- 共享内存\n\n### 反向代理与负载均衡\n\n```nginx\nupstream backend {\n    server 127.0.0.1:8080 weight=3;\n    server 127.0.0.1:8081 weight=1;\n}\nserver {\n    listen 80;\n    location / {\n        proxy_pass http://backend;\n    }\n}\n```\n\n### 性能优化\n- worker_cpu_affinity：绑定CPU核\n- sendfile on：开启零拷贝\n- tcp_nopush on：减少报文\n- keepalive_timeout：长连接复用"
+    },
+    {
+      "id": "redis-data-structure",
+      "category": "技术问答",
+      "keywords": [
+        "Redis",
+        "数据结构",
+        "缓存",
+        "分布式锁"
+      ],
+      "question": "Redis有哪些数据结构？分别用在什么场景？",
+      "answer": "## Redis数据结构与应用场景\n\n### 1. String（字符串）\n**底层：** SDS（简单动态字符串）\n**场景：**\n- 缓存：热点数据缓存\n- 计数器：incr统计PV/UV\n- 分布式锁：SETNX+过期时间\n- 验证码存储\n\n### 2. List（列表）\n**底层：** 快速列表（ziplist+linkedlist）\n**场景：**\n- 消息队列：LPUSH/RPOP实现FIFO\n- 最新消息排行：最新评论、动态\n- 简单队列：LPUSH+BRPOP\n\n### 3. Hash（哈希）\n**底层：** 压缩列表+哈希表\n**场景：**\n- 用户信息存储：id->{name,age,email}\n- 对象缓存：比String+JSON更高效\n- 计数器：多个关联计数\n\n### 4. Set（集合）\n**底层：** 整数集合+哈希表\n**场景：**\n- 标签：文章标签、用户标签\n- 共同好友：SINTER集合交集\n- 去重：UV统计\n\n### 5. ZSet（有序集合）\n**底层：** 压缩列表+跳表\n**场景：**\n- 排行榜：游戏排行、热搜榜\n- 延迟队列：score存时间戳\n- 权重随机：按权重抽奖\n\n### 6. 扩展数据类型\n- HyperLogLog：UV统计（12KB固定内存）\n- Bitmap：打卡统计、用户签到\n- GEO：地理位置查询\n- Stream：消息队列（Redis 5.0+）\n\n### 7. 应用模式\n- Cache-Aside：旁路缓存模式\n- Write-Through：写穿模式\n- Write-Behind：写后模式\n- 分布式锁：SETNX+Lua脚本保证原子性"
+    },
+    {
+      "id": "distributed-system",
+      "category": "技术问答",
+      "keywords": [
+        "分布式",
+        "架构",
+        "微服务",
+        "CAP"
+      ],
+      "question": "分布式系统设计要考虑哪些问题？",
+      "answer": "## 分布式系统核心问题\n\n### 1. CAP定理\n- **C**onsistency（一致性）：所有节点数据同步\n- **A**vailability（可用性）：每个请求都有响应\n- **P**artition tolerance（分区容忍）：网络分区继续服务\n\n**结论：** 只能同时满足两个，必须做出选择\n\n### 2. BASE理论\n- Basically Available：基本可用\n- Soft state：软状态（允许中间状态）\n- Eventually consistent：最终一致性\n\n**适合对一致性要求不高的场景**\n\n### 3. 核心问题与解决方案\n\n**一致性问题：**\n- 2PC/3PC：强一致性但性能差\n- TCC：Try-Confirm-Cancel补偿事务\n- Saga：长事务编排\n- 消息队列：最终一致性\n\n**可用性问题：**\n- 心跳检测+故障转移\n- 多副本（主从/主主）\n- 服务降级与熔断\n- 限流（令牌桶/漏桶/滑动窗口）\n\n**可扩展性：**\n- 水平扩展（增加节点）\n- 垂直扩展（升级配置）\n- 数据分片（分库分表）\n\n### 4. 微服务架构\n\n**服务治理：**\n- 服务注册发现（Nacos/Eureka）\n- 配置中心（Apollo/Nacos）\n- 网关（Spring Cloud Gateway）\n\n**服务通信：**\n- 同步：RESTful/Feign\n- 异步：Kafka/RabbitMQ\n- RPC：gRPC/Dubbo\n\n**分布式事务：**\n- Seata AT模式（自动补偿）\n- 本地消息表+MQ\n- 最终一致性方案\n\n### 5. 高可用设计\n- 负载均衡（Nginx/F5）\n- 熔断降级（Sentinel/Hystrix）\n- 重试机制（幂等性保证）\n- 降级策略（读缓存/默认值）"
+    },
+    {
+      "id": "high-concurrency",
+      "category": "技术问答",
+      "keywords": [
+        "高并发",
+        "秒杀",
+        "性能",
+        "优化"
+      ],
+      "question": "如何设计一个高并发的秒杀系统？",
+      "answer": "## 高并发秒杀系统设计\n\n### 核心挑战\n- 瞬时流量巨大（百万QPS）\n- 库存数据强一致性\n- 防止超卖\n- 用户体验流畅\n\n### 分层架构\n\n**1. 前端层**\n- 页面静态化（CDN）\n- 按钮防重复点击\n- 活动开始动态加载\n- 倒计时精准控制\n\n**2. 接入层**\n- CDN加速静态资源\n- Nginx负载均衡\n- 网关限流（令牌桶）\n- 验证码防机器人\n\n**3. 应用层**\n- 服务无状态（水平扩展）\n- Redis库存预扣减\n- 异步下单（Kafka）\n- 内存标记位（售罄快速失败）\n\n**4. 存储层**\n- Redis：热点库存\n- MySQL：最终数据\n- 消息队列：异步削峰\n\n### 关键技术\n\n**1. 库存扣减**\n```redis\n# Redis Lua原子操作\nlocal stock = redis.call('get', KEYS[1])\nif stock > 0 then\n  redis.call('decr', KEYS[1])\n  return 1\nend\nreturn 0\n```\n- Redis原子操作保证不超卖\n- Lua脚本实现原子扣减\n\n**2. 异步下单**\n- Kafka/RabbitMQ队列\n- 消费端有序处理\n- 失败重试机制\n- 最终一致性\n\n**3. 限流策略**\n- 全局限流（令牌桶）\n- 用户限流（滑动窗口）\n- 接口限流（漏桶）\n- 动态调整阈值\n\n**4. 防刷机制**\n- IP限流\n- 设备指纹\n- 图形验证码\n- 行为分析\n\n### 性能指标\n- 单机QPS：10000+\n- 端到端延迟：< 500ms\n- 可用性：99.99%"
+    },
+    {
+      "id": "learning-efficiency",
+      "category": "学习方法",
+      "keywords": [
+        "学习效率",
+        "方法",
+        "自律",
+        "时间管理"
+      ],
+      "question": "如何高效学习编程？",
+      "answer": "## 高效学习编程的方法\n\n### 1. 设定清晰目标\n- 短期目标：1个月掌握Vue基础\n- 中期目标：3个月完成3个项目\n- 长期目标：6个月达到初级工程师水平\n\n### 2. 选择学习资源\n- 官方文档（最权威）\n- 高质量视频课程（B站/慕课网）\n- 书籍（系统深入）\n- 开源项目（实战参考）\n\n### 3. 学习方法论\n- **费曼学习法**：学完后尝试教别人\n- **项目驱动**：边学边做项目\n- **刻意练习**：针对性练习薄弱环节\n- **复盘总结**：每周回顾学习内容\n\n### 4. 时间管理\n- 番茄工作法：25分钟专注+5分钟休息\n- 固定学习时间（如每天7-9点）\n- 利用碎片时间（看技术文章、听播客）\n- 避免 multitasking（一次只做一件事）\n\n### 5. 避坑指南\n- ❌ 不要只看视频不动手\n- ❌ 不要追求完美，先完成再优化\n- ❌ 不要只看书不实践\n- ❌ 不要闭门造车，多交流\n- ✅ 每天写代码\n- ✅ 每周做总结\n- ✅ 加入技术社区"
+    },
+    {
+      "id": "product-vision",
+      "category": "职业发展",
+      "keywords": [
+        "产品",
+        "产品经理",
+        "PM",
+        "产品设计"
+      ],
+      "question": "IT行业除了开发还有哪些岗位方向？",
+      "answer": "## IT行业岗位方向一览\n\n### 技术类岗位\n1. **开发工程师**\n   - 前端/后端/全栈\n   - 移动端（Android/iOS/Flutter）\n   - 游戏开发\n   - AI/算法\n\n2. **测试工程师**\n   - 功能测试\n   - 自动化测试\n   - 性能测试\n   - 测试开发\n\n3. **运维工程师**\n   - DevOps\n   - SRE\n   - 云计算\n   - 数据库管理\n\n4. **安全工程师**\n   - 渗透测试\n   - 安全开发\n   - 安全运营\n\n### 非技术类岗位\n1. **产品经理（PM）**\n   - 需求分析\n   - 产品设计\n   - 项目管理\n   - 数据分析\n\n2. **UI/UX设计师**\n   - 视觉设计\n   - 交互设计\n   - 用户研究\n   - 原型设计\n\n3. **运营**\n   - 内容运营\n   - 用户运营\n   - 活动运营\n   - 数据分析\n\n4. **项目管理**\n   - PMP认证\n   - 敏捷管理\n   - 团队协调\n\n### 新兴岗位\n- AI产品经理\n- 数据分析师\n- 用户研究员\n- 增长黑客\n- 技术布道师\n\n### 选择建议\n- 技术兴趣→开发/测试/运维\n- 产品思维→产品/项目管理\n- 创意设计→UI/UX\n- 数据敏感→数据分析/运营"
+    },
+    {
+      "id": "salary-reference",
+      "category": "职业发展",
+      "keywords": [
+        "薪资",
+        "工资",
+        "待遇",
+        "薪酬",
+        "收入"
+      ],
+      "question": "IT行业各岗位的薪资水平如何？",
+      "answer": "## IT行业薪资参考（2024年）\n\n### 一线城市（北上广深杭）\n\n**初级工程师（1-3年）**\n- 前端：15-25K\n- 后端Java：18-30K\n- 算法：25-40K\n- 测试：12-20K\n- 运维：15-25K\n\n**中级工程师（3-5年）**\n- 前端：25-40K\n- 后端Java：30-50K\n- 算法：40-70K\n- 测试：20-35K\n- 运维：25-40K\n\n**高级工程师（5-8年）**\n- 技术专家：50-100K\n- 架构师：60-120K\n- 技术总监：80-150K\n\n### 影响薪资的因素\n1. **学历**：985/211溢价30%\n2. **公司**：大厂>创业公司>外企\n3. **城市**：北上广深杭>其他\n4. **经验**：项目经验>实习经验\n5. **技术栈**：AI/算法>后端>前端>测试\n6. **软技能**：沟通、管理、领导力\n\n### 谈判技巧\n- 了解市场行情\n- 展示量化成果\n- 强调不可替代性\n- 不要先报价\n- 考虑总包（股票/期权）"
+    }
+  ],
+  "commonProblems": [
+    {
+      "id": "problem-memory-leak",
+      "category": "内存问题",
+      "keywords": [
+        "内存泄漏",
+        "OOM",
+        "内存溢出",
+        "Memory Leak"
+      ],
+      "question": "程序出现内存泄漏怎么办？",
+      "solution": "## 内存泄漏排查步骤\n\n### 1. 确认问题\n- 监控内存使用趋势\n- 确认是否持续增长\n- 复现问题场景\n\n### 2. 获取堆转储\n```bash\n# Java\njmap -dump:live,format=b,file=heap.bin <pid>\n# Node.js\nnode --inspect\n```\n\n### 3. 分析工具\n- Java：MAT、JProfiler、VisualVM\n- Python：memory_profiler、objgraph\n- Node.js：Chrome DevTools、heapdump\n\n### 4. 常见原因\n- 集合未清理（List/Map持续添加）\n- 监听器未注销\n- 缓存无过期\n- 连接未关闭\n- 匿名内部类持有外部引用\n- 静态变量持有大对象\n\n### 5. 解决方案\n- 及时清理无用对象\n- 使用WeakReference\n- 设置合理的缓存过期\n- try-with-resources关闭资源\n- 避免全局变量持有数据\n\n### 6. 预防措施\n- 代码审查时关注资源管理\n- 使用内存检测工具\n- 压力测试监控内存\n- 合理使用设计模式"
+    },
+    {
+      "id": "problem-performance",
+      "category": "性能问题",
+      "keywords": [
+        "性能",
+        "慢",
+        "优化",
+        "卡顿",
+        "响应慢"
+      ],
+      "question": "系统性能慢怎么排查优化？",
+      "solution": "## 系统性能优化方法论\n\n### 1. 确定瓶颈\n- 性能测试定位慢接口\n- APM工具链路追踪\n- 数据库慢查询日志\n- 前端Performance面板\n\n### 2. 常见瓶颈与优化\n\n**数据库层：**\n- 添加索引\n- 优化SQL（避免SELECT *）\n- 分库分表\n- 读写分离\n- 使用缓存\n\n**应用层：**\n- 异步处理（消息队列）\n- 缓存（Redis/Memcached）\n- 连接池优化\n- 代码优化（算法/数据结构）\n- 多线程/并发\n\n**系统层：**\n- 增加服务器\n- 负载均衡\n- CDN加速\n- 静态资源优化\n\n**前端：**\n- 代码分割/懒加载\n- 资源压缩/合并\n- 图片优化\n- 虚拟滚动\n- 防抖节流\n\n### 3. 优化原则\n- 先测量再优化\n- 关注核心路径\n- 优化高频调用\n- 权衡空间换时间\n- 监控优化效果"
+    },
+    {
+      "id": "problem-connection",
+      "category": "连接问题",
+      "keywords": [
+        "连接",
+        "超时",
+        "Timeout",
+        "网络",
+        "Connection"
+      ],
+      "question": "数据库连接超时怎么解决？",
+      "solution": "## 数据库连接超时排查\n\n### 1. 检查网络连通性\n```bash\nping <数据库IP>\ntelnet <数据库IP> <端口>\n```\n\n### 2. 检查数据库状态\n- 数据库是否正常运行\n- 连接数是否已满\n- 慢查询是否阻塞\n\n### 3. 检查连接池配置\n```yaml\n# HikariCP示例\nspring:\n  datasource:\n    hikari:\n      maximum-pool-size: 20\n      minimum-idle: 5\n      connection-timeout: 30000\n      idle-timeout: 600000\n      max-lifetime: 1800000\n```\n\n### 4. 常见原因与解决\n\n**连接泄漏：**\n- 使用连接池管理\n- 确保连接及时释放\n- try-with-resources\n\n**连接数过多：**\n- 优化SQL减少执行时间\n- 使用读写分离\n- 增加数据库连接数\n\n**网络问题：**\n- 检查防火墙规则\n- 确认DNS解析\n- 检查网络延迟\n\n### 5. 预防措施\n- 合理配置连接池\n- 监控连接使用率\n- 设置合理的超时时间\n- 使用连接池中间件"
+    },
+    {
+      "id": "problem-debug",
+      "category": "调试技巧",
+      "keywords": [
+        "调试",
+        "Debug",
+        "Bug",
+        "排查",
+        "日志"
+      ],
+      "question": "如何高效排查和调试Bug？",
+      "solution": "## Bug排查方法论\n\n### 1. 获取信息\n- 复现问题（确定稳定的复现步骤）\n- 查看错误日志\n- 获取用户操作路径\n- 确认问题发生时间\n\n### 2. 定位问题\n\n**二分法：**\n- 注释代码块缩小范围\n- 使用Git bisect定位引入问题的提交\n\n**日志法：**\n- 在关键节点加日志\n- 记录变量值和执行路径\n\n**调试器：**\n- 使用IDE的断点调试\n- 条件断点缩小范围\n\n### 3. 分析根因\n- 理解代码逻辑\n- 检查边界条件\n- 考虑并发/异步问题\n- 检查数据状态\n\n### 4. 修复验证\n- 编写测试用例\n- 验证修复效果\n- 回归测试（确保没引入新问题）\n- 代码Review\n\n### 5. 常见Bug类型\n- 空指针/未定义\n- 数据类型错误\n- 状态管理混乱\n- 异步竞态条件\n- 缓存不一致\n- 并发问题\n- 边界条件未处理\n\n### 6. 预防措施\n- 单元测试覆盖\n- 代码Review\n- 静态代码分析\n- 合理的错误处理\n- 清晰的日志记录"
+    },
+    {
+      "id": "problem-deploy",
+      "category": "部署问题",
+      "keywords": [
+        "部署",
+        "上线",
+        "发布",
+        "Docker",
+        "部署失败"
+      ],
+      "question": "应用部署失败怎么排查？",
+      "solution": "## 部署失败排查步骤\n\n### 1. 检查部署环境\n- 操作系统版本\n- 依赖是否安装\n- 端口是否被占用\n- 内存/磁盘空间\n\n### 2. 检查配置文件\n- 环境变量是否正确\n- 配置文件格式是否正确\n- 数据库/Redis连接\n- 路径是否正确\n\n### 3. 查看日志\n```bash\n# Docker\ndocker logs <container_id>\n\n# 系统服务\nsystemctl status <service>\njournalctl -u <service>\n\n# 应用日志\ntail -f app.log\n```\n\n### 4. 常见问题与解决\n\n**端口占用：**\n```bash\nnetstat -tlnp | grep <port>\nkill -9 <pid>\n```\n\n**权限问题：**\n- 检查文件/目录权限\n- 确认运行用户\n\n**依赖缺失：**\n- 安装缺失的依赖\n- 检查版本兼容性\n\n**资源不足：**\n- 增加内存/磁盘\n- 优化启动内存\n\n### 5. 回滚方案\n- 保留上一个稳定版本\n- 自动健康检查\n- 灰度发布策略\n- 快速回滚机制"
     }
   ],
   "defaultResponse": {
-    "greeting": "你好！我是AI学习顾问。我可以为你规划IT行业各岗位的学习路线，包括：前端开发、后端开发、全栈开发、算法工程师、大数据开发、UI设计师等。请告诉我你感兴趣的岗位，我会为你提供详细的学习方案。",
-    "helpMessage": "我可以为你提供以下帮助：\n\n1. 🎯 **岗位学习路线**：输入岗位名称，获取分阶段学习计划\n2. 📚 **学习资源推荐**：推荐权威的在线文档、视频课程和实战项目\n3. 💡 **技术答疑**：解答编程问题、技术选型建议\n4. 🔍 **技能匹配分析**：分析你当前技能与目标岗位的差距\n\n试试这样问我：\n- \"全栈开发工程师学习路线\"\n- \"如何转行做算法工程师\"\n- \"前端开发需要掌握哪些技能\""
-  }
+    "greeting": "你好！我是AI学习顾问。我可以为你提供IT行业各岗位的学习规划、技能路线、资源推荐和求职建议。请告诉我你感兴趣的岗位，我会为你提供详细的学习方案。",
+    "helpMessage": "我可以为你提供以下帮助：\n\n1. 📚 **岗位学习路线**：输入岗位名称，获得分阶段学习计划\n2. 💡 **技术问答**：解答编程问题、讲解技术知识点\n3. 🔗 **学习资源推荐**：推荐权威文档、视频课程和实战项目\n4. 🎯 **模拟面试**：针对目标岗位进行面试模拟练习\n5. 💼 **职业规划**：职业转型、薪资参考、发展建议\n\n试试这样问我：\n- \"前端开发工程师学习路线\"\n- \"Vue3的Composition API怎么用\"\n- \"如何准备前端面试\"\n- \"系统设计高并发秒杀\"\n- \"转行IT需要学什么\""
+  },
+  "resourcePool": []
 }

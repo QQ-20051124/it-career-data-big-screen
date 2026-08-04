@@ -1,0 +1,3512 @@
+{
+  "summary": {
+    "totalPositions": 56,
+    "passed": 56,
+    "emptyPositions": [],
+    "mismatchedResources": [],
+    "invalidLinks": [
+      {
+        "skill": "HTML5/CSS3",
+        "position": "前端开发工程师",
+        "title": "freeCodeCamp前端课程",
+        "url": "https://www.freecodecamp.org/zh/learn"
+      },
+      {
+        "skill": "Site Reliability",
+        "position": "SRE工程师",
+        "title": "Google SRE — Site Reliability Engineering",
+        "url": "https://sre.google/resources/practices-and-processes/engineering-programs/site-reliability-engineering/"
+      }
+    ],
+    "bilibiliSearchLinks": [
+      {
+        "position": "前端开发工程师",
+        "skill": "HTML5/CSS3",
+        "title": "B站：HTML5+CSS3 零基础入门",
+        "url": "https://search.bilibili.com/all?keyword=HTML5%20CSS3%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "JavaScript/ES6+",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "DOM操作",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "Vue.js",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "React",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "Webpack/Vite",
+        "title": "B站：Webpack/Vite 工程化教程",
+        "url": "https://search.bilibili.com/all?keyword=Webpack%20Vite%20%E5%B7%A5%E7%A8%8B%E5%8C%96"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "Git",
+        "title": "B站：Git 版本控制教程",
+        "url": "https://search.bilibili.com/all?keyword=Git%20%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "CSS预处理器(Sass/Less)",
+        "title": "B站：CSS3 Flexbox/Grid 布局教程",
+        "url": "https://search.bilibili.com/all?keyword=CSS3%20Flexbox%20Grid%20%E5%B8%83%E5%B1%80"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "响应式设计",
+        "title": "B站：CSS3 Flexbox/Grid 布局教程",
+        "url": "https://search.bilibili.com/all?keyword=CSS3%20Flexbox%20Grid%20%E5%B8%83%E5%B1%80"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "Element UI/Ant Design",
+        "title": "B站搜索：Element UI/Ant Design 教程",
+        "url": "https://search.bilibili.com/all?keyword=Element%20UI%2FAnt%20Design%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "Figma/Sketch",
+        "title": "B站：Figma UI 设计教程",
+        "url": "https://search.bilibili.com/all?keyword=Figma%20UI%E8%AE%BE%E8%AE%A1"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "TypeScript",
+        "title": "B站：TypeScript 系统教程",
+        "url": "https://search.bilibili.com/all?keyword=TypeScript%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "Vite/Rollup",
+        "title": "B站：Webpack/Vite 工程化教程",
+        "url": "https://search.bilibili.com/all?keyword=Webpack%20Vite%20%E5%B7%A5%E7%A8%8B%E5%8C%96"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "ESLint/Prettier",
+        "title": "B站搜索：ESLint/Prettier 教程",
+        "url": "https://search.bilibili.com/all?keyword=ESLint%2FPrettier%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "前端开发工程师",
+        "skill": "npm/yarn/pnpm",
+        "title": "B站搜索：npm/yarn/pnpm 教程",
+        "url": "https://search.bilibili.com/all?keyword=npm%2Fyarn%2Fpnpm%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "Vue3 Composition API",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "Vue3响应式原理",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "虚拟DOM",
+        "title": "B站搜索：虚拟DOM 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%99%9A%E6%8B%9FDOM%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "Vue Router",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "Vue CLI/Vite",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "Nuxt.js",
+        "title": "B站搜索：Nuxt.js 教程",
+        "url": "https://search.bilibili.com/all?keyword=Nuxt.js%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "JavaScript/ES6+",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "HTML5/CSS3",
+        "title": "B站：HTML5+CSS3 零基础入门",
+        "url": "https://search.bilibili.com/all?keyword=HTML5%20CSS3%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Vue开发工程师",
+        "skill": "CSS3动画",
+        "title": "B站：CSS3 Flexbox/Grid 布局教程",
+        "url": "https://search.bilibili.com/all?keyword=CSS3%20Flexbox%20Grid%20%E5%B8%83%E5%B1%80"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "React Hooks",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "React组件化",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "Context/Redux",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "React Router",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "Next.js",
+        "title": "B站搜索：Next.js 教程",
+        "url": "https://search.bilibili.com/all?keyword=Next.js%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "Material UI/Ant Design",
+        "title": "B站搜索：Material UI/Ant Design 教程",
+        "url": "https://search.bilibili.com/all?keyword=Material%20UI%2FAnt%20Design%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "React Query/SWR",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "Jest/React Testing",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "JavaScript/ES6+",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "TypeScript",
+        "title": "B站：TypeScript 系统教程",
+        "url": "https://search.bilibili.com/all?keyword=TypeScript%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React开发工程师",
+        "skill": "Webpack/Vite",
+        "title": "B站：Webpack/Vite 工程化教程",
+        "url": "https://search.bilibili.com/all?keyword=Webpack%20Vite%20%E5%B7%A5%E7%A8%8B%E5%8C%96"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "HTML5/CSS3适配",
+        "title": "B站：HTML5+CSS3 零基础入门",
+        "url": "https://search.bilibili.com/all?keyword=HTML5%20CSS3%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "移动端事件(touch)",
+        "title": "B站搜索：移动端事件(touch) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%A7%BB%E5%8A%A8%E7%AB%AF%E4%BA%8B%E4%BB%B6(touch)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "响应式布局",
+        "title": "B站搜索：响应式布局 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%93%8D%E5%BA%94%E5%BC%8F%E5%B8%83%E5%B1%80%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "Rem/Vw/Vh",
+        "title": "B站搜索：Rem/Vw/Vh 教程",
+        "url": "https://search.bilibili.com/all?keyword=Rem%2FVw%2FVh%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "Vue/React",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "Vue/React",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "Vant/Element Mobile",
+        "title": "B站搜索：Vant/Element Mobile 教程",
+        "url": "https://search.bilibili.com/all?keyword=Vant%2FElement%20Mobile%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "Cordova/Capacitor",
+        "title": "B站搜索：Cordova/Capacitor 教程",
+        "url": "https://search.bilibili.com/all?keyword=Cordova%2FCapacitor%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "移动端H5开发",
+        "skill": "小程序开发",
+        "title": "B站搜索：小程序开发 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Web前端工程师",
+        "skill": "HTML5/CSS3",
+        "title": "B站：HTML5+CSS3 零基础入门",
+        "url": "https://search.bilibili.com/all?keyword=HTML5%20CSS3%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Web前端工程师",
+        "skill": "JavaScript/ES6+",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Web前端工程师",
+        "skill": "DOM/BOM",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Web前端工程师",
+        "skill": "Ajax/Fetch",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Web前端工程师",
+        "skill": "Vue/React",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Web前端工程师",
+        "skill": "Vue/React",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "Web前端工程师",
+        "skill": "Webpack/Vite",
+        "title": "B站：Webpack/Vite 工程化教程",
+        "url": "https://search.bilibili.com/all?keyword=Webpack%20Vite%20%E5%B7%A5%E7%A8%8B%E5%8C%96"
+      },
+      {
+        "position": "Web前端工程师",
+        "skill": "Git",
+        "title": "B站：Git 版本控制教程",
+        "url": "https://search.bilibili.com/all?keyword=Git%20%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Java基础与集合",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "JVM原理",
+        "title": "B站搜索：JVM原理 教程",
+        "url": "https://search.bilibili.com/all?keyword=JVM%E5%8E%9F%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "多线程与并发",
+        "title": "B站搜索：多线程与并发 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "IO与NIO",
+        "title": "B站搜索：IO与NIO 教程",
+        "url": "https://search.bilibili.com/all?keyword=IO%E4%B8%8ENIO%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Spring Boot",
+        "title": "B站：Spring Boot 实战教程",
+        "url": "https://search.bilibili.com/all?keyword=Spring%20Boot%20%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Spring Cloud",
+        "title": "B站：Spring Boot 实战教程",
+        "url": "https://search.bilibili.com/all?keyword=Spring%20Boot%20%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Spring Security",
+        "title": "B站：Spring Boot 实战教程",
+        "url": "https://search.bilibili.com/all?keyword=Spring%20Boot%20%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "MyBatis/JPA",
+        "title": "B站搜索：MyBatis/JPA 教程",
+        "url": "https://search.bilibili.com/all?keyword=MyBatis%2FJPA%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "MySQL",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Redis",
+        "title": "B站：Redis 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Nginx",
+        "title": "B站：Nginx 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Nginx%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Kafka/RabbitMQ",
+        "title": "B站：Kafka 消息队列教程",
+        "url": "https://search.bilibili.com/all?keyword=Kafka%20%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Docker/K8s",
+        "title": "B站：Docker 容器化实战",
+        "url": "https://search.bilibili.com/all?keyword=Docker%20%E5%AE%B9%E5%99%A8%E5%8C%96"
+      },
+      {
+        "position": "Java后端开发工程师",
+        "skill": "Docker/K8s",
+        "title": "B站：Kubernetes 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Kubernetes%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "Python基础",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "Python高级特性",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "异步编程(asyncio)",
+        "title": "B站搜索：异步编程(asyncio) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%BC%82%E6%AD%A5%E7%BC%96%E7%A8%8B(asyncio)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "Django",
+        "title": "B站：Django Web 开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Django%20Web%E5%BC%80%E5%8F%91"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "Flask",
+        "title": "B站搜索：Flask 教程",
+        "url": "https://search.bilibili.com/all?keyword=Flask%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "FastAPI",
+        "title": "B站搜索：FastAPI 教程",
+        "url": "https://search.bilibili.com/all?keyword=FastAPI%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "Tornado",
+        "title": "B站搜索：Tornado 教程",
+        "url": "https://search.bilibili.com/all?keyword=Tornado%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "MySQL/PostgreSQL",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "SQLAlchemy",
+        "title": "B站搜索：SQLAlchemy 教程",
+        "url": "https://search.bilibili.com/all?keyword=SQLAlchemy%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Python后端开发工程师",
+        "skill": "Redis",
+        "title": "B站：Redis 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Go基础语法",
+        "title": "B站：Go 语言入门教程",
+        "url": "https://search.bilibili.com/all?keyword=Go%E8%AF%AD%E8%A8%80%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Goroutine/Channel",
+        "title": "B站：Go 语言入门教程",
+        "url": "https://search.bilibili.com/all?keyword=Go%E8%AF%AD%E8%A8%80%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "并发编程",
+        "title": "B站搜索：并发编程 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "GC与内存管理",
+        "title": "B站搜索：GC与内存管理 教程",
+        "url": "https://search.bilibili.com/all?keyword=GC%E4%B8%8E%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Gin",
+        "title": "B站搜索：Gin 教程",
+        "url": "https://search.bilibili.com/all?keyword=Gin%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Echo/Beego",
+        "title": "B站搜索：Echo/Beego 教程",
+        "url": "https://search.bilibili.com/all?keyword=Echo%2FBeego%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "gRPC",
+        "title": "B站搜索：gRPC 教程",
+        "url": "https://search.bilibili.com/all?keyword=gRPC%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Kitex",
+        "title": "B站搜索：Kitex 教程",
+        "url": "https://search.bilibili.com/all?keyword=Kitex%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "MySQL/PostgreSQL",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Redis",
+        "title": "B站：Redis 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Docker/K8s",
+        "title": "B站：Docker 容器化实战",
+        "url": "https://search.bilibili.com/all?keyword=Docker%20%E5%AE%B9%E5%99%A8%E5%8C%96"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Docker/K8s",
+        "title": "B站：Kubernetes 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Kubernetes%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Go后端开发工程师",
+        "skill": "Prometheus/Grafana",
+        "title": "B站搜索：Prometheus/Grafana 教程",
+        "url": "https://search.bilibili.com/all?keyword=Prometheus%2FGrafana%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "Node.js基础",
+        "title": "B站：Node.js 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "事件循环",
+        "title": "B站：Node.js 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "Stream/Buffer",
+        "title": "B站：Node.js 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "模块系统(CommonJS/ESM)",
+        "title": "B站搜索：模块系统(CommonJS/ESM) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%A8%A1%E5%9D%97%E7%B3%BB%E7%BB%9F(CommonJS%2FESM)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "Express/Koa",
+        "title": "B站：Node.js 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "Egg.js",
+        "title": "B站搜索：Egg.js 教程",
+        "url": "https://search.bilibili.com/all?keyword=Egg.js%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "Socket.IO",
+        "title": "B站搜索：Socket.IO 教程",
+        "url": "https://search.bilibili.com/all?keyword=Socket.IO%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "MySQL/Sequelize",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "Node.js后端工程师",
+        "skill": "Redis",
+        "title": "B站：Redis 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "PHP基础语法",
+        "title": "B站搜索：PHP基础语法 教程",
+        "url": "https://search.bilibili.com/all?keyword=PHP%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "OOP编程",
+        "title": "B站搜索：OOP编程 教程",
+        "url": "https://search.bilibili.com/all?keyword=OOP%E7%BC%96%E7%A8%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "Composer",
+        "title": "B站搜索：Composer 教程",
+        "url": "https://search.bilibili.com/all?keyword=Composer%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "PHP 8.x新特性",
+        "title": "B站搜索：PHP 8.x新特性 教程",
+        "url": "https://search.bilibili.com/all?keyword=PHP%208.x%E6%96%B0%E7%89%B9%E6%80%A7%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "Laravel",
+        "title": "B站搜索：Laravel 教程",
+        "url": "https://search.bilibili.com/all?keyword=Laravel%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "ThinkPHP",
+        "title": "B站搜索：ThinkPHP 教程",
+        "url": "https://search.bilibili.com/all?keyword=ThinkPHP%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "Symfony",
+        "title": "B站搜索：Symfony 教程",
+        "url": "https://search.bilibili.com/all?keyword=Symfony%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "CodeIgniter",
+        "title": "B站搜索：CodeIgniter 教程",
+        "url": "https://search.bilibili.com/all?keyword=CodeIgniter%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "MySQL",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "PHP开发工程师",
+        "skill": "Redis",
+        "title": "B站：Redis 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Ruby开发工程师",
+        "skill": "Ruby基础",
+        "title": "B站搜索：Ruby基础 教程",
+        "url": "https://search.bilibili.com/all?keyword=Ruby%E5%9F%BA%E7%A1%80%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Ruby开发工程师",
+        "skill": "Ruby元编程",
+        "title": "B站搜索：Ruby元编程 教程",
+        "url": "https://search.bilibili.com/all?keyword=Ruby%E5%85%83%E7%BC%96%E7%A8%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Ruby开发工程师",
+        "skill": "Bundler",
+        "title": "B站搜索：Bundler 教程",
+        "url": "https://search.bilibili.com/all?keyword=Bundler%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Ruby开发工程师",
+        "skill": "RSpec",
+        "title": "B站搜索：RSpec 教程",
+        "url": "https://search.bilibili.com/all?keyword=RSpec%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Ruby开发工程师",
+        "skill": "Ruby on Rails",
+        "title": "B站搜索：Ruby on Rails 教程",
+        "url": "https://search.bilibili.com/all?keyword=Ruby%20on%20Rails%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Ruby开发工程师",
+        "skill": "Sinatra",
+        "title": "B站搜索：Sinatra 教程",
+        "url": "https://search.bilibili.com/all?keyword=Sinatra%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "Vue.js/React",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "Vue.js/React",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "JavaScript/TypeScript",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "JavaScript/TypeScript",
+        "title": "B站：TypeScript 系统教程",
+        "url": "https://search.bilibili.com/all?keyword=TypeScript%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "HTML5/CSS3",
+        "title": "B站：HTML5+CSS3 零基础入门",
+        "url": "https://search.bilibili.com/all?keyword=HTML5%20CSS3%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "Node.js/Python/Java",
+        "title": "B站：Node.js 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "Node.js/Python/Java",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "Node.js/Python/Java",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "RESTful API",
+        "title": "B站搜索：RESTful API 教程",
+        "url": "https://search.bilibili.com/all?keyword=RESTful%20API%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "GraphQL",
+        "title": "B站搜索：GraphQL 教程",
+        "url": "https://search.bilibili.com/all?keyword=GraphQL%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "MySQL/PostgreSQL",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "Redis",
+        "title": "B站：Redis 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "Docker/K8s",
+        "title": "B站：Docker 容器化实战",
+        "url": "https://search.bilibili.com/all?keyword=Docker%20%E5%AE%B9%E5%99%A8%E5%8C%96"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "Docker/K8s",
+        "title": "B站：Kubernetes 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Kubernetes%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "全栈开发工程师",
+        "skill": "AWS/阿里云",
+        "title": "B站搜索：AWS/阿里云 教程",
+        "url": "https://search.bilibili.com/all?keyword=AWS%2F%E9%98%BF%E9%87%8C%E4%BA%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "Vue/React",
+        "title": "B站：Vue3 从入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "Vue/React",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "Webpack/Vite",
+        "title": "B站：Webpack/Vite 工程化教程",
+        "url": "https://search.bilibili.com/all?keyword=Webpack%20Vite%20%E5%B7%A5%E7%A8%8B%E5%8C%96"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "Node.js",
+        "title": "B站：Node.js 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "Express/NestJS",
+        "title": "B站：Node.js 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "MySQL",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "Next.js/Nuxt",
+        "title": "B站搜索：Next.js/Nuxt 教程",
+        "url": "https://search.bilibili.com/all?keyword=Next.js%2FNuxt%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "SSR/SSG",
+        "title": "B站搜索：SSR/SSG 教程",
+        "url": "https://search.bilibili.com/all?keyword=SSR%2FSSG%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Web全栈工程师",
+        "skill": "CI/CD",
+        "title": "B站搜索：CI/CD 教程",
+        "url": "https://search.bilibili.com/all?keyword=CI%2FCD%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "移动全栈工程师",
+        "skill": "Flutter/React Native",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "移动全栈工程师",
+        "skill": "Flutter/React Native",
+        "title": "B站：Flutter 跨平台开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Flutter%20%E8%B7%A8%E5%B9%B3%E5%8F%B0"
+      },
+      {
+        "position": "移动全栈工程师",
+        "skill": "iOS/Android原生",
+        "title": "B站搜索：iOS/Android原生 教程",
+        "url": "https://search.bilibili.com/all?keyword=iOS%2FAndroid%E5%8E%9F%E7%94%9F%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "移动全栈工程师",
+        "skill": "Node.js/Go",
+        "title": "B站：Node.js 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "移动全栈工程师",
+        "skill": "Firebase/后端即服务",
+        "title": "B站搜索：Firebase/后端即服务 教程",
+        "url": "https://search.bilibili.com/all?keyword=Firebase%2F%E5%90%8E%E7%AB%AF%E5%8D%B3%E6%9C%8D%E5%8A%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "数据结构与算法",
+        "title": "B站：数据结构与算法教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "动态规划",
+        "title": "B站：数据结构与算法教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "图论算法",
+        "title": "B站搜索：图论算法 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%9B%BE%E8%AE%BA%E7%AE%97%E6%B3%95%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "复杂度分析",
+        "title": "B站：数据结构与算法教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "C++/Java",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "C++/Java",
+        "title": "B站：C++ 基础到进阶教程",
+        "url": "https://search.bilibili.com/all?keyword=C%2B%2B%20%E5%9F%BA%E7%A1%80%E8%BF%9B%E9%98%B6"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "Python",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "LeetCode刷题",
+        "title": "B站：数据结构与算法教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "线性代数",
+        "title": "B站搜索：线性代数 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "概率论与数理统计",
+        "title": "B站搜索：概率论与数理统计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%A6%82%E7%8E%87%E8%AE%BA%E4%B8%8E%E6%95%B0%E7%90%86%E7%BB%9F%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "算法工程师",
+        "skill": "离散数学",
+        "title": "B站搜索：离散数学 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "机器学习算法",
+        "title": "B站：机器学习算法实战",
+        "url": "https://search.bilibili.com/all?keyword=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%20%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "深度学习(DNN/CNN/RNN)",
+        "title": "B站：PyTorch 深度学习教程",
+        "url": "https://search.bilibili.com/all?keyword=PyTorch%20%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "深度学习(DNN/CNN/RNN)",
+        "title": "B站：TensorFlow 2.0 教程",
+        "url": "https://search.bilibili.com/all?keyword=TensorFlow%202.0%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "特征工程",
+        "title": "B站搜索：特征工程 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "模型调优",
+        "title": "B站搜索：模型调优 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%A8%A1%E5%9E%8B%E8%B0%83%E4%BC%98%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "TensorFlow/PyTorch",
+        "title": "B站：PyTorch 深度学习教程",
+        "url": "https://search.bilibili.com/all?keyword=PyTorch%20%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "TensorFlow/PyTorch",
+        "title": "B站：TensorFlow 2.0 教程",
+        "url": "https://search.bilibili.com/all?keyword=TensorFlow%202.0%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "Scikit-learn",
+        "title": "B站：机器学习算法实战",
+        "url": "https://search.bilibili.com/all?keyword=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%20%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "Keras",
+        "title": "B站搜索：Keras 教程",
+        "url": "https://search.bilibili.com/all?keyword=Keras%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "XGBoost/LightGBM",
+        "title": "B站搜索：XGBoost/LightGBM 教程",
+        "url": "https://search.bilibili.com/all?keyword=XGBoost%2FLightGBM%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "Python",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "数据处理(Pandas/NumPy)",
+        "title": "B站搜索：数据处理(Pandas/NumPy) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86(Pandas%2FNumPy)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "MLflow",
+        "title": "B站搜索：MLflow 教程",
+        "url": "https://search.bilibili.com/all?keyword=MLflow%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器学习工程师",
+        "skill": "Docker",
+        "title": "B站：Docker 容器化实战",
+        "url": "https://search.bilibili.com/all?keyword=Docker%20%E5%AE%B9%E5%99%A8%E5%8C%96"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "大语言模型(LLM)",
+        "title": "B站搜索：大语言模型(LLM) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B(LLM)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "Transformer架构",
+        "title": "B站搜索：Transformer架构 教程",
+        "url": "https://search.bilibili.com/all?keyword=Transformer%E6%9E%B6%E6%9E%84%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "Prompt Engineering",
+        "title": "B站搜索：Prompt Engineering 教程",
+        "url": "https://search.bilibili.com/all?keyword=Prompt%20Engineering%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "RAG/微调",
+        "title": "B站搜索：RAG/微调 教程",
+        "url": "https://search.bilibili.com/all?keyword=RAG%2F%E5%BE%AE%E8%B0%83%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "PyTorch/TensorFlow",
+        "title": "B站：PyTorch 深度学习教程",
+        "url": "https://search.bilibili.com/all?keyword=PyTorch%20%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "PyTorch/TensorFlow",
+        "title": "B站：TensorFlow 2.0 教程",
+        "url": "https://search.bilibili.com/all?keyword=TensorFlow%202.0%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "Hugging Face",
+        "title": "B站搜索：Hugging Face 教程",
+        "url": "https://search.bilibili.com/all?keyword=Hugging%20Face%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "LangChain",
+        "title": "B站搜索：LangChain 教程",
+        "url": "https://search.bilibili.com/all?keyword=LangChain%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "FastAPI",
+        "title": "B站搜索：FastAPI 教程",
+        "url": "https://search.bilibili.com/all?keyword=FastAPI%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "Python",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "CUDA/GPU编程",
+        "title": "B站搜索：CUDA/GPU编程 教程",
+        "url": "https://search.bilibili.com/all?keyword=CUDA%2FGPU%E7%BC%96%E7%A8%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "Docker/K8s",
+        "title": "B站：Docker 容器化实战",
+        "url": "https://search.bilibili.com/all?keyword=Docker%20%E5%AE%B9%E5%99%A8%E5%8C%96"
+      },
+      {
+        "position": "人工智能工程师",
+        "skill": "Docker/K8s",
+        "title": "B站：Kubernetes 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Kubernetes%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "文本预处理",
+        "title": "B站搜索：文本预处理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%96%87%E6%9C%AC%E9%A2%84%E5%A4%84%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "词向量/BERT",
+        "title": "B站搜索：词向量/BERT 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%AF%8D%E5%90%91%E9%87%8F%2FBERT%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "Transformer",
+        "title": "B站搜索：Transformer 教程",
+        "url": "https://search.bilibili.com/all?keyword=Transformer%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "LLM应用",
+        "title": "B站搜索：LLM应用 教程",
+        "url": "https://search.bilibili.com/all?keyword=LLM%E5%BA%94%E7%94%A8%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "命名实体识别",
+        "title": "B站搜索：命名实体识别 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "文本分类/情感分析",
+        "title": "B站搜索：文本分类/情感分析 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%2F%E6%83%85%E6%84%9F%E5%88%86%E6%9E%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "机器翻译",
+        "title": "B站搜索：机器翻译 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "对话系统",
+        "title": "B站搜索：对话系统 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%AF%B9%E8%AF%9D%E7%B3%BB%E7%BB%9F%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "PyTorch/TensorFlow",
+        "title": "B站：PyTorch 深度学习教程",
+        "url": "https://search.bilibili.com/all?keyword=PyTorch%20%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "PyTorch/TensorFlow",
+        "title": "B站：TensorFlow 2.0 教程",
+        "url": "https://search.bilibili.com/all?keyword=TensorFlow%202.0%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "Hugging Face",
+        "title": "B站搜索：Hugging Face 教程",
+        "url": "https://search.bilibili.com/all?keyword=Hugging%20Face%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "NLP算法工程师",
+        "skill": "NLTK/spaCy",
+        "title": "B站搜索：NLTK/spaCy 教程",
+        "url": "https://search.bilibili.com/all?keyword=NLTK%2FspaCy%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "图像处理",
+        "title": "B站搜索：图像处理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "特征提取",
+        "title": "B站搜索：特征提取 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%89%B9%E5%BE%81%E6%8F%90%E5%8F%96%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "CNN架构",
+        "title": "B站搜索：CNN架构 教程",
+        "url": "https://search.bilibili.com/all?keyword=CNN%E6%9E%B6%E6%9E%84%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "目标检测/分割",
+        "title": "B站搜索：目标检测/分割 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%2F%E5%88%86%E5%89%B2%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "YOLO/Faster R-CNN",
+        "title": "B站搜索：YOLO/Faster R-CNN 教程",
+        "url": "https://search.bilibili.com/all?keyword=YOLO%2FFaster%20R-CNN%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "ResNet/EfficientNet",
+        "title": "B站搜索：ResNet/EfficientNet 教程",
+        "url": "https://search.bilibili.com/all?keyword=ResNet%2FEfficientNet%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "Transformer视觉",
+        "title": "B站搜索：Transformer视觉 教程",
+        "url": "https://search.bilibili.com/all?keyword=Transformer%E8%A7%86%E8%A7%89%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "PyTorch",
+        "title": "B站：PyTorch 深度学习教程",
+        "url": "https://search.bilibili.com/all?keyword=PyTorch%20%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "OpenCV",
+        "title": "B站搜索：OpenCV 教程",
+        "url": "https://search.bilibili.com/all?keyword=OpenCV%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "计算机视觉工程师",
+        "skill": "MMDetection",
+        "title": "B站搜索：MMDetection 教程",
+        "url": "https://search.bilibili.com/all?keyword=MMDetection%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "协同过滤",
+        "title": "B站搜索：协同过滤 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%8D%8F%E5%90%8C%E8%BF%87%E6%BB%A4%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "矩阵分解",
+        "title": "B站搜索：矩阵分解 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%9F%A9%E9%98%B5%E5%88%86%E8%A7%A3%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "内容推荐",
+        "title": "B站搜索：内容推荐 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%86%85%E5%AE%B9%E6%8E%A8%E8%8D%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "混合推荐",
+        "title": "B站搜索：混合推荐 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%B7%B7%E5%90%88%E6%8E%A8%E8%8D%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "DeepFM/DCN",
+        "title": "B站搜索：DeepFM/DCN 教程",
+        "url": "https://search.bilibili.com/all?keyword=DeepFM%2FDCN%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "Transformer推荐",
+        "title": "B站搜索：Transformer推荐 教程",
+        "url": "https://search.bilibili.com/all?keyword=Transformer%E6%8E%A8%E8%8D%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "图神经网络(GNN)",
+        "title": "B站搜索：图神经网络(GNN) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C(GNN)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "Spark/Flink",
+        "title": "B站：Spark 大数据处理教程",
+        "url": "https://search.bilibili.com/all?keyword=Spark%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "Spark/Flink",
+        "title": "B站：Flink 实时计算教程",
+        "url": "https://search.bilibili.com/all?keyword=Flink%20%E5%AE%9E%E6%97%B6%E8%AE%A1%E7%AE%97"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "TensorFlow/PyTorch",
+        "title": "B站：PyTorch 深度学习教程",
+        "url": "https://search.bilibili.com/all?keyword=PyTorch%20%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "TensorFlow/PyTorch",
+        "title": "B站：TensorFlow 2.0 教程",
+        "url": "https://search.bilibili.com/all?keyword=TensorFlow%202.0%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "推荐算法工程师",
+        "skill": "Redis缓存",
+        "title": "B站：Redis 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "Hadoop/HDFS",
+        "title": "B站：Hadoop 大数据教程",
+        "url": "https://search.bilibili.com/all?keyword=Hadoop%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "MapReduce",
+        "title": "B站搜索：MapReduce 教程",
+        "url": "https://search.bilibili.com/all?keyword=MapReduce%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "YARN",
+        "title": "B站搜索：YARN 教程",
+        "url": "https://search.bilibili.com/all?keyword=YARN%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "Spark",
+        "title": "B站：Spark 大数据处理教程",
+        "url": "https://search.bilibili.com/all?keyword=Spark%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "Flink",
+        "title": "B站：Flink 实时计算教程",
+        "url": "https://search.bilibili.com/all?keyword=Flink%20%E5%AE%9E%E6%97%B6%E8%AE%A1%E7%AE%97"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "Hive",
+        "title": "B站搜索：Hive 教程",
+        "url": "https://search.bilibili.com/all?keyword=Hive%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "Presto/Impala",
+        "title": "B站搜索：Presto/Impala 教程",
+        "url": "https://search.bilibili.com/all?keyword=Presto%2FImpala%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "HBase",
+        "title": "B站搜索：HBase 教程",
+        "url": "https://search.bilibili.com/all?keyword=HBase%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "Kafka",
+        "title": "B站：Kafka 消息队列教程",
+        "url": "https://search.bilibili.com/all?keyword=Kafka%20%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "ClickHouse/Doris",
+        "title": "B站搜索：ClickHouse/Doris 教程",
+        "url": "https://search.bilibili.com/all?keyword=ClickHouse%2FDoris%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "Java/Scala",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "大数据开发工程师",
+        "skill": "Python",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "ETL开发",
+        "title": "B站搜索：ETL开发 教程",
+        "url": "https://search.bilibili.com/all?keyword=ETL%E5%BC%80%E5%8F%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "数据仓库设计",
+        "title": "B站搜索：数据仓库设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E4%BB%93%E5%BA%93%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "数据治理",
+        "title": "B站搜索：数据治理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E6%B2%BB%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "数据血缘",
+        "title": "B站搜索：数据血缘 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E8%A1%80%E7%BC%98%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "Airflow/DolphinScheduler",
+        "title": "B站搜索：Airflow/DolphinScheduler 教程",
+        "url": "https://search.bilibili.com/all?keyword=Airflow%2FDolphinScheduler%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "Spark/Flink",
+        "title": "B站：Spark 大数据处理教程",
+        "url": "https://search.bilibili.com/all?keyword=Spark%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "Spark/Flink",
+        "title": "B站：Flink 实时计算教程",
+        "url": "https://search.bilibili.com/all?keyword=Flink%20%E5%AE%9E%E6%97%B6%E8%AE%A1%E7%AE%97"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "Kafka",
+        "title": "B站：Kafka 消息队列教程",
+        "url": "https://search.bilibili.com/all?keyword=Kafka%20%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "dbt",
+        "title": "B站搜索：dbt 教程",
+        "url": "https://search.bilibili.com/all?keyword=dbt%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "Hadoop/HDFS",
+        "title": "B站：Hadoop 大数据教程",
+        "url": "https://search.bilibili.com/all?keyword=Hadoop%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "S3/OSS",
+        "title": "B站搜索：S3/OSS 教程",
+        "url": "https://search.bilibili.com/all?keyword=S3%2FOSS%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据工程师",
+        "skill": "Snowflake/BigQuery",
+        "title": "B站搜索：Snowflake/BigQuery 教程",
+        "url": "https://search.bilibili.com/all?keyword=Snowflake%2FBigQuery%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据分析师",
+        "skill": "SQL",
+        "title": "B站：SQL 数据库查询教程",
+        "url": "https://search.bilibili.com/all?keyword=SQL%20%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9F%A5%E8%AF%A2"
+      },
+      {
+        "position": "数据分析师",
+        "skill": "统计学",
+        "title": "B站搜索：统计学 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%BB%9F%E8%AE%A1%E5%AD%A6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据分析师",
+        "skill": "数据可视化",
+        "title": "B站搜索：数据可视化 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据分析师",
+        "skill": "业务分析",
+        "title": "B站搜索：业务分析 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E4%B8%9A%E5%8A%A1%E5%88%86%E6%9E%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据分析师",
+        "skill": "Python(Pandas)",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据分析师",
+        "skill": "Excel",
+        "title": "B站搜索：Excel 教程",
+        "url": "https://search.bilibili.com/all?keyword=Excel%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据分析师",
+        "skill": "Tableau/Power BI",
+        "title": "B站搜索：Tableau/Power BI 教程",
+        "url": "https://search.bilibili.com/all?keyword=Tableau%2FPower%20BI%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据分析师",
+        "skill": "Superset/Grafana",
+        "title": "B站搜索：Superset/Grafana 教程",
+        "url": "https://search.bilibili.com/all?keyword=Superset%2FGrafana%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "Kettle/DataX",
+        "title": "B站搜索：Kettle/DataX 教程",
+        "url": "https://search.bilibili.com/all?keyword=Kettle%2FDataX%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "Airflow",
+        "title": "B站搜索：Airflow 教程",
+        "url": "https://search.bilibili.com/all?keyword=Airflow%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "Spark/Flink",
+        "title": "B站：Spark 大数据处理教程",
+        "url": "https://search.bilibili.com/all?keyword=Spark%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "Spark/Flink",
+        "title": "B站：Flink 实时计算教程",
+        "url": "https://search.bilibili.com/all?keyword=Flink%20%E5%AE%9E%E6%97%B6%E8%AE%A1%E7%AE%97"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "数据清洗",
+        "title": "B站搜索：数据清洗 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "数据转换",
+        "title": "B站搜索：数据转换 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E8%BD%AC%E6%8D%A2%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "数据同步",
+        "title": "B站搜索：数据同步 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "MySQL/Hive",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "ETL工程师",
+        "skill": "Kafka",
+        "title": "B站：Kafka 消息队列教程",
+        "url": "https://search.bilibili.com/all?keyword=Kafka%20%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"
+      },
+      {
+        "position": "Spark开发工程师",
+        "skill": "Spark SQL",
+        "title": "B站：Spark 大数据处理教程",
+        "url": "https://search.bilibili.com/all?keyword=Spark%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "Spark开发工程师",
+        "skill": "Spark SQL",
+        "title": "B站：SQL 数据库查询教程",
+        "url": "https://search.bilibili.com/all?keyword=SQL%20%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9F%A5%E8%AF%A2"
+      },
+      {
+        "position": "Spark开发工程师",
+        "skill": "Spark Streaming",
+        "title": "B站：Spark 大数据处理教程",
+        "url": "https://search.bilibili.com/all?keyword=Spark%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "Spark开发工程师",
+        "skill": "Spark MLlib",
+        "title": "B站：Spark 大数据处理教程",
+        "url": "https://search.bilibili.com/all?keyword=Spark%20%E5%A4%A7%E6%95%B0%E6%8D%AE"
+      },
+      {
+        "position": "Spark开发工程师",
+        "skill": "RDD/DataFrame/Dataset",
+        "title": "B站搜索：RDD/DataFrame/Dataset 教程",
+        "url": "https://search.bilibili.com/all?keyword=RDD%2FDataFrame%2FDataset%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Spark开发工程师",
+        "skill": "Scala",
+        "title": "B站搜索：Scala 教程",
+        "url": "https://search.bilibili.com/all?keyword=Scala%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Spark开发工程师",
+        "skill": "Python(PySpark)",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Spark开发工程师",
+        "skill": "Java",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "Verilog/VHDL",
+        "title": "B站：Verilog HDL 教程",
+        "url": "https://search.bilibili.com/all?keyword=Verilog%20HDL%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "SystemVerilog",
+        "title": "B站：Verilog HDL 教程",
+        "url": "https://search.bilibili.com/all?keyword=Verilog%20HDL%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "RTL设计",
+        "title": "B站搜索：RTL设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=RTL%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "逻辑综合",
+        "title": "B站搜索：逻辑综合 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%80%BB%E8%BE%91%E7%BB%BC%E5%90%88%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "Synopsys Design Compiler",
+        "title": "B站搜索：Synopsys Design Compiler 教程",
+        "url": "https://search.bilibili.com/all?keyword=Synopsys%20Design%20Compiler%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "Cadence Genus",
+        "title": "B站搜索：Cadence Genus 教程",
+        "url": "https://search.bilibili.com/all?keyword=Cadence%20Genus%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "Mentor Graphics",
+        "title": "B站搜索：Mentor Graphics 教程",
+        "url": "https://search.bilibili.com/all?keyword=Mentor%20Graphics%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "UVM验证方法学",
+        "title": "B站搜索：UVM验证方法学 教程",
+        "url": "https://search.bilibili.com/all?keyword=UVM%E9%AA%8C%E8%AF%81%E6%96%B9%E6%B3%95%E5%AD%A6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "SystemC",
+        "title": "B站搜索：SystemC 教程",
+        "url": "https://search.bilibili.com/all?keyword=SystemC%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "集成电路工程师",
+        "skill": "覆盖率驱动验证",
+        "title": "B站搜索：覆盖率驱动验证 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%A6%86%E7%9B%96%E7%8E%87%E9%A9%B1%E5%8A%A8%E9%AA%8C%E8%AF%81%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "Verilog/SystemVerilog",
+        "title": "B站：Verilog HDL 教程",
+        "url": "https://search.bilibili.com/all?keyword=Verilog%20HDL%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "RTL编码",
+        "title": "B站搜索：RTL编码 教程",
+        "url": "https://search.bilibili.com/all?keyword=RTL%E7%BC%96%E7%A0%81%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "FSM设计",
+        "title": "B站搜索：FSM设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=FSM%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "低功耗设计",
+        "title": "B站搜索：低功耗设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E4%BD%8E%E5%8A%9F%E8%80%97%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "模拟电路基础",
+        "title": "B站搜索：模拟电路基础 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%A8%A1%E6%8B%9F%E7%94%B5%E8%B7%AF%E5%9F%BA%E7%A1%80%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "Cadence Spectre",
+        "title": "B站搜索：Cadence Spectre 教程",
+        "url": "https://search.bilibili.com/all?keyword=Cadence%20Spectre%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "综合/布局布线",
+        "title": "B站搜索：综合/布局布线 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%BB%BC%E5%90%88%2F%E5%B8%83%E5%B1%80%E5%B8%83%E7%BA%BF%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "时序分析",
+        "title": "B站搜索：时序分析 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%97%B6%E5%BA%8F%E5%88%86%E6%9E%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC设计工程师",
+        "skill": "形式验证",
+        "title": "B站搜索：形式验证 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%BD%A2%E5%BC%8F%E9%AA%8C%E8%AF%81%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC验证工程师",
+        "skill": "UVM",
+        "title": "B站搜索：UVM 教程",
+        "url": "https://search.bilibili.com/all?keyword=UVM%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC验证工程师",
+        "skill": "SystemVerilog",
+        "title": "B站：Verilog HDL 教程",
+        "url": "https://search.bilibili.com/all?keyword=Verilog%20HDL%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC验证工程师",
+        "skill": "覆盖率驱动验证",
+        "title": "B站搜索：覆盖率驱动验证 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%A6%86%E7%9B%96%E7%8E%87%E9%A9%B1%E5%8A%A8%E9%AA%8C%E8%AF%81%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC验证工程师",
+        "skill": "断言验证(SVA)",
+        "title": "B站搜索：断言验证(SVA) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%96%AD%E8%A8%80%E9%AA%8C%E8%AF%81(SVA)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC验证工程师",
+        "skill": "验证计划制定",
+        "title": "B站搜索：验证计划制定 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%AA%8C%E8%AF%81%E8%AE%A1%E5%88%92%E5%88%B6%E5%AE%9A%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC验证工程师",
+        "skill": "测试用例编写",
+        "title": "B站搜索：测试用例编写 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B%E7%BC%96%E5%86%99%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC验证工程师",
+        "skill": "Bug管理",
+        "title": "B站搜索：Bug管理 教程",
+        "url": "https://search.bilibili.com/all?keyword=Bug%E7%AE%A1%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "IC验证工程师",
+        "skill": "回归测试",
+        "title": "B站搜索：回归测试 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%9B%9E%E5%BD%92%E6%B5%8B%E8%AF%95%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "Verilog/VHDL",
+        "title": "B站：Verilog HDL 教程",
+        "url": "https://search.bilibili.com/all?keyword=Verilog%20HDL%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "FPGA架构(Xilinx/Altera)",
+        "title": "B站搜索：FPGA架构(Xilinx/Altera) 教程",
+        "url": "https://search.bilibili.com/all?keyword=FPGA%E6%9E%B6%E6%9E%84(Xilinx%2FAltera)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "时序约束",
+        "title": "B站搜索：时序约束 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%97%B6%E5%BA%8F%E7%BA%A6%E6%9D%9F%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "IP核使用",
+        "title": "B站搜索：IP核使用 教程",
+        "url": "https://search.bilibili.com/all?keyword=IP%E6%A0%B8%E4%BD%BF%E7%94%A8%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "Vivado/Quartus",
+        "title": "B站搜索：Vivado/Quartus 教程",
+        "url": "https://search.bilibili.com/all?keyword=Vivado%2FQuartus%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "ModelSim",
+        "title": "B站搜索：ModelSim 教程",
+        "url": "https://search.bilibili.com/all?keyword=ModelSim%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "Matlab",
+        "title": "B站搜索：Matlab 教程",
+        "url": "https://search.bilibili.com/all?keyword=Matlab%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "数字信号处理",
+        "title": "B站搜索：数字信号处理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E5%AD%97%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "图像处理",
+        "title": "B站搜索：图像处理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "FPGA工程师",
+        "skill": "高速接口(PCIe/USB)",
+        "title": "B站搜索：高速接口(PCIe/USB) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%AB%98%E9%80%9F%E6%8E%A5%E5%8F%A3(PCIe%2FUSB)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "C/C++",
+        "title": "B站搜索：C/C++ 教程",
+        "url": "https://search.bilibili.com/all?keyword=C%2FC%2B%2B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "嵌入式Linux",
+        "title": "B站：Linux 基础到精通",
+        "url": "https://search.bilibili.com/all?keyword=Linux%20%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "ARM架构",
+        "title": "B站搜索：ARM架构 教程",
+        "url": "https://search.bilibili.com/all?keyword=ARM%E6%9E%B6%E6%9E%84%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "RTOS(FreeRTOS等)",
+        "title": "B站搜索：RTOS(FreeRTOS等) 教程",
+        "url": "https://search.bilibili.com/all?keyword=RTOS(FreeRTOS%E7%AD%89)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "Linux驱动开发",
+        "title": "B站：Linux 基础到精通",
+        "url": "https://search.bilibili.com/all?keyword=Linux%20%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "设备树(DTS)",
+        "title": "B站搜索：设备树(DTS) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%AE%BE%E5%A4%87%E6%A0%91(DTS)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "Bootloader(U-Boot)",
+        "title": "B站搜索：Bootloader(U-Boot) 教程",
+        "url": "https://search.bilibili.com/all?keyword=Bootloader(U-Boot)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "内核裁剪",
+        "title": "B站搜索：内核裁剪 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%86%85%E6%A0%B8%E8%A3%81%E5%89%AA%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "JTAG/SWD调试",
+        "title": "B站搜索：JTAG/SWD调试 教程",
+        "url": "https://search.bilibili.com/all?keyword=JTAG%2FSWD%E8%B0%83%E8%AF%95%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "示波器/逻辑分析仪",
+        "title": "B站搜索：示波器/逻辑分析仪 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%A4%BA%E6%B3%A2%E5%99%A8%2F%E9%80%BB%E8%BE%91%E5%88%86%E6%9E%90%E4%BB%AA%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "嵌入式开发工程师",
+        "skill": "GDB",
+        "title": "B站搜索：GDB 教程",
+        "url": "https://search.bilibili.com/all?keyword=GDB%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "原理图设计",
+        "title": "B站搜索：原理图设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%8E%9F%E7%90%86%E5%9B%BE%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "PCB Layout",
+        "title": "B站搜索：PCB Layout 教程",
+        "url": "https://search.bilibili.com/all?keyword=PCB%20Layout%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "信号完整性",
+        "title": "B站搜索：信号完整性 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E4%BF%A1%E5%8F%B7%E5%AE%8C%E6%95%B4%E6%80%A7%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "电源完整性",
+        "title": "B站搜索：电源完整性 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%94%B5%E6%BA%90%E5%AE%8C%E6%95%B4%E6%80%A7%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "Altium Designer",
+        "title": "B站搜索：Altium Designer 教程",
+        "url": "https://search.bilibili.com/all?keyword=Altium%20Designer%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "Cadence Allegro",
+        "title": "B站搜索：Cadence Allegro 教程",
+        "url": "https://search.bilibili.com/all?keyword=Cadence%20Allegro%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "KiCad",
+        "title": "B站搜索：KiCad 教程",
+        "url": "https://search.bilibili.com/all?keyword=KiCad%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "硬件调试",
+        "title": "B站搜索：硬件调试 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%A1%AC%E4%BB%B6%E8%B0%83%E8%AF%95%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "示波器/万用表",
+        "title": "B站搜索：示波器/万用表 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%A4%BA%E6%B3%A2%E5%99%A8%2F%E4%B8%87%E7%94%A8%E8%A1%A8%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "硬件工程师",
+        "skill": "EMC/EMI测试",
+        "title": "B站搜索：EMC/EMI测试 教程",
+        "url": "https://search.bilibili.com/all?keyword=EMC%2FEMI%E6%B5%8B%E8%AF%95%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SoC设计工程师",
+        "skill": "SoC架构设计",
+        "title": "B站搜索：SoC架构设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=SoC%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SoC设计工程师",
+        "skill": "总线协议(AXI/APB)",
+        "title": "B站搜索：总线协议(AXI/APB) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%80%BB%E7%BA%BF%E5%8D%8F%E8%AE%AE(AXI%2FAPB)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SoC设计工程师",
+        "skill": "IP集成",
+        "title": "B站搜索：IP集成 教程",
+        "url": "https://search.bilibili.com/all?keyword=IP%E9%9B%86%E6%88%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SoC设计工程师",
+        "skill": "时钟/复位设计",
+        "title": "B站搜索：时钟/复位设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%97%B6%E9%92%9F%2F%E5%A4%8D%E4%BD%8D%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SoC设计工程师",
+        "skill": "子系统验证",
+        "title": "B站搜索：子系统验证 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%AD%90%E7%B3%BB%E7%BB%9F%E9%AA%8C%E8%AF%81%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SoC设计工程师",
+        "skill": "系统级验证",
+        "title": "B站搜索：系统级验证 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%B3%BB%E7%BB%9F%E7%BA%A7%E9%AA%8C%E8%AF%81%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SoC设计工程师",
+        "skill": "FPGA原型验证",
+        "title": "B站搜索：FPGA原型验证 教程",
+        "url": "https://search.bilibili.com/all?keyword=FPGA%E5%8E%9F%E5%9E%8B%E9%AA%8C%E8%AF%81%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "Java/Kotlin",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "Android SDK",
+        "title": "B站：Android 开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Android%20%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "四大组件",
+        "title": "B站搜索：四大组件 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%9B%9B%E5%A4%A7%E7%BB%84%E4%BB%B6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "Jetpack",
+        "title": "B站搜索：Jetpack 教程",
+        "url": "https://search.bilibili.com/all?keyword=Jetpack%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "Jetpack Compose",
+        "title": "B站搜索：Jetpack Compose 教程",
+        "url": "https://search.bilibili.com/all?keyword=Jetpack%20Compose%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "MVVM/MVI架构",
+        "title": "B站搜索：MVVM/MVI架构 教程",
+        "url": "https://search.bilibili.com/all?keyword=MVVM%2FMVI%E6%9E%B6%E6%9E%84%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "Navigation",
+        "title": "B站搜索：Navigation 教程",
+        "url": "https://search.bilibili.com/all?keyword=Navigation%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "内存优化",
+        "title": "B站搜索：内存优化 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "启动优化",
+        "title": "B站搜索：启动优化 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Android开发工程师",
+        "skill": "卡顿优化",
+        "title": "B站搜索：卡顿优化 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%8D%A1%E9%A1%BF%E4%BC%98%E5%8C%96%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "iOS开发工程师",
+        "skill": "Swift/Objective-C",
+        "title": "B站：Swift iOS 开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Swift%20iOS%20%E5%BC%80%E5%8F%91"
+      },
+      {
+        "position": "iOS开发工程师",
+        "skill": "UIKit/SwiftUI",
+        "title": "B站：Swift iOS 开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Swift%20iOS%20%E5%BC%80%E5%8F%91"
+      },
+      {
+        "position": "iOS开发工程师",
+        "skill": "GCD/并发编程",
+        "title": "B站搜索：GCD/并发编程 教程",
+        "url": "https://search.bilibili.com/all?keyword=GCD%2F%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "iOS开发工程师",
+        "skill": "CocoaPods/SPM",
+        "title": "B站搜索：CocoaPods/SPM 教程",
+        "url": "https://search.bilibili.com/all?keyword=CocoaPods%2FSPM%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "iOS开发工程师",
+        "skill": "iOS生命周期",
+        "title": "B站：Swift iOS 开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Swift%20iOS%20%E5%BC%80%E5%8F%91"
+      },
+      {
+        "position": "iOS开发工程师",
+        "skill": "Core Data/SwiftData",
+        "title": "B站搜索：Core Data/SwiftData 教程",
+        "url": "https://search.bilibili.com/all?keyword=Core%20Data%2FSwiftData%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "iOS开发工程师",
+        "skill": "Swift Concurrency",
+        "title": "B站搜索：Swift Concurrency 教程",
+        "url": "https://search.bilibili.com/all?keyword=Swift%20Concurrency%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Flutter开发工程师",
+        "skill": "Dart",
+        "title": "B站：Flutter 跨平台开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Flutter%20%E8%B7%A8%E5%B9%B3%E5%8F%B0"
+      },
+      {
+        "position": "Flutter开发工程师",
+        "skill": "Flutter Widget",
+        "title": "B站：Flutter 跨平台开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Flutter%20%E8%B7%A8%E5%B9%B3%E5%8F%B0"
+      },
+      {
+        "position": "Flutter开发工程师",
+        "skill": "状态管理(Riverpod/Bloc)",
+        "title": "B站搜索：状态管理(Riverpod/Bloc) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86(Riverpod%2FBloc)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Flutter开发工程师",
+        "skill": "路由与导航",
+        "title": "B站搜索：路由与导航 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%B7%AF%E7%94%B1%E4%B8%8E%E5%AF%BC%E8%88%AA%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Flutter开发工程师",
+        "skill": "自定义Widget",
+        "title": "B站搜索：自定义Widget 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%87%AA%E5%AE%9A%E4%B9%89Widget%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Flutter开发工程师",
+        "skill": "Platform Channel",
+        "title": "B站搜索：Platform Channel 教程",
+        "url": "https://search.bilibili.com/all?keyword=Platform%20Channel%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Flutter开发工程师",
+        "skill": "性能优化",
+        "title": "B站搜索：性能优化 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React Native工程师",
+        "skill": "JavaScript/TypeScript",
+        "title": "B站：JavaScript ES6+ 完整教程",
+        "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React Native工程师",
+        "skill": "JavaScript/TypeScript",
+        "title": "B站：TypeScript 系统教程",
+        "url": "https://search.bilibili.com/all?keyword=TypeScript%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React Native工程师",
+        "skill": "React Native核心",
+        "title": "B站：React 入门到实战教程",
+        "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98"
+      },
+      {
+        "position": "React Native工程师",
+        "skill": "原生模块",
+        "title": "B站搜索：原生模块 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%8E%9F%E7%94%9F%E6%A8%A1%E5%9D%97%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React Native工程师",
+        "skill": "Expo",
+        "title": "B站搜索：Expo 教程",
+        "url": "https://search.bilibili.com/all?keyword=Expo%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React Native工程师",
+        "skill": "Redux/MobX",
+        "title": "B站搜索：Redux/MobX 教程",
+        "url": "https://search.bilibili.com/all?keyword=Redux%2FMobX%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "React Native工程师",
+        "skill": "原生iOS/Android",
+        "title": "B站：Android 开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Android%20%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "Jenkins/GitLab CI",
+        "title": "B站搜索：Jenkins/GitLab CI 教程",
+        "url": "https://search.bilibili.com/all?keyword=Jenkins%2FGitLab%20CI%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "GitHub Actions",
+        "title": "B站搜索：GitHub Actions 教程",
+        "url": "https://search.bilibili.com/all?keyword=GitHub%20Actions%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "SonarQube",
+        "title": "B站搜索：SonarQube 教程",
+        "url": "https://search.bilibili.com/all?keyword=SonarQube%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "Docker",
+        "title": "B站：Docker 容器化实战",
+        "url": "https://search.bilibili.com/all?keyword=Docker%20%E5%AE%B9%E5%99%A8%E5%8C%96"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "Kubernetes",
+        "title": "B站：Kubernetes 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Kubernetes%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "Helm",
+        "title": "B站搜索：Helm 教程",
+        "url": "https://search.bilibili.com/all?keyword=Helm%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "Linux",
+        "title": "B站：Linux 基础到精通",
+        "url": "https://search.bilibili.com/all?keyword=Linux%20%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "Ansible/Puppet",
+        "title": "B站搜索：Ansible/Puppet 教程",
+        "url": "https://search.bilibili.com/all?keyword=Ansible%2FPuppet%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "Terraform",
+        "title": "B站搜索：Terraform 教程",
+        "url": "https://search.bilibili.com/all?keyword=Terraform%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DevOps工程师",
+        "skill": "Prometheus/Grafana",
+        "title": "B站搜索：Prometheus/Grafana 教程",
+        "url": "https://search.bilibili.com/all?keyword=Prometheus%2FGrafana%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SRE工程师",
+        "skill": "Site Reliability",
+        "title": "B站搜索：Site Reliability 教程",
+        "url": "https://search.bilibili.com/all?keyword=Site%20Reliability%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SRE工程师",
+        "skill": "SLA/SLO/SLI",
+        "title": "B站搜索：SLA/SLO/SLI 教程",
+        "url": "https://search.bilibili.com/all?keyword=SLA%2FSLO%2FSLI%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SRE工程师",
+        "skill": "故障排查",
+        "title": "B站搜索：故障排查 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SRE工程师",
+        "skill": "容量规划",
+        "title": "B站搜索：容量规划 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%AE%B9%E9%87%8F%E8%A7%84%E5%88%92%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SRE工程师",
+        "skill": "监控系统",
+        "title": "B站搜索：监控系统 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SRE工程师",
+        "skill": "日志系统(ELK/Loki)",
+        "title": "B站搜索：日志系统(ELK/Loki) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F(ELK%2FLoki)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "SRE工程师",
+        "skill": "链路追踪(Jaeger)",
+        "title": "B站搜索：链路追踪(Jaeger) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA(Jaeger)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "云计算工程师",
+        "skill": "虚拟化(KVM/Xen)",
+        "title": "B站搜索：虚拟化(KVM/Xen) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%99%9A%E6%8B%9F%E5%8C%96(KVM%2FXen)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "云计算工程师",
+        "skill": "容器技术",
+        "title": "B站：Docker 容器化实战",
+        "url": "https://search.bilibili.com/all?keyword=Docker%20%E5%AE%B9%E5%99%A8%E5%8C%96"
+      },
+      {
+        "position": "云计算工程师",
+        "skill": "微服务架构",
+        "title": "B站搜索：微服务架构 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "云计算工程师",
+        "skill": "阿里云/腾讯云",
+        "title": "B站搜索：阿里云/腾讯云 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%98%BF%E9%87%8C%E4%BA%91%2F%E8%85%BE%E8%AE%AF%E4%BA%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "云计算工程师",
+        "skill": "AWS",
+        "title": "B站搜索：AWS 教程",
+        "url": "https://search.bilibili.com/all?keyword=AWS%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "云计算工程师",
+        "skill": "OpenStack",
+        "title": "B站搜索：OpenStack 教程",
+        "url": "https://search.bilibili.com/all?keyword=OpenStack%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Kubernetes工程师",
+        "skill": "Kubernetes架构",
+        "title": "B站：Kubernetes 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Kubernetes%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Kubernetes工程师",
+        "skill": "Pod/Service/Deployment",
+        "title": "B站：Kubernetes 入门到实战",
+        "url": "https://search.bilibili.com/all?keyword=Kubernetes%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "Kubernetes工程师",
+        "skill": "ConfigMap/Secret",
+        "title": "B站搜索：ConfigMap/Secret 教程",
+        "url": "https://search.bilibili.com/all?keyword=ConfigMap%2FSecret%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Kubernetes工程师",
+        "skill": "Helm",
+        "title": "B站搜索：Helm 教程",
+        "url": "https://search.bilibili.com/all?keyword=Helm%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Kubernetes工程师",
+        "skill": "Operator/CRD",
+        "title": "B站搜索：Operator/CRD 教程",
+        "url": "https://search.bilibili.com/all?keyword=Operator%2FCRD%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Kubernetes工程师",
+        "skill": "Service Mesh(Istio)",
+        "title": "B站搜索：Service Mesh(Istio) 教程",
+        "url": "https://search.bilibili.com/all?keyword=Service%20Mesh(Istio)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Kubernetes工程师",
+        "skill": "K8s安全",
+        "title": "B站搜索：K8s安全 教程",
+        "url": "https://search.bilibili.com/all?keyword=K8s%E5%AE%89%E5%85%A8%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "Kubernetes工程师",
+        "skill": "K8s性能调优",
+        "title": "B站搜索：K8s性能调优 教程",
+        "url": "https://search.bilibili.com/all?keyword=K8s%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "网络安全",
+        "title": "B站：Web 安全渗透测试教程",
+        "url": "https://search.bilibili.com/all?keyword=Web%E5%AE%89%E5%85%A8%20%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "密码学基础",
+        "title": "B站搜索：密码学基础 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "操作系统安全",
+        "title": "B站搜索：操作系统安全 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "Web安全",
+        "title": "B站：Web 安全渗透测试教程",
+        "url": "https://search.bilibili.com/all?keyword=Web%E5%AE%89%E5%85%A8%20%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "Burp Suite",
+        "title": "B站搜索：Burp Suite 教程",
+        "url": "https://search.bilibili.com/all?keyword=Burp%20Suite%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "Nmap",
+        "title": "B站搜索：Nmap 教程",
+        "url": "https://search.bilibili.com/all?keyword=Nmap%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "Wireshark",
+        "title": "B站搜索：Wireshark 教程",
+        "url": "https://search.bilibili.com/all?keyword=Wireshark%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "Metasploit",
+        "title": "B站搜索：Metasploit 教程",
+        "url": "https://search.bilibili.com/all?keyword=Metasploit%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "WAF/IDS/IPS",
+        "title": "B站搜索：WAF/IDS/IPS 教程",
+        "url": "https://search.bilibili.com/all?keyword=WAF%2FIDS%2FIPS%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "安全工程师",
+        "skill": "代码审计",
+        "title": "B站搜索：代码审计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "渗透测试工程师",
+        "skill": "Web渗透",
+        "title": "B站：Web 安全渗透测试教程",
+        "url": "https://search.bilibili.com/all?keyword=Web%E5%AE%89%E5%85%A8%20%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"
+      },
+      {
+        "position": "渗透测试工程师",
+        "skill": "系统渗透",
+        "title": "B站搜索：系统渗透 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%B3%BB%E7%BB%9F%E6%B8%97%E9%80%8F%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "渗透测试工程师",
+        "skill": "API渗透",
+        "title": "B站搜索：API渗透 教程",
+        "url": "https://search.bilibili.com/all?keyword=API%E6%B8%97%E9%80%8F%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "渗透测试工程师",
+        "skill": "移动端渗透",
+        "title": "B站搜索：移动端渗透 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%A7%BB%E5%8A%A8%E7%AB%AF%E6%B8%97%E9%80%8F%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "渗透测试工程师",
+        "skill": "Python渗透",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "渗透测试工程师",
+        "skill": "Burp Suite",
+        "title": "B站搜索：Burp Suite 教程",
+        "url": "https://search.bilibili.com/all?keyword=Burp%20Suite%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "渗透测试工程师",
+        "skill": "SQL注入/XSS",
+        "title": "B站搜索：SQL注入/XSS 教程",
+        "url": "https://search.bilibili.com/all?keyword=SQL%E6%B3%A8%E5%85%A5%2FXSS%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "网络工程师",
+        "skill": "TCP/IP协议",
+        "title": "B站搜索：TCP/IP协议 教程",
+        "url": "https://search.bilibili.com/all?keyword=TCP%2FIP%E5%8D%8F%E8%AE%AE%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "网络工程师",
+        "skill": "路由协议(OSPF/BGP)",
+        "title": "B站搜索：路由协议(OSPF/BGP) 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%B7%AF%E7%94%B1%E5%8D%8F%E8%AE%AE(OSPF%2FBGP)%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "网络工程师",
+        "skill": "交换技术",
+        "title": "B站搜索：交换技术 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E4%BA%A4%E6%8D%A2%E6%8A%80%E6%9C%AF%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "网络工程师",
+        "skill": "网络安全",
+        "title": "B站：Web 安全渗透测试教程",
+        "url": "https://search.bilibili.com/all?keyword=Web%E5%AE%89%E5%85%A8%20%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"
+      },
+      {
+        "position": "网络工程师",
+        "skill": "华为/Cisco设备",
+        "title": "B站搜索：华为/Cisco设备 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%8D%8E%E4%B8%BA%2FCisco%E8%AE%BE%E5%A4%87%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "网络工程师",
+        "skill": "Linux网络配置",
+        "title": "B站：Linux 基础到精通",
+        "url": "https://search.bilibili.com/all?keyword=Linux%20%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "网络工程师",
+        "skill": "SDN/NFV",
+        "title": "B站搜索：SDN/NFV 教程",
+        "url": "https://search.bilibili.com/all?keyword=SDN%2FNFV%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "测试理论",
+        "title": "B站搜索：测试理论 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%B5%8B%E8%AF%95%E7%90%86%E8%AE%BA%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "测试用例设计",
+        "title": "B站搜索：测试用例设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "缺陷管理",
+        "title": "B站搜索：缺陷管理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%BC%BA%E9%99%B7%E7%AE%A1%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "需求分析",
+        "title": "B站搜索：需求分析 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "JMeter/LoadRunner",
+        "title": "B站搜索：JMeter/LoadRunner 教程",
+        "url": "https://search.bilibili.com/all?keyword=JMeter%2FLoadRunner%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "Postman",
+        "title": "B站搜索：Postman 教程",
+        "url": "https://search.bilibili.com/all?keyword=Postman%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "Jira",
+        "title": "B站搜索：Jira 教程",
+        "url": "https://search.bilibili.com/all?keyword=Jira%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "Selenium/Appium",
+        "title": "B站搜索：Selenium/Appium 教程",
+        "url": "https://search.bilibili.com/all?keyword=Selenium%2FAppium%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试工程师",
+        "skill": "接口自动化",
+        "title": "B站搜索：接口自动化 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%8E%A5%E5%8F%A3%E8%87%AA%E5%8A%A8%E5%8C%96%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "自动化测试工程师",
+        "skill": "Selenium/Cypress",
+        "title": "B站搜索：Selenium/Cypress 教程",
+        "url": "https://search.bilibili.com/all?keyword=Selenium%2FCypress%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "自动化测试工程师",
+        "skill": "Pytest/TestNG",
+        "title": "B站搜索：Pytest/TestNG 教程",
+        "url": "https://search.bilibili.com/all?keyword=Pytest%2FTestNG%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "自动化测试工程师",
+        "skill": "Playwright",
+        "title": "B站搜索：Playwright 教程",
+        "url": "https://search.bilibili.com/all?keyword=Playwright%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "自动化测试工程师",
+        "skill": "框架设计",
+        "title": "B站搜索：框架设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "自动化测试工程师",
+        "skill": "Python/Java",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "自动化测试工程师",
+        "skill": "Python/Java",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "自动化测试工程师",
+        "skill": "Git/SVN",
+        "title": "B站：Git 版本控制教程",
+        "url": "https://search.bilibili.com/all?keyword=Git%20%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6"
+      },
+      {
+        "position": "性能测试工程师",
+        "skill": "JMeter",
+        "title": "B站搜索：JMeter 教程",
+        "url": "https://search.bilibili.com/all?keyword=JMeter%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "性能测试工程师",
+        "skill": "LoadRunner",
+        "title": "B站搜索：LoadRunner 教程",
+        "url": "https://search.bilibili.com/all?keyword=LoadRunner%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "性能测试工程师",
+        "skill": "Gatling",
+        "title": "B站搜索：Gatling 教程",
+        "url": "https://search.bilibili.com/all?keyword=Gatling%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "性能测试工程师",
+        "skill": "瓶颈定位",
+        "title": "B站搜索：瓶颈定位 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%93%B6%E9%A2%88%E5%AE%9A%E4%BD%8D%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "性能测试工程师",
+        "skill": "性能调优",
+        "title": "B站搜索：性能调优 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "性能测试工程师",
+        "skill": "监控分析",
+        "title": "B站搜索：监控分析 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%9B%91%E6%8E%A7%E5%88%86%E6%9E%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试开发工程师",
+        "skill": "自动化框架开发",
+        "title": "B站搜索：自动化框架开发 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%87%AA%E5%8A%A8%E5%8C%96%E6%A1%86%E6%9E%B6%E5%BC%80%E5%8F%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试开发工程师",
+        "skill": "平台工具开发",
+        "title": "B站搜索：平台工具开发 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%B9%B3%E5%8F%B0%E5%B7%A5%E5%85%B7%E5%BC%80%E5%8F%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试开发工程师",
+        "skill": "Java/Python",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "测试开发工程师",
+        "skill": "Java/Python",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试开发工程师",
+        "skill": "Jenkins",
+        "title": "B站搜索：Jenkins 教程",
+        "url": "https://search.bilibili.com/all?keyword=Jenkins%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "测试开发工程师",
+        "skill": "GitLab CI",
+        "title": "B站搜索：GitLab CI 教程",
+        "url": "https://search.bilibili.com/all?keyword=GitLab%20CI%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏开发工程师",
+        "skill": "游戏引擎(Unity/Unreal)",
+        "title": "B站：Unity 游戏开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Unity%20%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91"
+      },
+      {
+        "position": "游戏开发工程师",
+        "skill": "C++/C#",
+        "title": "B站：C++ 基础到进阶教程",
+        "url": "https://search.bilibili.com/all?keyword=C%2B%2B%20%E5%9F%BA%E7%A1%80%E8%BF%9B%E9%98%B6"
+      },
+      {
+        "position": "游戏开发工程师",
+        "skill": "游戏物理",
+        "title": "B站搜索：游戏物理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%B8%B8%E6%88%8F%E7%89%A9%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏开发工程师",
+        "skill": "游戏AI",
+        "title": "B站搜索：游戏AI 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%B8%B8%E6%88%8FAI%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏开发工程师",
+        "skill": "网络编程",
+        "title": "B站搜索：网络编程 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏开发工程师",
+        "skill": "分布式系统",
+        "title": "B站搜索：分布式系统 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏客户端开发",
+        "skill": "Unity/Unreal Engine",
+        "title": "B站：Unity 游戏开发教程",
+        "url": "https://search.bilibili.com/all?keyword=Unity%20%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91"
+      },
+      {
+        "position": "游戏客户端开发",
+        "skill": "C++/C#",
+        "title": "B站：C++ 基础到进阶教程",
+        "url": "https://search.bilibili.com/all?keyword=C%2B%2B%20%E5%9F%BA%E7%A1%80%E8%BF%9B%E9%98%B6"
+      },
+      {
+        "position": "游戏客户端开发",
+        "skill": "渲染管线",
+        "title": "B站搜索：渲染管线 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏客户端开发",
+        "skill": "UI/UX实现",
+        "title": "B站搜索：UI/UX实现 教程",
+        "url": "https://search.bilibili.com/all?keyword=UI%2FUX%E5%AE%9E%E7%8E%B0%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "C++/Go/Java",
+        "title": "B站：Java 零基础到就业",
+        "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "C++/Go/Java",
+        "title": "B站：Go 语言入门教程",
+        "url": "https://search.bilibili.com/all?keyword=Go%E8%AF%AD%E8%A8%80%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "C++/Go/Java",
+        "title": "B站：C++ 基础到进阶教程",
+        "url": "https://search.bilibili.com/all?keyword=C%2B%2B%20%E5%9F%BA%E7%A1%80%E8%BF%9B%E9%98%B6"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "网络编程",
+        "title": "B站搜索：网络编程 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "高并发",
+        "title": "B站搜索：高并发 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%AB%98%E5%B9%B6%E5%8F%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "游戏逻辑",
+        "title": "B站搜索：游戏逻辑 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%B8%B8%E6%88%8F%E9%80%BB%E8%BE%91%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "分布式架构",
+        "title": "B站搜索：分布式架构 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "Redis/MySQL",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "游戏服务器开发",
+        "skill": "Redis/MySQL",
+        "title": "B站：Redis 入门到精通",
+        "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A"
+      },
+      {
+        "position": "区块链开发工程师",
+        "skill": "共识算法",
+        "title": "B站搜索：共识算法 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "区块链开发工程师",
+        "skill": "智能合约",
+        "title": "B站搜索：智能合约 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "区块链开发工程师",
+        "skill": "密码学",
+        "title": "B站搜索：密码学 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%AF%86%E7%A0%81%E5%AD%A6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "区块链开发工程师",
+        "skill": "P2P网络",
+        "title": "B站搜索：P2P网络 教程",
+        "url": "https://search.bilibili.com/all?keyword=P2P%E7%BD%91%E7%BB%9C%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "区块链开发工程师",
+        "skill": "Solidity",
+        "title": "B站搜索：Solidity 教程",
+        "url": "https://search.bilibili.com/all?keyword=Solidity%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "区块链开发工程师",
+        "skill": "Go/Rust",
+        "title": "B站：Go 语言入门教程",
+        "url": "https://search.bilibili.com/all?keyword=Go%E8%AF%AD%E8%A8%80%20%E5%85%A5%E9%97%A8"
+      },
+      {
+        "position": "区块链开发工程师",
+        "skill": "Ethereum/Hyperledger",
+        "title": "B站搜索：Ethereum/Hyperledger 教程",
+        "url": "https://search.bilibili.com/all?keyword=Ethereum%2FHyperledger%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器人工程师",
+        "skill": "ROS/ROS2",
+        "title": "B站搜索：ROS/ROS2 教程",
+        "url": "https://search.bilibili.com/all?keyword=ROS%2FROS2%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器人工程师",
+        "skill": "C++/Python",
+        "title": "B站：Python 全栈教程",
+        "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器人工程师",
+        "skill": "C++/Python",
+        "title": "B站：C++ 基础到进阶教程",
+        "url": "https://search.bilibili.com/all?keyword=C%2B%2B%20%E5%9F%BA%E7%A1%80%E8%BF%9B%E9%98%B6"
+      },
+      {
+        "position": "机器人工程师",
+        "skill": "运动控制",
+        "title": "B站搜索：运动控制 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%BF%90%E5%8A%A8%E6%8E%A7%E5%88%B6%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器人工程师",
+        "skill": "SLAM",
+        "title": "B站搜索：SLAM 教程",
+        "url": "https://search.bilibili.com/all?keyword=SLAM%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器人工程师",
+        "skill": "计算机视觉",
+        "title": "B站搜索：计算机视觉 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器人工程师",
+        "skill": "机器学习",
+        "title": "B站搜索：机器学习 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "机器人工程师",
+        "skill": "路径规划",
+        "title": "B站搜索：路径规划 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据库工程师",
+        "skill": "MySQL/PostgreSQL",
+        "title": "B站：MySQL 数据库教程",
+        "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93"
+      },
+      {
+        "position": "数据库工程师",
+        "skill": "索引优化",
+        "title": "B站：SQL 数据库查询教程",
+        "url": "https://search.bilibili.com/all?keyword=SQL%20%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9F%A5%E8%AF%A2"
+      },
+      {
+        "position": "数据库工程师",
+        "skill": "SQL调优",
+        "title": "B站：SQL 数据库查询教程",
+        "url": "https://search.bilibili.com/all?keyword=SQL%20%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9F%A5%E8%AF%A2"
+      },
+      {
+        "position": "数据库工程师",
+        "skill": "事务与锁",
+        "title": "B站搜索：事务与锁 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E4%BA%8B%E5%8A%A1%E4%B8%8E%E9%94%81%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据库工程师",
+        "skill": "分布式数据库",
+        "title": "B站搜索：分布式数据库 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据库工程师",
+        "skill": "分库分表",
+        "title": "B站搜索：分库分表 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "数据库工程师",
+        "skill": "TiDB/CockroachDB",
+        "title": "B站搜索：TiDB/CockroachDB 教程",
+        "url": "https://search.bilibili.com/all?keyword=TiDB%2FCockroachDB%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DBA工程师",
+        "skill": "数据库安装部署",
+        "title": "B站搜索：数据库安装部署 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DBA工程师",
+        "skill": "备份恢复",
+        "title": "B站搜索：备份恢复 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DBA工程师",
+        "skill": "性能调优",
+        "title": "B站搜索：性能调优 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DBA工程师",
+        "skill": "高可用方案",
+        "title": "B站搜索：高可用方案 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%A1%88%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DBA工程师",
+        "skill": "数据库监控",
+        "title": "B站搜索：数据库监控 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%91%E6%8E%A7%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DBA工程师",
+        "skill": "慢查询分析",
+        "title": "B站搜索：慢查询分析 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%88%86%E6%9E%90%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "DBA工程师",
+        "skill": "空间管理",
+        "title": "B站搜索：空间管理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%A9%BA%E9%97%B4%E7%AE%A1%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "技术负责人",
+        "skill": "技术规划",
+        "title": "B站搜索：技术规划 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%8A%80%E6%9C%AF%E8%A7%84%E5%88%92%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "技术负责人",
+        "skill": "团队管理",
+        "title": "B站搜索：团队管理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%9B%A2%E9%98%9F%E7%AE%A1%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "技术负责人",
+        "skill": "项目管理",
+        "title": "B站搜索：项目管理 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "技术负责人",
+        "skill": "技术选型",
+        "title": "B站搜索：技术选型 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "技术负责人",
+        "skill": "系统架构",
+        "title": "B站搜索：系统架构 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "技术负责人",
+        "skill": "代码评审",
+        "title": "B站搜索：代码评审 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E4%BB%A3%E7%A0%81%E8%AF%84%E5%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "技术负责人",
+        "skill": "技术分享",
+        "title": "B站搜索：技术分享 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%8A%80%E6%9C%AF%E5%88%86%E4%BA%AB%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "系统架构师",
+        "skill": "分布式架构",
+        "title": "B站搜索：分布式架构 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "系统架构师",
+        "skill": "微服务",
+        "title": "B站搜索：微服务 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%BE%AE%E6%9C%8D%E5%8A%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "系统架构师",
+        "skill": "高可用设计",
+        "title": "B站搜索：高可用设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E9%AB%98%E5%8F%AF%E7%94%A8%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "系统架构师",
+        "skill": "可扩展性设计",
+        "title": "B站搜索：可扩展性设计 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%E8%AE%BE%E8%AE%A1%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "系统架构师",
+        "skill": "多技术栈",
+        "title": "B站搜索：多技术栈 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E5%A4%9A%E6%8A%80%E6%9C%AF%E6%A0%88%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "系统架构师",
+        "skill": "行业理解",
+        "title": "B站搜索：行业理解 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E8%A1%8C%E4%B8%9A%E7%90%86%E8%A7%A3%20%E6%95%99%E7%A8%8B"
+      },
+      {
+        "position": "系统架构师",
+        "skill": "技术趋势",
+        "title": "B站搜索：技术趋势 教程",
+        "url": "https://search.bilibili.com/all?keyword=%E6%8A%80%E6%9C%AF%E8%B6%8B%E5%8A%BF%20%E6%95%99%E7%A8%8B"
+      }
+    ],
+    "tierStats": {
+      "level1": 169,
+      "level2": 0,
+      "level3": 316
+    }
+  },
+  "details": [
+    {
+      "position": "前端开发工程师",
+      "positionKey": "frontend",
+      "totalSkills": 16,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Vue开发工程师",
+      "positionKey": "vue-developer",
+      "totalSkills": 11,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "React开发工程师",
+      "positionKey": "react-developer",
+      "totalSkills": 11,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "移动端H5开发",
+      "positionKey": "mobile-h5",
+      "totalSkills": 8,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Web前端工程师",
+      "positionKey": "web-frontend",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Java后端开发工程师",
+      "positionKey": "backend-java",
+      "totalSkills": 14,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Python后端开发工程师",
+      "positionKey": "backend-python",
+      "totalSkills": 12,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Go后端开发工程师",
+      "positionKey": "backend-go",
+      "totalSkills": 12,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Node.js后端工程师",
+      "positionKey": "backend-node",
+      "totalSkills": 11,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "PHP开发工程师",
+      "positionKey": "php-developer",
+      "totalSkills": 11,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Ruby开发工程师",
+      "positionKey": "ruby-developer",
+      "totalSkills": 6,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "全栈开发工程师",
+      "positionKey": "fullstack",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Web全栈工程师",
+      "positionKey": "fullstack-web",
+      "totalSkills": 8,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "移动全栈工程师",
+      "positionKey": "fullstack-mobile",
+      "totalSkills": 4,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "算法工程师",
+      "positionKey": "algorithm",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "机器学习工程师",
+      "positionKey": "ml-engineer",
+      "totalSkills": 12,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "人工智能工程师",
+      "positionKey": "ai-engineer",
+      "totalSkills": 11,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "NLP算法工程师",
+      "positionKey": "nlp-engineer",
+      "totalSkills": 11,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "计算机视觉工程师",
+      "positionKey": "cv-engineer",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "推荐算法工程师",
+      "positionKey": "推荐算法",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "大数据开发工程师",
+      "positionKey": "bigdata",
+      "totalSkills": 12,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "数据工程师",
+      "positionKey": "data-engineer",
+      "totalSkills": 11,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "数据分析师",
+      "positionKey": "data-analyst",
+      "totalSkills": 8,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "ETL工程师",
+      "positionKey": "etl-engineer",
+      "totalSkills": 8,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Spark开发工程师",
+      "positionKey": "spark-developer",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "集成电路工程师",
+      "positionKey": "ic-engineer",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "IC设计工程师",
+      "positionKey": "ic-design",
+      "totalSkills": 9,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "IC验证工程师",
+      "positionKey": "ic-verification",
+      "totalSkills": 8,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "FPGA工程师",
+      "positionKey": "fpga-engineer",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "嵌入式开发工程师",
+      "positionKey": "embedded",
+      "totalSkills": 11,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "硬件工程师",
+      "positionKey": "hardware",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "SoC设计工程师",
+      "positionKey": "soc-engineer",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Android开发工程师",
+      "positionKey": "android",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "iOS开发工程师",
+      "positionKey": "ios-developer",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Flutter开发工程师",
+      "positionKey": "flutter",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "React Native工程师",
+      "positionKey": "rn-developer",
+      "totalSkills": 6,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "DevOps工程师",
+      "positionKey": "devops",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "SRE工程师",
+      "positionKey": "sre",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "云计算工程师",
+      "positionKey": "cloud",
+      "totalSkills": 6,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "Kubernetes工程师",
+      "positionKey": "k8s-engineer",
+      "totalSkills": 8,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "安全工程师",
+      "positionKey": "security",
+      "totalSkills": 10,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "渗透测试工程师",
+      "positionKey": "penetration",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "网络工程师",
+      "positionKey": "network",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "测试工程师",
+      "positionKey": "qa-engineer",
+      "totalSkills": 9,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "自动化测试工程师",
+      "positionKey": "autotest",
+      "totalSkills": 6,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "性能测试工程师",
+      "positionKey": "perf-test",
+      "totalSkills": 6,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "测试开发工程师",
+      "positionKey": "test-dev",
+      "totalSkills": 5,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "游戏开发工程师",
+      "positionKey": "game-dev",
+      "totalSkills": 6,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "游戏客户端开发",
+      "positionKey": "game-client",
+      "totalSkills": 4,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "游戏服务器开发",
+      "positionKey": "game-server",
+      "totalSkills": 6,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "区块链开发工程师",
+      "positionKey": "blockchain",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "机器人工程师",
+      "positionKey": "robotics",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "数据库工程师",
+      "positionKey": "database",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "DBA工程师",
+      "positionKey": "dba",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "技术负责人",
+      "positionKey": "tech-lead",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    },
+    {
+      "position": "系统架构师",
+      "positionKey": "architect",
+      "totalSkills": 7,
+      "emptySkills": [],
+      "mismatched": [],
+      "invalidLinks": []
+    }
+  ],
+  "poolSize": 183,
+  "fastMode": false,
+  "generatedAt": "2026-08-02T16:27:12.260Z"
+}

@@ -1,0 +1,1982 @@
+{
+  "version": "1.0",
+  "lastInspection": "2026-08-03T16:43:25.820Z",
+  "inspectionIntervalHours": 24,
+  "sourcePriority": {
+    "official": 1,
+    "bilibili": 2,
+    "tech-site": 2,
+    "course": 3,
+    "personal": 4
+  },
+  "resources": [
+    {
+      "id": "res_html_01",
+      "title": "MDN - HTML 学习指南",
+      "url": "https://developer.mozilla.org/zh-CN/docs/Learn/HTML",
+      "source": "official",
+      "sourceName": "MDN",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "HTML5/CSS3",
+        "HTML5/CSS3适配",
+        "HTML5"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:02.580Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_html_02",
+      "title": "B站：HTML5+CSS3 零基础入门",
+      "url": "https://search.bilibili.com/all?keyword=HTML5%20CSS3%20%E5%85%A5%E9%97%A8",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "HTML5/CSS3",
+        "HTML5/CSS3适配",
+        "HTML5"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:03.668Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_html_03",
+      "title": "菜鸟教程 - HTML5 基础",
+      "url": "https://www.runoob.com/html/html5-intro.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "HTML5/CSS3",
+        "HTML5/CSS3适配",
+        "HTML5"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:04.326Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_css_01",
+      "title": "MDN - CSS 学习指南",
+      "url": "https://developer.mozilla.org/zh-CN/docs/Learn/CSS",
+      "source": "official",
+      "sourceName": "MDN",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "CSS预处理器(Sass/Less)",
+        "响应式设计",
+        "CSS3动画"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:05.014Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_css_02",
+      "title": "B站：CSS3 Flexbox/Grid 布局教程",
+      "url": "https://search.bilibili.com/all?keyword=CSS3%20Flexbox%20Grid%20%E5%B8%83%E5%B1%80",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "CSS预处理器(Sass/Less)",
+        "响应式设计",
+        "CSS3动画"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:05.974Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_css_03",
+      "title": "菜鸟教程 - CSS3 教程",
+      "url": "https://www.runoob.com/css3/css3-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "CSS预处理器(Sass/Less)",
+        "响应式设计",
+        "CSS3动画"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:06.496Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_js_01",
+      "title": "MDN - JavaScript 教程",
+      "url": "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript",
+      "source": "official",
+      "sourceName": "MDN",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "JavaScript/ES6+",
+        "JavaScript",
+        "DOM操作",
+        "DOM/BOM",
+        "Ajax/Fetch"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:07.153Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_js_02",
+      "title": "B站：JavaScript ES6+ 完整教程",
+      "url": "https://search.bilibili.com/all?keyword=JavaScript%20ES6%20%E6%95%99%E7%A8%8B",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "JavaScript/ES6+",
+        "JavaScript",
+        "DOM操作",
+        "DOM/BOM",
+        "Ajax/Fetch"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:08.113Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_js_03",
+      "title": "菜鸟教程 - JavaScript 教程",
+      "url": "https://www.runoob.com/js/js-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "JavaScript/ES6+",
+        "JavaScript",
+        "DOM操作",
+        "DOM/BOM",
+        "Ajax/Fetch"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:08.462Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_vue_01",
+      "title": "Vue.js 官方中文文档",
+      "url": "https://cn.vuejs.org/",
+      "source": "official",
+      "sourceName": "Vue.js",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Vue.js",
+        "Vue3 Composition API",
+        "Vue3响应式原理",
+        "Vue Router",
+        "Vue/React",
+        "Vue.js/React"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:10.539Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_vue_02",
+      "title": "B站：Vue3 从入门到精通",
+      "url": "https://search.bilibili.com/all?keyword=Vue3%20%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Vue.js",
+        "Vue3 Composition API",
+        "Vue3响应式原理",
+        "Vue Router",
+        "Vue/React",
+        "Vue.js/React"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:12.754Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_vue_03",
+      "title": "菜鸟教程 - Vue3 教程",
+      "url": "https://www.runoob.com/vue3/vue3-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Vue.js",
+        "Vue3 Composition API",
+        "Vue3响应式原理",
+        "Vue Router",
+        "Vue/React",
+        "Vue.js/React"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:13.348Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_react_01",
+      "title": "React 官方中文文档",
+      "url": "https://zh-hans.react.dev/",
+      "source": "official",
+      "sourceName": "React",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "React",
+        "React Hooks",
+        "React组件化",
+        "Context/Redux",
+        "React Router",
+        "Vue/React",
+        "Vue.js/React"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:14.199Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_react_02",
+      "title": "B站：React 入门到实战教程",
+      "url": "https://search.bilibili.com/all?keyword=React%20%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "React",
+        "React Hooks",
+        "React组件化",
+        "Context/Redux",
+        "React Router",
+        "Vue/React",
+        "Vue.js/React"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:15.175Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_react_03",
+      "title": "菜鸟教程 - React 教程",
+      "url": "https://www.runoob.com/react/react-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "React",
+        "React Hooks",
+        "React组件化",
+        "Context/Redux",
+        "React Router",
+        "Vue/React",
+        "Vue.js/React"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:15.506Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_ts_01",
+      "title": "TypeScript 官方中文文档",
+      "url": "https://www.typescriptlang.org/zh/docs/",
+      "source": "official",
+      "sourceName": "TypeScript",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "TypeScript",
+        "JavaScript/TypeScript"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:16.630Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_ts_02",
+      "title": "B站：TypeScript 系统教程",
+      "url": "https://search.bilibili.com/all?keyword=TypeScript%20%E6%95%99%E7%A8%8B",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "TypeScript",
+        "JavaScript/TypeScript"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:17.606Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_ts_03",
+      "title": "菜鸟教程 - TypeScript 教程",
+      "url": "https://www.runoob.com/typescript/ts-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "TypeScript",
+        "JavaScript/TypeScript"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:17.992Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_node_01",
+      "title": "Node.js 官方中文文档",
+      "url": "https://nodejs.cn/",
+      "source": "official",
+      "sourceName": "Node.js",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Node.js",
+        "Node.js基础",
+        "事件循环",
+        "Stream/Buffer",
+        "Node.js/Python/Java",
+        "Express/NestJS",
+        "Express/Koa"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:18.605Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_node_02",
+      "title": "B站：Node.js 入门到实战",
+      "url": "https://search.bilibili.com/all?keyword=Node.js%20%E5%85%A5%E9%97%A8",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Node.js",
+        "Node.js基础",
+        "事件循环",
+        "Stream/Buffer",
+        "Node.js/Python/Java",
+        "Express/NestJS",
+        "Express/Koa"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:19.549Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_node_03",
+      "title": "菜鸟教程 - Node.js 教程",
+      "url": "https://www.runoob.com/nodejs/nodejs-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Node.js",
+        "Node.js基础",
+        "事件循环",
+        "Stream/Buffer",
+        "Node.js/Python/Java",
+        "Express/NestJS",
+        "Express/Koa"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:19.890Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_webpack_01",
+      "title": "Webpack 官方文档",
+      "url": "https://webpack.docschina.org/",
+      "source": "official",
+      "sourceName": "Webpack",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Webpack/Vite",
+        "Vite/Rollup"
+      ],
+      "status": "unknown",
+      "lastChecked": "2026-08-02T09:50:21.248Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_webpack_02",
+      "title": "B站：Webpack/Vite 工程化教程",
+      "url": "https://search.bilibili.com/all?keyword=Webpack%20Vite%20%E5%B7%A5%E7%A8%8B%E5%8C%96",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Webpack/Vite",
+        "Vite/Rollup"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:22.589Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_webpack_03",
+      "title": "Vite 官方中文文档",
+      "url": "https://cn.vitejs.dev/",
+      "source": "official",
+      "sourceName": "Vite",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Webpack/Vite",
+        "Vite/Rollup",
+        "Vue CLI/Vite"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:25.469Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_git_01",
+      "title": "Git 官方文档（中文）",
+      "url": "https://git-scm.com/book/zh/v2",
+      "source": "official",
+      "sourceName": "Git",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Git",
+        "Git/SVN"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:26.821Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_git_02",
+      "title": "B站：Git 版本控制教程",
+      "url": "https://search.bilibili.com/all?keyword=Git%20%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Git",
+        "Git/SVN"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:27.794Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_git_03",
+      "title": "菜鸟教程 - Git 教程",
+      "url": "https://www.runoob.com/git/git-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Git",
+        "Git/SVN"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:28.297Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_java_01",
+      "title": "Oracle Java 官方文档",
+      "url": "https://docs.oracle.com/en/java/",
+      "source": "official",
+      "sourceName": "Oracle",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Java基础与集合",
+        "C++/Java",
+        "Java/Scala",
+        "Java",
+        "Java/Python"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:29.345Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_java_02",
+      "title": "B站：Java 零基础到就业",
+      "url": "https://search.bilibili.com/all?keyword=Java%20%E9%9B%B6%E5%9F%BA%E7%A1%80",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Java基础与集合",
+        "C++/Java",
+        "Java/Scala",
+        "Java",
+        "Java/Python"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:30.316Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_java_03",
+      "title": "菜鸟教程 - Java 教程",
+      "url": "https://www.runoob.com/java/java-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Java基础与集合",
+        "C++/Java",
+        "Java/Scala",
+        "Java",
+        "Java/Python"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:30.636Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_spring_01",
+      "title": "Spring Boot 官方文档",
+      "url": "https://spring.io/projects/spring-boot",
+      "source": "official",
+      "sourceName": "Spring",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Spring Boot",
+        "Spring Cloud",
+        "Spring Security",
+        "Spring Boot/Express"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:36.466Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_spring_02",
+      "title": "B站：Spring Boot 实战教程",
+      "url": "https://search.bilibili.com/all?keyword=Spring%20Boot%20%E5%AE%9E%E6%88%98",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Spring Boot",
+        "Spring Cloud",
+        "Spring Security",
+        "Spring Boot/Express"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:37.448Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_spring_03",
+      "title": "菜鸟教程 - Spring 教程",
+      "url": "https://www.runoob.com/w3cnote/spring-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "Spring Boot",
+        "Spring Cloud",
+        "Spring Security",
+        "Spring Boot/Express"
+      ],
+      "status": "invalid",
+      "lastChecked": "2026-08-02T09:50:38.175Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_python_01",
+      "title": "Python 官方中文文档",
+      "url": "https://docs.python.org/zh-cn/3/",
+      "source": "official",
+      "sourceName": "Python",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Python",
+        "Python基础",
+        "Python高级特性",
+        "Python(Pandas)",
+        "Python渗透",
+        "Python/Java"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:38.951Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_python_02",
+      "title": "B站：Python 全栈教程",
+      "url": "https://search.bilibili.com/all?keyword=Python%20%E5%85%A8%E6%A0%88%E6%95%99%E7%A8%8B",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Python",
+        "Python基础",
+        "Python高级特性",
+        "Python(Pandas)",
+        "Python渗透",
+        "Python/Java"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:39.858Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_python_03",
+      "title": "菜鸟教程 - Python3 教程",
+      "url": "https://www.runoob.com/python3/python3-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Python",
+        "Python基础",
+        "Python高级特性",
+        "Python(Pandas)",
+        "Python渗透",
+        "Python/Java"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:40.196Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_mysql_01",
+      "title": "MySQL 官方文档",
+      "url": "https://dev.mysql.com/doc/refman/8.0/en/",
+      "source": "official",
+      "sourceName": "MySQL",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "MySQL",
+        "MySQL/PostgreSQL",
+        "MySQL/Sequelize",
+        "MySQL/Hive",
+        "MySQL",
+        "数据库核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:41.347Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_mysql_02",
+      "title": "B站：MySQL 数据库教程",
+      "url": "https://search.bilibili.com/all?keyword=MySQL%20%E6%95%B0%E6%8D%AE%E5%BA%93",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "MySQL",
+        "MySQL/PostgreSQL",
+        "MySQL/Sequelize",
+        "MySQL/Hive",
+        "MySQL",
+        "数据库核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:42.165Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_mysql_03",
+      "title": "菜鸟教程 - MySQL 教程",
+      "url": "https://www.runoob.com/mysql/mysql-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "MySQL",
+        "MySQL/PostgreSQL",
+        "MySQL/Sequelize",
+        "MySQL/Hive",
+        "MySQL",
+        "数据库核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:42.572Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_redis_01",
+      "title": "Redis 官方文档（中文）",
+      "url": "https://redis.io/docs/",
+      "source": "official",
+      "sourceName": "Redis",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Redis",
+        "Redis缓存"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:45.583Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_redis_02",
+      "title": "B站：Redis 入门到精通",
+      "url": "https://search.bilibili.com/all?keyword=Redis%20%E5%85%A5%E9%97%A8%E7%B2%BE%E9%80%9A",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Redis",
+        "Redis缓存"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:46.511Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_redis_03",
+      "title": "菜鸟教程 - Redis 教程",
+      "url": "https://www.runoob.com/redis/redis-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "Redis",
+        "Redis缓存"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:46.883Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_docker_01",
+      "title": "Docker 官方文档",
+      "url": "https://docs.docker.com/",
+      "source": "official",
+      "sourceName": "Docker",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Docker",
+        "Docker/K8s",
+        "Docker/K8s",
+        "Docker",
+        "容器技术"
+      ],
+      "status": "unknown",
+      "lastChecked": "2026-08-02T09:50:47.271Z",
+      "failCount": 1
+    },
+    {
+      "id": "res_docker_02",
+      "title": "B站：Docker 容器化实战",
+      "url": "https://search.bilibili.com/all?keyword=Docker%20%E5%AE%B9%E5%99%A8%E5%8C%96",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Docker",
+        "Docker/K8s",
+        "Docker/K8s",
+        "Docker",
+        "容器技术"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:48.314Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_docker_03",
+      "title": "菜鸟教程 - Docker 教程",
+      "url": "https://www.runoob.com/docker/docker-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "Docker",
+        "Docker/K8s",
+        "Docker/K8s",
+        "Docker",
+        "容器技术"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:48.676Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_k8s_01",
+      "title": "Kubernetes 官方文档（中文）",
+      "url": "https://kubernetes.io/zh-cn/docs/",
+      "source": "official",
+      "sourceName": "Kubernetes",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Kubernetes",
+        "Kubernetes架构",
+        "Pod/Service/Deployment",
+        "Docker/K8s"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:49.874Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_k8s_02",
+      "title": "B站：Kubernetes 入门到实战",
+      "url": "https://search.bilibili.com/all?keyword=Kubernetes%20%E5%85%A5%E9%97%A8",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Kubernetes",
+        "Kubernetes架构",
+        "Pod/Service/Deployment",
+        "Docker/K8s"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:50.897Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_k8s_03",
+      "title": "菜鸟教程 - Kubernetes 教程",
+      "url": "https://www.runoob.com/docker/kubernetes-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "Kubernetes",
+        "Kubernetes架构",
+        "Pod/Service/Deployment",
+        "Docker/K8s"
+      ],
+      "status": "invalid",
+      "lastChecked": "2026-08-02T09:50:51.511Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_linux_01",
+      "title": "Linux 官方内核文档",
+      "url": "https://www.kernel.org/doc/html/latest/",
+      "source": "official",
+      "sourceName": "Linux",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Linux",
+        "嵌入式Linux",
+        "Linux网络配置",
+        "Linux驱动开发"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:52.467Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_linux_02",
+      "title": "B站：Linux 基础到精通",
+      "url": "https://search.bilibili.com/all?keyword=Linux%20%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Linux",
+        "嵌入式Linux",
+        "Linux网络配置",
+        "Linux驱动开发"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:53.507Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_linux_03",
+      "title": "菜鸟教程 - Linux 教程",
+      "url": "https://www.runoob.com/linux/linux-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Linux",
+        "嵌入式Linux",
+        "Linux网络配置",
+        "Linux驱动开发"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:53.938Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_go_01",
+      "title": "Go 官方文档",
+      "url": "https://go.dev/doc/",
+      "source": "official",
+      "sourceName": "Go",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Go基础语法",
+        "Goroutine/Channel",
+        "Go/Rust",
+        "C++/Go/Java"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:55.260Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_go_02",
+      "title": "B站：Go 语言入门教程",
+      "url": "https://search.bilibili.com/all?keyword=Go%E8%AF%AD%E8%A8%80%20%E5%85%A5%E9%97%A8",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Go基础语法",
+        "Goroutine/Channel",
+        "Go/Rust",
+        "C++/Go/Java"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:56.190Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_go_03",
+      "title": "菜鸟教程 - Go 语言教程",
+      "url": "https://www.runoob.com/go/go-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Go基础语法",
+        "Goroutine/Channel",
+        "Go/Rust",
+        "C++/Go/Java"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:56.517Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_pytorch_01",
+      "title": "PyTorch 官方中文教程",
+      "url": "https://pytorch.org/tutorials/",
+      "source": "official",
+      "sourceName": "PyTorch",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "PyTorch/TensorFlow",
+        "深度学习(DNN/CNN/RNN)",
+        "PyTorch",
+        "PyTorch/TensorFlow"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:58.520Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_pytorch_02",
+      "title": "B站：PyTorch 深度学习教程",
+      "url": "https://search.bilibili.com/all?keyword=PyTorch%20%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "PyTorch/TensorFlow",
+        "深度学习(DNN/CNN/RNN)",
+        "PyTorch",
+        "PyTorch/TensorFlow"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:50:59.557Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_pytorch_03",
+      "title": "动手学深度学习（d2l）",
+      "url": "https://zh.d2l.ai/",
+      "source": "tech-site",
+      "sourceName": "d2l.ai",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "PyTorch/TensorFlow",
+        "深度学习(DNN/CNN/RNN)",
+        "PyTorch",
+        "PyTorch/TensorFlow"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:00.604Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_tf_01",
+      "title": "TensorFlow 官方教程",
+      "url": "https://www.tensorflow.org/tutorials?hl=zh-cn",
+      "source": "official",
+      "sourceName": "TensorFlow",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "PyTorch/TensorFlow",
+        "深度学习(DNN/CNN/RNN)",
+        "TensorFlow/PyTorch"
+      ],
+      "status": "unknown",
+      "lastChecked": "2026-08-02T09:51:10.920Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_tf_02",
+      "title": "B站：TensorFlow 2.0 教程",
+      "url": "https://search.bilibili.com/all?keyword=TensorFlow%202.0%20%E6%95%99%E7%A8%8B",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "PyTorch/TensorFlow",
+        "深度学习(DNN/CNN/RNN)",
+        "TensorFlow/PyTorch"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:12.008Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_tf_03",
+      "title": "TensorFlow 中文社区",
+      "url": "https://www.tensorflow.google.cn/",
+      "source": "tech-site",
+      "sourceName": "TensorFlow",
+      "type": "在线文档",
+      "level": "进阶",
+      "skillTags": [
+        "PyTorch/TensorFlow",
+        "深度学习(DNN/CNN/RNN)",
+        "TensorFlow/PyTorch"
+      ],
+      "status": "unknown",
+      "lastChecked": "2026-08-02T09:51:12.467Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_ml_01",
+      "title": "Scikit-learn 官方文档（中文）",
+      "url": "https://scikit-learn.org/stable/",
+      "source": "official",
+      "sourceName": "scikit-learn",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Scikit-learn",
+        "机器学习算法",
+        "机器学习基础"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:14.336Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_ml_02",
+      "title": "B站：机器学习算法实战",
+      "url": "https://search.bilibili.com/all?keyword=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%20%E5%AE%9E%E6%88%98",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Scikit-learn",
+        "机器学习算法",
+        "机器学习基础"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:15.202Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_ml_03",
+      "title": "周志华《机器学习》西瓜书资源",
+      "url": "https://zhuanlan.zhihu.com/p/599911808",
+      "source": "tech-site",
+      "sourceName": "知乎",
+      "type": "学习资源",
+      "level": "进阶",
+      "skillTags": [
+        "Scikit-learn",
+        "机器学习算法",
+        "机器学习基础"
+      ],
+      "status": "unknown",
+      "lastChecked": "2026-08-02T09:51:15.902Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_hadoop_01",
+      "title": "Apache Hadoop 官方文档",
+      "url": "https://hadoop.apache.org/docs/current/",
+      "source": "official",
+      "sourceName": "Apache Hadoop",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Hadoop/HDFS",
+        "Hadoop",
+        "Hadoop/HDFS"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:16.762Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_hadoop_02",
+      "title": "B站：Hadoop 大数据教程",
+      "url": "https://search.bilibili.com/all?keyword=Hadoop%20%E5%A4%A7%E6%95%B0%E6%8D%AE",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Hadoop/HDFS",
+        "Hadoop",
+        "Hadoop/HDFS"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:17.695Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_hadoop_03",
+      "title": "菜鸟教程 - Hadoop 教程",
+      "url": "https://www.runoob.com/hadoop/hadoop-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Hadoop/HDFS",
+        "Hadoop",
+        "Hadoop/HDFS"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:19.407Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_spark_01",
+      "title": "Apache Spark 官方文档",
+      "url": "https://spark.apache.org/docs/latest/",
+      "source": "official",
+      "sourceName": "Apache Spark",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Spark",
+        "Spark SQL",
+        "Spark Streaming",
+        "Spark/Flink",
+        "Spark",
+        "Spark/Flink"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:20.170Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_spark_02",
+      "title": "B站：Spark 大数据处理教程",
+      "url": "https://search.bilibili.com/all?keyword=Spark%20%E5%A4%A7%E6%95%B0%E6%8D%AE",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Spark",
+        "Spark SQL",
+        "Spark Streaming",
+        "Spark/Flink",
+        "Spark",
+        "Spark/Flink"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:21.171Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_spark_03",
+      "title": "Spark 中文社区文档",
+      "url": "https://spark.apachecn.org/",
+      "source": "tech-site",
+      "sourceName": "ApacheCN",
+      "type": "在线文档",
+      "level": "进阶",
+      "skillTags": [
+        "Spark",
+        "Spark SQL",
+        "Spark Streaming",
+        "Spark/Flink",
+        "Spark",
+        "Spark/Flink"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:23.170Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_flink_01",
+      "title": "Apache Flink 官方文档（中文）",
+      "url": "https://flink.apache.org/zh/docs/",
+      "source": "official",
+      "sourceName": "Apache Flink",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Flink",
+        "Spark/Flink"
+      ],
+      "status": "invalid",
+      "lastChecked": "2026-08-02T09:51:24.309Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_flink_02",
+      "title": "B站：Flink 实时计算教程",
+      "url": "https://search.bilibili.com/all?keyword=Flink%20%E5%AE%9E%E6%97%B6%E8%AE%A1%E7%AE%97",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Flink",
+        "Spark/Flink"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:25.348Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_flink_03",
+      "title": "Flink 中文开发者社区",
+      "url": "https://flink-learning.org.cn/",
+      "source": "tech-site",
+      "sourceName": "Flink社区",
+      "type": "在线文档",
+      "level": "进阶",
+      "skillTags": [
+        "Flink",
+        "Spark/Flink"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:26.395Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_kafka_01",
+      "title": "Apache Kafka 官方文档",
+      "url": "https://kafka.apache.org/documentation/",
+      "source": "official",
+      "sourceName": "Apache Kafka",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Kafka",
+        "Kafka/RabbitMQ"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:27.394Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_kafka_02",
+      "title": "B站：Kafka 消息队列教程",
+      "url": "https://search.bilibili.com/all?keyword=Kafka%20%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Kafka",
+        "Kafka/RabbitMQ"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:28.287Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_kafka_03",
+      "title": "菜鸟教程 - Kafka 教程",
+      "url": "https://www.runoob.com/apache-kafka/kafka-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "Kafka",
+        "Kafka/RabbitMQ"
+      ],
+      "status": "invalid",
+      "lastChecked": "2026-08-02T09:51:29.740Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_dsa_01",
+      "title": "力扣 LeetCode 刷题平台",
+      "url": "https://leetcode.cn/",
+      "source": "tech-site",
+      "sourceName": "LeetCode",
+      "type": "在线平台",
+      "level": "进阶",
+      "skillTags": [
+        "数据结构与算法",
+        "LeetCode刷题",
+        "复杂度分析",
+        "动态规划"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:30.306Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_dsa_02",
+      "title": "B站：数据结构与算法教程",
+      "url": "https://search.bilibili.com/all?keyword=%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "数据结构与算法",
+        "LeetCode刷题",
+        "复杂度分析",
+        "动态规划"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:31.231Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_dsa_03",
+      "title": "菜鸟教程 - 数据结构与算法",
+      "url": "https://www.runoob.com/data-structures/data-structures-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "数据结构与算法",
+        "LeetCode刷题",
+        "复杂度分析",
+        "动态规划"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:31.792Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_nginx_01",
+      "title": "Nginx 官方文档",
+      "url": "https://nginx.org/en/docs/",
+      "source": "official",
+      "sourceName": "Nginx",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Nginx"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:33.277Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_nginx_02",
+      "title": "B站：Nginx 入门到精通",
+      "url": "https://search.bilibili.com/all?keyword=Nginx%20%E5%85%A5%E9%97%A8",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Nginx"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:34.279Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_nginx_03",
+      "title": "菜鸟教程 - Nginx 教程",
+      "url": "https://www.runoob.com/w3cnote/nginx-setup-intro.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "Nginx"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:34.845Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_sql_01",
+      "title": "SQL 教程 - SQLZOO",
+      "url": "https://sqlzoo.net/",
+      "source": "tech-site",
+      "sourceName": "SQLZOO",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "SQL",
+        "SQL调优",
+        "索引优化"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:37.419Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_sql_02",
+      "title": "B站：SQL 数据库查询教程",
+      "url": "https://search.bilibili.com/all?keyword=SQL%20%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9F%A5%E8%AF%A2",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "SQL",
+        "SQL调优",
+        "索引优化"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:38.522Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_sql_03",
+      "title": "菜鸟教程 - SQL 教程",
+      "url": "https://www.runoob.com/sql/sql-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "SQL",
+        "SQL调优",
+        "索引优化"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:38.911Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_figma_01",
+      "title": "Figma 官方帮助中心",
+      "url": "https://help.figma.com/hc/en-us",
+      "source": "official",
+      "sourceName": "Figma",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Figma/Sketch",
+        "Figma/Sketch"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:40.287Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_figma_02",
+      "title": "B站：Figma UI 设计教程",
+      "url": "https://search.bilibili.com/all?keyword=Figma%20UI%E8%AE%BE%E8%AE%A1",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Figma/Sketch",
+        "Figma/Sketch"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:41.215Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_figma_03",
+      "title": "Material Design 设计规范",
+      "url": "https://m3.material.io/",
+      "source": "official",
+      "sourceName": "Google",
+      "type": "设计规范",
+      "level": "入门",
+      "skillTags": [
+        "Figma/Sketch",
+        "Figma/Sketch",
+        "响应式设计",
+        "交互设计"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:42.162Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_django_01",
+      "title": "Django 官方文档（中文）",
+      "url": "https://docs.djangoproject.com/zh-hans/4.2/",
+      "source": "official",
+      "sourceName": "Django",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Django",
+        "Django",
+        "Django"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:43.122Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_django_02",
+      "title": "B站：Django Web 开发教程",
+      "url": "https://search.bilibili.com/all?keyword=Django%20Web%E5%BC%80%E5%8F%91",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Django",
+        "Django",
+        "Django"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:44.116Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_django_03",
+      "title": "菜鸟教程 - Django 教程",
+      "url": "https://www.runoob.com/django/django-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "Django",
+        "Django",
+        "Django"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:44.635Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_android_01",
+      "title": "Android 开发者官方文档（中文）",
+      "url": "https://developer.android.google.cn/?hl=zh-cn",
+      "source": "official",
+      "sourceName": "Android",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Android SDK",
+        "Android",
+        "Android核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:45.867Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_android_02",
+      "title": "B站：Android 开发教程",
+      "url": "https://search.bilibili.com/all?keyword=Android%20%E5%BC%80%E5%8F%91%E6%95%99%E7%A8%8B",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Android SDK",
+        "Android",
+        "Android核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:46.793Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_android_03",
+      "title": "菜鸟教程 - Android 教程",
+      "url": "https://www.runoob.com/w3cnote/android-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Android SDK",
+        "Android",
+        "Android核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:47.937Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_ios_01",
+      "title": "Apple 开发者官方文档",
+      "url": "https://developer.apple.com/cn/documentation/",
+      "source": "official",
+      "sourceName": "Apple",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Swift/Objective-C",
+        "UIKit/SwiftUI",
+        "iOS核心",
+        "iOS生命周期"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:49.104Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_ios_02",
+      "title": "B站：Swift iOS 开发教程",
+      "url": "https://search.bilibili.com/all?keyword=Swift%20iOS%20%E5%BC%80%E5%8F%91",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Swift/Objective-C",
+        "UIKit/SwiftUI",
+        "iOS核心",
+        "iOS生命周期"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:51:50.140Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_ios_03",
+      "title": "Swift 官方文档（中文）",
+      "url": "https://swiftgg.gitbook.io/swift/",
+      "source": "tech-site",
+      "sourceName": "SwiftGG",
+      "type": "在线文档",
+      "level": "入门",
+      "skillTags": [
+        "Swift/Objective-C",
+        "UIKit/SwiftUI",
+        "iOS核心",
+        "iOS生命周期"
+      ],
+      "status": "unknown",
+      "lastChecked": "2026-08-02T09:52:00.461Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_flutter_01",
+      "title": "Flutter 官方文档（中文）",
+      "url": "https://flutter.cn/docs",
+      "source": "official",
+      "sourceName": "Flutter",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Flutter Widget",
+        "Dart",
+        "Flutter/React Native",
+        "Flutter核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:01.278Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_flutter_02",
+      "title": "B站：Flutter 跨平台开发教程",
+      "url": "https://search.bilibili.com/all?keyword=Flutter%20%E8%B7%A8%E5%B9%B3%E5%8F%B0",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Flutter Widget",
+        "Dart",
+        "Flutter/React Native",
+        "Flutter核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:02.232Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_flutter_03",
+      "title": "Dart 官方文档",
+      "url": "https://dart.cn/guides",
+      "source": "official",
+      "sourceName": "Dart",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "Flutter Widget",
+        "Dart",
+        "Flutter/React Native",
+        "Flutter核心"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:02.766Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_unity_01",
+      "title": "Unity 官方文档（中文）",
+      "url": "https://docs.unity3d.com/cn/current/Manual/",
+      "source": "official",
+      "sourceName": "Unity",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "游戏引擎(Unity/Unreal)",
+        "Unity/Unreal Engine",
+        "Unity/Unreal"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:04.089Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_unity_02",
+      "title": "B站：Unity 游戏开发教程",
+      "url": "https://search.bilibili.com/all?keyword=Unity%20%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "游戏引擎(Unity/Unreal)",
+        "Unity/Unreal Engine",
+        "Unity/Unreal"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:05.111Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_unity_03",
+      "title": "菜鸟教程 - Unity 教程",
+      "url": "https://www.runoob.com/unity/",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "游戏引擎(Unity/Unreal)",
+        "Unity/Unreal Engine",
+        "Unity/Unreal"
+      ],
+      "status": "invalid",
+      "lastChecked": "2026-08-02T09:52:05.802Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_cpp_01",
+      "title": "C++ 参考文档（cppreference）",
+      "url": "https://zh.cppreference.com/",
+      "source": "official",
+      "sourceName": "cppreference",
+      "type": "官方文档",
+      "level": "入门",
+      "skillTags": [
+        "C++/C#",
+        "C++/Java",
+        "C++/Python",
+        "C++/Go/Java"
+      ],
+      "status": "unknown",
+      "lastChecked": "2026-08-02T09:52:08.247Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_cpp_02",
+      "title": "B站：C++ 基础到进阶教程",
+      "url": "https://search.bilibili.com/all?keyword=C%2B%2B%20%E5%9F%BA%E7%A1%80%E8%BF%9B%E9%98%B6",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "C++/C#",
+        "C++/Java",
+        "C++/Python",
+        "C++/Go/Java"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:09.508Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_cpp_03",
+      "title": "菜鸟教程 - C++ 教程",
+      "url": "https://www.runoob.com/cplusplus/cpp-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "C++/C#",
+        "C++/Java",
+        "C++/Python",
+        "C++/Go/Java"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:09.943Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_verilog_01",
+      "title": "Verilog 教程 - ASIC-World",
+      "url": "https://www.asic-world.com/verilog/veritut.html",
+      "source": "tech-site",
+      "sourceName": "ASIC-World",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Verilog/VHDL",
+        "Verilog/SystemVerilog",
+        "SystemVerilog"
+      ],
+      "status": "unknown",
+      "lastChecked": "2026-08-02T09:52:20.262Z",
+      "failCount": 2
+    },
+    {
+      "id": "res_verilog_02",
+      "title": "B站：Verilog HDL 教程",
+      "url": "https://search.bilibili.com/all?keyword=Verilog%20HDL%20%E6%95%99%E7%A8%8B",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "入门",
+      "skillTags": [
+        "Verilog/VHDL",
+        "Verilog/SystemVerilog",
+        "SystemVerilog"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:21.352Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_verilog_03",
+      "title": "菜鸟教程 - Verilog 教程",
+      "url": "https://www.runoob.com/w3cnote/verilog-tutorial.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "入门",
+      "skillTags": [
+        "Verilog/VHDL",
+        "Verilog/SystemVerilog",
+        "SystemVerilog"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:21.808Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_security_01",
+      "title": "OWASP 官方文档",
+      "url": "https://owasp.org/www-community/",
+      "source": "official",
+      "sourceName": "OWASP",
+      "type": "官方文档",
+      "level": "进阶",
+      "skillTags": [
+        "Web安全",
+        "Web渗透",
+        "网络安全"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:23.827Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_security_02",
+      "title": "B站：Web 安全渗透测试教程",
+      "url": "https://search.bilibili.com/all?keyword=Web%E5%AE%89%E5%85%A8%20%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95",
+      "source": "bilibili",
+      "sourceName": "哔哩哔哩",
+      "type": "视频课程",
+      "level": "进阶",
+      "skillTags": [
+        "Web安全",
+        "Web渗透",
+        "网络安全"
+      ],
+      "status": "valid",
+      "lastChecked": "2026-08-02T09:52:24.719Z",
+      "failCount": 0
+    },
+    {
+      "id": "res_security_03",
+      "title": "菜鸟教程 - 网络安全教程",
+      "url": "https://www.runoob.com/w3cnote/network-security-intro.html",
+      "source": "tech-site",
+      "sourceName": "菜鸟教程",
+      "type": "在线教程",
+      "level": "进阶",
+      "skillTags": [
+        "Web安全",
+        "Web渗透",
+        "网络安全"
+      ],
+      "status": "invalid",
+      "lastChecked": "2026-08-02T09:52:26.424Z",
+      "failCount": 2
+    }
+  ]
+}
