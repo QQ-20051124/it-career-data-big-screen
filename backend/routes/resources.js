@@ -69,10 +69,34 @@ function loadKnowledgeBase() {
   return knowledgeBaseCache
 }
 
-// 资源池（L1 主数据源，来自 local-knowledge-base.json 的 resourcePool）
+// 资源池（L1 主数据源）
+// 合并两个来源：local-knowledge-base.json 的 resourcePool + learning-resources.json 的 resources
+// learning-resources.json 包含 174 条带 skillTags 的静态资源，是精准匹配的主要数据源
+// local-knowledge-base.json 的 resourcePool 用于存储巡检后动态更新的资源
 function loadResourcePool() {
   const kb = loadKnowledgeBase()
-  return kb.resourcePool || []
+  const kbPool = kb.resourcePool || []
+  // 加载静态资源库（learning-resources.json）
+  const staticData = loadResources()
+  const staticPool = staticData.resources || []
+  // 合并去重（按 url 去重，kbPool 优先级更高——可能包含更新后的 status）
+  const seen = new Set()
+  const merged = []
+  for (const r of kbPool) {
+    const key = r.url || r.id
+    if (key && !seen.has(key)) {
+      seen.add(key)
+      merged.push(r)
+    }
+  }
+  for (const r of staticPool) {
+    const key = r.url || r.id
+    if (key && !seen.has(key)) {
+      seen.add(key)
+      merged.push(r)
+    }
+  }
+  return merged
 }
 
 // 保存资源池（巡检后更新 status）
@@ -392,6 +416,9 @@ function isSkillRelevant(resourceName, skillName) {
 async function matchSkillResources(skillName, positionKey, options = {}) {
   const { skipCoze = false, skipLinkCheck = false } = options
 
+  // 闭包：固定 skillName 和 positionKey，每个资源自动生成 duration/practicePlan/tools
+  const sanitize = (r) => sanitizeResource(r, skillName, positionKey)
+
   // ===== 一级匹配：本地资源池精准匹配 =====
   const pool = loadResourcePool()
   const dbMatched = pool.filter(r => isSkillMatched(r, skillName) && r.status !== 'invalid')
@@ -402,7 +429,7 @@ async function matchSkillResources(skillName, positionKey, options = {}) {
   // 一级满足条件（至少1文档+1视频）→ 直接返回
   if (hasTextAndVideo(validResources)) {
     return {
-      resources: sortBySourcePriority(validResources).map(sanitizeResource),
+      resources: sortBySourcePriority(validResources).map(sanitize),
       source: 'level1',
       practiceTip: buildPracticeTip(skillName, validResources),
       tools: buildTools(skillName, positionKey, validResources),
@@ -422,7 +449,7 @@ async function matchSkillResources(skillName, positionKey, options = {}) {
 
       if (hasTextAndVideo(merged)) {
         return {
-          resources: sortBySourcePriority(merged).map(sanitizeResource),
+          resources: sortBySourcePriority(merged).map(sanitize),
           source: 'level2',
           practiceTip: buildPracticeTip(skillName, merged),
           tools: buildTools(skillName, positionKey, merged),
@@ -446,7 +473,7 @@ async function matchSkillResources(skillName, positionKey, options = {}) {
   }
 
   return {
-    resources: sortBySourcePriority(merged).map(sanitizeResource),
+    resources: sortBySourcePriority(merged).map(sanitize),
     source: 'level3',
     practiceTip: buildPracticeTip(skillName, merged),
     tools: buildTools(skillName, positionKey, merged),
@@ -669,8 +696,95 @@ router.post('/match', identifyUser, (req, res) => {
   }
 })
 
-// 脱敏输出（不暴露 failCount 等内部字段，保留前端需要的 backupUrl/practicePlan/recommendedTools）
-function sanitizeResource(r) {
+// 根据资源的 level 和 type 自动估算学习时长（分钟）
+function estimateDuration(level, type) {
+  const levelDurations = {
+    '入门': 30, '基础': 30, '初级': 30,
+    '进阶': 60, '中级': 60,
+    '实战': 90, '高级': 90, '专家': 120
+  }
+  const typeMultiplier = {
+    '官方文档': 1.2, '视频课程': 1.0, '在线教程': 1.0,
+    '图书': 1.5, '面试题': 0.5, '项目实战': 2.0,
+    '博客': 0.6, '技术文章': 0.8
+  }
+  const base = levelDurations[level] || 45
+  const mult = typeMultiplier[type] || 1.0
+  return Math.round(base * mult)
+}
+
+// 根据资源类型生成实践练习方案
+function generatePracticePlan(resource, skillName) {
+  if (resource.practicePlan && resource.practicePlan.length > 0) {
+    return resource.practicePlan
+  }
+  const type = resource.type || ''
+  const level = resource.level || ''
+  const name = resource.title || ''
+
+  if (type.includes('官方文档') || type.includes('文档')) {
+    return [
+      `阅读「${name}」前 3 个核心章节，做好笔记`,
+      `完成文档中的代码示例并本地运行`,
+      '基于文档内容回答 3 个思考题',
+      '总结文档中的关键 API 和最佳实践'
+    ]
+  } else if (type.includes('视频') || type.includes('课程')) {
+    return [
+      `完整观看「${name}」，记录关键知识点`,
+      '暂停视频同步敲代码，跟随老师完成实战项目',
+      '在评论区回答 1 个同学的问题巩固理解',
+      '整理学习笔记，分享到技术社区'
+    ]
+  } else if (type.includes('在线教程') || type.includes('博客')) {
+    return [
+      `通读「${name}」，标记不理解的部分`,
+      '完成教程中的代码练习和实战项目',
+      '查阅延伸阅读资料加深理解',
+      '写一篇学习总结博客'
+    ]
+  } else if (type.includes('项目') || type.includes('实战')) {
+    return [
+      '分析项目需求和技术架构',
+      '搭建项目骨架和核心模块',
+      '实现核心功能并调试',
+      '部署项目并编写 README 文档'
+    ]
+  }
+
+  return [
+    `学习「${skillName}」核心概念，参考「${name}」`,
+    '完成 1-2 个小型实战项目巩固知识',
+    '在 LeetCode/牛客网做相关题目',
+    '阅读开源项目源码学习工程实践'
+  ]
+}
+
+// 根据资源和技能生成推荐工具
+function generateTools(resource, skillName, positionKey) {
+  if (resource.recommendedTools && resource.recommendedTools.length > 0) {
+    return resource.recommendedTools.slice(0, 6)
+  }
+  const toolsByCategory = {
+    'frontend': ['VS Code', 'Chrome DevTools', 'GitHub', 'Node.js', 'npm/pnpm', 'Vite/Webpack'],
+    'backend': ['VS Code', 'Postman', 'Docker', 'MySQL', 'Redis', 'Git'],
+    'ai': ['Jupyter Notebook', 'PyTorch', 'TensorFlow', 'VS Code', 'Datasets', 'Weights & Biases'],
+    'mobile': ['Android Studio', 'Xcode', 'VS Code', 'Gradle', 'CocoaPods', 'Firebase'],
+    'devops': ['Docker', 'Kubernetes', 'Jenkins', 'GitLab CI', 'Prometheus', 'Grafana'],
+    'game': ['Unity', 'Unreal Engine', 'VS Code', 'Visual Studio', 'Git', 'Perforce'],
+    'security': ['Burp Suite', 'Wireshark', 'Metasploit', 'Nmap', 'Postman', 'Docker'],
+    'data': ['Jupyter Notebook', 'DBeaver', 'DataGrip', 'Tableau', 'Power BI', 'Apache Spark']
+  }
+  if (positionKey && toolsByCategory[positionKey]) {
+    return toolsByCategory[positionKey]
+  }
+  // 通用工具
+  return ['VS Code', 'Git', 'Chrome', 'Postman', 'Docker', 'GitHub']
+}
+
+// 脱敏输出（不暴露 failCount 等内部字段，保留前端需要的 practicePlan/recommendedTools/duration
+function sanitizeResource(r, skillName, positionKey) {
+  const duration = r.duration || estimateDuration(r.level, r.type)
   return {
     id: r.id,
     title: r.title,
@@ -683,8 +797,9 @@ function sanitizeResource(r) {
     status: r.status,
     desc: r.desc || '',
     skillTags: Array.isArray(r.skillTags) ? r.skillTags : [],
-    practicePlan: Array.isArray(r.practicePlan) ? r.practicePlan : [],
-    recommendedTools: Array.isArray(r.recommendedTools) ? r.recommendedTools : [],
+    duration,
+    practicePlan: generatePracticePlan(r, skillName),
+    recommendedTools: generateTools(r, skillName, positionKey),
     lastChecked: r.lastChecked
   }
 }

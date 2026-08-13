@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="job-community">
     <canvas ref="bgCanvas" class="bg-canvas"></canvas>
     <div class="community-container">
@@ -33,17 +33,17 @@
         </div>
         <div class="nav-right">
           <button class="publish-btn" @click="showPublishModal = true">+ 发布经验</button>
-          <button class="user-profile" type="button" @click="toggleUserMenu">
+          <div class="user-profile" @click="toggleUserMenu">
             <img :src="currentUser.avatar" alt="头像" />
-          </button>
-          <div v-if="showUserMenu" class="user-menu">
-            <button class="menu-item" type="button" @click.stop="handleMenuClick('profile')">👤 个人主页</button>
-            <button class="menu-item" type="button" @click.stop="handleMenuClick('publish')">📝 我的发布</button>
-            <button class="menu-item" type="button" @click.stop="handleMenuClick('applies')">📋 我的投递</button>
-            <button class="menu-item" type="button" @click.stop="handleMenuClick('collect')">💾 我的收藏</button>
-            <button class="menu-item" type="button" @click.stop="handleMenuClick('settings')">⚙️ 设置</button>
-            <div class="menu-divider"></div>
-            <button class="menu-item logout" type="button" @click.stop="handleMenuClick('logout')">🚪 退出登录</button>
+            <div class="user-menu" :class="{ 'user-menu-visible': showUserMenu }">
+              <div class="menu-item" @click="handleMenuClick('profile', $event)">👤 个人主页</div>
+              <div class="menu-item" @click="handleMenuClick('publish', $event)">📝 我的发布</div>
+              <div class="menu-item" @click="handleMenuClick('applies', $event)">📋 我的投递</div>
+              <div class="menu-item" @click="handleMenuClick('collect', $event)">💾 我的收藏</div>
+              <div class="menu-item" @click="handleMenuClick('settings', $event)">⚙️ 设置</div>
+              <div class="menu-divider"></div>
+              <div class="menu-item logout" @click="handleMenuClick('logout', $event)">🚪 退出登录</div>
+            </div>
           </div>
         </div>
       </nav>
@@ -54,6 +54,11 @@
         <div class="search-box">
           <input v-model="searchQuery" type="text" placeholder="搜索面试经验、岗位、问题" class="search-input" @keyup.enter="handleSearch"/>
           <button class="search-btn" @click="handleSearch">搜索</button>
+        </div>
+        <div v-if="searchHistory.length > 0" class="search-history">
+          <span class="history-label">搜索历史：</span>
+          <span v-for="(h, i) in searchHistory" :key="i" class="history-item" @click="handleKeywordSearch(h)">{{ h }}</span>
+          <span class="history-clear" @click="clearSearchHistory">清空</span>
         </div>
         <div class="hot-keywords">
           <span v-for="kw in hotKeywords" :key="kw" class="keyword-item" @click="handleKeywordSearch(kw)">{{ kw }}</span>
@@ -88,16 +93,17 @@
                 <span :class="{ active: filterType === 'latest' }" @click="filterType = 'latest'">最新</span>
               </div>
             </div>
-            <div class="interview-list">
-              <div v-if="filteredInterviews.length === 0" class="empty-state">
-                <div class="empty-icon">📝</div>
-                <p>暂无面试经验分享</p>
-                <span class="empty-hint">点击右上角"发布经验"分享你的面试经历</span>
+            <!-- 热门精选区：仅最热模式且非搜索时展示前5条 -->
+            <div v-if="hotFeaturedInterviews.length > 0" class="featured-section">
+              <div class="featured-header">
+                <span class="featured-title">🏆 热门精选 TOP 5</span>
+                <span class="featured-desc">社区最高热度面经</span>
               </div>
-              <div v-for="(item, index) in filteredInterviews" :key="index" class="interview-card" @click="openDetail('interview', item)">
-                <div class="card-rank" :class="getRankClass(index)">{{ index + 1 }}</div>
-                <div class="card-main">
-                  <div class="card-badges">
+              <div class="interview-list">
+                <div v-for="(item, index) in hotFeaturedInterviews" :key="'feat-' + index" class="interview-card featured-card" @click="openDetail('interview', item)">
+                  <div class="card-rank" :class="getRankClass(index)">{{ index + 1 }}</div>
+                  <div class="card-main">
+                    <div class="card-badges">
                       <span v-if="item.likes > 200" class="badge hot">🔥 热门</span>
                       <span v-if="item.comments > 100" class="badge active">💬 热议</span>
                     </div>
@@ -108,37 +114,109 @@
                         <div class="card-meta">
                           <span class="card-author">{{ item.author }}</span>
                           <span class="card-time">{{ item.time }}</span>
-                          <span v-if="getOnlineStatus(item.author) === 'online'" class="card-status online">在线</span>
-                          <span v-else class="card-status offline">离线</span>
+                          <span class="card-status" :class="getOnlineStatus(item.author)">在线</span>
                         </div>
                       </div>
                     </div>
-                  <div class="card-tags">
-                    <span v-for="tag in item.tags" :key="tag" class="tag" @click.stop="handleKeywordSearch(tag)">{{ tag }}</span>
+                    <div class="card-tags">
+                      <span v-for="tag in item.tags" :key="tag" class="tag" @click.stop="handleKeywordSearch(tag)">{{ tag }}</span>
+                    </div>
+                    <p class="card-preview">{{ item.preview }}</p>
+                    <div class="card-actions">
+                      <button class="action-btn" :class="{ active: item.liked }" @click.stop="toggleLike(item)">
+                        <span class="action-icon">{{ item.liked ? '❤️' : '🤍' }}</span>
+                        <span class="action-num">{{ item.likes }}</span>
+                      </button>
+                      <button class="action-btn" @click.stop="openCommentModal(item)">
+                        <span class="action-icon">💬</span>
+                        <span class="action-num">{{ item.comments }}</span>
+                      </button>
+                      <button class="action-btn" :class="{ active: item.collected }" @click.stop="toggleCollect(item)">
+                        <span class="action-icon">{{ item.collected ? '⭐' : '☆' }}</span>
+                        <span class="action-num">{{ item.collected ? '已收藏' : '收藏' }}</span>
+                      </button>
+                      <button class="action-btn" @click.stop="shareItem(item)">
+                        <span class="action-icon">🔗</span>
+                        <span class="action-num">分享</span>
+                      </button>
+                      <span class="action-stat">
+                        <span class="action-icon">👁️</span>
+                        <span class="action-num">{{ item.views }}</span>
+                      </span>
+                    </div>
                   </div>
-                  <p class="card-preview">{{ item.preview }}</p>
-                  <div class="card-actions">
-                    <button class="action-btn" :class="{ active: item.liked }" @click.stop="toggleLike(item)">
-                      <span class="action-icon">{{ item.liked ? '❤️' : '🤍' }}</span>
-                      <span class="action-num">{{ item.likes }}</span>
-                    </button>
-                    <button class="action-btn" @click.stop="openCommentModal(item)">
-                      <span class="action-icon">💬</span>
-                      <span class="action-num">{{ item.comments }}</span>
-                    </button>
-                    <button class="action-btn" :class="{ active: item.collected }" @click.stop="toggleCollect(item)">
-                      <span class="action-icon">{{ item.collected ? '⭐' : '☆' }}</span>
-                      <span class="action-num">{{ item.collected ? '已收藏' : '收藏' }}</span>
-                    </button>
-                    <button class="action-btn" @click.stop="shareItem(item)">
-                      <span class="action-icon">🔗</span>
-                      <span class="action-num">分享</span>
-                    </button>
-                    <span class="action-stat">
-                      <span class="action-icon">👁️</span>
-                      <span class="action-num">{{ item.views }}</span>
-                    </span>
+                </div>
+              </div>
+            </div>
+            <!-- 全部面经列表区 -->
+            <div class="normal-section">
+              <div v-if="hotFeaturedInterviews.length > 0" class="normal-section-header">
+                <span class="normal-section-title">📋 全部面经</span>
+                <span class="normal-section-count">共 {{ interviewRemainingCount }} 条</span>
+              </div>
+              <div class="interview-list">
+                <div v-for="(item, index) in paginatedInterviews" :key="'norm-' + index" class="interview-card" @click="openDetail('interview', item)">
+                  <div class="card-rank">{{ index + 1 }}</div>
+                  <div class="card-main">
+                    <div class="card-badges">
+                      <span v-if="item.likes > 200" class="badge hot">🔥 热门</span>
+                      <span v-if="item.comments > 100" class="badge active">💬 热议</span>
+                    </div>
+                    <div class="card-header">
+                      <img :src="item.avatar" class="card-avatar" />
+                      <div class="card-title-wrap">
+                        <h3 class="card-title">{{ item.title }}</h3>
+                        <div class="card-meta">
+                          <span class="card-author">{{ item.author }}</span>
+                          <span class="card-time">{{ item.time }}</span>
+                          <span class="card-status" :class="getOnlineStatus(item.author)">在线</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-tags">
+                      <span v-for="tag in item.tags" :key="tag" class="tag" @click.stop="handleKeywordSearch(tag)">{{ tag }}</span>
+                    </div>
+                    <p class="card-preview">{{ item.preview }}</p>
+                    <div class="card-actions">
+                      <button class="action-btn" :class="{ active: item.liked }" @click.stop="toggleLike(item)">
+                        <span class="action-icon">{{ item.liked ? '❤️' : '🤍' }}</span>
+                        <span class="action-num">{{ item.likes }}</span>
+                      </button>
+                      <button class="action-btn" @click.stop="openCommentModal(item)">
+                        <span class="action-icon">💬</span>
+                        <span class="action-num">{{ item.comments }}</span>
+                      </button>
+                      <button class="action-btn" :class="{ active: item.collected }" @click.stop="toggleCollect(item)">
+                        <span class="action-icon">{{ item.collected ? '⭐' : '☆' }}</span>
+                        <span class="action-num">{{ item.collected ? '已收藏' : '收藏' }}</span>
+                      </button>
+                      <button class="action-btn" @click.stop="shareItem(item)">
+                        <span class="action-icon">🔗</span>
+                        <span class="action-num">分享</span>
+                      </button>
+                      <span class="action-stat">
+                        <span class="action-icon">👁️</span>
+                        <span class="action-num">{{ item.views }}</span>
+                      </span>
+                    </div>
                   </div>
+                </div>
+              </div>
+              <div v-if="filteredInterviews.length === 0" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>暂无匹配的面经</p>
+              </div>
+              <div v-if="interviewTotalPages > 1" class="pagination">
+                <span class="pagination-info">共 {{ interviewRemainingCount }} 条面经，第 {{ interviewCurrentPage }} / {{ interviewTotalPages }} 页</span>
+                <div class="pagination-controls">
+                  <button class="page-btn" :disabled="interviewCurrentPage === 1" @click="prevInterviewPage">‹ 上一页</button>
+                  <button 
+                    v-for="(page, index) in interviewPageNumbers" 
+                    :key="index" 
+                    :class="['page-btn', { active: page === interviewCurrentPage, disabled: page === '...' }]"
+                    @click="handleInterviewPageClick(page)"
+                  >{{ page }}</button>
+                  <button class="page-btn" :disabled="interviewCurrentPage >= interviewTotalPages" @click="nextInterviewPage">下一页 ›</button>
                 </div>
               </div>
             </div>
@@ -148,18 +226,13 @@
             <div class="section-header">
               <span class="section-title">💼 {{ searchQuery ? `搜索 "${searchQuery}" 的结果` : '岗位速递' }}</span>
               <div class="section-filters">
-                <span :class="{ active: jobFilter === 'all' }" @click="jobFilter = 'all'">全部</span>
-                <span :class="{ active: jobFilter === 'campus' }" @click="jobFilter = 'campus'">校招</span>
-                <span :class="{ active: jobFilter === 'social' }" @click="jobFilter = 'social'">社招</span>
+                <span :class="{ active: jobFilter === 'all' }" @click="jobFilter = 'all'; jobCurrentPage = 1">全部</span>
+                <span :class="{ active: jobFilter === 'campus' }" @click="jobFilter = 'campus'; jobCurrentPage = 1">校招</span>
+                <span :class="{ active: jobFilter === 'social' }" @click="jobFilter = 'social'; jobCurrentPage = 1">社招</span>
               </div>
             </div>
             <div class="job-grid">
-              <div v-if="filteredJobs.length === 0" class="empty-state">
-                <div class="empty-icon">💼</div>
-                <p>暂无匹配的岗位</p>
-                <span class="empty-hint">调整筛选条件或搜索关键词</span>
-              </div>
-              <div v-for="(job, index) in filteredJobs" :key="job.id" class="job-card" @click="openDetail('job', job)">
+              <div v-for="job in paginatedFilteredJobs" :key="job.id" class="job-card" @click="openDetail('job', job)">
                 <h3 class="job-title">{{ job.title }}</h3>
                 <p class="job-company">{{ job.company }}</p>
                 <div class="job-info">
@@ -181,32 +254,54 @@
                 </div>
               </div>
             </div>
+            <div v-if="filteredJobs.length === 0" class="empty-state">
+              <div class="empty-icon">📭</div>
+              <p>暂无匹配的岗位</p>
+            </div>
+            <div v-if="filteredJobs.length > jobPageSize" class="pagination">
+              <span class="pagination-info">共 {{ filteredJobs.length }} 个岗位，第 {{ jobCurrentPage }} / {{ Math.ceil(filteredJobs.length / jobPageSize) }} 页</span>
+              <div class="pagination-controls">
+                <button class="page-btn" :disabled="jobCurrentPage === 1" @click="prevPage">‹ 上一页</button>
+                <button 
+                  v-for="(page, index) in pageNumbers" 
+                  :key="index" 
+                  :class="['page-btn', { active: page === jobCurrentPage, disabled: page === '...' }]"
+                  @click="handlePageClick(page)"
+                >{{ page }}</button>
+                <button class="page-btn" :disabled="jobCurrentPage >= Math.ceil(filteredJobs.length / jobPageSize)" @click="nextPage">下一页 ›</button>
+              </div>
+            </div>
           </div>
 
           <div v-if="activeTab === 'qa'" class="tab-content">
             <div class="section-header">
               <span class="section-title">❓ {{ searchQuery ? `搜索 "${searchQuery}" 的结果` : '求职问答' }}</span>
               <div class="section-filters">
+                <span :class="{ active: qaFilter === 'all' }" @click="qaFilter = 'all'">全部</span>
                 <span :class="{ active: qaFilter === 'unsolved' }" @click="qaFilter = 'unsolved'">待解答</span>
                 <span :class="{ active: qaFilter === 'solved' }" @click="qaFilter = 'solved'">已解答</span>
+                <span :class="{ active: qaFilter === 'followed' }" @click="qaFilter = 'followed'">已关注</span>
               </div>
             </div>
             <div class="qa-list">
-              <div v-if="filteredQAs.length === 0" class="empty-state">
-                <div class="empty-icon">❓</div>
-                <p>暂无问答内容</p>
-                <span class="empty-hint">发布你的第一个问题吧</span>
-              </div>
-              <div v-for="(qa, index) in filteredQAs" :key="index" class="qa-card" @click="openDetail('qa', qa)">
+              <div v-for="(qa, index) in paginatedQAs" :key="index" class="qa-card" @click="openDetail('qa', qa)">
                 <div class="qa-header">
                   <img :src="qa.avatar" class="qa-avatar" />
                   <div class="qa-title-wrap">
-                    <h3 class="qa-title">{{ qa.title }}</h3>
+                    <div class="qa-title-row">
+                      <h3 class="qa-title">{{ qa.title }}</h3>
+                      <span class="qa-status" :class="qa.solved ? 'solved' : 'unsolved'">
+                        {{ qa.solved ? '✅ 已解答' : '⏳ 待解答' }}
+                      </span>
+                    </div>
                     <div class="qa-meta">
                       <span>{{ qa.author }}</span>
                       <span>{{ qa.time }}</span>
                     </div>
                   </div>
+                  <button class="qa-follow-btn" :class="{ followed: followedQuestionIds.has(qa.title) }" @click.stop="toggleFollowQuestion(qa)">
+                    {{ followedQuestionIds.has(qa.title) ? '已关注' : '+关注' }}
+                  </button>
                 </div>
                 <div class="qa-tags">
                   <span v-for="tag in qa.tags" :key="tag" class="qa-tag">{{ tag }}</span>
@@ -217,10 +312,27 @@
                     <span>💬</span>
                     <span>{{ qa.answers }}回答</span>
                   </button>
-                  <span class="qa-action-btn" :class="qa.solved ? 'solved' : 'unsolved'">
-                    {{ qa.solved ? '✅已解决' : '⏳待解答' }}
+                  <span v-if="qa.bestAnswer" class="qa-best-answer">
+                    🏆 最佳回答 {{ qa.bestAnswer.likes }}赞
                   </span>
                 </div>
+              </div>
+              <div v-if="filteredQAs.length === 0" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>{{ qaFilter === 'followed' ? '暂未关注任何问题，快去关注感兴趣的问题吧！' : '暂无相关问题' }}</p>
+              </div>
+            </div>
+            <div v-if="qaTotalPages > 1" class="pagination">
+              <span class="pagination-info">共 {{ filteredQAs.length }} 个问题，第 {{ qaCurrentPage }} / {{ qaTotalPages }} 页</span>
+              <div class="pagination-controls">
+                <button class="page-btn" :disabled="qaCurrentPage === 1" @click="prevQaPage">‹ 上一页</button>
+                <button 
+                  v-for="(page, index) in qaPageNumbers" 
+                  :key="index" 
+                  :class="['page-btn', { active: page === qaCurrentPage, disabled: page === '...' }]"
+                  @click="handleQaPageClick(page)"
+                >{{ page }}</button>
+                <button class="page-btn" :disabled="qaCurrentPage >= qaTotalPages" @click="nextQaPage">下一页 ›</button>
               </div>
             </div>
           </div>
@@ -230,11 +342,6 @@
               <span class="section-title">👨‍👩‍👧‍👦 {{ searchQuery ? `搜索 "${searchQuery}" 的结果` : '求职小组' }}</span>
             </div>
             <div class="group-grid">
-              <div v-if="groupList.length === 0" class="empty-state">
-                <div class="empty-icon">👥</div>
-                <p>暂无小组</p>
-                <span class="empty-hint">创建或加入感兴趣的小组</span>
-              </div>
               <div v-for="(group, index) in groupList" :key="index" class="group-card" @click="openDetail('group', group)">
                 <div class="group-icon">{{ group.name.charAt(0) }}</div>
                 <h3 class="group-name">{{ group.name }}</h3>
@@ -243,7 +350,10 @@
                   <span>{{ group.members }}成员</span>
                   <span>{{ group.posts }}帖子/周</span>
                 </div>
-                <button class="join-btn" @click.stop="toggleJoin(group)">{{ group.joined ? '已加入' : '加入' }}</button>
+                <div class="group-actions">
+                  <button v-if="group.joined" class="join-btn chat-btn" @click.stop="openGroupChat(group)">💬 群聊</button>
+                  <button class="join-btn" @click.stop="toggleJoin(group)">{{ group.joined ? '已加入' : '加入' }}</button>
+                </div>
               </div>
             </div>
           </div>
@@ -254,15 +364,13 @@
             <h4>在线用户</h4>
             <div class="avatar-stack">
               <img v-for="user in onlineUsers" :key="user.name" :src="user.avatar" class="mini-avatar" />
-              <span v-if="onlineUsers.length === 0" class="empty-tip">暂无在线用户</span>
             </div>
             <span class="online-count">{{ onlineUsers.length }}人在线</span>
           </div>
 
           <div class="hot-topics">
             <h4>热门话题</h4>
-            <div v-if="hotTopics.length === 0" class="empty-tip">暂无热门话题</div>
-            <div v-else class="topic-list">
+            <div class="topic-list">
               <div v-for="(topic, index) in hotTopics" :key="index" class="topic-item" @click="openTopicDetail(topic)">
                 <span class="topic-rank">{{ index + 1 }}</span>
                 <span class="topic-name">{{ topic.name }}</span>
@@ -273,28 +381,36 @@
 
           <div class="recommend-users">
             <h4>推荐关注</h4>
-            <div v-if="recommendUsers.length === 0" class="empty-tip">暂无推荐用户</div>
-            <div v-else class="user-list">
-              <div v-for="(user, index) in recommendUsers" :key="index" class="user-item">
+            <div class="user-list">
+              <div v-for="(user, index) in recommendUsers" :key="index" class="user-item" @click="openUserProfile(user.name)">
                 <img :src="user.avatar" class="user-avatar" />
                 <div class="user-detail">
                   <span class="user-name">{{ user.name }}</span>
                   <span class="user-title">{{ user.title }}</span>
                 </div>
-                <button class="follow-btn" @click="toggleFollow(user)">{{ user.followed ? '已关注' : '+关注' }}</button>
-                <button v-if="user.followed" class="chat-btn" @click="openChat(user)">私信</button>
+                <button class="follow-btn" @click.stop="toggleFollow(user)">{{ user.followed ? '已关注' : '+关注' }}</button>
+                <button v-if="user.followed" class="chat-btn" @click.stop="openChat(user)">私信</button>
               </div>
             </div>
           </div>
 
           <div class="weekly-rank">
-            <h4>本周活跃榜</h4>
+            <h4>本周活跃榜 <span class="rank-rule-toggle" @click="showPointsRule = !showPointsRule">💡积分规则</span></h4>
+            <div v-if="showPointsRule" class="points-rule">
+              <div class="rule-title">积分计算方式</div>
+              <div class="rule-item">👍 点赞 × 1分</div>
+              <div class="rule-item">💬 评论 × 2分</div>
+              <div class="rule-item">👁️ 浏览 ÷ 10分</div>
+              <div class="rule-item">📝 发布奖励 30分(首次)</div>
+              <div class="rule-item">❓ 回答问题 × 5分</div>
+            </div>
             <div class="rank-list">
-              <div v-for="(rank, index) in weeklyRank" :key="index" class="rank-item">
+              <div v-for="(rank, index) in weeklyRank" :key="index" class="rank-item" :class="getRankClass(index)" @click="openUserProfile(rank.name)">
                 <span class="rank-num">{{ index + 1 }}</span>
                 <img :src="rank.avatar" class="rank-avatar" />
                 <span class="rank-name">{{ rank.name }}</span>
                 <span class="rank-score">{{ rank.score }}积分</span>
+                <span class="rank-view-hint">查看主页 ›</span>
               </div>
             </div>
           </div>
@@ -311,11 +427,11 @@
         <button class="close-btn" @click="closeDetail">✕</button>
         <div v-if="detailType === 'interview'" class="detail-body">
           <div class="detail-header">
-            <img :src="detailData.avatar" class="detail-avatar" />
+            <img :src="detailData.avatar" class="detail-avatar" @click="closeDetail(); openUserProfile(detailData.author)" />
             <div class="detail-author">
               <h2>{{ detailData.title }}</h2>
               <div class="detail-meta">
-                <span>{{ detailData.author }}</span>
+                <span class="detail-author-name" @click="closeDetail(); openUserProfile(detailData.author)">{{ detailData.author }} ›</span>
                 <span>{{ detailData.time }}</span>
                 <span>👁️{{ detailData.views }}</span>
               </div>
@@ -425,6 +541,9 @@
                 <span>{{ detailData.author }}</span>
                 <span>{{ detailData.time }}</span>
                 <span :class="['qa-status', detailData.solved ? 'solved' : 'unsolved']">{{ detailData.solved ? '✅ 已解答' : '⏳ 待解答' }}</span>
+                <button class="qa-follow-btn" :class="{ followed: followedQuestionIds.has(detailData.title) }" @click="toggleFollowQuestion(detailData)">
+                  {{ followedQuestionIds.has(detailData.title) ? '已关注' : '+关注' }}
+                </button>
               </div>
             </div>
           </div>
@@ -545,20 +664,104 @@
           <span v-for="(tag, index) in currentTopic?.related" :key="index" class="related-tag" @click="handleKeywordSearch(tag)">{{ tag }}</span>
         </div>
         <div class="topic-content">
-          <h3>🔥 热门讨论</h3>
+          <h3>🔥 热门讨论 <span class="topic-sort-tip">（按热度排序）</span></h3>
+          <div v-if="topicRelatedPosts.length === 0" class="empty-state">
+            <div class="empty-icon">📭</div>
+            <p>该话题暂无相关讨论</p>
+          </div>
           <div class="topic-posts">
-            <div v-for="(post, index) in topicRelatedPosts" :key="index" class="topic-post" @click="openDetail('interview', post)">
-              <img :src="post.avatar" class="post-avatar-sm" />
+            <div v-for="(post, index) in topicRelatedPosts" :key="index" class="topic-post" :class="{ 'topic-post-top': index < 3 }" @click="openDetailFromTopic('interview', post)">
+              <span class="topic-post-rank" :class="getRankClass(index)">{{ index + 1 }}</span>
+              <img :src="post.avatar" class="post-avatar-sm" @click.stop="openUserProfile(post.author)" />
               <div class="post-info">
                 <h4 class="post-title">{{ post.title }}</h4>
                 <div class="post-meta">
-                  <span>{{ post.author }}</span>
+                  <span class="post-author" @click.stop="openUserProfile(post.author)">{{ post.author }}</span>
                   <span>{{ post.time }}</span>
-                  <span>{{ post.comments }}评论</span>
-                  <span>{{ post.likes }}赞</span>
+                  <span>💬 {{ post.comments }}</span>
+                  <span>❤️ {{ post.likes }}</span>
+                  <span class="post-heat">🔥 {{ computeHeat(post) }}</span>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 用户主页弹窗 -->
+    <div v-if="showUserProfile" class="publish-modal" @click.self="closeUserProfile">
+      <div class="modal-content user-profile-modal">
+        <button class="close-btn" @click="closeUserProfile">✕</button>
+        <div v-if="userProfileData" class="user-profile-body">
+          <div class="up-header">
+            <img :src="userProfileData.avatar" class="up-avatar" />
+            <div class="up-info">
+              <h2 class="up-name">{{ userProfileData.name }}</h2>
+              <p class="up-title">{{ userProfileData.title || '社区活跃用户' }}</p>
+              <div class="up-stats">
+                <span class="up-stat"><strong>{{ userProfileData.score }}</strong> 积分</span>
+                <span class="up-stat"><strong>{{ userProfileData.postCount }}</strong> 篇面经</span>
+                <span class="up-stat"><strong>{{ userProfileData.qaCount }}</strong> 个问答</span>
+                <span class="up-stat"><strong>{{ userProfileData.totalLikes }}</strong> 总获赞</span>
+              </div>
+              <div class="up-rank-info">
+                <span v-if="userProfileData.rank > 0" class="up-rank-badge">🏆 活跃榜第 {{ userProfileData.rank }} 名</span>
+                <span v-else class="up-rank-badge up-rank-unlisted">暂未上榜，继续努力</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="up-tabs">
+            <span :class="{ active: userProfileTab === 'posts' }" @click="userProfileTab = 'posts'">📝 发布的面经 ({{ userProfileData.posts.length }})</span>
+            <span :class="{ active: userProfileTab === 'qas' }" @click="userProfileTab = 'qas'">❓ 参与的问答 ({{ userProfileData.qas.length }})</span>
+          </div>
+
+          <div class="up-list">
+            <template v-if="userProfileTab === 'posts'">
+              <div v-if="userProfileData.posts.length === 0" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>该用户暂未发布面经</p>
+              </div>
+              <div v-for="(post, index) in userProfileData.posts" :key="'up-' + index" class="my-publish-item" @click="openDetail('interview', post); closeUserProfile()">
+                <div class="publish-rank">{{ index + 1 }}</div>
+                <div class="publish-info">
+                  <h4 class="publish-title">{{ post.title }}</h4>
+                  <div class="publish-tags">
+                    <span v-for="(tag, tIndex) in post.tags" :key="tIndex" class="publish-tag">{{ tag }}</span>
+                  </div>
+                  <div class="publish-stats">
+                    <span>👁️ {{ post.views }}</span>
+                    <span>❤️ {{ post.likes }}</span>
+                    <span>💬 {{ post.comments }}</span>
+                    <span class="post-heat">🔥 {{ computeHeat(post) }}</span>
+                  </div>
+                </div>
+                <div class="publish-time">{{ post.time }}</div>
+              </div>
+            </template>
+
+            <template v-if="userProfileTab === 'qas'">
+              <div v-if="userProfileData.qas.length === 0" class="empty-state">
+                <div class="empty-icon">❓</div>
+                <p>该用户暂未参与问答</p>
+              </div>
+              <div v-for="(qa, index) in userProfileData.qas" :key="'uq-' + index" class="my-publish-item" @click="openDetail('qa', qa); closeUserProfile()">
+                <div class="publish-rank">{{ index + 1 }}</div>
+                <div class="publish-info">
+                  <h4 class="publish-title">{{ qa.title }}</h4>
+                  <div class="publish-tags">
+                    <span v-for="(tag, tIndex) in qa.tags" :key="tIndex" class="publish-tag">{{ tag }}</span>
+                  </div>
+                  <div class="publish-stats">
+                    <span>💬 {{ qa.answers }}</span>
+                    <span>👁️ {{ qa.views }}</span>
+                    <span v-if="qa.solved" class="qa-solved-tag">✓ 已解决</span>
+                  </div>
+                </div>
+                <div class="publish-time">{{ qa.time }}</div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -606,12 +809,10 @@
             <img :src="currentUser.avatar" class="profile-avatar" />
             <div class="profile-info">
               <h3>{{ currentUser.name }}</h3>
-              <p class="profile-title">{{ isLoggedIn() ? '社区成员' : '游客' }}</p>
+              <p class="profile-title">求职者</p>
               <div class="profile-tags">
-                <span v-if="myPublishedPosts.length > 0" class="profile-tag">活跃作者</span>
-                <span v-if="myCollectedPosts.length + myCollectedJobs.length > 0" class="profile-tag">收藏爱好者</span>
-                <span v-if="appliedJobs.length > 0" class="profile-tag">求职者</span>
-                <span v-if="myPublishedPosts.length === 0 && myCollectedPosts.length === 0 && appliedJobs.length === 0" class="profile-tag">新成员</span>
+                <span class="profile-tag">计算机专业</span>
+                <span class="profile-tag">应届毕业生</span>
               </div>
             </div>
           </div>
@@ -665,7 +866,7 @@
               <div class="empty-icon">📭</div>
               <p>暂无收藏的面经帖子</p>
             </div>
-            <div v-for="(post, index) in myCollectedPosts" :key="index" class="my-publish-item" @click="openDetail('interview', post); showMyCollect = false">
+            <div v-for="(post, index) in myCollectedPosts" :key="index" class="my-publish-item" @click="handleMyPublishClick('interview', post)">
               <div class="publish-rank">{{ index + 1 }}</div>
               <div class="publish-info">
                 <h4 class="publish-title">{{ post.title }}</h4>
@@ -686,7 +887,7 @@
               <div class="empty-icon">💼</div>
               <p>暂无收藏的岗位</p>
             </div>
-            <div v-for="(job, index) in myCollectedJobs" :key="index" class="my-publish-item" @click="openDetail('job', job); showMyCollect = false">
+            <div v-for="(job, index) in myCollectedJobs" :key="index" class="my-publish-item" @click="handleMyPublishClick('job', job)">
               <div class="publish-rank">{{ index + 1 }}</div>
               <div class="publish-info">
                 <h4 class="publish-title">{{ job.title }}</h4>
@@ -875,17 +1076,19 @@
         </div>
       </div>
     </div>
+    <!-- Toast 通知 -->
+    <div v-if="toast.show" class="toast-notification" :class="toast.type">
+      <span class="toast-icon">{{ toast.type === 'success' ? '✅' : '❌' }}</span>
+      <span class="toast-message">{{ toast.message }}</span>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import jobData from '../assets/all_cleaned_jobs.json'
-import { isLoggedIn, getAuthInfo, logout as authLogout } from '../utils/auth'
-import * as communityStore from '../utils/communityStore'
-
-const { initCommunityData } = communityStore
+let jobData = []
+const dataTrigger = ref(0)
 
 const router = useRouter()
 
@@ -893,8 +1096,10 @@ const bgCanvas = ref(null)
 const activeTab = ref('interview')
 const filterType = ref('hot')
 const jobFilter = ref('all')
-const qaFilter = ref('unsolved')
+const qaFilter = ref('all')
+const showPointsRule = ref(false)
 const searchQuery = ref('')
+const searchHistory = ref([])
 const showDetail = ref(false)
 const detailType = ref('')
 const detailData = ref({})
@@ -906,6 +1111,9 @@ const showMyCollect = ref(false)
 const showMyApplies = ref(false)
 const showSettings = ref(false)
 const showProfile = ref(false)
+const showUserProfile = ref(false)
+const userProfileData = ref(null)
+const userProfileTab = ref('posts')
 const showTopicDetail = ref(false)
 const currentTopic = ref(null)
 const showChat = ref(false)
@@ -922,6 +1130,107 @@ const newComment = ref('')
 const currentCommentItem = ref(null)
 const appliedJobIds = ref(new Set())
 const collectTab = ref('post')
+const toast = ref({ show: false, message: '', type: 'success' })
+
+const showToast = (message, type = 'success') => {
+  toast.value = { show: true, message, type }
+  setTimeout(() => {
+    toast.value.show = false
+  }, 2000)
+}
+const followedQuestionIds = ref(new Set())
+const followedUsers = ref(new Set())
+const joinedGroupIds = ref(new Set())
+const jobCurrentPage = ref(1)
+const jobPageSize = ref(20)
+const interviewCurrentPage = ref(1)
+const interviewPageSize = ref(5)
+const qaCurrentPage = ref(1)
+const qaPageSize = ref(5)
+const jobTotalPages = computed(() => Math.ceil(paginatedFilteredJobs.value.length / jobPageSize.value))
+
+const loadPersistedState = () => {
+  try {
+    console.log('[加载持久化] 开始加载localStorage数据...')
+    
+    const applied = JSON.parse(localStorage.getItem('jc_appliedJobs') || '[]')
+    appliedJobs.value = applied
+    appliedJobIds.value = new Set(applied.map(j => j.id))
+    console.log('[加载持久化] 投递记录:', applied.length, '条')
+    
+    const followed = JSON.parse(localStorage.getItem('jc_followedQuestions') || '[]')
+    followedQuestionIds.value = new Set(followed)
+    console.log('[加载持久化] 关注问题:', followed.length, '条')
+    
+    const followedUsersData = JSON.parse(localStorage.getItem('jc_followedUsers') || '[]')
+    followedUsers.value = new Set(followedUsersData)
+    console.log('[加载持久化] 关注用户:', followedUsersData.length, '条')
+    
+    const joinedGroups = JSON.parse(localStorage.getItem('jc_joinedGroups') || '[]')
+    joinedGroupIds.value = new Set(joinedGroups)
+    groupList.value.forEach(g => { g.joined = joinedGroupIds.value.has(g.name) })
+    console.log('[加载持久化] 已加入小组:', joinedGroups.length, '条')
+    
+    const collectedPosts = JSON.parse(localStorage.getItem('jc_collectedPosts') || '[]')
+    collectedPosts.forEach(title => {
+      const post = hotInterviews.value.find(i => i.title === title)
+      if (post) post.collected = true
+    })
+    console.log('[加载持久化] 收藏帖子:', collectedPosts.length, '条')
+    
+    const collectedJobs = JSON.parse(localStorage.getItem('jc_collectedJobs') || '[]')
+    collectedJobs.forEach(id => {
+      const job = realJobs.value.find(j => j.id === id)
+      if (job) job.collected = true
+    })
+    console.log('[加载持久化] 收藏岗位:', collectedJobs.length, '条')
+
+    const publishedData = JSON.parse(localStorage.getItem('jc_publishedPosts') || '[]')
+    console.log('[加载持久化] 已发布帖子:', publishedData.length, '篇，准备恢复...')
+    let restoredCount = 0
+    publishedData.forEach(post => {
+      if (!hotInterviews.value.find(i => i.title === post.title && i.isUserPublished)) {
+        // 修正旧的publishScore值，确保不会过高
+        if (post.publishScore && post.publishScore > 100) {
+          post.publishScore = 30
+        }
+        hotInterviews.value.unshift(post)
+        restoredCount++
+      }
+    })
+    console.log('[加载持久化] 实际恢复帖子:', restoredCount, '篇')
+    console.log('[加载持久化] 加载完成，hotInterviews当前长度:', hotInterviews.value.length)
+  } catch (e) {
+    console.warn('[加载持久化] 加载失败:', e)
+  }
+}
+
+const persistAppliedJobs = () => {
+  localStorage.setItem('jc_appliedJobs', JSON.stringify(appliedJobs.value))
+}
+const persistFollowedQuestions = () => {
+  localStorage.setItem('jc_followedQuestions', JSON.stringify([...followedQuestionIds.value]))
+}
+const persistFollowedUsers = () => {
+  localStorage.setItem('jc_followedUsers', JSON.stringify([...followedUsers.value]))
+}
+const persistJoinedGroups = () => {
+  localStorage.setItem('jc_joinedGroups', JSON.stringify([...joinedGroupIds.value]))
+}
+const persistCollectedPosts = () => {
+  const titles = hotInterviews.value.filter(i => i.collected).map(i => i.title)
+  localStorage.setItem('jc_collectedPosts', JSON.stringify(titles))
+}
+const persistCollectedJobs = () => {
+  const ids = realJobs.value.filter(j => j.collected).map(j => j.id)
+  localStorage.setItem('jc_collectedJobs', JSON.stringify(ids))
+}
+const persistPublishedPosts = () => {
+  const allUserPosts = hotInterviews.value.filter(i => i.author === currentUser.value.name && i.isUserPublished)
+  localStorage.setItem('jc_publishedPosts', JSON.stringify(allUserPosts))
+  console.log('[持久化-发布] 已保存用户发布帖子:', allUserPosts.length, '篇')
+  console.log('[持久化-发布] localStorage键 jc_publishedPosts 已更新')
+}
 
 const publishForm = ref({
   title: '',
@@ -930,17 +1239,9 @@ const publishForm = ref({
   content: ''
 })
 
-// 当前用户：基于真实登录态，未登录则为游客
-const loggedIn = ref(isLoggedIn())
-const currentUserName = computed(() => {
-  if (!loggedIn.value) return '游客'
-  const info = getAuthInfo()
-  if (!info) return '游客'
-  return info.name || info.email || info.nickname || (info.loginType === 'guest' ? '游客' : '社区用户')
-})
 const currentUser = ref({
-  name: currentUserName.value,
-  avatar: generateAvatar(currentUserName.value)
+  name: '求职者小王',
+  avatar: generateAvatar('求职者小王')
 })
 
 function generateAvatar(name) {
@@ -975,97 +1276,424 @@ const extractTags = (jobName) => {
 }
 
 const formatSalary = (salary) => {
-  if (salary >= 10000) {
-    return (salary / 1000) + 'K'
+  if (!salary) return '面议'
+  let actualSalary = salary
+  // 如果薪资值过小（< 500），可能是以"百"为单位的数据，需要乘以100转换为元
+  if (salary < 500) {
+    actualSalary = salary * 100
   }
-  return salary + ''
+  // 统一转换为K单位显示
+  if (actualSalary >= 1000) {
+    const k = actualSalary / 1000
+    return (k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)) + 'K'
+  }
+  return actualSalary + ''
 }
 
 const companies = ['智联招聘', '前程无忧', 'BOSS直聘', '拉勾网', '猎聘网', '人才市场', '科技公司', '互联网企业', '软件公司', 'IT公司']
 
 const realJobs = computed(() => {
-  const currentName = currentUserName.value
-  return jobData.slice(0, 50).map((job, index) => ({
-    id: index,
-    title: job.job_name,
-    company: companies[Math.floor(Math.random() * companies.length)],
-    city: job.city,
-    salary: formatSalary(job.salary_avg),
-    experience: job.work_exp,
-    education: job.education,
-    tags: extractTags(job.job_name),
-    campus: job.work_exp === '经验不限' || job.job_name.includes('应届') || job.job_name.includes('实习') || job.job_name.includes('校招'),
-    collected: communityStore.isCollected(currentName, String(index), 'job'),
-    applied: communityStore.hasApplied(currentName, index)
-  }))
+  dataTrigger.value
+  if (!jobData || jobData.length === 0) return []
+  return jobData.map((job, index) => {
+    // 处理公司名称，过滤掉爬虫异常数据
+    let company = job.company
+    if (!company || company.includes('立即投递') || company.includes('收藏') || company.length < 2) {
+      const dataSource = job.data_source || ''
+      if (dataSource.includes('智联')) {
+        company = '智联招聘合作企业'
+      } else if (dataSource.includes('前程无忧')) {
+        company = '前程无忧合作企业'
+      } else if (dataSource.includes('BOSS')) {
+        company = 'BOSS直聘合作企业'
+      } else {
+        company = '知名企业'
+      }
+    }
+    return {
+      id: job.id !== undefined ? job.id : index,
+      title: job.job_name,
+      company,
+      city: job.city,
+      salary: formatSalary(job.salary_avg),
+      salary_avg: job.salary_avg,
+      experience: job.work_exp,
+      education: job.education,
+      tags: extractTags(job.job_name),
+      campus: job.work_exp === '经验不限' || job.job_name.includes('应届') || job.job_name.includes('实习') || job.job_name.includes('校招'),
+      collected: false,
+      applied: false
+    }
+  })
 })
 
 const stats = computed(() => ({
   interviews: hotInterviews.value.length.toLocaleString(),
   jobs: realJobs.value.length.toLocaleString(),
   questions: qaList.value.length.toLocaleString(),
-  online: onlineUsers.value.length.toLocaleString()
+  online: onlineUsers.length.toLocaleString()
 }))
-const hotKeywords = ['计算机', '前端', '后端', '算法', '数据', '测试', '运维', '开发']
-
-const resetAndReinit = () => {
-  if (!confirm('确定要重置社区数据吗？这将清除所有本地帖子、点赞、收藏和投递记录。')) return
-  communityStore.resetCommunityData()
-  location.reload()
-}
+const hotKeywords = ['前端', '后端', '算法', 'Java', 'Vue', 'React', '校招', '秋招', '转行', '实习']
 
 const goBack = () => { router.push('/dashboard') }
 
 const hotInterviews = ref([])
 
-const loadCommunityData = async () => {
-  const currentName = currentUserName.value
-  try {
-    const posts = await communityStore.fetchPosts()
-    hotInterviews.value = posts.map(p => {
-      const liked = communityStore.isLiked(currentName, String(p.id), 'post')
-      const collected = communityStore.isCollected(currentName, String(p.id), 'post')
-      return {
-        ...p,
-        liked,
-        collected,
-        avatar: p.avatar || generateAvatar(p.author)
-      }
-    })
-  } catch (e) {
-    console.warn('Failed to load community data from backend:', e.message)
-    const posts = communityStore.getPosts()
-    hotInterviews.value = posts.map(p => {
-      const liked = communityStore.isLiked(currentName, String(p.id), 'post')
-      const collected = communityStore.isCollected(currentName, String(p.id), 'post')
-      return {
-        ...p,
-        liked,
-        collected,
-        avatar: p.avatar || generateAvatar(p.author)
-      }
-    })
+const generateInterviewsFromJobs = () => {
+  if (!jobData || jobData.length === 0) return
+
+  const categories = {
+    '前端': { keywords: ['前端', 'web', 'h5', 'vue', 'react'], techStack: ['Vue3', 'React', 'TypeScript', 'Webpack', 'CSS3'], topics: ['响应式原理', '虚拟DOM', '组件通信', '前端工程化', '性能优化'] },
+    'Java': { keywords: ['java', '后端'], techStack: ['Spring Boot', 'MyBatis', 'Redis', 'MySQL', '微服务'], topics: ['JVM调优', '并发编程', 'Spring原理', '分布式锁', '消息队列'] },
+    'Python': { keywords: ['python'], techStack: ['Django', 'Flask', 'Pandas', 'NumPy', 'FastAPI'], topics: ['GIL机制', '异步编程', '数据处理', 'API设计', '爬虫框架'] },
+    '算法': { keywords: ['算法', '机器学习', '深度学习', 'ai', 'nlp', 'cv'], techStack: ['PyTorch', 'TensorFlow', 'Scikit-learn', 'NLP', '推荐系统'], topics: ['CNN/RNN', 'Transformer', '特征工程', '模型优化', '推荐算法'] },
+    '测试': { keywords: ['测试', 'qa', '自动化'], techStack: ['Selenium', 'Pytest', 'JMeter', 'Postman', 'CI/CD'], topics: ['自动化框架', '性能测试', '接口测试', '测试用例设计', '持续集成'] },
+    '运维': { keywords: ['运维', 'devops', 'docker', 'k8s'], techStack: ['Docker', 'Kubernetes', 'Jenkins', 'Prometheus', 'Shell'], topics: ['容器编排', 'CI/CD流水线', '监控告警', '故障排查', '自动化部署'] },
+    '网络': { keywords: ['网络', '工程师', 'tcp'], techStack: ['TCP/IP', '路由交换', 'VPN', '防火墙', 'Wireshark'], topics: ['网络协议', '路由配置', '安全防护', '故障诊断', '网络架构'] },
+    '硬件': { keywords: ['硬件', '维护', 'pc'], techStack: ['PC组装', '硬件诊断', '操作系统', '网络基础', '外设维护'], topics: ['硬件故障排查', '系统安装', '设备维护', '驱动调试', '性能优化'] }
   }
+
+  const authors = [
+    { name: '前端小高手', expertise: '前端' },
+    { name: 'Java大神', expertise: 'Java' },
+    { name: '算法小白逆袭', expertise: '算法' },
+    { name: '求职达人', expertise: 'Java' },
+    { name: '测试达人', expertise: '测试' },
+    { name: '运维老兵', expertise: '运维' },
+    { name: 'Python学习者', expertise: 'Python' },
+    { name: '网络工程师', expertise: '网络' },
+    { name: '硬件维修师', expertise: '硬件' },
+    { name: '应届生小李', expertise: '前端' },
+    { name: '转行程序员', expertise: 'Java' },
+    { name: '技术达人', expertise: '算法' },
+    // 推荐关注用户也加入面经作者池，确保他们有面经内容
+    { name: '前端面试官老王', expertise: '前端' },
+    { name: '算法专家李教授', expertise: '算法' },
+    { name: '求职导师张老师', expertise: 'Python' },
+    { name: '字节跳动HR', expertise: 'Java' },
+    { name: '大厂HR小助手', expertise: '测试' }
+  ]
+
+  const commentAuthors = ['应届生小李', '转行程序员', '求职者小王', '前端面试官', 'HR小姐姐', '架构师', '技术总监', '测试主管', 'SRE工程师', '资深前端', 'Java专家', '算法工程师', '前端面试官老王', '算法专家李教授', '求职导师张老师', '字节跳动HR', '大厂HR小助手']
+  const timeOptions = ['5分钟前', '12分钟前', '28分钟前', '45分钟前', '1小时前', '2小时前', '3小时前', '4小时前', '6小时前', '8小时前']
+
+  const interviews = []
+  const usedJobs = new Set()
+
+  for (const [catName, catInfo] of Object.entries(categories)) {
+    const matchedJobs = jobData.filter(job => {
+      const name = (job.job_name || '').toLowerCase()
+      return catInfo.keywords.some(kw => name.includes(kw)) && !usedJobs.has(job.job_name)
+    })
+
+    if (matchedJobs.length === 0) continue
+
+    const numInterviews = Math.min(8, matchedJobs.length)
+    for (let i = 0; i < numInterviews; i++) {
+      const job = matchedJobs[Math.floor(Math.random() * matchedJobs.length)]
+      usedJobs.add(job.job_name)
+
+      // 从匹配该分类的作者池中随机选择，让更多作者有面经内容
+      const matchedAuthors = authors.filter(a => a.expertise === catName)
+      const author = matchedAuthors.length > 0
+        ? matchedAuthors[Math.floor(Math.random() * matchedAuthors.length)]
+        : authors[Math.floor(Math.random() * authors.length)]
+      const city = job.city || '未知城市'
+      const salary = formatSalary(job.salary_avg)
+      const techStack = catInfo.techStack
+      const topic1 = catInfo.topics[Math.floor(Math.random() * catInfo.topics.length)]
+      const topic2 = catInfo.topics[Math.floor(Math.random() * catInfo.topics.length)]
+      const tech1 = techStack[Math.floor(Math.random() * techStack.length)]
+      const tech2 = techStack[Math.floor(Math.random() * techStack.length)]
+
+      const commentCount = Math.floor(Math.random() * 200) + 30
+      const likeCount = Math.floor(Math.random() * 400) + 100
+      const viewCount = likeCount * Math.floor(Math.random() * 5 + 3)
+
+      const numComments = Math.floor(Math.random() * 3) + 2
+      const commentList = []
+      for (let j = 0; j < numComments; j++) {
+        const cAuthor = commentAuthors[Math.floor(Math.random() * commentAuthors.length)]
+        const questions = [
+          `${topic1}具体怎么考察的？`,
+          `${tech1}要掌握到什么程度？`,
+          `非科班能投这个方向吗？`,
+          `面试有几轮？难度如何？`,
+          `${city}的薪资水平怎么样？`,
+          `应届生投这个岗位有希望吗？`
+        ]
+        commentList.push({
+          author: cAuthor,
+          avatar: generateAvatar(cAuthor),
+          time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
+          content: questions[Math.floor(Math.random() * questions.length)],
+          likes: Math.floor(Math.random() * 80) + 10,
+          liked: false
+        })
+      }
+
+      interviews.push({
+        title: `${city} ${catName}岗位面试经验分享（薪资${salary}）`,
+        author: author.name,
+        avatar: generateAvatar(author.name),
+        time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
+        tags: [catName, city, tech1],
+        comments: commentCount,
+        likes: likeCount,
+        views: viewCount,
+        liked: Math.random() > 0.7,
+        collected: Math.random() > 0.8,
+        preview: `面试了${city}的${job.job_name}岗位，主要考察${topic1}和${topic2}，技术栈涉及${tech1}和${tech2}。分享一下面试流程和高频问题...`,
+        commentList
+      })
+    }
+  }
+
+  interviews.sort((a, b) => b.likes - a.likes)
+
+  // 保障：确保每个推荐用户至少有2条面经内容
+  recommendUsers.value.forEach(user => {
+    const userPostCount = interviews.filter(i => i.author === user.name).length
+    if (userPostCount < 2) {
+      const needCount = 2 - userPostCount
+      // 找到与该用户专长匹配的分类信息
+      const authorEntry = authors.find(a => a.name === user.name)
+      const catName = authorEntry ? authorEntry.expertise : '前端'
+      const catInfo = categories[catName] || categories['前端']
+      for (let n = 0; n < needCount; n++) {
+        const job = jobData[Math.floor(Math.random() * jobData.length)]
+        const city = job.city || '北京'
+        const salary = formatSalary(job.salary_avg || 15000)
+        const techStack = catInfo.techStack
+        const topic1 = catInfo.topics[Math.floor(Math.random() * catInfo.topics.length)]
+        const tech1 = techStack[Math.floor(Math.random() * techStack.length)]
+        const likeCount = Math.floor(Math.random() * 400) + 100
+        const viewCount = likeCount * Math.floor(Math.random() * 5 + 3)
+        interviews.push({
+          title: `${city} ${catName}岗位面试经验分享（薪资${salary}）`,
+          author: user.name,
+          avatar: generateAvatar(user.name),
+          time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
+          tags: [catName, city, tech1],
+          comments: Math.floor(Math.random() * 200) + 30,
+          likes: likeCount,
+          views: viewCount,
+          liked: false,
+          collected: false,
+          preview: `面试了${city}的${job.job_name || catName + '岗位'}，主要考察${topic1}，技术栈涉及${tech1}。分享一下面试流程和高频问题...`,
+          commentList: []
+        })
+      }
+    }
+  })
+
+  interviews.sort((a, b) => b.likes - a.likes)
+  hotInterviews.value = interviews
 }
-
-loadCommunityData()
-
-watch(currentUserName, () => {
-  loadCommunityData()
-})
 
 const qaList = ref([])
 
-const groupList = ref([])
+const generateQAFromJobs = () => {
+  if (!jobData || jobData.length === 0) return
 
-// 在线用户：仅有真实登录的当前用户，未登录则为空
-const onlineUsers = computed(() => {
-  if (!loggedIn.value) return []
-  return [{ name: currentUser.value.name, avatar: currentUser.value.avatar }]
-})
-const hotTopics = ref([])
+  const cities = [...new Set(jobData.map(j => j.city))].filter(Boolean).slice(0, 15)
+  const jobTypes = ['前端', 'Java', 'Python', '算法', '测试', '运维', '计算机', '网络']
 
-const recommendUsers = ref([])
+  const qaTemplates = [
+    {
+      titleFn: (city, jobType) => `${city}的${jobType}岗位薪资水平怎么样？`,
+      tagsFn: (jobType) => [jobType, '薪资', '求职'],
+      previewFn: (city, jobType) => `看到${city}有不少${jobType}相关的岗位，想了解一下实际的薪资水平和福利待遇如何？`,
+      bestAnswerFn: (city, jobType) => `${city}的${jobType}岗位薪资因经验和学历不同差异较大。应届生一般在5-8K，1-3年经验在8-15K，3-5年经验在15-25K。建议多对比几个平台的薪资数据，面试时也要问清楚年终奖和公积金比例。`,
+      author: '薪资调查员'
+    },
+    {
+      titleFn: (city, jobType) => `${jobType}岗位面试都会问什么？求面经分享`,
+      tagsFn: (jobType) => [jobType, '面试', '经验'],
+      previewFn: (city, jobType) => `准备面试${jobType}相关岗位，想了解一下面试常考的技术点和项目经验要求？`,
+      bestAnswerFn: (city, jobType) => `${jobType}面试通常分技术面和HR面。技术面重点考察：1) 基础知识；2) 项目经验深挖；3) 手写代码；4) 系统设计。建议准备好2-3个有深度的项目，能讲清楚技术选型和难点解决。`,
+      author: '面试达人'
+    },
+    {
+      titleFn: (city, jobType) => `零基础想学${jobType}，有什么推荐的学习路线？`,
+      tagsFn: (jobType) => [jobType, '学习路线', '零基础'],
+      previewFn: (city, jobType) => `非计算机专业，想转行学${jobType}，不知道从哪里开始，求一份系统的学习路线。`,
+      bestAnswerFn: (city, jobType) => `零基础学习${jobType}建议分三步：1) 基础阶段（1-2个月）：学习编程基础和计算机常识；2) 进阶阶段（2-3个月）：学习${jobType}核心技术和框架；3) 实战阶段（1-2个月）：做2-3个完整项目。推荐先看免费教程入门，再报班或自学深入。`,
+      author: '学习导师'
+    },
+    {
+      titleFn: (city, jobType) => `${jobType}岗位的学历要求高吗？大专能投吗？`,
+      tagsFn: (jobType) => [jobType, '学历', '求职'],
+      previewFn: (city, jobType) => `看到很多${jobType}岗位要求本科以上，大专学历有机会吗？有没有成功上岸的分享？`,
+      bestAnswerFn: (city, jobType) => `大专学历确实会面临一些门槛，但并非没有机会。建议：1) 优先投递中小公司和初创企业；2) 用项目经验和作品集弥补学历不足；3) 考虑提升学历（专升本）；4) 积累2-3年工作经验后跳槽大厂。从数据来看，${jobType}岗位中约30%接受大专学历。`,
+      author: 'HR经理'
+    },
+    {
+      titleFn: (city, jobType) => `应届生第一次找${jobType}工作，需要注意什么？`,
+      tagsFn: (jobType) => ['应届生', jobType, '求职'],
+      previewFn: (city, jobType) => `2026届应届毕业生，想找${jobType}方向的工作，没有实习经验，求建议。`,
+      bestAnswerFn: (city, jobType) => `应届生求职${jobType}建议：1) 简历突出项目和技能，不要写空话；2) 先投中小公司练手，积累面试经验；3) 面试前研究公司业务和技术栈；4) 谈薪资要有依据，参考同行水平；5) 注意辨别坑公司，看准网查公司评价。`,
+      author: '求职导师'
+    },
+    {
+      titleFn: (city, jobType) => `${city}的IT行业就业环境怎么样？`,
+      tagsFn: (jobType, city) => [city, '就业', '城市'],
+      previewFn: (city, jobType) => `考虑去${city}发展，想了解一下当地的IT行业就业环境、薪资水平和生活成本。`,
+      bestAnswerFn: (city, jobType) => `${city}的IT行业就业环境各有特点。建议从以下几个维度评估：1) 岗位数量和类型分布；2) 平均薪资水平；3) 生活成本（房租、交通）；4) 行业发展前景；5) 落户政策。建议先在招聘平台搜索目标岗位数量，数量多说明需求大。`,
+      author: '城市分析师'
+    }
+  ]
+
+  const answerAuthors = [
+    { name: '资深前端', title: '前端专家' },
+    { name: '后端架构师', title: '架构师' },
+    { name: '算法工程师', title: 'AI专家' },
+    { name: '测试主管', title: 'QA Lead' },
+    { name: '运维总监', title: 'DevOps专家' },
+    { name: 'HR经理', title: '招聘专家' },
+    { name: '求职导师', title: '职业规划师' },
+    { name: '技术总监', title: 'CTO' },
+    // 推荐关注用户也加入问答作者池，确保他们有问答内容
+    { name: '前端面试官老王', title: '10年面试经验' },
+    { name: '算法专家李教授', title: 'AI/ML领域专家' },
+    { name: '求职导师张老师', title: '辅导500+学员拿offer' },
+    { name: '字节跳动HR', title: '字节官方招聘' },
+    { name: '大厂HR小助手', title: '每日发布校招信息' }
+  ]
+
+  const timeOptions = ['1小时前', '2小时前', '3小时前', '5小时前', '8小时前', '10小时前', '12小时前']
+  const qas = []
+
+  for (let i = 0; i < qaTemplates.length; i++) {
+    const template = qaTemplates[i]
+    // 每个模板生成5条问答，共30条
+    for (let k = 0; k < 5; k++) {
+    const city = cities[Math.floor(Math.random() * cities.length)]
+    const jobType = jobTypes[Math.floor(Math.random() * jobTypes.length)]
+
+    const answerAuthor = answerAuthors[Math.floor(Math.random() * answerAuthors.length)]
+    const numAnswers = Math.floor(Math.random() * 15) + 8
+    const bestAnswerLikes = Math.floor(Math.random() * 200) + 50
+
+    const answerList = []
+    const numAnswerList = Math.floor(Math.random() * 2) + 1
+    for (let j = 0; j < numAnswerList; j++) {
+      const aAuthor = answerAuthors[Math.floor(Math.random() * answerAuthors.length)]
+      const shortAnswers = [
+        `建议先打好基础，${jobType}方向需要扎实的技术功底。`,
+        `${city}的${jobType}岗位还是不少的，多投多面。`,
+        `学历不是唯一标准，项目经验更重要。`,
+        `可以看看招聘平台上的岗位要求，有针对性地准备。`
+      ]
+      answerList.push({
+        author: aAuthor.name,
+        avatar: generateAvatar(aAuthor.name),
+        time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
+        content: shortAnswers[Math.floor(Math.random() * shortAnswers.length)],
+        likes: Math.floor(Math.random() * 60) + 10,
+        liked: false
+      })
+    }
+
+    qas.push({
+      title: template.titleFn(city, jobType),
+      author: template.author,
+      avatar: generateAvatar(template.author),
+      time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
+      tags: template.tagsFn(jobType, city),
+      answers: numAnswers,
+      solved: Math.random() > 0.4,
+      preview: template.previewFn(city, jobType),
+      answerList,
+      bestAnswer: {
+        author: answerAuthor.name,
+        avatar: generateAvatar(answerAuthor.name),
+        time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
+        content: template.bestAnswerFn(city, jobType),
+        likes: bestAnswerLikes,
+        liked: false
+      }
+    })
+    } // end for k
+  }
+
+  qaList.value = qas
+
+  // 保障：确保每个推荐用户至少有2条问答内容（作为最佳回答者或在回答列表中）
+  recommendUsers.value.forEach(user => {
+    const userQACount = qas.filter(qa =>
+      (qa.bestAnswer && qa.bestAnswer.author === user.name) ||
+      qa.author === user.name ||
+      (qa.answerList && qa.answerList.some(ans => ans.author === user.name))
+    ).length
+    if (userQACount < 2) {
+      // 为该推荐用户补充问答数据
+      const needCount = 2 - userQACount
+      for (let n = 0; n < needCount; n++) {
+        const city = cities[Math.floor(Math.random() * cities.length)]
+        const jobType = jobTypes[Math.floor(Math.random() * jobTypes.length)]
+        const template = qaTemplates[Math.floor(Math.random() * qaTemplates.length)]
+        qas.push({
+          title: template.titleFn(city, jobType),
+          author: template.author,
+          avatar: generateAvatar(template.author),
+          time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
+          tags: template.tagsFn(jobType, city),
+          answers: Math.floor(Math.random() * 15) + 8,
+          solved: Math.random() > 0.4,
+          preview: template.previewFn(city, jobType),
+          answerList: [],
+          bestAnswer: {
+            author: user.name,
+            avatar: generateAvatar(user.name),
+            time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
+            content: template.bestAnswerFn(city, jobType),
+            likes: Math.floor(Math.random() * 200) + 50,
+            liked: false
+          }
+        })
+      }
+    }
+  })
+  qaList.value = qas
+}
+
+const groupList = ref([
+  { name: '前端开发交流群', desc: 'Vue/React/Angular 技术交流', members: 5280, posts: 1290, joined: true },
+  { name: 'Java后端求职群', desc: 'Spring Boot/微服务/分布式', members: 4560, posts: 1150, joined: false },
+  { name: '算法工程师成长营', desc: '机器学习/深度学习/推荐系统', members: 3890, posts: 980, joined: false },
+  { name: '校招应届毕业生', desc: '校招信息/笔试/面试经验', members: 8560, posts: 2200, joined: true },
+  { name: '测试工程师之家', desc: '自动化测试/性能测试/TestOps', members: 2450, posts: 560, joined: false },
+  { name: 'DevOps运维圈', desc: 'Docker/K8s/CI/CD/SRE', members: 3450, posts: 890, joined: false },
+  { name: 'UI/UX设计师交流', desc: '产品设计/交互/视觉', members: 2890, posts: 670, joined: false },
+  { name: '转行IT互助联盟', desc: '非科班转行经验分享', members: 6120, posts: 1560, joined: false }
+])
+
+const onlineUsers = [
+  { name: '前端小李', avatar: generateAvatar('前端小李') },
+  { name: 'Java攻城狮', avatar: generateAvatar('Java攻城狮') },
+  { name: '算法工程师', avatar: generateAvatar('算法工程师') },
+  { name: '测试QA', avatar: generateAvatar('测试QA') },
+  { name: '运维SRE', avatar: generateAvatar('运维SRE') },
+  { name: '产品经理', avatar: generateAvatar('产品经理') },
+  { name: 'UI设计师', avatar: generateAvatar('UI设计师') },
+  { name: '求职导师', avatar: generateAvatar('求职导师') }
+]
+const hotTopics = ref([
+  { name: '2026秋招', posts: 3256, trend: '+25%', related: ['校招', '应届生', '笔试', '面试'] },
+  { name: 'Vue3', posts: 2180, trend: '+18%', related: ['前端', 'Vue', 'Composition API'] },
+  { name: '大模型', posts: 1890, trend: '+32%', related: ['算法', 'AI', 'LLM', 'NLP'] },
+  { name: 'Java面试', posts: 1543, trend: '+8%', related: ['后端', 'Java', 'Spring', 'JVM'] },
+  { name: '转行IT', posts: 2340, trend: '+15%', related: ['转行', '零基础', '职业规划'] },
+  { name: 'Kubernetes', posts: 980, trend: '+12%', related: ['运维', 'DevOps', '容器', '云原生'] }
+])
+const recommendUsers = ref([
+  { name: '字节跳动HR', title: '字节官方招聘', avatar: generateAvatar('字节跳动HR'), followed: true },
+  { name: '前端面试官老王', title: '10年面试经验', avatar: generateAvatar('前端面试官老王'), followed: false },
+  { name: '算法专家李教授', title: 'AI/ML领域专家', avatar: generateAvatar('算法专家李教授'), followed: false },
+  { name: '求职导师张老师', title: '辅导500+学员拿offer', avatar: generateAvatar('求职导师张老师'), followed: false },
+  { name: '大厂HR小助手', title: '每日发布校招信息', avatar: generateAvatar('大厂HR小助手'), followed: false }
+])
 const weeklyRank = computed(() => {
   const scoreMap = new Map()
   const addScore = (name, avatar, score) => {
@@ -1075,15 +1703,34 @@ const weeklyRank = computed(() => {
     if (!cur.avatar && avatar) cur.avatar = avatar
     scoreMap.set(name, cur)
   }
+  // 面经作者：点赞×1 + 评论×2 + 浏览÷10 + 发布奖励(仅首帖30分)
   hotInterviews.value.forEach(it => {
-    addScore(it.author, it.avatar, (it.likes || 0) + (it.comments || 0) * 2 + Math.floor((it.views || 0) / 10))
+    const baseScore = (it.likes || 0) + (it.comments || 0) * 2 + Math.floor((it.views || 0) / 10)
+    const publishBonus = it.isUserPublished ? 30 : 0
+    addScore(it.author, it.avatar, baseScore + publishBonus)
   })
-  return Array.from(scoreMap.values())
+  // 问答作者：回答数×5 + 最佳回答点赞×1
+  qaList.value.forEach(qa => {
+    addScore(qa.author, qa.avatar, (qa.answers || 0) * 5 + (qa.bestAnswer ? qa.bestAnswer.likes || 0 : 0))
+    if (qa.bestAnswer) {
+      addScore(qa.bestAnswer.author, qa.bestAnswer.avatar, qa.bestAnswer.likes || 0)
+    }
+  })
+  // 推荐用户基础活跃分
+  recommendUsers.value.forEach(u => {
+    addScore(u.name, u.avatar, u.followed ? 200 : 100)
+  })
+  const ranked = Array.from(scoreMap.values())
     .sort((a, b) => b.score - a.score)
     .slice(0, 5)
+  return ranked
 })
 
-const groupPosts = []
+const groupPosts = [
+  { title: '分享今天的面试经历', preview: '今天面试了XX公司，感觉表现不错...', author: '求职达人', time: '2小时前', comments: 12, likes: 34 },
+  { title: '求内推！', preview: '本人计算机专业，求各位大佬内推...', author: '应届生小李', time: '5小时前', comments: 8, likes: 15 },
+  { title: '聊聊薪资待遇', preview: '大家的薪资待遇怎么样？来聊聊...', author: '薪资讨论', time: '8小时前', comments: 45, likes: 67 }
+]
 
 const filteredJobs = computed(() => {
   let result = realJobs.value
@@ -1092,22 +1739,92 @@ const filteredJobs = computed(() => {
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.trim()
     result = result.filter(j => 
-      j.title.includes(query) || j.company.includes(query) || 
-      j.city.includes(query) || j.tags.some(t => t.includes(query))
+      (j.title && j.title.includes(query)) || (j.company && j.company.includes(query)) || 
+      (j.city && j.city.includes(query)) || (j.tags && j.tags.some(t => t && t.includes(query)))
     )
   }
   return result
 })
 
+const paginatedFilteredJobs = computed(() => {
+  const start = (jobCurrentPage.value - 1) * jobPageSize.value
+  const end = start + jobPageSize.value
+  return filteredJobs.value.slice(start, end)
+})
+
+const handlePageClick = (page) => {
+  if (page === '...') return
+  goToPage(Number(page))
+}
+
+const goToPage = (page) => {
+  const total = Math.ceil(filteredJobs.value.length / jobPageSize.value)
+  if (page >= 1 && page <= total) {
+    jobCurrentPage.value = page
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const prevPage = () => {
+  if (jobCurrentPage.value > 1) {
+    jobCurrentPage.value--
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const nextPage = () => {
+  const total = Math.ceil(filteredJobs.value.length / jobPageSize.value)
+  if (jobCurrentPage.value < total) {
+    jobCurrentPage.value++
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const pageNumbers = computed(() => {
+  const total = Math.ceil(filteredJobs.value.length / jobPageSize.value)
+  const current = jobCurrentPage.value
+  const pages = []
+  const maxShow = 7
+  
+  if (total <= maxShow) {
+    for (let i = 1; i <= total; i++) pages.push(i)
+  } else {
+    let start = Math.max(1, current - 3)
+    let end = Math.min(total, start + maxShow - 1)
+    start = Math.max(1, end - maxShow + 1)
+    
+    if (start > 1) {
+      pages.push(1)
+      if (start > 2) pages.push('...')
+    }
+    for (let i = start; i <= end; i++) pages.push(i)
+    if (end < total) {
+      if (end < total - 1) pages.push('...')
+      pages.push(total)
+    }
+  }
+  return pages
+})
+
+watch(searchQuery, () => { 
+  jobCurrentPage.value = 1
+  interviewCurrentPage.value = 1
+  qaCurrentPage.value = 1
+})
+watch(jobFilter, () => { jobCurrentPage.value = 1 })
+watch(filterType, () => { interviewCurrentPage.value = 1 })
+watch(qaFilter, () => { qaCurrentPage.value = 1 })
+
 const filteredQAs = computed(() => {
   let result = qaList.value
   if (qaFilter.value === 'unsolved') result = result.filter(q => !q.solved)
   if (qaFilter.value === 'solved') result = result.filter(q => q.solved)
+  if (qaFilter.value === 'followed') result = result.filter(q => followedQuestionIds.value.has(q.title))
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.trim()
     result = result.filter(q => 
-      q.title.includes(query) || q.author.includes(query) || 
-      q.tags.some(t => t.includes(query))
+      (q.title && q.title.includes(query)) || (q.author && q.author.includes(query)) || 
+      (q.tags && q.tags.some(t => t && t.includes(query)))
     )
   }
   return result
@@ -1134,12 +1851,17 @@ const filteredInterviews = computed(() => {
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.trim()
     result = result.filter(i => 
-      i.title.includes(query) || i.author.includes(query) || 
-      i.tags.some(t => t.includes(query))
+      (i.title && i.title.includes(query)) || (i.author && i.author.includes(query)) || 
+      (i.tags && i.tags.some(t => t && t.includes(query)))
     )
   }
   if (filterType.value === 'hot') {
-    result = [...result].sort((a, b) => b.likes - a.likes)
+    // 综合热度排序：点赞×1 + 评论×2 + 浏览÷10，新帖有微弱时间加权但不会超过有互动的帖子
+    result = [...result].sort((a, b) => {
+      const scoreA = (a.likes || 0) + (a.comments || 0) * 2 + Math.floor((a.views || 0) / 10) + (a.time === '刚刚' ? 1 : 0)
+      const scoreB = (b.likes || 0) + (b.comments || 0) * 2 + Math.floor((b.views || 0) / 10) + (b.time === '刚刚' ? 1 : 0)
+      return scoreB - scoreA
+    })
   } else {
     result = [...result].sort((a, b) => {
       const timeA = a.time.includes('刚刚') ? 0 : a.time.includes('分钟') ? parseInt(a.time) : a.time.includes('小时') ? parseInt(a.time) * 60 : 1000
@@ -1150,14 +1872,169 @@ const filteredInterviews = computed(() => {
   return result
 })
 
+// 热门精选：仅"最热"模式下展示前5条作为精选区，严格按点赞数排序
+const hotFeaturedInterviews = computed(() => {
+  if (filterType.value !== 'hot' || searchQuery.value.trim()) return []
+  return [...filteredInterviews.value].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 5)
+})
+
+// 面经分页数据：去除热门精选后剩余部分分页，也按点赞数排序
+const paginatedInterviews = computed(() => {
+  let list = filteredInterviews.value
+  if (filterType.value === 'hot' && !searchQuery.value.trim()) {
+    list = [...list].sort((a, b) => (b.likes || 0) - (a.likes || 0))
+    list = list.slice(5)
+  }
+  const start = (interviewCurrentPage.value - 1) * interviewPageSize.value
+  const end = start + interviewPageSize.value
+  return list.slice(start, end)
+})
+
+// 面经总页数（基于去除热门精选后的列表）
+const interviewTotalPages = computed(() => {
+  let total = filteredInterviews.value.length
+  if (filterType.value === 'hot' && !searchQuery.value.trim()) {
+    total = Math.max(0, total - 5)
+  }
+  return Math.max(1, Math.ceil(total / interviewPageSize.value))
+})
+const interviewRemainingCount = computed(() => {
+  let total = filteredInterviews.value.length
+  if (filterType.value === 'hot' && !searchQuery.value.trim()) {
+    total = Math.max(0, total - 5)
+  }
+  return total
+})
+
+// 面积分页按钮数字
+const interviewPageNumbers = computed(() => {
+  const total = interviewTotalPages.value
+  const current = interviewCurrentPage.value
+  const pages = []
+  const maxShow = 7
+  if (total <= maxShow) {
+    for (let i = 1; i <= total; i++) pages.push(i)
+  } else {
+    let start = Math.max(1, current - 3)
+    let end = Math.min(total, start + maxShow - 1)
+    start = Math.max(1, end - maxShow + 1)
+    if (start > 1) {
+      pages.push(1)
+      if (start > 2) pages.push('...')
+    }
+    for (let i = start; i <= end; i++) pages.push(i)
+    if (end < total) {
+      if (end < total - 1) pages.push('...')
+      pages.push(total)
+    }
+  }
+  return pages
+})
+
+const handleInterviewPageClick = (page) => {
+  if (page === '...') return
+  goToInterviewPage(Number(page))
+}
+
+const goToInterviewPage = (page) => {
+  const total = interviewTotalPages.value
+  if (page >= 1 && page <= total) {
+    interviewCurrentPage.value = page
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const prevInterviewPage = () => {
+  if (interviewCurrentPage.value > 1) {
+    interviewCurrentPage.value--
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const nextInterviewPage = () => {
+  const total = interviewTotalPages.value
+  if (interviewCurrentPage.value < total) {
+    interviewCurrentPage.value++
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+// 问答分页数据
+const paginatedQAs = computed(() => {
+  const start = (qaCurrentPage.value - 1) * qaPageSize.value
+  const end = start + qaPageSize.value
+  return filteredQAs.value.slice(start, end)
+})
+
+const qaTotalPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredQAs.value.length / qaPageSize.value))
+})
+
+const qaPageNumbers = computed(() => {
+  const total = qaTotalPages.value
+  const current = qaCurrentPage.value
+  const pages = []
+  const maxShow = 7
+  if (total <= maxShow) {
+    for (let i = 1; i <= total; i++) pages.push(i)
+  } else {
+    let start = Math.max(1, current - 3)
+    let end = Math.min(total, start + maxShow - 1)
+    start = Math.max(1, end - maxShow + 1)
+    if (start > 1) {
+      pages.push(1)
+      if (start > 2) pages.push('...')
+    }
+    for (let i = start; i <= end; i++) pages.push(i)
+    if (end < total) {
+      if (end < total - 1) pages.push('...')
+      pages.push(total)
+    }
+  }
+  return pages
+})
+
+const handleQaPageClick = (page) => {
+  if (page === '...') return
+  goToQaPage(Number(page))
+}
+
+const goToQaPage = (page) => {
+  const total = qaTotalPages.value
+  if (page >= 1 && page <= total) {
+    qaCurrentPage.value = page
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const prevQaPage = () => {
+  if (qaCurrentPage.value > 1) {
+    qaCurrentPage.value--
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const nextQaPage = () => {
+  const total = qaTotalPages.value
+  if (qaCurrentPage.value < total) {
+    qaCurrentPage.value++
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
 const topicRelatedPosts = computed(() => {
   if (!currentTopic.value) return []
   const relatedKeywords = currentTopic.value.related
-  return hotInterviews.value.filter(post => 
-    post.title.includes(currentTopic.value.name) || 
+  // 先按相关度筛选，再按综合热度（点赞×1 + 评论×2 + 浏览÷10）降序排序，取前10条
+  return hotInterviews.value.filter(post =>
+    post.title.includes(currentTopic.value.name) ||
     post.tags.some(tag => relatedKeywords.includes(tag)) ||
     relatedKeywords.some(kw => post.title.includes(kw))
-  ).slice(0, 5)
+  ).sort((a, b) => {
+    const scoreA = (a.likes || 0) + (a.comments || 0) * 2 + Math.floor((a.views || 0) / 10)
+    const scoreB = (b.likes || 0) + (b.comments || 0) * 2 + Math.floor((b.views || 0) / 10)
+    return scoreB - scoreA
+  }).slice(0, 10)
 })
 
 const openTopicDetail = (topic) => {
@@ -1177,52 +2054,35 @@ const getRankClass = (index) => {
   return ''
 }
 
-// 在线状态：只有当前真实登录用户自己的帖子显示在线，其余均为离线
+const activeAuthors = ['求职者小王', '技术达人', '应届生小李']
 const getOnlineStatus = (author) => {
-  if (!loggedIn.value) return 'offline'
-  return author === currentUser.value.name ? 'online' : 'offline'
+  return activeAuthors.includes(author) ? 'online' : 'offline'
 }
 
-const toggleLike = async (item) => {
-  const itemId = String(item.id)
-  const isPost = !item.campus
-  const type = isPost ? 'post' : 'job'
-  const likedNow = await communityStore.toggleLikeApi(currentUserName.value, itemId, type)
-  item.liked = likedNow
-  if (likedNow) {
-    item.likes = (item.likes || 0) + 1
+const toggleLike = (item) => {
+  if (item.liked) {
+    item.likes--
+    item.liked = false
   } else {
-    item.likes = Math.max(0, (item.likes || 0) - 1)
-  }
-  if (isPost) {
-    communityStore.updatePost(itemId, { likes: item.likes, liked: item.liked })
+    item.likes++
+    item.liked = true
   }
 }
 
-const toggleCollect = async (item) => {
-  const itemId = String(item.id)
-  const collectedNow = await communityStore.toggleCollectApi(currentUserName.value, itemId, 'post', {
-    id: item.id,
-    title: item.title,
-    tags: item.tags,
-    views: item.views,
-    likes: item.likes,
-    author: item.author
-  })
-  item.collected = collectedNow
-  communityStore.updatePost(itemId, { collected: collectedNow })
+const toggleCollect = (item) => {
+  item.collected = !item.collected
+  persistCollectedPosts()
+  showToast(item.collected ? '已收藏到我的收藏' : '已取消收藏', 'success')
+}
+const handleMyPublishClick = (type, item) => {
+  openDetail(type, item)
+  showMyCollect.value = false
 }
 
-const toggleJobCollect = async (job) => {
-  const itemId = String(job.id)
-  const collectedNow = await communityStore.toggleCollectApi(currentUserName.value, itemId, 'job', {
-    id: job.id,
-    title: job.title,
-    company: job.company,
-    city: job.city,
-    salary: job.salary
-  })
-  job.collected = collectedNow
+const toggleJobCollect = (job) => {
+  job.collected = !job.collected
+  persistCollectedJobs()
+  showToast(job.collected ? '岗位已收藏' : '已取消收藏', 'success')
 }
 
 const toggleCommentLike = (comment) => {
@@ -1312,16 +2172,10 @@ const markAsSolved = (qa) => {
 }
 
 const shareItem = (item) => {
-  const url = `${window.location.origin}/community?post=${encodeURIComponent(String(item.id))}`
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(url).then(() => {
-      alert('分享链接已复制到剪贴板！\n链接：' + url)
-    }).catch(() => {
-      prompt('复制以下分享链接：', url)
-    })
-  } else {
-    prompt('复制以下分享链接：', url)
-  }
+  const url = window.location.href + '?id=' + encodeURIComponent(item.title)
+  navigator.clipboard.writeText(url).then(() => {
+    alert('分享链接已复制到剪贴板！')
+  })
 }
 
 const openDetail = (type, data) => {
@@ -1330,13 +2184,77 @@ const openDetail = (type, data) => {
   showDetail.value = true
   if (data && typeof data.views === 'number') {
     data.views++
-    if (type === 'post') {
-      communityStore.updatePost(String(data.id), { views: data.views })
-    }
   }
   if (type === 'qa' && data && !data.answerList) {
     data.answerList = data.bestAnswer ? [{ ...data.bestAnswer }] : []
   }
+}
+
+// 从话题弹窗打开详情时，先关闭话题弹窗确保详情不被遮挡
+const openDetailFromTopic = (type, data) => {
+  closeTopicDetail()
+  closeUserProfile()
+  openDetail(type, data)
+}
+
+// 计算帖子综合热度分数
+const computeHeat = (post) => {
+  if (!post) return 0
+  return (post.likes || 0) + (post.comments || 0) * 2 + Math.floor((post.views || 0) / 10)
+}
+
+// 打开用户主页：聚合该用户的所有面经、问答及活跃榜信息
+const openUserProfile = (userName) => {
+  if (!userName) return
+  // 查找用户信息
+  const rankEntry = weeklyRank.value.find(r => r.name === userName)
+  const recommendUser = recommendUsers.value.find(u => u.name === userName)
+  // 聚合该用户发布的面经
+  const userPosts = hotInterviews.value
+    .filter(i => i.author === userName)
+    .sort((a, b) => computeHeat(b) - computeHeat(a))
+  // 聚合该用户参与的问答（提问者、最佳回答者、或回答列表中的回答者）
+  const userQAs = qaList.value.filter(qa => {
+    if (qa.author === userName) return true
+    if (qa.bestAnswer && qa.bestAnswer.author === userName) return true
+    // 也检查回答列表中是否包含该用户
+    if (qa.answerList && qa.answerList.some(ans => ans.author === userName)) return true
+    return false
+  })
+  // 计算总获赞（面经点赞 + 最佳回答点赞 + 回答列表点赞）
+  const totalLikes = userPosts.reduce((sum, p) => sum + (p.likes || 0), 0) +
+    userQAs.reduce((sum, qa) => {
+      let qLikes = 0
+      if (qa.bestAnswer && qa.bestAnswer.author === userName) qLikes += qa.bestAnswer.likes || 0
+      if (qa.answerList) {
+        qa.answerList.forEach(ans => {
+          if (ans.author === userName) qLikes += ans.likes || 0
+        })
+      }
+      return sum + qLikes
+    }, 0)
+  // 计算排名
+  const rank = weeklyRank.value.findIndex(r => r.name === userName) + 1
+
+  userProfileData.value = {
+    name: userName,
+    avatar: rankEntry?.avatar || recommendUser?.avatar || generateAvatar(userName),
+    title: recommendUser?.title || (userPosts.length > 0 ? `发布过 ${userPosts.length} 篇面经` : '社区活跃用户'),
+    score: rankEntry?.score || 0,
+    postCount: userPosts.length,
+    qaCount: userQAs.length,
+    totalLikes,
+    rank,
+    posts: userPosts,
+    qas: userQAs
+  }
+  userProfileTab.value = userPosts.length > 0 ? 'posts' : 'qas'
+  showUserProfile.value = true
+}
+
+const closeUserProfile = () => {
+  showUserProfile.value = false
+  userProfileData.value = null
 }
 
 const closeDetail = () => {
@@ -1346,14 +2264,15 @@ const closeDetail = () => {
   newComment.value = ''
 }
 
-const noop = () => {}
-
-const toggleUserMenu = () => {
+const toggleUserMenu = (event) => {
+  if (event && event.target.closest('.menu-item')) return
   showUserMenu.value = !showUserMenu.value
 }
 
-const handleMenuClick = async (action) => {
-  // 先设置模态框状态，再关闭菜单
+const handleMenuClick = (action, event) => {
+  if (event) {
+    event.stopPropagation()
+  }
   switch (action) {
     case 'profile':
       showProfile.value = true
@@ -1371,66 +2290,62 @@ const handleMenuClick = async (action) => {
       showSettings.value = true
       break
     case 'logout':
-      showUserMenu.value = false
-      authLogout()
-      router.replace('/')
-      return
+      router.push('/')
+      break
   }
-  
-  // 使用 nextTick 确保模态框渲染后再关闭菜单
-  await nextTick()
   showUserMenu.value = false
 }
 
 const handleSearch = () => {
   const query = searchQuery.value.trim()
-  if (!query) {
-    alert('请输入搜索关键词')
-    return
-  }
-  
-  const searchResults = {
-    interviews: hotInterviews.value.filter(item => 
-      item.title.includes(query) || item.author.includes(query) || item.tags.some(tag => tag.includes(query))
-    ),
-    jobs: realJobs.value.filter(item =>
-      item.title.includes(query) || item.company.includes(query) || item.city.includes(query) || item.tags.some(tag => tag.includes(query))
-    ),
-    qas: qaList.value.filter(item =>
-      item.title.includes(query) || item.author.includes(query) || item.tags.some(tag => tag.includes(query))
-    )
-  }
-  
-  const totalResults = searchResults.interviews.length + searchResults.jobs.length + searchResults.qas.length
-  
-  if (totalResults === 0) {
-    alert(`搜索 "${query}" 没有找到结果`)
-  } else {
-    if (searchResults.interviews.length > searchResults.jobs.length && searchResults.interviews.length > searchResults.qas.length) {
-      activeTab.value = 'interview'
-    } else if (searchResults.jobs.length > searchResults.qas.length) {
+  if (!query) return
+  jobCurrentPage.value = 1
+  // 记录搜索历史
+  addToSearchHistory(query)
+  // 根据搜索结果自动切换到最相关的tab
+  const interviewResults = hotInterviews.value.filter(item => 
+    (item.title && item.title.includes(query)) || (item.author && item.author.includes(query)) || (item.tags && item.tags.some(tag => tag && tag.includes(query)))
+  ).length
+  const jobResults = realJobs.value.filter(item =>
+    (item.title && item.title.includes(query)) || (item.company && item.company.includes(query)) || (item.city && item.city.includes(query)) || (item.tags && item.tags.some(tag => tag && tag.includes(query)))
+  ).length
+  const qaResults = qaList.value.filter(item =>
+    (item.title && item.title.includes(query)) || (item.author && item.author.includes(query)) || (item.tags && item.tags.some(tag => tag && tag.includes(query)))
+  ).length
+  const maxResults = Math.max(interviewResults, jobResults, qaResults)
+  if (maxResults > 0) {
+    if (jobResults === maxResults) {
       activeTab.value = 'job'
+    } else if (interviewResults === maxResults) {
+      activeTab.value = 'interview'
     } else {
       activeTab.value = 'qa'
     }
-    
-    alert(`搜索 "${query}" 找到 ${totalResults} 条结果！\n面经：${searchResults.interviews.length} 条\n岗位：${searchResults.jobs.length} 条\n问答：${searchResults.qas.length} 条`)
   }
 }
 
 const handleKeywordSearch = (kw) => {
   searchQuery.value = kw
+  jobCurrentPage.value = 1
+  addToSearchHistory(kw)
   handleSearch()
 }
 
-const handleApply = async (job) => {
-  const username = currentUserName.value
-  if (communityStore.hasApplied(username, job.id)) {
-    alert('您已经投递过该岗位了！')
-    return
-  }
-  const record = await communityStore.applyJobApi(username, job)
-  if (!record) {
+const addToSearchHistory = (query) => {
+  if (!query) return
+  const history = searchHistory.value.filter(h => h !== query)
+  history.unshift(query)
+  searchHistory.value = history.slice(0, 10)
+  localStorage.setItem('jc_searchHistory', JSON.stringify(searchHistory.value))
+}
+
+const clearSearchHistory = () => {
+  searchHistory.value = []
+  localStorage.removeItem('jc_searchHistory')
+}
+
+const handleApply = (job) => {
+  if (appliedJobIds.value.has(job.id)) {
     alert('您已经投递过该岗位了！')
     return
   }
@@ -1440,61 +2355,82 @@ const handleApply = async (job) => {
     ...job,
     applyTime: '刚刚'
   })
+  persistAppliedJobs()
   alert(`已投递 ${job.title} 岗位！\n公司：${job.company}\n城市：${job.city}\n薪资：${job.salary}`)
+}
+
+const toggleFollowQuestion = (qa) => {
+  const wasFollowed = followedQuestionIds.value.has(qa.title)
+  if (wasFollowed) {
+    followedQuestionIds.value.delete(qa.title)
+    console.log('[关注问题] 取消关注:', qa.title)
+  } else {
+    followedQuestionIds.value.add(qa.title)
+    console.log('[关注问题] 添加关注:', qa.title)
+  }
+  persistFollowedQuestions()
+  console.log('[关注问题] 当前关注数:', followedQuestionIds.value.size, '已关注列表:', [...followedQuestionIds.value])
 }
 
 const toggleJoin = (group) => {
   group.joined = !group.joined
+  if (group.joined) {
+    joinedGroupIds.value.add(group.name)
+  } else {
+    joinedGroupIds.value.delete(group.name)
+  }
+  persistJoinedGroups()
 }
 
 const toggleFollow = (user) => {
   user.followed = !user.followed
+  if (user.followed) {
+    followedUsers.value.add(user.name)
+  } else {
+    followedUsers.value.delete(user.name)
+  }
+  persistFollowedUsers()
 }
 
-const openChat = async (user) => {
-  if (!user.avatar) {
-    user.avatar = generateAvatar(user.name)
-  }
+const openChat = (user) => {
   chatTarget.value = user
-  try {
-    const savedMessages = await communityStore.fetchChats(currentUserName.value, user.name)
-    chatMessages.value = savedMessages.length > 0 ? savedMessages : []
-  } catch (e) {
-    console.warn('Failed to load chat from backend:', e.message)
-    const savedMessages = communityStore.getChats(currentUserName.value, user.name)
-    chatMessages.value = savedMessages.length > 0 ? savedMessages : []
-  }
+  chatMessages.value = [
+    { from: 'them', author: user.name, avatar: user.avatar, content: `你好！我是${user.name}，很高兴认识你～`, time: '刚刚' }
+  ]
   showChat.value = true
 }
 
-const sendChatMessage = async () => {
+const sendChatMessage = () => {
   if (!chatInput.value.trim()) return
-  const msg = {
+  chatMessages.value.push({
     from: 'me',
     author: currentUser.value.name,
     avatar: currentUser.value.avatar,
     content: chatInput.value,
     time: '刚刚'
-  }
-  chatMessages.value.push(msg)
+  })
   chatInput.value = ''
-  await communityStore.saveChatApi(currentUserName.value, chatTarget.value.name, chatMessages.value)
+  setTimeout(() => {
+    chatMessages.value.push({
+      from: 'them',
+      author: chatTarget.value.name,
+      avatar: chatTarget.value.avatar,
+      content: '收到你的消息啦！稍后回复你～',
+      time: '刚刚'
+    })
+  }, 1200)
 }
 
-const openGroupChat = async (group) => {
+const openGroupChat = (group) => {
   groupChatTarget.value = group
-  try {
-    const savedMessages = await communityStore.fetchChats(currentUserName.value, 'group_' + group.name)
-    groupChatMessages.value = savedMessages.length > 0 ? savedMessages : []
-  } catch (e) {
-    console.warn('Failed to load group chat from backend:', e.message)
-    const savedMessages = communityStore.getChats(currentUserName.value, 'group_' + group.name)
-    groupChatMessages.value = savedMessages.length > 0 ? savedMessages : []
-  }
+  groupChatMessages.value = [
+    { from: 'them', author: '群成员A', avatar: generateAvatar('群成员A'), content: `欢迎加入【${group.name}】！`, time: '10分钟前' },
+    { from: 'them', author: '群成员B', avatar: generateAvatar('群成员B'), content: '新人你好呀，有什么问题可以随时问', time: '5分钟前' }
+  ]
   showGroupChat.value = true
 }
 
-const sendGroupChatMessage = async () => {
+const sendGroupChatMessage = () => {
   if (!groupChatInput.value.trim()) return
   groupChatMessages.value.push({
     from: 'me',
@@ -1504,7 +2440,6 @@ const sendGroupChatMessage = async () => {
     time: '刚刚'
   })
   groupChatInput.value = ''
-  await communityStore.saveChatApi(currentUserName.value, 'group_' + groupChatTarget.value.name, groupChatMessages.value)
 }
 
 const addTag = () => {
@@ -1523,8 +2458,9 @@ const closePublishModal = () => {
   publishForm.value = { title: '', tags: [], tagInput: '', content: '' }
 }
 
-const submitPublish = async () => {
+const submitPublish = () => {
   if (!publishForm.value.title.trim() || !publishForm.value.content.trim()) {
+    console.warn('[发布经验] 标题或内容为空，发布取消')
     alert('请填写标题和内容')
     return
   }
@@ -1533,33 +2469,34 @@ const submitPublish = async () => {
     title: publishForm.value.title,
     author: currentUser.value.name,
     avatar: currentUser.value.avatar,
-    tags: publishForm.value.tags.length > 0 ? publishForm.value.tags : ['计算机'],
-    content: publishForm.value.content,
-    type: 'interview'
+    time: '刚刚',
+    tags: publishForm.value.tags.length > 0 ? publishForm.value.tags : ['前端', '求职'],
+    comments: 0,
+    likes: 0,
+    views: 1,
+    liked: false,
+    collected: false,
+    preview: publishForm.value.content.slice(0, 100) + '...',
+    commentList: [],
+    isUserPublished: true,
+    publishScore: 30
   }
   
-  try {
-    const saved = await communityStore.createPost(newPost)
-    if (saved) {
-      hotInterviews.value.unshift({
-        ...saved,
-        liked: false,
-        collected: false,
-        avatar: saved.avatar || currentUser.value.avatar
-      })
-    } else {
-      communityStore.addPost({ ...newPost, id: 'post_' + Date.now(), time: new Date().toISOString(), likes: 0, views: 0, comments: 0, liked: false, collected: false })
-      hotInterviews.value.unshift({ ...newPost, id: 'post_' + Date.now(), time: '刚刚', likes: 0, views: 0, comments: 0, liked: false, collected: false, avatar: currentUser.value.avatar })
-    }
-  } catch (e) {
-    console.warn('Publish failed:', e.message)
-    communityStore.addPost({ ...newPost, id: 'post_' + Date.now(), time: new Date().toISOString(), likes: 0, views: 0, comments: 0, liked: false, collected: false })
-    hotInterviews.value.unshift({ ...newPost, id: 'post_' + Date.now(), time: '刚刚', likes: 0, views: 0, comments: 0, liked: false, collected: false, avatar: currentUser.value.avatar })
-  }
+  console.log('[发布经验] 准备发布新帖子:', { title: newPost.title, author: newPost.author, tags: newPost.tags })
+  
+  hotInterviews.value.unshift(newPost)
+  console.log('[发布经验] 已插入hotInterviews，当前列表长度:', hotInterviews.value.length)
+  
+  persistPublishedPosts()
+  console.log('[发布经验] 持久化完成，发布者:', currentUser.value.name)
   
   closePublishModal()
   activeTab.value = 'interview'
   filterType.value = 'latest'
+  
+  const userRank = weeklyRank.value.findIndex(r => r.name === currentUser.value.name)
+  console.log('[发布经验] 当前用户活跃榜排名:', userRank >= 0 ? `第${userRank + 1}名` : '未上榜')
+  
   alert('发布成功！已为你切换到面经榜「最新」')
 }
 
@@ -1605,38 +2542,23 @@ const initBackground = () => {
 }
 
 onMounted(async () => {
-  loggedIn.value = isLoggedIn()
-  const name = currentUserName.value
-  currentUser.value = { name, avatar: generateAvatar(name) }
-  
-  initCommunityData(name)
-  await loadCommunityData()
-  
-  initBackground()
-
   try {
-    const applies = await communityStore.fetchApplies(name)
-    appliedJobs.value = applies.map(a => ({
-      id: a.jobId,
-      title: a.jobTitle,
-      company: a.company,
-      city: a.city,
-      salary: a.salary,
-      applyTime: a.applyTime
-    }))
-    appliedJobIds.value = new Set(applies.map(a => a.jobId))
-  } catch (e) {
-    console.warn('Failed to load applies from backend:', e.message)
-    const applies = communityStore.getUserApplies(name)
-    appliedJobs.value = applies.map(a => ({
-      id: a.jobId,
-      title: a.jobTitle,
-      company: a.company,
-      city: a.city,
-      salary: a.salary,
-      applyTime: a.applyTime
-    }))
-    appliedJobIds.value = new Set(applies.map(a => a.jobId))
+    const response = await fetch('/data/all_cleaned_jobs.json')
+    if (response.ok) {
+      jobData = await response.json()
+      dataTrigger.value++
+      generateInterviewsFromJobs()
+      generateQAFromJobs()
+    }
+  } catch (err) {
+    console.warn('岗位数据加载失败:', err.message)
+  }
+  initBackground()
+  loadPersistedState()
+  // 加载搜索历史
+  const savedHistory = JSON.parse(localStorage.getItem('jc_searchHistory') || '[]')
+  if (savedHistory.length > 0) {
+    searchHistory.value = savedHistory
   }
 })
 
@@ -1709,10 +2631,10 @@ onUnmounted(() => {
   align-items: center;
   padding: 15px 30px;
   background: rgba(2, 4, 10, 0.72);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-glow);
   box-shadow: 0 2px 20px rgba(0, 229, 255, 0.08);
+  position: relative;
+  z-index: 10;
 }
 .nav-left { display: flex; align-items: center; gap: 15px; }
 .nav-back {
@@ -1785,43 +2707,37 @@ onUnmounted(() => {
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(0, 229, 255, 0.65), 0 0 18px rgba(196, 113, 255, 0.5);
 }
-.user-profile { 
-  position: relative; 
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+.user-profile { position: relative; cursor: pointer; }
 .user-profile img {
   width: 48px; height: 48px; border-radius: 50%;
   border: 2px solid var(--cyan);
   box-shadow: 0 0 14px rgba(0, 229, 255, 0.5);
-  pointer-events: none;
 }
 
 .user-menu {
-  position: fixed; top: 70px; right: 30px; width: 220px;
-  background: rgba(12, 22, 48, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  position: absolute; top: 60px; right: 0; width: 220px;
+  background: rgba(12, 22, 48, 0.98);
   border: 1px solid var(--border-glow);
-  border-radius: 15px; padding: 12px; z-index: 1000;
+  border-radius: 15px; padding: 12px; z-index: 999;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 0 20px rgba(0, 229, 255, 0.15);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.25s ease;
+}
+.user-menu.user-menu-visible {
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 .menu-item {
-  display: block; width: 100%; text-align: left;
   padding: 14px 16px; border-radius: 10px;
   color: rgba(230, 241, 255, 0.75); font-size: 0.95rem; cursor: pointer;
   transition: all 0.2s;
+  pointer-events: auto;
   user-select: none;
-  box-sizing: border-box;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-family: inherit;
 }
 .menu-item:hover {
   background: rgba(0, 229, 255, 0.15);
@@ -1872,6 +2788,35 @@ onUnmounted(() => {
   box-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
 }
 .search-btn:hover { transform: scale(1.03); box-shadow: 0 0 28px rgba(0, 229, 255, 0.6); }
+
+.search-history {
+  display: flex; justify-content: center; align-items: center; gap: 10px;
+  margin: -15px 0 20px; flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+.history-label { color: rgba(230, 241, 255, 0.5); }
+.history-item {
+  padding: 4px 12px;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 12px;
+  color: rgba(230, 241, 255, 0.75);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.history-item:hover {
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--cyan);
+  border-color: var(--cyan);
+}
+.history-clear {
+  padding: 4px 10px;
+  color: rgba(230, 241, 255, 0.4);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: color 0.2s;
+}
+.history-clear:hover { color: #ef4444; }
 
 .hot-keywords { display: flex; justify-content: center; gap: 12px; margin-bottom: 35px; flex-wrap: wrap; }
 .keyword-item {
@@ -1947,6 +2892,75 @@ onUnmounted(() => {
   border-color: var(--cyan);
   transform: translateY(-4px);
   box-shadow: 0 0 28px rgba(0, 229, 255, 0.25) inset, 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(0, 229, 255, 0.3);
+}
+
+/* 热门精选区 */
+.featured-section {
+  margin-bottom: 40px;
+  padding: 26px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 94, 58, 0.08));
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.15) inset, 0 6px 30px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 215, 0, 0.15);
+  position: relative;
+}
+.featured-section::after {
+  content: '';
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.6), transparent);
+}
+.featured-header {
+  display: flex; align-items: baseline; gap: 14px;
+  margin-bottom: 18px; padding-bottom: 14px;
+  border-bottom: 1px dashed rgba(255, 215, 0, 0.25);
+}
+.featured-title {
+  font-size: 1.25rem; font-weight: 700;
+  background: linear-gradient(135deg, #ffd700, #ff7e5f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+}
+.featured-desc {
+  font-size: 0.8rem;
+  color: rgba(255, 215, 0, 0.6);
+}
+.featured-card {
+  border-color: rgba(255, 215, 0, 0.35);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 94, 58, 0.03)), var(--bg-card);
+}
+.featured-card:hover {
+  border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 28px rgba(255, 215, 0, 0.2) inset, 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(255, 215, 0, 0.25);
+}
+
+/* 全部面经区 */
+.normal-section {
+  margin-top: 10px;
+  padding-top: 5px;
+}
+.normal-section-header {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 18px; padding: 12px 18px;
+  border-bottom: none;
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.08), transparent);
+  border-left: 4px solid var(--cyan);
+  border-radius: 0 12px 12px 0;
+}
+.normal-section-title {
+  font-size: 1.1rem; font-weight: 600;
+  color: var(--cyan);
+  letter-spacing: 0.5px;
+}
+.normal-section-count {
+  font-size: 0.82rem;
+  color: rgba(230, 241, 255, 0.5);
 }
 .card-rank {
   width: 42px; height: 42px; border-radius: 50%;
@@ -2132,6 +3146,60 @@ onUnmounted(() => {
 .collect-btn:hover { background: rgba(255, 182, 72, 0.3); box-shadow: 0 0 16px rgba(255, 182, 72, 0.5); }
 .collect-btn.collected { background: linear-gradient(135deg, rgba(255, 182, 72, 0.5), rgba(255, 71, 87, 0.3)); box-shadow: 0 0 16px rgba(255, 182, 72, 0.6); }
 
+.pagination {
+  margin-top: 30px;
+  padding: 20px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+.pagination-info {
+  font-size: 0.9rem;
+  color: rgba(230, 241, 255, 0.6);
+  font-family: var(--font-mono);
+}
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 8px;
+  color: rgba(230, 241, 255, 0.8);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.page-btn:hover:not(:disabled):not(.active) {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--cyan);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+}
+.page-btn.active {
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  border-color: transparent;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
+}
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .qa-list { display: flex; flex-direction: column; gap: 20px; }
 .qa-card {
   background: var(--bg-card);
@@ -2148,7 +3216,8 @@ onUnmounted(() => {
   transform: translateY(-4px);
   box-shadow: 0 0 28px rgba(0, 229, 255, 0.25) inset, 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(0, 229, 255, 0.3);
 }
-.qa-header { display: flex; gap: 12px; margin-bottom: 12px; }
+.qa-header { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+.qa-header .qa-title-wrap { flex: 1; min-width: 0; }
 .qa-avatar {
   width: 42px; height: 42px; border-radius: 50%;
   border: 1px solid var(--border-glow);
@@ -2193,6 +3262,42 @@ onUnmounted(() => {
   color: var(--gold);
   border-color: rgba(255, 182, 72, 0.4);
   box-shadow: 0 0 12px rgba(255, 182, 72, 0.35);
+}
+.qa-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qa-status {
+  font-size: 0.75rem; padding: 2px 10px; border-radius: 10px;
+  font-weight: 600; white-space: nowrap;
+}
+.qa-status.solved {
+  background: rgba(0, 255, 163, 0.18);
+  color: var(--green);
+  border: 1px solid rgba(0, 255, 163, 0.4);
+}
+.qa-status.unsolved {
+  background: rgba(255, 182, 72, 0.18);
+  color: var(--gold);
+  border: 1px solid rgba(255, 182, 72, 0.4);
+}
+.qa-follow-btn {
+  padding: 4px 12px; border-radius: 12px;
+  background: rgba(74, 158, 255, 0.12);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  color: rgba(230, 241, 255, 0.7);
+  font-size: 0.75rem; cursor: pointer; transition: all 0.25s;
+  white-space: nowrap;
+}
+.qa-follow-btn:hover { background: rgba(74, 158, 255, 0.25); color: #fff; }
+.qa-follow-btn.followed {
+  background: rgba(0, 229, 255, 0.25);
+  color: var(--cyan);
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+.qa-best-answer {
+  font-size: 0.8rem; color: var(--gold);
+  background: rgba(255, 182, 72, 0.1);
+  padding: 4px 10px; border-radius: 10px;
+  border: 1px solid rgba(255, 182, 72, 0.25);
 }
 
 .group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
@@ -2240,6 +3345,17 @@ onUnmounted(() => {
   color: #fff;
   box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
 }
+.group-actions { display: flex; gap: 8px; margin-top: 10px; }
+.group-actions .join-btn { flex: 1; }
+.group-actions .chat-btn {
+  background: linear-gradient(135deg, rgba(0, 255, 163, 0.22), rgba(0, 229, 255, 0.18));
+  border-color: rgba(0, 255, 163, 0.5);
+  color: var(--green);
+}
+.group-actions .chat-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 163, 0.45), rgba(0, 229, 255, 0.35));
+  box-shadow: 0 0 18px rgba(0, 255, 163, 0.5);
+}
 
 .content-right > div {
   background: var(--bg-card);
@@ -2267,6 +3383,7 @@ onUnmounted(() => {
   box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
 }
 
+.online-users { }
 .avatar-stack { display: flex; }
 .mini-avatar {
   width: 38px; height: 38px; border-radius: 50%;
@@ -2275,13 +3392,14 @@ onUnmounted(() => {
   box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
 }
 .mini-avatar:first-child { margin-left: 0; }
-.empty-tip { font-size: 0.8rem; color: rgba(230, 241, 255, 0.4); }
 .online-count {
   font-size: 0.85rem; color: var(--green); display: block; margin-top: 12px;
   font-family: var(--font-mono);
   text-shadow: 0 0 8px rgba(0, 255, 163, 0.5);
 }
 
+.hot-topics { }
+.topic-list { }
 .topic-item {
   display: flex; align-items: center; gap: 12px; padding: 10px 0;
   border-bottom: 1px solid rgba(0, 229, 255, 0.12);
@@ -2303,9 +3421,19 @@ onUnmounted(() => {
 }
 .topic-name { font-size: 0.9rem; color: rgba(230, 241, 255, 0.75); }
 
-.user-card {
+.recommend-users { }
+.user-list { }
+.user-item {
   display: flex; align-items: center; gap: 12px; padding: 12px 0;
   border-bottom: 1px solid rgba(0, 229, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.25s;
+  border-radius: 8px;
+  padding-left: 6px; padding-right: 6px;
+}
+.user-item:hover {
+  background: rgba(0, 229, 255, 0.08);
+  transform: translateX(2px);
 }
 .user-item:last-child { border-bottom: none; }
 .user-avatar {
@@ -2330,7 +3458,55 @@ onUnmounted(() => {
   box-shadow: 0 0 16px rgba(0, 229, 255, 0.55);
 }
 
-.rank-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+.weekly-rank { }
+.rank-rule-toggle {
+  font-size: 0.7rem;
+  color: rgba(0, 229, 255, 0.7);
+  cursor: pointer;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+.rank-rule-toggle:hover {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: rgba(0, 229, 255, 0.1);
+}
+.points-rule {
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  font-size: 0.75rem;
+}
+.points-rule .rule-title {
+  color: var(--cyan);
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+.points-rule .rule-item {
+  color: rgba(230, 241, 255, 0.7);
+  padding: 2px 0;
+  font-family: var(--font-mono);
+}
+.rank-list { }
+.rank-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 6px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.25s;
+}
+.rank-item:hover {
+  background: rgba(255, 182, 72, 0.1);
+  transform: translateX(2px);
+}
+.rank-item.rank-gold { background: linear-gradient(90deg, rgba(255, 182, 72, 0.12), transparent); }
+.rank-item.rank-silver { background: linear-gradient(90deg, rgba(192, 192, 192, 0.1), transparent); }
+.rank-item.rank-bronze { background: linear-gradient(90deg, rgba(205, 127, 50, 0.1), transparent); }
 .rank-num {
   width: 24px; height: 24px; border-radius: 50%;
   background: linear-gradient(135deg, var(--gold), var(--magenta));
@@ -2344,9 +3520,18 @@ onUnmounted(() => {
   width: 36px; height: 36px; border-radius: 50%;
   border: 1px solid var(--border-glow);
   box-shadow: 0 0 8px rgba(0, 229, 255, 0.25);
+  transition: transform 0.25s;
 }
+.rank-item:hover .rank-avatar { transform: scale(1.08); }
 .rank-name { flex: 1; font-size: 0.9rem; color: rgba(230, 241, 255, 0.7); }
 .rank-score { font-size: 0.8rem; color: var(--gold); font-family: var(--font-mono); text-shadow: 0 0 8px rgba(255, 182, 72, 0.4); }
+.rank-view-hint {
+  font-size: 0.72rem;
+  color: rgba(0, 229, 255, 0.5);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.rank-item:hover .rank-view-hint { opacity: 1; }
 
 .detail-modal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -2364,7 +3549,6 @@ onUnmounted(() => {
   box-shadow: 0 0 32px rgba(0, 229, 255, 0.35), 0 24px 60px rgba(0, 0, 0, 0.6);
 }
 .close-btn {
-  position: absolute; top: 20px; right: 20px;
   width: 40px; height: 40px; border-radius: 50%;
   background: rgba(255, 71, 87, 0.2);
   border: 1px solid rgba(255, 71, 87, 0.45);
@@ -2372,6 +3556,7 @@ onUnmounted(() => {
   transition: all 0.3s;
   box-shadow: 0 0 12px rgba(255, 71, 87, 0.3);
   display: flex; align-items: center; justify-content: center;
+  margin-left: auto; flex-shrink: 0;
 }
 .close-btn:hover {
   background: rgba(255, 71, 87, 0.4);
@@ -2391,10 +3576,23 @@ onUnmounted(() => {
   width: 64px; height: 64px; border-radius: 50%;
   border: 2px solid var(--cyan);
   box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
+  cursor: pointer;
+  transition: transform 0.25s;
 }
-.detail-company
+.detail-avatar:hover { transform: scale(1.08); }
+.detail-author { }
 .detail-meta { display: flex; gap: 20px; margin-top: 10px; }
 .detail-meta span { font-size: 0.9rem; color: rgba(230, 241, 255, 0.55); font-family: var(--font-mono); }
+.detail-author-name {
+  color: var(--cyan) !important;
+  cursor: pointer;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+  transition: all 0.25s;
+}
+.detail-author-name:hover {
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.8);
+  letter-spacing: 0.5px;
+}
 .detail-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
 .detail-tag {
   padding: 8px 18px;
@@ -2433,6 +3631,7 @@ onUnmounted(() => {
   box-shadow: 0 0 14px rgba(255, 71, 87, 0.4);
 }
 
+.comment-section { }
 .comment-section h3 {
   font-size: 1.3rem; font-weight: 600; color: #fff; margin-bottom: 20px;
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
@@ -2780,26 +3979,149 @@ onUnmounted(() => {
   font-size: 1.3rem; font-weight: 600; color: #fff; margin-bottom: 20px;
   text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
 }
+.topic-sort-tip {
+  font-size: 0.8rem; font-weight: 400;
+  color: rgba(255, 182, 72, 0.7);
+  text-shadow: 0 0 6px rgba(255, 182, 72, 0.3);
+}
 .topic-posts { display: flex; flex-direction: column; gap: 15px; }
 .topic-post {
-  display: flex; gap: 15px; padding: 18px;
+  display: flex; align-items: center; gap: 15px; padding: 18px;
   background: var(--bg-card);
   border: 1px solid var(--border-glow);
   border-radius: 15px; cursor: pointer; transition: all 0.3s;
+  position: relative;
 }
 .topic-post:hover {
   background: var(--bg-card-hover);
   border-color: var(--cyan);
   box-shadow: 0 0 18px rgba(0, 229, 255, 0.25);
+  transform: translateX(4px);
+}
+.topic-post-top {
+  background: linear-gradient(135deg, rgba(255, 182, 72, 0.1), var(--bg-card));
+  border-color: rgba(255, 182, 72, 0.3);
+}
+.topic-post-top:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 18px rgba(255, 182, 72, 0.3);
+}
+.topic-post-rank {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(0, 229, 255, 0.15);
+  border: 1px solid var(--border-glow);
+  color: rgba(230, 241, 255, 0.7);
+  font-size: 0.9rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+.topic-post-rank.rank-gold {
+  background: linear-gradient(135deg, #ffd700, #ff7e5f);
+  color: #1a0f05;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.6);
+}
+.topic-post-rank.rank-silver {
+  background: linear-gradient(135deg, #e0e0e0, #a8a8a8);
+  color: #1a0f05;
+  box-shadow: 0 0 12px rgba(220, 220, 220, 0.5);
+}
+.topic-post-rank.rank-bronze {
+  background: linear-gradient(135deg, #cd7f32, #8b4513);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(205, 127, 50, 0.5);
 }
 .post-avatar-sm {
   width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
   border: 1px solid var(--border-glow);
   box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+  cursor: pointer;
+  transition: transform 0.25s;
 }
-.post-info { flex: 1; }
+.post-avatar-sm:hover { transform: scale(1.1); border-color: var(--cyan); }
+.post-info { flex: 1; min-width: 0; }
 .post-info h4 { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 8px; text-shadow: 0 0 8px rgba(0, 229, 255, 0.35); }
-.post-meta { display: flex; gap: 15px; font-size: 0.85rem; color: rgba(230, 241, 255, 0.5); font-family: var(--font-mono); }
+.post-meta { display: flex; flex-wrap: wrap; gap: 15px; font-size: 0.85rem; color: rgba(230, 241, 255, 0.5); font-family: var(--font-mono); }
+.post-author { color: var(--cyan) !important; cursor: pointer; }
+.post-author:hover { text-shadow: 0 0 8px rgba(0, 229, 255, 0.7); }
+.post-heat {
+  color: var(--gold) !important;
+  text-shadow: 0 0 8px rgba(255, 182, 72, 0.5);
+}
+
+/* 用户主页弹窗 */
+.user-profile-modal { max-width: 720px; }
+.user-profile-body { padding: 30px; }
+.up-header {
+  display: flex; gap: 24px; padding-bottom: 24px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  margin-bottom: 24px;
+}
+.up-avatar {
+  width: 90px; height: 90px; border-radius: 50%;
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+  flex-shrink: 0;
+}
+.up-info { flex: 1; }
+.up-name {
+  font-size: 1.5rem; font-weight: 700; color: #fff;
+  margin-bottom: 6px;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+}
+.up-title { font-size: 0.9rem; color: rgba(230, 241, 255, 0.6); margin-bottom: 14px; }
+.up-stats {
+  display: flex; flex-wrap: wrap; gap: 18px;
+  font-size: 0.85rem; color: rgba(230, 241, 255, 0.65);
+  margin-bottom: 12px;
+}
+.up-stat strong {
+  color: var(--cyan);
+  font-size: 1.05rem;
+  font-family: var(--font-mono);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  margin-right: 4px;
+}
+.up-rank-info { margin-top: 6px; }
+.up-rank-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  background: linear-gradient(135deg, rgba(255, 182, 72, 0.25), rgba(255, 94, 58, 0.2));
+  border: 1px solid rgba(255, 182, 72, 0.5);
+  color: var(--gold);
+  text-shadow: 0 0 8px rgba(255, 182, 72, 0.5);
+}
+.up-rank-unlisted {
+  background: rgba(230, 241, 255, 0.08);
+  border-color: rgba(230, 241, 255, 0.2);
+  color: rgba(230, 241, 255, 0.55);
+  text-shadow: none;
+}
+.up-tabs {
+  display: flex; gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+}
+.up-tabs span {
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  color: rgba(230, 241, 255, 0.55);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.25s;
+}
+.up-tabs span:hover { color: rgba(0, 229, 255, 0.8); }
+.up-tabs span.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+.up-list { max-height: 460px; overflow-y: auto; padding-right: 6px; }
+.qa-solved-tag {
+  color: #28a745 !important;
+  text-shadow: 0 0 6px rgba(40, 167, 69, 0.5);
+}
 
 .my-publish-list { max-height: 500px; overflow-y: auto; padding: 10px; }
 .my-publish-item {
@@ -2839,8 +4161,6 @@ onUnmounted(() => {
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-icon { font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.5)); }
 .empty-state p { font-size: 1rem; color: rgba(230, 241, 255, 0.6); margin-bottom: 25px; }
-.empty-hint { font-size: 0.85rem; color: rgba(230, 241, 255, 0.4); display: block; }
-.empty-tip { font-size: 0.85rem; color: rgba(230, 241, 255, 0.4); text-align: center; padding: 10px 0; }
 .empty-btn {
   padding: 14px 35px; border-radius: 20px;
   background: linear-gradient(135deg, var(--cyan), var(--magenta));
@@ -3083,7 +4403,7 @@ onUnmounted(() => {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(2, 4, 10, 0.75);
   backdrop-filter: blur(6px);
-  display: flex; justify-content: center; align-items: center; z-index: 1000;
+  display: flex; justify-content: center; align-items: center; z-index: 2000;
 }
 .chat-modal-content {
   width: 420px; max-width: 92%; height: 560px; max-height: 88%;
@@ -3157,9 +4477,9 @@ onUnmounted(() => {
 
 .group-chat-modal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(2, 4, 10, 0.75);
+  background: rgba(2, 4, 10, 0.8);
   backdrop-filter: blur(6px);
-  display: flex; justify-content: center; align-items: center; z-index: 1000;
+  display: flex; justify-content: center; align-items: center; z-index: 2100;
 }
 .group-chat-modal-content {
   width: 460px; max-width: 92%; height: 600px; max-height: 88%;
@@ -3233,4 +4553,39 @@ onUnmounted(() => {
   box-shadow: 0 4px 16px rgba(0, 229, 255, 0.4);
 }
 .group-chat-send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 22px rgba(0, 229, 255, 0.6); }
+
+/* Toast 通知 */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 28px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  z-index: 9999;
+  animation: toast-slide-in 0.3s ease-out;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.toast-notification.success {
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.95), rgba(25, 135, 84, 0.95));
+  color: #fff;
+  border: 1px solid rgba(40, 167, 69, 0.5);
+}
+.toast-notification.error {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.95), rgba(200, 35, 51, 0.95));
+  color: #fff;
+  border: 1px solid rgba(220, 53, 69, 0.5);
+}
+.toast-icon {
+  font-size: 1.2rem;
+}
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
 </style>

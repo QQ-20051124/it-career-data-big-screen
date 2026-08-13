@@ -1,0 +1,902 @@
+[
+  {
+    "job_name": "AI测试工程师助理",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1-2年",
+    "company": "潍坊市博远人力资源",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机视觉算法（文字、人脸、音视频）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3年及以上",
+    "company": "湖北微模式科技发展",
+    "salary_avg": 45000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1年及以上",
+    "company": "北京舜天汇智科技",
+    "salary_avg": 22500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机类 英文学术期刊助理编辑",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "无需经验",
+    "company": "曼迪匹艾（北京）科技服务",
+    "salary_avg": 22500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机技术员（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机维护助理（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "河南腾桓人力资源",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机网络管理员",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京郡雅科贸",
+    "salary_avg": 6500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机测控系统设计师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5-7年",
+    "company": "北京锐和昌航天科技",
+    "salary_avg": 12500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机运维专员（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机文员（五险一金，双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "山东星智海人力资源",
+    "salary_avg": 8500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "技术服务工程师/转播工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "上海敬谊会务服务",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "双休/包食宿/智能运维",
+    "city": "北京",
+    "education": "",
+    "work_exp": "无需经验",
+    "company": "河北恒建轨道交通",
+    "salary_avg": 9000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机运维管理员（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络运维工程师（SD-WAN）北京",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1年及以上",
+    "company": "广州朗桥维视通信技术",
+    "salary_avg": 9500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "咨询顾问或高级咨询顾问（财务管理咨询方向）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "无需经验",
+    "company": "上海立信锐思信息管理",
+    "salary_avg": 12000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "数据运营（双休加补贴）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "河南腾桓人力资源",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "技术研发经理",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "北京腾华善智科技",
+    "salary_avg": 7500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "云计算运维",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1年及以上",
+    "company": "北京郡雅科贸",
+    "salary_avg": 6500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "卫星太阳翼总体设计师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "5年及以上",
+    "company": "北京曦光星翼科技",
+    "salary_avg": 37500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "材料计算工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "无需经验",
+    "company": "北京智能重构科技",
+    "salary_avg": 17500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机测试员（双休)",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "山东凯恩人力资源",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机信息化岗",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "北京国医械华光认证",
+    "salary_avg": 12750.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机硬件设备安装调试",
+    "city": "",
+    "education": "中技/中专",
+    "work_exp": "无需经验",
+    "company": "北京汉志商贸",
+    "salary_avg": 9000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "嵌入式软件工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "北京先瑞达医疗科技",
+    "salary_avg": 21500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机维护员（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "山东凯恩人力资源",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机安全保密管理员",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3年及以上",
+    "company": "中海成（北京）技术",
+    "salary_avg": 9000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "测试工程师 有机会转开发",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "上海学获帮教育科技",
+    "salary_avg": 14000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "高性能计算工程师-算子优化",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "进迭时空（杭州）科技",
+    "salary_avg": 50000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "信息管理员",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "北京方德瑞投资",
+    "salary_avg": 7500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "运维实施工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "成都数智风科技",
+    "salary_avg": 7500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "EDA开发工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "1-5年",
+    "company": "中科芯磁科技（珠海）",
+    "salary_avg": 16000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "（云计算）生态渠道管理",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "8年及以上",
+    "company": "思码睿猎人才咨询（上海）",
+    "salary_avg": 70000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "系统工程师（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京屿博智能科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "AI智能体构建师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-4年",
+    "company": "亚信科技（中国）",
+    "salary_avg": 26500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "系统运维开发工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1-2年",
+    "company": "南京拾柴信息科技",
+    "salary_avg": 9500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "应用运维岗",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1年及以上",
+    "company": "中国银行保险信息技术管理",
+    "salary_avg": 20000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "运维工程师（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京屿博智能科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "计算机数据录入员（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "山东凯恩人力资源",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "软件开发工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "北京欧兴科技",
+    "salary_avg": 8000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "招聘大数据开发工程师助理",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "北京新域未来科技",
+    "salary_avg": 6000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "机器人软件工程师（具身智能方向）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1年及以上",
+    "company": "北京爱得智能机器人技术",
+    "salary_avg": 13500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "大数据开发",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3年及以上",
+    "company": "南京日冲软件",
+    "salary_avg": 15500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络安全技术三岗",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "2年及以上",
+    "company": "军工保密资格审查认证中心",
+    "salary_avg": 13500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "it运维工程师应届生本科",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "河南芯码智能科技",
+    "salary_avg": 11000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "2026届春招-运维开发工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "北京畅游天下网络技术集团",
+    "salary_avg": 12500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "数据开发工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "中国软件与技术服务",
+    "salary_avg": 14000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "云平台运维工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "4年及以上",
+    "company": "前锦网络信息技术（上海）",
+    "salary_avg": 25000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "python开发工程师（自研）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "3年及以上",
+    "company": "南京拾柴信息科技",
+    "salary_avg": 12500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "A09.技术支持工程师（北京）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "上证所信息网络",
+    "salary_avg": 22500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "AI Agent评测",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1年及以上",
+    "company": "上海易科登瀛智能科技",
+    "salary_avg": 14000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "运维部署工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3年及以上",
+    "company": "上海融和元储能源",
+    "salary_avg": 17500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "数据标注员",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1年及以上",
+    "company": "深圳市法本信息技术",
+    "salary_avg": 6500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "2026届春招-游戏开发工程师C++",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "北京畅游天下网络技术集团",
+    "salary_avg": 20000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "北京国企应用运维工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "前锦网络信息技术（上海）",
+    "salary_avg": 22500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "软件工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3年及以上",
+    "company": "上海仟寻网络科技",
+    "salary_avg": 16500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "AI算法工程师（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "安阳创凌信息科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "运维工程师（智慧校园类）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "3年及以上",
+    "company": "前锦网络信息技术（上海）",
+    "salary_avg": 7750.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "技术工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京京铭宏硕科技",
+    "salary_avg": 8500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "机房运维",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "潍坊市博远人力资源",
+    "salary_avg": 11000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "技术服务工程师-北京（社招）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1年",
+    "company": "英达特信息技术（上海）",
+    "salary_avg": 5750.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "桌面工程师（北京）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "3年及以上",
+    "company": "广州市智联互创科技",
+    "salary_avg": 12500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "硬件运维工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京京铭宏硕科技",
+    "salary_avg": 8250.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "通信技术工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "山西飞马数据科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "It技术支持（五险+补贴）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "济南古之文化传媒",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "初级网络工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京京铭宏硕科技",
+    "salary_avg": 8500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "系统运维工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-2年",
+    "company": "北京志与诚科技",
+    "salary_avg": 11500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "系统集成工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京中瓴时代科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "IT技术员（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "实施交付工程师（中级）北京",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "2年及以上",
+    "company": "鸣意信息科技（上海）",
+    "salary_avg": 11000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "系统维护主管（国企物业公司）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3年及以上",
+    "company": "北京建投嘉昱资产管理",
+    "salary_avg": 6500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "数据标注（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京屿博智能科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络服务（五险+补助）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "济南古之文化传媒",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "it技术支持助理(五险一金，双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "山东星智海人力资源",
+    "salary_avg": 8500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络技术支持专员",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1年及以上",
+    "company": "杭州顺久发信息科技",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "桌面技术支持(双休 五险一金)",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "IT技术支持（双休+补贴）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "河南腾桓人力资源",
+    "salary_avg": 11500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "机械产品工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1年及以上",
+    "company": "内蒙古朝正机械设备",
+    "salary_avg": 7000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络运维工程师（五险+双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "济南古之文化传媒",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络运维工程师（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "it技术支持（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "安阳创凌信息科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "it技术支持（五险一金，包食宿）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "山东星智海人力资源",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络工程师（五险+补贴）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "济南古之文化传媒",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络运维专员（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络安装技术人员",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京欧兴科技",
+    "salary_avg": 6000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "IT技术支持",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1年及以上",
+    "company": "北京博石众强商贸",
+    "salary_avg": 12500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "应用服务（双休+五险）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "济南古之文化传媒",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "系统运维工程师（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络工程师（双休）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "河南腾桓人力资源",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "信息安全工程师+不限经验+双休",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "潍坊市博远人力资源",
+    "salary_avg": 9500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "互联网通信（五险+补贴）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "济南古之文化传媒",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "服务器运维工程师（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "网络运维工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "河南腾桓人力资源",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "售后技术支持",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "杭州愿达网络科技有限公司北京",
+    "salary_avg": 8000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "财务软件运维支持",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "上海复翼软件开发",
+    "salary_avg": 7500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "数据分析师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京京铭宏硕科技",
+    "salary_avg": 9500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "云平台运维岗",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "前锦网络信息技术（上海）",
+    "salary_avg": 30000.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "初级运维工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1年",
+    "company": "潍坊市博远人力资源",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "物联网工程师（五险+补贴）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "济南古之文化传媒",
+    "salary_avg": 10500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "运维工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "杭州愿达网络科技有限公司北京",
+    "salary_avg": 9500.0,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "电脑维护专员（双休 五险一金）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "北京棱澈科技",
+    "salary_avg": 10000.0,
+    "data_source": "前程无忧"
+  }
+]

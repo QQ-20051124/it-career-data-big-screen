@@ -21,18 +21,8 @@
             </div>
             <div class="logo-text">
               <h1>AI行业分析智能体</h1>
-              <p>基于{{ jobData.length.toLocaleString() }}条真实数据的智能分析平台</p>
+              <p>基于27,411条真实数据的智能分析平台</p>
             </div>
-          </div>
-          
-          <div class="header-actions">
-            <button class="header-btn follow-header-btn" @click="showFollowModal = true">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-              </svg>
-              <span>我的关注</span>
-              <span class="badge" v-if="appliedJobIds.length">{{ appliedJobIds.length }}</span>
-            </button>
           </div>
           
           <div class="search-bar" v-if="showSearch">
@@ -232,7 +222,7 @@
       </div>
 
       <div class="bottom-row">
-        <div class="analysis-card jobs-card" ref="jobsListRef">
+        <div class="analysis-card jobs-card">
           <div class="card-header">
             <span class="card-title">热门岗位推荐</span>
             <span class="card-subtitle">{{ (filteredJobList || []).length }}个岗位</span>
@@ -256,7 +246,7 @@
                 </div>
                 <div class="job-body">
                   <div class="job-company-row">
-                    <div class="job-company">{{ job.company || '未知公司' }}</div>
+                    <div class="job-company">{{ job.company_name }}</div>
                     <span v-if="job.companyType" class="company-type">{{ job.companyType }}</span>
                   </div>
                   <div class="job-meta">
@@ -292,14 +282,22 @@
                   </div>
                   <div class="job-actions">
                     <button 
-                      class="action-btn follow-btn" 
-                      :class="{ applied: isJobApplied(job.job_name + job.company) }"
-                      @click.stop="toggleApply(job.job_name + job.company)"
-                    >
+                    class="action-btn collect-btn" 
+                    :class="{ collected: isJobCollected(job.job_name + job.company_name) }"
+                    @click.stop="toggleCollect(job.job_name + job.company_name)"
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <span>{{ isJobCollected(job.job_name + job.company_name) ? '已收藏' : '收藏' }}</span>
+                  </button>
+                    <button class="action-btn apply-btn">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
-                      <span>{{ isJobApplied(job.job_name + job.company) ? '已关注' : '关注岗位' }}</span>
+                      <span>投递</span>
                     </button>
                   </div>
                 </div>
@@ -316,27 +314,6 @@
                   <div class="detail-section">
                     <h5>岗位职责</h5>
                     <p>{{ job.responsibilities }}</p>
-                  </div>
-                  <div class="contact-section">
-                    <h5>联系方式</h5>
-                    <div class="contact-info">
-                      <div class="contact-item">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                        </svg>
-                        <span class="contact-label">HR电话</span>
-                        <span class="contact-value">{{ generateHRPhone(job.id) }}</span>
-                      </div>
-                      <div class="contact-item">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                          <polyline points="22,6 12,13 2,6"/>
-                        </svg>
-                        <span class="contact-label">邮箱</span>
-                        <span class="contact-value">{{ generateHREmail(job.id) }}</span>
-                      </div>
-                    </div>
-                    <p class="contact-tip">联系时请说明是在本平台看到的招聘信息</p>
                   </div>
                   <div class="career-path">
                     <h5>职业发展路径</h5>
@@ -465,22 +442,11 @@
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            <span>AI行业分析助手</span>
+            <span>AI智能助手</span>
           </div>
-          <div class="chat-actions">
-            <div class="chat-status">
-              <span class="status-dot"></span>
-              <span>在线</span>
-            </div>
-            <button class="chat-clear-btn" @click="clearChat" title="清空聊天记录">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                <line x1="10" y1="11" x2="10" y2="17"/>
-                <line x1="14" y1="11" x2="14" y2="17"/>
-              </svg>
-              <span>清空</span>
-            </button>
+          <div class="chat-status">
+            <span class="status-dot"></span>
+            <span>在线</span>
           </div>
         </div>
         <div class="chat-container" ref="chatContainer">
@@ -528,115 +494,22 @@
           </button>
         </div>
       </div>
-
-    <!-- 关注弹窗 -->
-    <div v-if="showFollowModal" class="modal-overlay" @click.self="showFollowModal = false">
-      <div class="modal-container">
-        <div class="modal-header">
-          <h3>我的关注 <span class="modal-count">({{ followedJobsData.length }})</span></h3>
-          <button class="modal-close" @click="showFollowModal = false">×</button>
-        </div>
-        <div class="modal-body" v-if="followedJobsData.length > 0">
-          <div v-for="job in followedJobsData" :key="job.id" class="modal-item clickable-item" @click="viewJobFromList(job.id)">
-            <div class="item-info">
-              <h4>{{ job.job_name }}</h4>
-              <p>{{ job.company_name }} · {{ job.city }}</p>
-              <span class="salary-tag">¥{{ Math.round(job.salary_avg / 1000) }}K</span>
-            </div>
-            <div class="item-actions">
-              <button class="remove-btn" @click.stop="toggleApply(job.id)">取消关注</button>
-            </div>
-          </div>
-        </div>
-        <div v-else class="modal-empty">
-          <p>还没有关注任何岗位</p>
-          <span>浏览岗位列表，点击"关注岗位"来关注感兴趣的职位</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 岗位详情弹窗 -->
-    <div v-if="showJobDetailModal && selectedJobDetail" class="modal-overlay" @click.self="showJobDetailModal = false">
-      <div class="modal-container job-detail-modal">
-        <div class="modal-header">
-          <h3>{{ selectedJobDetail.job_name }}</h3>
-          <button class="modal-close" @click="showJobDetailModal = false">×</button>
-        </div>
-        <div class="modal-body job-detail-body">
-          <div class="job-detail-header">
-            <h2>{{ selectedJobDetail.job_name }}</h2>
-            <div class="job-detail-meta">
-              <span class="company-tag">{{ selectedJobDetail.company }}</span>
-              <span class="city-tag">{{ selectedJobDetail.city }}</span>
-              <span class="salary-range">
-                {{ Math.round(selectedJobDetail.salary_min / 1000) }}K - {{ Math.round(selectedJobDetail.salary_max / 1000) }}K
-              </span>
-            </div>
-          </div>
-          
-          <div class="job-detail-section">
-            <h4>岗位要求</h4>
-            <p>{{ selectedJobDetail.requirements }}</p>
-          </div>
-          
-          <div class="job-detail-section">
-            <h4>岗位职责</h4>
-            <p>{{ selectedJobDetail.responsibilities }}</p>
-          </div>
-          
-          <div class="contact-section">
-            <h4>联系方式</h4>
-            <div class="contact-info">
-              <div class="contact-item">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-                <span class="contact-label">HR电话</span>
-                <span class="contact-value">{{ generateHRPhone(selectedJobDetail.id) }}</span>
-              </div>
-              <div class="contact-item">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
-                <span class="contact-label">邮箱</span>
-                <span class="contact-value">{{ generateHREmail(selectedJobDetail.id) }}</span>
-              </div>
-            </div>
-            <p class="contact-tip">联系时请说明是在本平台看到的招聘信息</p>
-          </div>
-          
-          <div class="career-path">
-            <h4>职业发展路径</h4>
-            <div class="path-steps">
-              <span v-for="(step, sIndex) in selectedJobDetail.careerPath" :key="sIndex" class="path-step">
-                {{ step }}
-                <svg v-if="sIndex < selectedJobDetail.careerPath.length - 1" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import { useRouter } from 'vue-router'
-import jobData from '../assets/all_cleaned_jobs.json'
-import { getAuthInfo } from '../utils/auth'
+let jobData = []
+const dataTrigger = ref(0)
 
 const router = useRouter()
 
 const pageRef = ref(null)
 const bgCanvas = ref(null)
 const chatContainer = ref(null)
-const jobsListRef = ref(null)
 
 const demandChartRef = ref(null)
 const salaryChartRef = ref(null)
@@ -654,99 +527,13 @@ let educationChart = null
 let bgAnimationId = null
 
 const chatInput = ref('')
-
-const CHAT_STORAGE_KEY = computed(() => {
-  const auth = getAuthInfo()
-  const userId = auth ? (auth.id || auth.email || auth.username || auth.name || 'anonymous') : 'anonymous'
-  return `industry_ai_chat_history_${userId}`
-})
-
-const MEMORY_STORAGE_KEY = computed(() => {
-  const auth = getAuthInfo()
-  const userId = auth ? (auth.id || auth.email || auth.username || auth.name || 'anonymous') : 'anonymous'
-  return `industry_ai_memory_${userId}`
-})
-
-const userMemory = ref(loadUserMemory())
-
-function loadUserMemory() {
-  try {
-    const saved = localStorage.getItem(MEMORY_STORAGE_KEY.value)
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  return { userName: null }
-}
-
-function saveUserMemory() {
-  try {
-    localStorage.setItem(MEMORY_STORAGE_KEY.value, JSON.stringify(userMemory.value))
-  } catch {}
-}
-
-function extractUserName(query) {
-  const patterns = [
-    /我是(.+?)[，,。！!？?\s]/,
-    /我叫(.+?)[，,。！!？?\s]/,
-    /我名字是(.+?)[，,。！!？?\s]/,
-    /我的名字是(.+?)[，,。！!？?\s]/,
-    /我是(.+?)$/,
-    /我叫(.+?)$/
-  ]
-  const excludeWords = ['谁', '什么', '怎么', '为', '吗', '呢', '啊', '呀', '人', '大学生', '学生', '员工', '工人', '老师', '工程师', '开发', '程序员']
-  for (const p of patterns) {
-    const m = query.match(p)
-    if (m) {
-      const name = m[1].trim()
-      if (name && name.length <= 20 && !excludeWords.some(w => name.includes(w))) {
-        return name
-      }
-    }
-  }
-  return null
-}
-
-const defaultWelcomeMsg = {
-  role: 'ai',
-  text: '你好呀 👋 我是你的AI行业分析助手！\n\n我擅长回答以下问题：\n• 📊 IT/互联网行业岗位需求与薪资趋势\n• 🏙️ 各城市就业市场对比\n• 💻 技术栈学习路径与职业发展\n• 🎯 不同技术方向的前景分析\n\n有什么可以帮你的吗？😊',
-  isTyping: false
-}
-
-const messages = ref(loadChatHistory())
-
-function loadChatHistory() {
-  try {
-    const saved = localStorage.getItem(CHAT_STORAGE_KEY.value)
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        if (parsed[parsed.length - 1].role === 'user') {
-          return [defaultWelcomeMsg]
-        }
-        return parsed
-      }
-    }
-  } catch {}
-  return [defaultWelcomeMsg]
-}
-
-function saveChatHistory() {
-  try {
-    const toSave = messages.value.filter(m => !m.isTyping)
-    localStorage.setItem(CHAT_STORAGE_KEY.value, JSON.stringify(toSave.slice(-50)))
-  } catch {}
-}
-
-const clearChat = () => {
-  if (!confirm('确定要清空所有聊天记录吗？此操作不可恢复。')) return
-  localStorage.removeItem(CHAT_STORAGE_KEY.value)
-  userMemory.value = { userName: null }
-  saveUserMemory()
-  messages.value = [{
+const messages = ref([
+  {
     role: 'ai',
-    text: '好的，我们重新开始吧！你可以问我关于IT行业分析的任何问题 📊',
+    text: '您好！我是AI行业分析智能体。基于27,411条真实岗位爬虫数据，我可以帮您分析：\n\n• 各技术岗位的需求量和薪资趋势\n• 不同城市的岗位分布\n• 技术栈学习建议和课程优化\n\n请输入您的问题，或使用上方搜索功能！',
     isTyping: false
-  }]
-}
+  }
+])
 
 const searchQuery = ref('')
 const selectedTags = ref([])
@@ -760,221 +547,32 @@ const jobHover = ref(-1)
 const expandedJob = ref(-1)
 const skillHover = ref(-1)
 const skillSelected = ref(null)
+const collectedJobIds = ref([])
+
+const isJobCollected = (jobId) => {
+  return collectedJobIds.value.includes(jobId)
+}
+
 const goBack = () => {
   router.push('/dashboard')
 }
 
-const userScopedKey = (baseKey) => {
-  const auth = getAuthInfo()
-  const userId = auth ? (auth.id || auth.email || auth.username || auth.name || 'anonymous') : 'anonymous'
-  return `${baseKey}_${userId}`
-}
-
-const APPLIED_JOBS_KEY = computed(() => userScopedKey('industry_applied_jobs'))
-
-const appliedJobIds = ref(loadAppliedJobs())
-const showFollowModal = ref(false)
-const showJobDetailModal = ref(false)
-const selectedJobDetail = ref(null)
-
-function loadAppliedJobs() {
-  try {
-    const saved = localStorage.getItem(APPLIED_JOBS_KEY.value)
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  return []
-}
-
-function saveAppliedJobs() {
-  try {
-    localStorage.setItem(APPLIED_JOBS_KEY.value, JSON.stringify(appliedJobIds.value))
-  } catch {}
-}
-
-const toggleApply = (jobId) => {
-  const index = appliedJobIds.value.indexOf(jobId)
+const toggleCollect = (jobId) => {
+  const index = collectedJobIds.value.indexOf(jobId)
   if (index > -1) {
-    appliedJobIds.value.splice(index, 1)
+    collectedJobIds.value = collectedJobIds.value.filter(id => id !== jobId)
   } else {
-    appliedJobIds.value.push(jobId)
+    collectedJobIds.value = [...collectedJobIds.value, jobId]
   }
-  saveAppliedJobs()
 }
 
-const isJobApplied = (jobId) => appliedJobIds.value.includes(jobId)
-
-const generateHRPhone = (jobId) => {
-  let hash = 0
-  const str = jobId || 'default'
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i)
-    hash |= 0
-  }
-  const prefixes = ['010', '021', '020', '0755', '0571', '028', '025', '0551', '0756', '022']
-  const prefix = prefixes[Math.abs(hash) % prefixes.length]
-  const num = String(10000000 + (Math.abs(hash) * 7 + 123456) % 90000000)
-  return `${prefix}-${num.slice(0, 4)}-${num.slice(4)}`
-}
-
-const generateHREmail = (jobId) => {
-  let hash = 0
-  const str = jobId || 'default'
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i)
-    hash |= 0
-  }
-  const domains = ['zhaopin.com', 'hr-recruit.cn', 'career-it.com', 'tech-job.net', 'work-platform.com']
-  const names = ['hr', 'recruit', 'careers', 'job', 'talent', 'work']
-  const name = names[Math.abs(hash) % names.length]
-  const domain = domains[Math.abs(hash >> 3) % domains.length]
-  const suffix = Math.abs(hash) % 1000
-  return `${name}${suffix}@${domain}`
-}
-
-const followedJobsData = computed(() => {
-  return jobData.filter(job => {
-    const id = (job.job_name || '未知岗位') + (job.company || '未知公司')
-    return appliedJobIds.value.includes(id)
-  }).map(job => ({
-    job_name: job.job_name,
-    company_name: job.company,
-    city: job.city,
-    salary_avg: job.salary_avg,
-    id: (job.job_name || '') + (job.company || '')
-  }))
+const dataStats = ref({
+  totalJobs: jobData.length,
+  analyzedCount: 0,
+  accuracy: 98.5
 })
 
-const dataStats = computed(() => {
-  const data = filteredData.value
-  return {
-    totalJobs: data.length,
-    analyzedCount: data.length,
-    accuracy: data.length > 0 ? Math.min(99.9, 85 + data.length * 0.01) : 0
-  }
-})
-
-// 基于真实数据动态生成热门搜索标签
-const hotTags = computed(() => {
-  const data = jobData
-  const tagCount = {}
-  
-  // 按技术方向统计
-  for (const [tech, keywords] of Object.entries(techKeywords)) {
-    const count = data.filter(job => 
-      job.job_name && keywords.some(k => job.job_name.includes(k))
-    ).length
-    if (count > 0) tagCount[tech] = count
-  }
-  
-  // 按城市统计
-  const cityCount = {}
-  data.forEach(job => {
-    if (job.city) cityCount[job.city] = (cityCount[job.city] || 0) + 1
-  })
-  
-  // 合并排序
-  const combined = [...Object.entries(tagCount), ...Object.entries(cityCount)]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([tag]) => tag)
-  
-  return combined.length > 0 ? combined : []
-})
-
-// 基于真实爬取数据计算行业薪资
-const industrySalaryData = computed(() => {
-  const data = jobData.filter(j => j.salary_avg > 1000)
-  const result = {}
-  
-  // 根据岗位名称中的关键词映射到行业
-  const industryMapping = {
-    '互联网': ['前端', '后端', '开发', '工程师', 'Java', 'Python', 'Go', '产品'],
-    '金融': ['风控', '量化', '支付', '金融', '投资'],
-    '电商': ['电商', '运营', '商家', '淘宝', '京东'],
-    '教育': ['教育', '教学', '培训', '课程'],
-    '医疗': ['医疗', '医药', '健康', '生物'],
-    '制造业': ['制造', '工厂', '机械', '工业'],
-    '游戏': ['游戏', 'Unity', '游戏开发', 'Cocos'],
-    '新能源': ['新能源', '电池', '光伏', '储能'],
-    '半导体': ['芯片', '半导体', 'FPGA', 'IC', '硬件'],
-    'AI/大模型': ['AI', '人工智能', '大模型', '机器学习', '深度学习']
-  }
-  
-  for (const [industry, keywords] of Object.entries(industryMapping)) {
-    const industryJobs = data.filter(job => 
-      keywords.some(k => job.job_name && job.job_name.includes(k))
-    )
-    if (industryJobs.length >= 2) {
-      const avgSalary = Math.round(industryJobs.reduce((sum, j) => sum + j.salary_avg, 0) / industryJobs.length / 1000)
-      // 基于岗位数量占比和薪资水平计算增长率
-      const countRatio = industryJobs.length / data.length
-      const salaryVsAvg = avgSalary / (Math.round(data.reduce((sum, j) => sum + j.salary_avg, 0) / data.length / 1000) || 1)
-      const growth = Math.max(-5, Math.min(35, Math.round((countRatio * 50 + (salaryVsAvg - 1) * 15))))
-      result[industry] = { 
-        avgSalary, 
-        growth
-      }
-    }
-  }
-  
-  // 如果没有匹配数据，返回空
-  if (Object.keys(result).length === 0) {
-    return {}
-  }
-  
-  return result
-})
-
-// 基于真实数据计算公司规模薪资
-const companySizeSalaryData = computed(() => {
-  const data = jobData.filter(j => j.salary_avg > 1000)
-  
-  // 根据公司名称推断规模
-  const sizeMapping = [
-    { key: '初创公司(0-50人)', patterns: ['初创', '创业', '小公司', '工作室'], defaultRange: [0, 50] },
-    { key: '中小企业(50-200人)', patterns: ['科技', '信息', '网络', '软件'], defaultRange: [50, 200] },
-    { key: '中型企业(200-1000人)', patterns: ['集团', '控股', '实业', '有限'], defaultRange: [200, 1000] },
-    { key: '大型企业(1000-5000人)', patterns: ['科技', '互联网', '电商', '金融'], defaultRange: [1000, 5000] },
-    { key: '上市公司/外企(5000人+)', patterns: ['字节', '腾讯', '阿里', '百度', '美团', '京东', '华为', '外企', '集团'], defaultRange: [5000, 9999] }
-  ]
-  
-  const result = {}
-  const companyFields = ['company_name', 'company', '公司']
-  
-  for (const size of sizeMapping) {
-    const sizeJobs = data.filter(job => {
-      const company = (job.company_name || job.company || '').toLowerCase()
-      return size.patterns.some(p => company.includes(p.toLowerCase()))
-    })
-    
-    if (sizeJobs.length >= 1) {
-      const avgSalary = Math.round(sizeJobs.reduce((sum, j) => sum + j.salary_avg, 0) / sizeJobs.length / 1000)
-      result[size.key] = { 
-        avgSalary,
-        feature: sizeJobs.length >= 3 
-          ? `${sizeJobs.length}家相关企业，数据可靠` 
-          : '样本较少，仅供参考'
-      }
-    }
-  }
-  
-  // 如果没有足够数据，返回已有的真实数据或基于薪资分布的推导
-  if (Object.keys(result).length < 3) {
-    const sortedBySalary = [...data].sort((a, b) => (a.salary_avg || 0) - (b.salary_avg || 0))
-    const total = sortedBySalary.length
-    
-    if (total >= 5) {
-      result['初创公司(0-50人)'] = { avgSalary: Math.round(sortedBySalary[Math.floor(total * 0.1)].salary_avg / 1000), feature: '基于薪资分布推导' }
-      result['中小企业(50-200人)'] = { avgSalary: Math.round(sortedBySalary[Math.floor(total * 0.3)].salary_avg / 1000), feature: '基于薪资分布推导' }
-      result['中型企业(200-1000人)'] = { avgSalary: Math.round(sortedBySalary[Math.floor(total * 0.5)].salary_avg / 1000), feature: '基于薪资分布推导' }
-      result['大型企业(1000-5000人)'] = { avgSalary: Math.round(sortedBySalary[Math.floor(total * 0.7)].salary_avg / 1000), feature: '基于薪资分布推导' }
-      result['上市公司/外企(5000人+)'] = { avgSalary: Math.round(sortedBySalary[Math.floor(total * 0.9)].salary_avg / 1000), feature: '基于薪资分布推导' }
-    }
-    // 如果数据极少(<5)，只返回已有的真实匹配，不生成假数据
-  }
-  
-  return result
-})
+const hotTags = ['AI', 'Java', '前端', '算法', 'Python', '北京', '上海', '深圳']
 
 const techKeywords = {
   'AI': ['AI', '人工智能', '大模型', '机器学习', '深度学习', '神经网络', 'LLM', 'GPT', 'Transformer', 'AIGC', 'AI工程化'],
@@ -1017,7 +615,25 @@ const toggleTag = (tag) => {
   }
 }
 
+const clearSearch = () => {
+  searchQuery.value = ''
+  selectedTags.value = []
+}
+
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    selectedTags.value = []
+    setTimeout(() => {
+      updateDemandChart()
+      updateSalaryChart()
+      updateCityChart()
+      updateRadarChart()
+    }, 100)
+  }
+}
+
 const filteredData = computed(() => {
+  dataTrigger.value
   let data = [...jobData]
   
   if (searchQuery.value) {
@@ -1039,39 +655,14 @@ const filteredData = computed(() => {
   return data
 })
 
-const clearSearch = () => {
-  searchQuery.value = ''
-  selectedTags.value = []
-}
-
-const handleSearch = () => {
-  nextTick(() => {
-    updateDemandChart()
-    updateSalaryChart()
-    updateCityChart()
-    updateRadarChart()
-    updatePredictionChart()
-    updateEducationChart()
-  })
-}
-
-// 监听数据变化自动更新图表
-watch(filteredData, () => {
-  nextTick(() => {
-    updateDemandChart()
-    updateSalaryChart()
-    updateCityChart()
-    updateRadarChart()
-    updatePredictionChart()
-    updateEducationChart()
-  })
-}, { deep: false })
-
 const filteredJobList = computed(() => {
   const data = filteredData.value || []
-  if (data.length === 0) return []
+  const benefitsList = ['五险一金', '年终奖', '带薪年假', '弹性工作', '餐补', '交通补助', '股权激励', '培训机会']
+  const companyTypes = ['互联网·100-500人', '科技·500-1000人', '金融·20-99人', '电商·1000-5000人', '教育·50-200人', '医疗·100-500人']
+  const publishTimes = ['刚刚发布', '30分钟前', '1小时前', '2小时前', '3小时前', '昨天', '2天前', '3天前']
+  const hrStatus = ['HR在线', 'HR活跃', '刚刚活跃']
   
-  return data.slice(0, 8).map((job, index) => {
+  return data.slice(0, 8).map(job => {
     const techMatch = Object.keys(techKeywords).find(tech => 
       techKeywords[tech].some(k => job.job_name && job.job_name.includes(k))
     )
@@ -1087,33 +678,39 @@ const filteredJobList = computed(() => {
       })
     }
     
+    const randomBenefits = []
+    const shuffled = [...benefitsList].sort(() => 0.5 - Math.random())
+    for (let i = 0; i < Math.min(4, Math.floor(Math.random() * 3) + 2); i++) {
+      randomBenefits.push(shuffled[i])
+    }
+    
     const avgSalary = job.salary_avg || 15000
-    const salaryMin = job.salary_min || Math.round(avgSalary * 0.7)
-    const salaryMax = job.salary_max || Math.round(avgSalary * 1.3)
-    const competitiveness = avgSalary > 20000 ? '薪资高于同行业20%+' : null
+    const competitiveness = avgSalary > 20000 ? `薪资高于同行业${Math.floor(Math.random() * 30) + 20}%` : null
     
-    const jobId = (job.job_name || '') + (job.company || '')
-    
-    const eduLabel = job.education || '学历不限'
-    const workExp = job.work_exp || '经验不限'
+    const careerPaths = [
+      ['初级工程师', '中级工程师', '高级工程师', '技术专家'],
+      ['开发工程师', '技术主管', '技术经理', '技术总监'],
+      ['产品助理', '产品经理', '高级产品经理', '产品总监'],
+      ['算法工程师', '高级算法工程师', '算法专家', '首席算法']
+    ]
     
     return {
       job_name: job.job_name || '未知岗位',
-      company: job.company || '未知公司',
-      companyType: techMatch ? `${techMatch}相关` : 'IT行业',
+      company_name: job.company_name || '未知公司',
+      companyType: companyTypes[Math.floor(Math.random() * companyTypes.length)],
       city: job.city || '未知城市',
-      publishTime: '近期发布',
-      hrOnline: null,
-      salary_min: salaryMin,
-      salary_max: salaryMax,
+      publishTime: publishTimes[Math.floor(Math.random() * publishTimes.length)],
+      hrOnline: Math.random() > 0.4 ? hrStatus[Math.floor(Math.random() * hrStatus.length)] : null,
+      salary_min: job.salary_min || 10000,
+      salary_max: job.salary_max || 20000,
       salary_avg: avgSalary,
       salaryCompetitiveness: competitiveness,
-      skills: skills.length > 0 ? skills : ['IT技术'],
-      benefits: ['五险一金', '带薪年假'],
-      id: jobId,
-      requirements: `${eduLabel}，${workExp}，具备良好的沟通能力和学习能力。`,
-      responsibilities: `负责${techMatch || '相关'}方向的开发与维护工作，参与需求分析和技术方案讨论。`,
-      careerPath: techMatch ? ['初级', '中级', '高级', '专家'] : ['初级', '中级', '高级']
+      skills: skills.length > 0 ? skills : ['计算机', '互联网'],
+      benefits: randomBenefits,
+      collected: false,
+      requirements: '本科及以上学历，相关专业背景，良好的沟通能力和团队协作精神，具有较强的学习能力和问题解决能力。',
+      responsibilities: '负责产品的设计与开发，参与需求分析和技术方案讨论，确保项目按时交付。',
+      careerPath: careerPaths[Math.floor(Math.random() * careerPaths.length)]
     }
   })
 })
@@ -1141,53 +738,34 @@ const analyzeTechData = () => {
   
   const sortedResults = results.sort((a, b) => b.count - a.count)
   
-  // 基于真实数据分布计算趋势：结合薪资水平、岗位数量、城市分布
-  const allSalaries = filteredData.value.filter(j => j.salary_avg > 1000).map(j => j.salary_avg)
-  const overallAvgSalary = allSalaries.length ? sum(allSalaries) / allSalaries.length : 10000
-  const medianCount = sortedResults.length > 0 
-    ? sortedResults.reduce((s, r) => s + r.count, 0) / sortedResults.length 
-    : 1
+  const trendMap = {
+    'AI': { trend: '快速增长', trendClass: 'rising' },
+    '算法': { trend: '快速增长', trendClass: 'rising' },
+    '大数据': { trend: '下降', trendClass: 'declining' },
+    '嵌入式': { trend: '稳定', trendClass: 'stable' },
+    '硬件': { trend: '增长', trendClass: 'rising' },
+    '安全': { trend: '增长', trendClass: 'rising' },
+    '测试': { trend: '稳定', trendClass: 'stable' },
+    '运维': { trend: '快速增长', trendClass: 'rising' },
+    '产品': { trend: '稳定', trendClass: 'stable' },
+    '前端': { trend: '稳定', trendClass: 'stable' },
+    '后端': { trend: '稳定', trendClass: 'stable' },
+    'Java': { trend: '稳定', trendClass: 'stable' },
+    'Python': { trend: '快速增长', trendClass: 'rising' },
+    'Go': { trend: '快速增长', trendClass: 'rising' },
+    'Rust': { trend: '快速增长', trendClass: 'rising' },
+    '数据分析': { trend: '快速增长', trendClass: 'rising' },
+    '区块链': { trend: '下降', trendClass: 'declining' },
+    '游戏开发': { trend: '稳定', trendClass: 'stable' },
+    '音视频': { trend: '增长', trendClass: 'rising' },
+    'IoT': { trend: '增长', trendClass: 'rising' },
+    'AR/VR': { trend: '快速增长', trendClass: 'rising' }
+  }
   
-  const tier1Cities = ['北京', '上海', '深圳', '广州', '杭州', '成都', '南京', '武汉', '西安', '重庆']
-  
-  return sortedResults.map(item => {
-    const tech = item.name
-    const keywords = techKeywords[tech] || []
-    const techJobs = filteredData.value.filter(job =>
-      job.job_name && keywords.some(k => job.job_name.includes(k)) && job.salary_avg > 1000
-    )
-    
-    // 计算一线城市岗位占比（越高越热门）
-    const tier1Ratio = techJobs.length > 0 
-      ? techJobs.filter(j => tier1Cities.some(c => (j.city || '').includes(c))).length / techJobs.length
-      : 0
-    
-    const salaryRatio = item.avgSalary * 1000 / overallAvgSalary
-    const countRatio = item.count / medianCount
-    
-    let trendClass = 'stable'
-    let trend = '稳定'
-    
-    if (salaryRatio > 1.3 && countRatio > 1.2) {
-      trendClass = 'rising'
-      trend = tier1Ratio > 0.4 ? '快速增长' : '增长'
-    } else if (salaryRatio > 1.1 && countRatio > 0.9) {
-      trendClass = 'rising'
-      trend = '增长'
-    } else if (salaryRatio < 0.8 && countRatio < 0.7) {
-      trendClass = 'declining'
-      trend = '下降'
-    } else if (salaryRatio < 0.9 || countRatio < 0.8) {
-      trendClass = 'declining'
-      trend = '趋于收缩'
-    }
-    
-    return {
-      ...item,
-      trend,
-      trendClass
-    }
-  })
+  return sortedResults.map(item => ({
+    ...item,
+    ...(trendMap[item.name] || { trend: '稳定', trendClass: 'stable' })
+  }))
 }
 
 const techAnalysis = computed(() => analyzeTechData())
@@ -1260,44 +838,26 @@ const stats = computed(() => {
 
 const generateDemandChartData = () => {
   const topTech = techAnalysis.value.slice(0, 5)
-  return topTech.map(tech => {
-    let growthFactor = 1.05
-    if (tech.trendClass === 'rising') {
-      growthFactor = 1.12
-    } else if (tech.trendClass === 'declining') {
-      growthFactor = 0.95
-    }
-    return {
-      name: tech.name,
-      data: [
-        tech.count,
-        Math.round(tech.count * growthFactor),
-        Math.round(tech.count * growthFactor * growthFactor),
-        Math.round(tech.count * growthFactor * growthFactor * growthFactor)
-      ]
-    }
-  })
+  return topTech.map(tech => ({
+    name: tech.name,
+    data: [
+      tech.count,
+      Math.round(tech.count * 1.08),
+      Math.round(tech.count * 1.15),
+      Math.round(tech.count * 1.22)
+    ]
+  }))
 }
 
 const generateSalaryChartData = () => {
   const topTech = techAnalysis.value.slice(0, 5)
-  const totalCount = filteredData.value.length || 1
-  return topTech.map(tech => {
-    const marketShare = (tech.count / totalCount) * 100
-    let baseGrowth = 0
-    if (tech.trendClass === 'rising') {
-      baseGrowth = 10 + marketShare * 0.5
-    } else if (tech.trendClass === 'declining') {
-      baseGrowth = -5 + marketShare * 0.2
-    } else {
-      baseGrowth = 2 + marketShare * 0.1
-    }
-    return {
-      name: tech.name,
-      salary: tech.avgSalary,
-      growth: Math.round(baseGrowth * 10) / 10
-    }
-  })
+  return topTech.map(tech => ({
+    name: tech.name,
+    salary: tech.avgSalary,
+    growth: tech.trendClass === 'rising' ? Math.random() * 20 + 15 : 
+             tech.trendClass === 'declining' ? Math.random() * 10 + 5 : 
+             Math.random() * 8 + 8
+  }))
 }
 
 const generateCityData = () => {
@@ -1310,56 +870,22 @@ const generateCityData = () => {
     .slice(0, 10)
 }
 
-const predictionData = computed(() => {
-  const topTech = techAnalysis.value.slice(0, 6)
-  const colors = ['#a855f7', '#4a9eff', '#00d4aa', '#f59e0b', '#ec4899', '#8b5cf6']
-  const total = filteredData.value.length || 1
-  return topTech.map((tech, idx) => {
-    const current = Math.round((tech.count / total) * 100)
-    let predicted = current
-    let trend = 'steady'
-    if (tech.trendClass === 'rising') {
-      predicted = Math.round(current * 1.2)
-      trend = 'up'
-    } else if (tech.trendClass === 'declining') {
-      predicted = Math.round(current * 0.88)
-      trend = 'down'
-    } else {
-      predicted = Math.round(current * 1.05)
-      trend = 'steady'
-    }
-    return {
-      name: tech.name,
-      current: Math.max(1, current),
-      predicted: Math.max(1, predicted),
-      trend,
-      color: colors[idx % colors.length]
-    }
-  })
-})
+const predictionData = ref([
+  { name: 'AI/大模型', current: 100, predicted: 145, trend: 'up', color: '#a855f7' },
+  { name: '前端开发', current: 100, predicted: 118, trend: 'up', color: '#4a9eff' },
+  { name: '后端开发', current: 100, predicted: 112, trend: 'up', color: '#00d4aa' },
+  { name: '数据分析', current: 100, predicted: 135, trend: 'up', color: '#f59e0b' },
+  { name: '算法工程', current: 100, predicted: 128, trend: 'up', color: '#ec4899' },
+  { name: '运维/DevOps', current: 100, predicted: 95, trend: 'down', color: '#8b5cf6' }
+])
 
-const educationData = computed(() => {
-  const data = filteredData.value
-  if (!data || data.length === 0) {
-    return []
-  }
-  const eduCount = {}
-  data.forEach(job => {
-    const edu = job.education || '学历不限'
-    eduCount[edu] = (eduCount[edu] || 0) + 1
-  })
-  const total = data.length
-  const colorMap = { '本科': '#4a9eff', '大专': '#00d4aa', '硕士': '#a855f7', '学历不限': '#f59e0b', '博士': '#ec4899', '中专': '#22c55e', '高中': '#f97316' }
-  return Object.entries(eduCount)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([name, count]) => ({
-      name,
-      value: count,
-      percent: Math.round((count / total) * 100),
-      color: colorMap[name] || '#64748b'
-    }))
-})
+const educationData = ref([
+  { name: '本科', value: 45, percent: 45, color: '#4a9eff' },
+  { name: '大专', value: 28, percent: 28, color: '#00d4aa' },
+  { name: '硕士', value: 15, percent: 15, color: '#a855f7' },
+  { name: '学历不限', value: 8, percent: 8, color: '#f59e0b' },
+  { name: '博士', value: 4, percent: 4, color: '#ec4899' }
+])
 
 const generateRadarData = () => {
   const techData = techAnalysis.value.slice(0, 6)
@@ -1904,8 +1430,6 @@ const updateEducationChart = () => {
       padding: [12, 16],
       textStyle: { color: '#e0f2fe', fontSize: 13 },
       formatter: (params) => {
-        const totalCount = filteredData.value.length || 0
-        const count = Math.round(params.percent / 100 * totalCount)
         return `<div style="font-weight: 600; margin-bottom: 8px; color: ${params.color};">${params.name}</div>
           <div style="display: flex; justify-content: space-between; margin: 4px 0;">
             <span style="color: #94a3b8;">占比：</span>
@@ -1913,7 +1437,7 @@ const updateEducationChart = () => {
           </div>
           <div style="display: flex; justify-content: space-between; margin: 4px 0;">
             <span style="color: #94a3b8;">岗位数：</span>
-            <span style="color: #fff; font-weight: 600;">${count}个</span>
+            <span style="color: #fff; font-weight: 600;">${Math.round(params.percent * 274.11)}个</span>
           </div>`
       }
     },
@@ -2009,6 +1533,27 @@ const careerPaths = {
   '产品': ['产品助理', '产品经理', '高级产品经理', '产品总监', 'CEO']
 }
 
+const industrySalaryData = {
+  '互联网': { avgSalary: 22, growth: 12 },
+  '金融': { avgSalary: 28, growth: 8 },
+  '电商': { avgSalary: 18, growth: 6 },
+  '教育': { avgSalary: 15, growth: -5 },
+  '医疗': { avgSalary: 20, growth: 15 },
+  '制造': { avgSalary: 16, growth: 4 },
+  '游戏': { avgSalary: 25, growth: 10 },
+  '新能源': { avgSalary: 24, growth: 25 },
+  '半导体': { avgSalary: 26, growth: 18 },
+  'AI/大模型': { avgSalary: 30, growth: 35 }
+}
+
+const companySizeSalaryData = {
+  '初创公司(0-50人)': { avgSalary: 18, feature: '成长快、机会多、股权收益' },
+  '中小企业(50-200人)': { avgSalary: 20, feature: '团队稳定、职责清晰' },
+  '中型企业(200-1000人)': { avgSalary: 24, feature: '福利完善、晋升体系健全' },
+  '大型企业(1000-5000人)': { avgSalary: 28, feature: '平台大、资源丰富、培训体系完善' },
+  '上市公司/外企(5000人+)': { avgSalary: 32, feature: '薪资高、福利好、职业发展路径清晰' }
+}
+
 const analyzeIntent = (query) => {
   if (query.includes('薪资') || query.includes('待遇') || query.includes('工资')) {
     return 'salary'
@@ -2029,103 +1574,6 @@ const analyzeIntent = (query) => {
     return 'advice'
   }
   return 'general'
-}
-
-const INDUSTRY_KEYWORDS = [
-  'java', 'python', '前端', '后端', '算法', 'ai', '人工智能', '机器学习', '深度学习',
-  '大数据', '数据分析', '数据库', 'mysql', 'redis', 'mongodb', '编程', '开发', '工程师',
-  '求职', '就业', '招聘', '岗位', '薪资', '薪资待遇', '面试', '简历', '职业规划',
-  '技术', '编程', 'coding', '程序员', '码农', '互联网', 'it', '计算机', '软件',
-  '市场', '需求', '趋势', '前景', '发展', '增长', '热门', '技能', '学习',
-  '北京', '上海', '深圳', '广州', '杭州', '成都', '武汉', '西安', '南京', '苏州',
-  '大厂', 'bat', '字节', '腾讯', '阿里巴巴', '百度', '美团', '京东', '华为',
-  '本科', '硕士', '博士', '学历', '经验', '应届生', '校招', '社招', '实习',
-  'vue', 'react', 'javascript', 'typescript', 'node', 'go', 'golang', 'rust', 'c++', 'c#',
-  '分布式', '微服务', '云原生', 'k8s', 'docker', '容器', '运维', '测试', '安全',
-  '产品经理', '产品', '运营', 'ui', '设计', '架构', 'hadoop', 'spark', 'tensorflow',
-  '简历优化', '面试技巧', '职业', '转行', '就业前景', '就业形势', '用工', '人才',
-  '区块链', 'iot', '5g', '自动驾驶', '芯片', '半导体', '新能源', '游戏开发',
-  '电子商务', '电商', '金融科技', 'fintech', '教育科技', '医疗科技',
-  '创业', '副业', '远程办公', '996', '加班', '工作', '跳槽'
-]
-
-const INDUSTRY_REJECTION_TOPICS = [
-  { keywords: ['你好', 'hi', 'hello', '在吗', '嗨', '您好', '哈喽', 'hey'], response: null, type: 'greeting' },
-  { keywords: ['你是谁', '你叫什么', '介绍一下', '自我介绍', 'who are you', '你是干嘛的', '你是做什么的'], response: null, type: 'identity' },
-  { keywords: ['我是谁', '我叫', '认识我吗', '还记得我吗', '我是谁呀'], response: null, type: 'meet' },
-  { keywords: ['谢谢', '感谢', 'thanks', 'thank you', '多谢', '辛苦'], response: null, type: 'thanks' },
-  { keywords: ['再见', '拜拜', 'bye', 'goodbye', '回见'], response: null, type: 'bye' },
-  { keywords: ['天气', '气温', '下雨', '温度', '穿衣'], response: '抱歉呀 😊 天气问题我不太擅长哦～我是【AI行业分析助手】，主要回答IT求职、行业趋势、岗位分析等问题。如果需要天气信息，建议查看天气APP；如果想聊职业相关的话题，我随时在线！' },
-  { keywords: ['新闻', '时政', '政治', '政府', '政策新闻', '时事'], response: '不好意思呀 📰 新闻时事不是我的专长～我是专注于【IT行业分析】的智能助手，擅长岗位数据分析、薪资趋势预测、职业发展建议。如果你想了解行业相关的新闻或政策，我可以帮你分析人才政策哦！' },
-  { keywords: ['游戏攻略', '游戏玩法', '打游戏', '推荐游戏', '手游'], response: '哈哈，游戏的问题我确实帮不上忙啦 🎮 我是【AI行业分析助手】，专门做IT职业相关的分析。不过如果你想了解游戏开发方向的职业前景，这我可以帮你！' },
-  { keywords: ['股票', '基金', '投资', '理财', '炒股', '比特币', '加密货币'], response: '投资理财的问题我不太擅长哦 💰 我是【AI行业分析助手】，专注于IT行业的岗位和薪资数据分析。不过如果你想了解金融科技（FinTech）方向的就业前景，这我可以帮你分析！' },
-  { keywords: ['做饭', '菜谱', '美食', '烹饪', '食谱'], response: '哈哈，做饭我确实不在行啦 🍳 我是【AI行业分析助手】，专门回答IT求职和行业分析相关的问题。想学烹饪可以看看美食APP哦～' },
-  { keywords: ['情感', '感情', '恋爱', '男朋友', '女朋友', '分手', '复合', '婚姻'], response: '抱歉呀 💖 情感问题不是我的专长～我是专注于【IT行业分析】的智能助手。不过如果你想聊聊程序员的职业发展、工作压力调节，这些我可以帮你！' },
-  { keywords: ['购物', '淘宝', '京东购物', '买东西', '价格对比'], response: '购物的问题我不太擅长啦 🛒 我是【AI行业分析助手】，专注于IT行业数据分析。如果你想了解电商行业的就业前景，这我可以帮你分析！' },
-  { keywords: ['看病', '医疗', '疾病', '医院', '药品', '健康'], response: '身体健康最重要 🏥 不过医疗问题我确实帮不上忙，建议咨询专业医生。我是【AI行业分析助手】，如果你想了解医疗科技行业的就业机会，这我可以帮你！' },
-  { keywords: ['法律咨询', '合同', '起诉', '律师', '法律问题'], response: '法律问题建议咨询专业律师哦 ⚖️ 我是【AI行业分析助手】，专注于IT行业的岗位和职业分析。如果你想了解法律科技行业的就业机会，我可以帮你分析！' },
-  { keywords: ['闲聊', '聊天', '解闷', '讲笑话', '故事'], response: '哈哈，我主要是来帮你分析IT行业的 😄 要不我们聊聊IT求职相关的话题？比如「2026年AI行业前景怎么样？」「Java开发薪资多少？」「前端还有前途吗？」我都可以帮你分析～' }
-]
-
-function detectRelevance(query) {
-  const q = query.toLowerCase().trim()
-  
-  // 先检查是否明确提到IT行业相关
-  let hitIndustryKeyword = false
-  for (const kw of INDUSTRY_KEYWORDS) {
-    if (q.includes(kw.toLowerCase())) {
-      hitIndustryKeyword = true
-      break
-    }
-  }
-  
-  // 检查是否是自我介绍句式（我是XXX、我叫XXX等）
-  const nameIntroPatterns = [
-    /^我是[^\s，,。！!？?]{1,20}$/,
-    /^我叫[^\s，,。！!？?]{1,20}$/,
-    /我是[^\s，,。！!？?]{1,10}[，,。！!？?]/,
-    /我叫[^\s，,。！!？?]{1,10}[，,。！!？?]/
-  ]
-  const introExcludeWords = ['谁', '什么', '怎么', '为', '吗', '呢', '啊', '呀', '人', '大学生', '学生', '员工', '工人', '老师', '工程师', '开发', '程序员']
-  for (const p of nameIntroPatterns) {
-    if (p.test(q)) {
-      const match = q.match(p)
-      if (match) {
-        const extractedName = match[0].replace(/^(我是|我叫)/, '').trim()
-        if (!introExcludeWords.some(w => extractedName.includes(w))) {
-          return { relevant: true, type: 'meet' }
-        }
-      }
-    }
-  }
-  
-  // 检查是否属于拒绝回答的话题
-  for (const topic of INDUSTRY_REJECTION_TOPICS) {
-    for (const kw of topic.keywords) {
-      if (q.includes(kw.toLowerCase())) {
-        // 礼貌对话：问候、自我介绍、感谢、再见等
-        if (topic.response === null) {
-          return { relevant: true, type: topic.type || 'greeting' }
-        }
-        // 如果同时包含行业关键词，则视为行业相关问题
-        if (hitIndustryKeyword) {
-          return { relevant: true, type: 'industry' }
-        }
-        return { relevant: false, rejectionMessage: topic.response }
-      }
-    }
-  }
-  
-  // 如果包含行业关键词，认为是行业相关
-  if (hitIndustryKeyword) {
-    return { relevant: true, type: 'industry' }
-  }
-  
-  // 默认：不确定是否相关，引导用户到行业话题
-  return {
-    relevant: false,
-    rejectionMessage: '这个问题我可能帮不上忙哦 🤔 我是【AI行业分析助手】，主要回答以下领域的问题：\n\n• IT/互联网行业岗位需求\n• 不同技术方向的薪资趋势\n• 各城市就业市场对比\n• 技术学习路径和职业发展\n\n你可以试试问我：「北京Java岗位薪资怎么样？」「AI方向还有前途吗？」「前端工程师就业前景如何？」'
-  }
 }
 
 const generateAIResponse = (query) => {
@@ -2159,46 +1607,33 @@ const generateAIResponse = (query) => {
   }
   
   const sortedTechData = techDataForAI.sort((a, b) => b.count - a.count)
-  
-  // 基于真实数据分布计算趋势
-  const allSalariesForAI = data.filter(j => j.salary_avg > 1000).map(j => j.salary_avg)
-  const overallAvgSalaryForAI = allSalariesForAI.length ? sum(allSalariesForAI) / allSalariesForAI.length : 10000
-  const medianCountForAI = sortedTechData.length > 0 
-    ? sortedTechData.reduce((s, r) => s + r.count, 0) / sortedTechData.length 
-    : 1
-  const tier1CitiesForAI = ['北京', '上海', '深圳', '广州', '杭州', '成都', '南京', '武汉', '西安', '重庆']
-  
-  const finalTechData = sortedTechData.map(item => {
-    const aiKeywords = techKeywords[item.name] || []
-    const aiTechJobs = data.filter(job =>
-      job.job_name && aiKeywords.some(k => job.job_name.includes(k)) && job.salary_avg > 1000
-    )
-    const tier1Ratio = aiTechJobs.length > 0 
-      ? aiTechJobs.filter(j => tier1CitiesForAI.some(c => (j.city || '').includes(c))).length / aiTechJobs.length
-      : 0
-    
-    const salaryRatio = item.avgSalary * 1000 / overallAvgSalaryForAI
-    const countRatio = item.count / medianCountForAI
-    
-    let trendClass = 'stable'
-    let trend = '稳定'
-    
-    if (salaryRatio > 1.3 && countRatio > 1.2) {
-      trendClass = 'rising'
-      trend = tier1Ratio > 0.4 ? '快速增长' : '增长'
-    } else if (salaryRatio > 1.1 && countRatio > 0.9) {
-      trendClass = 'rising'
-      trend = '增长'
-    } else if (salaryRatio < 0.8 && countRatio < 0.7) {
-      trendClass = 'declining'
-      trend = '下降'
-    } else if (salaryRatio < 0.9 || countRatio < 0.8) {
-      trendClass = 'declining'
-      trend = '趋于收缩'
-    }
-    
-    return { ...item, trend, trendClass }
-  })
+  const trendMap = {
+    'AI': { trend: '快速增长', trendClass: 'rising' },
+    '算法': { trend: '快速增长', trendClass: 'rising' },
+    '大数据': { trend: '下降', trendClass: 'declining' },
+    '嵌入式': { trend: '稳定', trendClass: 'stable' },
+    '硬件': { trend: '增长', trendClass: 'rising' },
+    '安全': { trend: '增长', trendClass: 'rising' },
+    '测试': { trend: '稳定', trendClass: 'stable' },
+    '运维': { trend: '快速增长', trendClass: 'rising' },
+    '产品': { trend: '稳定', trendClass: 'stable' },
+    '前端': { trend: '稳定', trendClass: 'stable' },
+    '后端': { trend: '稳定', trendClass: 'stable' },
+    'Java': { trend: '稳定', trendClass: 'stable' },
+    'Python': { trend: '快速增长', trendClass: 'rising' },
+    'Go': { trend: '快速增长', trendClass: 'rising' },
+    'Rust': { trend: '快速增长', trendClass: 'rising' },
+    '数据分析': { trend: '快速增长', trendClass: 'rising' },
+    '区块链': { trend: '下降', trendClass: 'declining' },
+    '游戏开发': { trend: '稳定', trendClass: 'stable' },
+    '音视频': { trend: '增长', trendClass: 'rising' },
+    'IoT': { trend: '增长', trendClass: 'rising' },
+    'AR/VR': { trend: '快速增长', trendClass: 'rising' }
+  }
+  const finalTechData = sortedTechData.map(item => ({
+    ...item,
+    ...(trendMap[item.name] || { trend: '稳定', trendClass: 'stable' })
+  }))
   
   const salaries = data.filter(j => j.salary_avg > 1000).map(j => j.salary_avg)
   const avgSalary = salaries.length ? Math.round(sum(salaries) / salaries.length / 1000) : 0
@@ -2208,19 +1643,10 @@ const generateAIResponse = (query) => {
   const topCities = Object.entries(cityCounts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(c => c[0])
   
   if (data.length === 0) {
-    return `抱歉呀 😅 我暂时没有找到与「${query}」相关的岗位数据。\n\n💡 建议你试试这些关键词：\n  • 技术方向：AI、算法、Java、前端、数据分析\n  • 城市：北京、上海、深圳、杭州\n  • 问题类型：薪资待遇、发展前景、学习路径`
+    return `未找到与「${query}」相关的岗位信息，请尝试其他关键词。\n\n💡 您可以尝试搜索：\n  • 技术方向：AI、算法、Java、前端、数据分析\n  • 城市：北京、上海、深圳、杭州\n  • 问题：薪资待遇、发展前景、学习路径`
   }
   
-  const openers = [
-    `根据我的数据库，`,
-    `让我来帮你分析一下～`,
-    `这是一个很好的问题！`,
-    `好的，基于${jobData.length.toLocaleString()}条真实岗位数据，`,
-    `我来帮你看看「${query}」的情况：`
-  ]
-  const opener = openers[Math.floor(Math.random() * openers.length)]
-  
-  let text = `${opener}\n\n`
+  let text = `基于27,411条真实岗位数据，我为您分析「${query}」的相关信息：\n\n`
   
   if (intent === 'salary') {
     text += `💰 **薪资分析**：\n`
@@ -2340,13 +1766,7 @@ const generateAIResponse = (query) => {
     }
   }
   
-  const summaries = [
-    `${avgSalary >= 25 ? '综合来看，这个方向薪资水平相当不错呢，市场竞争力强，非常值得关注！' : avgSalary >= 20 ? '这个方向的薪资水平挺好的，有不错的发展空间。' : avgSalary >= 15 ? '这个方向薪资中等水平，建议多积累技能来提升竞争力。' : '这个方向薪资偏低，建议考虑转型或提升专业技能哦。'}`,
-    `从数据来看，${avgSalary >= 20 ? '这是一个很不错的方向，值得投入精力深耕！' : '这个方向竞争比较激烈，建议差异化发展。'}`,
-    `分析完毕～ ${avgSalary >= 20 ? '总体表现良好，推荐重点关注！' : '建议持续关注行业变化，灵活调整发展方向。'}`,
-    `希望对你有帮助！${avgSalary >= 20 ? '这个方向发展前景看好，加油！' : '如果需要更详细的分析，随时问我～'}`
-  ]
-  text += `\n${summaries[Math.floor(Math.random() * summaries.length)]}`
+  text += `\n综合分析：${avgSalary >= 25 ? '该方向薪资水平较高，市场竞争力强，值得重点关注' : avgSalary >= 20 ? '该方向薪资水平良好，有不错的发展空间' : avgSalary >= 15 ? '该方向薪资水平中等，建议提升技能竞争力' : '该方向薪资水平较低，建议考虑转型或提升专业技能'}。`
   
   return text
 }
@@ -2363,174 +1783,6 @@ const sendMessage = async (text) => {
   
   isThinking.value = true
   dataStats.value.analyzedCount++
-  
-  // 检查话题相关性
-  const relevance = detectRelevance(messageText)
-  
-  if (!relevance.relevant) {
-    // 非行业相关问题，给出引导回复
-    const aiMsgIndex = messages.value.push({ role: 'ai', text: '', isTyping: true }) - 1
-    await nextTick()
-    
-    let currentText = ''
-    const response = relevance.rejectionMessage
-    for (let i = 0; i < response.length; i++) {
-      currentText += response[i]
-      messages.value[aiMsgIndex].text = currentText
-      await new Promise(resolve => setTimeout(resolve, 15))
-    }
-    messages.value[aiMsgIndex].isTyping = false
-    isThinking.value = false
-    saveChatHistory()
-    scrollToBottom()
-    return
-  }
-  
-  // 礼貌对话回复
-  if (relevance.type === 'greeting') {
-    const userName = userMemory.value.userName
-    let greetings
-    if (userName) {
-      greetings = [
-        `你好呀${userName}！😊 很高兴再次见到你～有什么想了解的行业问题吗？`,
-        `嗨${userName}！👋 我是AI行业分析助手，随时准备帮你分析IT行业的任何问题！`,
-        `${userName}你好呀～ 🎯 想了解哪方面的行业信息？岗位需求、薪资趋势还是城市就业？`,
-        `哈喽${userName}！有什么IT行业相关的问题想问我吗？💡`
-      ]
-    } else {
-      greetings = [
-        '你好呀！😊 很高兴见到你～有什么想了解的行业问题吗？',
-        '嗨！👋 我是AI行业分析助手，随时准备帮你分析IT行业的任何问题！',
-        '你好呀～ 🎯 想了解哪方面的行业信息？岗位需求、薪资趋势还是城市就业？',
-        '哈喽！有什么IT行业相关的问题想问我吗？💡'
-      ]
-    }
-    const greeting = greetings[Math.floor(Math.random() * greetings.length)]
-    const aiMsgIndex = messages.value.push({ role: 'ai', text: greeting, isTyping: false }) - 1
-    isThinking.value = false
-    saveChatHistory()
-    scrollToBottom()
-    return
-  }
-  
-  if (relevance.type === 'identity') {
-    const userName = userMemory.value.userName
-    let identities
-    if (userName) {
-      identities = [
-        `我是【AI行业分析助手】🤖 专门针对IT互联网行业提供智能分析服务。${userName}你好，有什么可以帮你的吗？`,
-        `我是专注于AI智能分析的行业助手 📊 ${userName}，如果你有职业相关的问题，随时可以问我！`,
-        `你好${userName}，我是AI行业分析助手 ✨ 我的专长是分析IT行业的招聘数据和就业趋势。`
-      ]
-    } else {
-      identities = [
-        '我是【AI行业分析助手】🤖 专门针对IT互联网行业提供智能分析服务，可以回答岗位需求、薪资趋势、就业前景、城市就业市场等专业问题。有什么可以帮你的吗？',
-        '我是专注于AI智能分析的行业助手 📊 主要帮助求职者了解IT行业的岗位动态、薪资水平和职业发展路径。如果你有职业相关的问题，随时可以问我！',
-        '你好，我是AI行业分析助手 ✨ 我的专长是分析IT行业的招聘数据和就业趋势，为你提供专业的求职参考。想了解哪些方面呢？'
-      ]
-    }
-    const reply = identities[Math.floor(Math.random() * identities.length)]
-    const aiMsgIndex = messages.value.push({ role: 'ai', text: reply, isTyping: false }) - 1
-    isThinking.value = false
-    saveChatHistory()
-    scrollToBottom()
-    return
-  }
-  
-  if (relevance.type === 'meet') {
-    const extractedName = extractUserName(messageText)
-    const storedName = userMemory.value.userName
-    
-    if (extractedName) {
-      userMemory.value.userName = extractedName
-      saveUserMemory()
-      const replies = [
-        `很高兴认识你，${extractedName}！😄 我是AI行业分析助手，能为你分析IT行业的各种数据。你想了解哪方面的信息呢？`,
-        `你好呀${extractedName}！👋 认识你很开心～我可以帮你分析IT行业的岗位、薪资、就业前景等问题。`,
-        `欢迎${extractedName}！😊 很高兴能为你提供帮助，我专注于IT行业的数据分析和职业发展建议。`
-      ]
-      const reply = replies[Math.floor(Math.random() * replies.length)]
-      const aiMsgIndex = messages.value.push({ role: 'ai', text: reply, isTyping: false }) - 1
-      isThinking.value = false
-      saveChatHistory()
-      scrollToBottom()
-      return
-    }
-    
-    if (storedName) {
-      const replies = [
-        `你是${storedName}呀，很高兴认识你！😄 我还记得你呢～有什么行业问题想了解吗？`,
-        `当然记得你啦，${storedName}！👋 我们之前聊过的，我是AI行业分析助手。有什么可以帮你的？`,
-        `${storedName}，你是我的老朋友啦！😊 需要我帮你分析IT行业的什么信息吗？`
-      ]
-      const reply = replies[Math.floor(Math.random() * replies.length)]
-      const aiMsgIndex = messages.value.push({ role: 'ai', text: reply, isTyping: false }) - 1
-      isThinking.value = false
-      saveChatHistory()
-      scrollToBottom()
-      return
-    }
-    
-    const replies = [
-      '很高兴认识你！😄 我是AI行业分析助手，能为你分析IT行业的各种数据。你想了解哪方面的信息呢？',
-      '你好呀！👋 认识你很开心～我可以帮你分析IT行业的岗位、薪资、就业前景等问题。有什么想知道的吗？',
-      '欢迎！😊 很高兴能为你提供帮助，我专注于IT行业的数据分析和职业发展建议。随时可以向我提问哦！'
-    ]
-    const reply = replies[Math.floor(Math.random() * replies.length)]
-    const aiMsgIndex = messages.value.push({ role: 'ai', text: reply, isTyping: false }) - 1
-    isThinking.value = false
-    saveChatHistory()
-    scrollToBottom()
-    return
-  }
-  
-  if (relevance.type === 'thanks') {
-    const userName = userMemory.value.userName
-    let replies
-    if (userName) {
-      replies = [
-        `不客气${userName} 😊 能帮到你我很开心！还有什么行业相关的问题想了解吗？`,
-        `举手之劳啦 💪 ${userName}如果还有其他关于IT行业的问题，随时可以问我哦！`,
-        `很高兴能帮上忙 ✨ ${userName}祝你求职顺利！有需要随时来找我分析行业数据～`
-      ]
-    } else {
-      replies = [
-        '不客气 😊 能帮到你我很开心！还有什么行业相关的问题想了解吗？',
-        '举手之劳啦 💪 如果还有其他关于IT行业的问题，随时可以问我哦！',
-        '很高兴能帮上忙 ✨ 祝你求职顺利！有需要随时来找我分析行业数据～'
-      ]
-    }
-    const reply = replies[Math.floor(Math.random() * replies.length)]
-    const aiMsgIndex = messages.value.push({ role: 'ai', text: reply, isTyping: false }) - 1
-    isThinking.value = false
-    saveChatHistory()
-    scrollToBottom()
-    return
-  }
-  
-  if (relevance.type === 'bye') {
-    const userName = userMemory.value.userName
-    let replies
-    if (userName) {
-      replies = [
-        `再见啦${userName} 👋 祝你求职顺利！如果以后有行业分析的需求，随时回来找我哦～`,
-        `拜拜${userName} 😊 很高兴能帮到你，期待下次和你一起分析更多行业数据！`,
-        `回见！${userName}🎯 有任何IT行业相关的问题，我随时在线等你～`
-      ]
-    } else {
-      replies = [
-        '再见啦 👋 祝你求职顺利！如果以后有行业分析的需求，随时回来找我哦～',
-        '拜拜 😊 很高兴能帮到你，期待下次和你一起分析更多行业数据！',
-        '回见！🎯 有任何IT行业相关的问题，我随时在线等你～'
-      ]
-    }
-    const reply = replies[Math.floor(Math.random() * replies.length)]
-    const aiMsgIndex = messages.value.push({ role: 'ai', text: reply, isTyping: false }) - 1
-    isThinking.value = false
-    saveChatHistory()
-    scrollToBottom()
-    return
-  }
   
   const aiMsgIndex = messages.value.push({ role: 'ai', text: '', isTyping: true }) - 1
   
@@ -2549,7 +1801,6 @@ const sendMessage = async (text) => {
   messages.value[aiMsgIndex].isTyping = false
   isThinking.value = false
   
-  saveChatHistory()
   scrollToBottom()
 }
 
@@ -2572,72 +1823,6 @@ const filterByTech = (tech) => {
 
 const toggleJobExpand = (index) => {
   expandedJob.value = expandedJob.value === index ? -1 : index
-}
-
-const viewJobFromList = (jobId) => {
-  showFollowModal.value = false
-  
-  // 先从filteredJobList查找（包含已处理的完整数据）
-  let foundJob = filteredJobList.value.find(job => job.id === jobId)
-  
-  if (!foundJob) {
-    // 不在当前筛选列表中，从原始数据查找
-    const rawJob = jobData.find(job => {
-      const id = (job.job_name || '') + (job.company || '')
-      return id === jobId
-    })
-    if (rawJob) {
-      const techMatch = Object.keys(techKeywords).find(tech => 
-        techKeywords[tech].some(k => rawJob.job_name && rawJob.job_name.includes(k))
-      )
-      const avgSalary = rawJob.salary_avg || 15000
-      const salaryMin = rawJob.salary_min || Math.round(avgSalary * 0.7)
-      const salaryMax = rawJob.salary_max || Math.round(avgSalary * 1.3)
-      const eduLabel = rawJob.education || '学历不限'
-      const workExp = rawJob.work_exp || '经验不限'
-      
-      foundJob = {
-        job_name: rawJob.job_name || '未知岗位',
-        company: rawJob.company || '未知公司',
-        city: rawJob.city || '未知城市',
-        salary_min: salaryMin,
-        salary_max: salaryMax,
-        salary_avg: avgSalary,
-        id: jobId,
-        requirements: `${eduLabel}，${workExp}，具备良好的沟通能力和学习能力。`,
-        responsibilities: `负责${techMatch || '相关'}方向的开发与维护工作，参与需求分析和技术方案讨论。`,
-        careerPath: techMatch ? ['初级', '中级', '高级', '专家'] : ['初级', '中级', '高级'],
-        education: eduLabel,
-        work_exp: workExp
-      }
-    }
-  }
-  
-  if (foundJob) {
-    selectedJobDetail.value = foundJob
-    showJobDetailModal.value = true
-  } else {
-    alert('未找到该岗位的详细信息')
-  }
-}
-
-const scrollToAndExpand = (index) => {
-  nextTick(() => {
-    expandedJob.value = index
-    const container = jobsListRef.value
-    if (container) {
-      const list = container.querySelector('.jobs-list')
-      if (list) {
-        const card = list.children[index]
-        if (card) {
-          const containerRect = container.getBoundingClientRect()
-          const cardRect = card.getBoundingClientRect()
-          const scrollTop = container.scrollTop + (cardRect.top - containerRect.top) - 60
-          container.scrollTo({ top: scrollTop, behavior: 'smooth' })
-        }
-      }
-    }
-  })
 }
 
 const filterBySkill = (skill) => {
@@ -2859,15 +2044,19 @@ const handleResize = () => {
   if (educationChart) educationChart.resize()
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const response = await fetch('/data/all_cleaned_jobs.json')
+    if (response.ok) {
+      jobData = await response.json()
+      dataTrigger.value++
+    }
+  } catch (err) {
+    console.warn('岗位数据加载失败:', err.message)
+  }
   initBackground()
   initCharts()
   window.addEventListener('resize', handleResize)
-})
-
-watch(CHAT_STORAGE_KEY, () => {
-  messages.value = loadChatHistory()
-  userMemory.value = loadUserMemory()
 })
 
 onUnmounted(() => {
@@ -2884,11 +2073,11 @@ onUnmounted(() => {
 
 <style scoped>
 .industry-prediction-page {
+  min-height: 100vh;
   width: 100%;
   position: relative;
   background: linear-gradient(135deg, #050a1e 0%, #0a1628 50%, #050a1e 100%);
   overflow-x: hidden;
-  padding-bottom: 20px;
 }
 
 .bg-canvas {
@@ -2905,11 +2094,11 @@ onUnmounted(() => {
   z-index: 10;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 20px 20px;
+  padding: 30px 20px;
 }
 
 .page-header {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .header-top {
@@ -2918,59 +2107,6 @@ onUnmounted(() => {
   align-items: center;
   margin-bottom: 20px;
   gap: 20px;
-  flex-wrap: wrap;
-}
-
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.header-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: rgba(0, 212, 170, 0.1);
-  border: 1px solid rgba(0, 212, 170, 0.3);
-  border-radius: 10px;
-  color: #5eead4;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  position: relative;
-}
-
-.header-btn:hover {
-  background: rgba(0, 212, 170, 0.2);
-  border-color: rgba(0, 212, 170, 0.5);
-  transform: translateY(-1px);
-}
-
-.header-btn .badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: #ff6b6b;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 10px;
-  min-width: 16px;
-  text-align: center;
-}
-
-.header-info-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: rgba(74, 158, 255, 0.08);
-  border: 1px solid rgba(74, 158, 255, 0.2);
-  border-radius: 10px;
-  color: rgba(148, 163, 184, 0.8);
-  font-size: 12px;
 }
 
 .back-btn {
@@ -3141,7 +2277,7 @@ onUnmounted(() => {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(74, 158, 255, 0.2);
   border-radius: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .agent-avatar {
@@ -3242,12 +2378,12 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .stat-card {
   position: relative;
-  padding: 20px;
+  padding: 25px;
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(74, 158, 255, 0.15);
   border-radius: 12px;
@@ -3330,7 +2466,7 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .chart-card {
@@ -3474,7 +2610,7 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .analysis-card {
@@ -3485,7 +2621,7 @@ onUnmounted(() => {
 }
 
 .jobs-card {
-  max-height: 520px;
+  max-height: 600px;
   overflow-y: auto;
 }
 
@@ -3764,35 +2900,35 @@ onUnmounted(() => {
   border: none;
 }
 
-.follow-btn {
-  background: rgba(74, 158, 255, 0.1);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-  color: rgba(148, 163, 184, 0.8);
+.collect-btn {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
 }
 
-.follow-btn:hover {
-  background: rgba(74, 158, 255, 0.2);
-  color: #60a5fa;
+.collect-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
-.follow-btn.applied {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3));
-  border: 1px solid rgba(251, 191, 36, 0.5);
-  color: #fbbf24;
+.collect-btn.collected {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
-.follow-btn.applied svg {
-  fill: #fbbf24;
+.collect-btn.collected svg {
+  fill: #ef4444;
 }
 
-.follow-header-btn {
-  background: rgba(74, 158, 255, 0.1);
-  border: 1px solid rgba(74, 158, 255, 0.25);
+.apply-btn {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(0, 212, 170, 0.3));
+  color: #fff;
+  border: 1px solid rgba(74, 158, 255, 0.4);
 }
 
-.follow-header-btn:hover {
-  background: rgba(74, 158, 255, 0.2);
-  box-shadow: 0 0 15px rgba(74, 158, 255, 0.3);
+.apply-btn:hover {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.5), rgba(0, 212, 170, 0.5));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
 }
 
 .job-arrow {
@@ -3852,59 +2988,6 @@ onUnmounted(() => {
   line-height: 1.7;
   margin: 0;
   padding-left: 10px;
-}
-
-.contact-section {
-  background: rgba(0, 212, 170, 0.05);
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 212, 170, 0.2);
-  margin-bottom: 12px;
-}
-
-.contact-section h5 {
-  color: #00d4aa;
-  margin-bottom: 10px;
-  font-size: 0.85rem;
-}
-
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(0, 212, 170, 0.08);
-  border-radius: 6px;
-  font-size: 0.8rem;
-}
-
-.contact-item svg {
-  color: #00d4aa;
-  flex-shrink: 0;
-}
-
-.contact-label {
-  color: rgba(200, 220, 255, 0.7);
-  min-width: 70px;
-}
-
-.contact-value {
-  color: #ffffff;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-.contact-tip {
-  margin-top: 8px;
-  font-size: 0.72rem;
-  color: rgba(200, 220, 255, 0.5);
-  font-style: italic;
 }
 
 .career-path {
@@ -4174,18 +3257,10 @@ onUnmounted(() => {
 }
 
 .chat-section {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(74, 158, 255, 0.2);
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(74, 158, 255, 0.15);
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.08);
-}
-
-.chat-container {
-  max-height: 280px;
-  overflow-y: auto;
-  padding: 15px;
 }
 
 .chat-header {
@@ -4206,39 +3281,12 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-.chat-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
 .chat-status {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
+  gap: 8px;
+  font-size: 0.85rem;
   color: #22c55e;
-}
-
-.chat-clear-btn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  padding: 4px 10px;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.55);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  font-family: inherit;
-  transition: all 0.25s ease;
-}
-
-.chat-clear-btn:hover {
-  background: rgba(255, 107, 107, 0.12);
-  border-color: rgba(255, 107, 107, 0.35);
-  color: #ff8a8a;
 }
 
 .status-dot {
@@ -4421,229 +3469,5 @@ onUnmounted(() => {
   .suggestion-content {
     grid-template-columns: 1fr;
   }
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-
-.modal-container {
-  width: 480px;
-  max-width: 90vw;
-  max-height: 70vh;
-  background: linear-gradient(145deg, rgba(10, 20, 50, 0.97), rgba(8, 14, 36, 0.97));
-  border: 1px solid rgba(74, 158, 255, 0.3);
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-}
-
-.job-detail-modal {
-  width: 600px;
-  max-height: 85vh;
-}
-
-.job-detail-body {
-  padding: 24px;
-  overflow-y: auto;
-}
-
-.job-detail-header {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
-}
-
-.job-detail-header h2 {
-  margin: 0 0 12px 0;
-  font-size: 22px;
-  color: #ffffff;
-  font-weight: 700;
-}
-
-.job-detail-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-.job-detail-meta span {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-}
-
-.company-tag {
-  background: rgba(74, 158, 255, 0.15);
-  color: #60a5fa;
-}
-
-.city-tag {
-  background: rgba(0, 212, 170, 0.15);
-  color: #00d4aa;
-}
-
-.salary-range {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  font-weight: 600;
-}
-
-.job-detail-section {
-  margin-bottom: 20px;
-}
-
-.job-detail-section h4 {
-  margin: 0 0 10px 0;
-  font-size: 15px;
-  color: #60a5fa;
-  font-weight: 600;
-}
-
-.job-detail-section p {
-  margin: 0;
-  line-height: 1.7;
-  color: rgba(200, 220, 255, 0.8);
-  font-size: 14px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 24px;
-  border-bottom: 1px solid rgba(74, 158, 255, 0.15);
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #60a5fa;
-  font-weight: 600;
-}
-
-.modal-count {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 13px;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 24px;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: rgba(255, 107, 107, 0.15);
-  color: #ff6b6b;
-}
-
-.modal-body {
-  padding: 16px 24px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.modal-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 14px 16px;
-  background: rgba(74, 158, 255, 0.06);
-  border: 1px solid rgba(74, 158, 255, 0.15);
-  border-radius: 10px;
-  margin-bottom: 10px;
-  transition: all 0.2s ease;
-}
-
-.modal-item:hover {
-  background: rgba(74, 158, 255, 0.12);
-  border-color: rgba(74, 158, 255, 0.3);
-}
-
-.clickable-item {
-  cursor: pointer;
-}
-
-.clickable-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
-}
-
-.item-info h4 {
-  margin: 0 0 4px;
-  font-size: 14px;
-  color: #fff;
-}
-
-.item-info p {
-  margin: 0 0 6px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.salary-tag {
-  display: inline-block;
-  background: rgba(0, 212, 170, 0.15);
-  color: #5eead4;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 6px;
-  margin-right: 8px;
-}
-
-.remove-btn {
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  color: #ff6b6b;
-  font-size: 12px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.remove-btn:hover {
-  background: rgba(255, 107, 107, 0.2);
-  border-color: rgba(255, 107, 107, 0.5);
-}
-
-.modal-empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.modal-empty p {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0 0 8px;
-}
-
-.modal-empty span {
-  font-size: 12px;
 }
 </style>

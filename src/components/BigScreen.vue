@@ -170,7 +170,8 @@ import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import 'echarts-wordcloud'
 import 'echarts-gl'
-import jobData from '@/assets/all_cleaned_jobs.json'
+
+let jobData = []
 
 const router = useRouter()
 
@@ -1316,6 +1317,17 @@ onMounted(async () => {
   await nextTick()
   drawStarBackground()
   updateTime()
+
+  try {
+    const response = await fetch('/data/all_cleaned_jobs.json')
+    if (response.ok) {
+      jobData = await response.json()
+      console.log('大屏数据加载成功:', jobData.length, '条岗位')
+    }
+  } catch (err) {
+    console.warn('大屏数据加载失败，使用默认数据:', err.message)
+  }
+
   updateIndexData()
   refreshAllCharts()
   timeTimer = setInterval(updateTime, 1000)

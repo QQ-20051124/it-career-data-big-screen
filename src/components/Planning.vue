@@ -14,10 +14,10 @@
         <span class="page-subtitle">基于学业数据与就业市场的智能联动规划系统</span>
       </div>
       <div class="header-nav">
-        <span class="nav-item">学习路线</span>
-        <span class="nav-item">资源推送</span>
-        <span class="nav-item">AI答疑</span>
-        <span class="nav-item">个人中心</span>
+        <span class="nav-item" :class="{ active: currentNav === 'skill-route' }" @click="handleNavClick('skill-route')">学习路线</span>
+        <span class="nav-item" :class="{ active: currentNav === 'resource-lib' }" @click="handleNavClick('resource-lib')">资源推送</span>
+        <span class="nav-item" :class="{ active: currentNav === 'ai-assistant' }" @click="handleNavClick('ai-assistant')">AI答疑</span>
+        <span class="nav-item" :class="{ active: currentNav === 'dashboard' }" @click="handleNavClick('dashboard')">个人中心</span>
       </div>
     </div>
 
@@ -208,10 +208,10 @@
               <span class="loading-spinner"></span>
               <span>正在匹配对应技能学习资源，请稍等...</span>
             </div>
-            <div class="resource-cards">
+            <div class="resource-cards resource-cards-grid">
               <div
-                v-for="(card, idx) in resourceCards"
-                :key="card.id || idx"
+                v-for="card in pagedResourceCards"
+                :key="card.id"
                 class="resource-card"
                 :class="{ 'featured': card.featured }"
               >
@@ -225,20 +225,23 @@
                   </div>
                   <div class="card-rating" v-if="card.rating">
                     <span class="rating-star">★</span>
-                    <span>{{ card.rating }}</span>
+                    <span>{{ card.rating.toFixed(1) }}</span>
                   </div>
                 </div>
                 <h3 class="card-title">{{ card.title }}</h3>
-                <p class="card-desc">{{ card.desc }}</p>
+                <p class="card-desc" v-if="card.desc">{{ card.desc }}</p>
                 <div class="card-meta-row">
-                  <span class="meta-item" v-if="card.matchedSkills && card.matchedSkills.length > 0">
+                  <div class="meta-item" v-if="card.matchedSkills && card.matchedSkills.length > 0">
                     <span class="meta-icon">🎯</span>
-                    匹配技能：{{ card.matchedSkills.slice(0, 2).map(s => s.name).join('、') }}{{ card.matchedSkills.length > 2 ? ` 等${card.matchedSkills.length}项` : '' }}
-                  </span>
-                  <span class="relevance-badge" v-if="card.relevanceScore" :class="'level-' + getRelevanceLevel(card.relevanceScore)">
-                    <span class="relevance-icon">📊</span>
-                    <span>匹配度 {{ Math.round(card.relevanceScore) }}%</span>
-                  </span>
+                    <span class="meta-label">匹配技能：</span>
+                    <span class="meta-skills">{{ card.matchedSkills.slice(0, 3).map(s => s.name).join('、') }}{{ card.matchedSkills.length > 3 ? ` 等${card.matchedSkills.length}项` : '' }}</span>
+                  </div>
+                  <div class="meta-item-right">
+                    <span class="relevance-badge" v-if="card.relevanceScore" :class="'level-' + getRelevanceLevel(card.relevanceScore)">
+                      <span class="relevance-icon">📊</span>
+                      <span>匹配度 {{ Math.round(card.relevanceScore) }}%</span>
+                    </span>
+                  </div>
                 </div>
                 <div class="card-footer">
                   <span class="time-label">⏱ {{ card.durationText }}</span>
@@ -256,11 +259,11 @@
                 >
                   🚀 前往学习
                 </button>
-                <div class="card-collapse-toggle" @click="toggleCardExpand(card.id || idx)">
-                  <span class="toggle-icon" :class="{ expanded: expandedCards[card.id || idx] }">▼</span>
-                  <span class="toggle-text">{{ expandedCards[card.id || idx] ? '收起详情' : '展开实践方案与工具' }}</span>
+                <div class="card-collapse-toggle" @click="toggleCardExpand(card.id)">
+                  <span class="toggle-icon" :class="{ expanded: expandedCards[card.id] }">▼</span>
+                  <span class="toggle-text">{{ expandedCards[card.id] ? '收起详情' : '展开实践方案与工具' }}</span>
                 </div>
-                <div class="card-collapse-panel" v-if="expandedCards[card.id || idx]">
+                <div class="card-collapse-panel" v-if="expandedCards[card.id]">
                   <div class="collapse-section" v-if="card.practicePlan && card.practicePlan.length > 0">
                     <h5 class="collapse-title">
                       <span class="collapse-icon">💪</span> 实践练习方案
@@ -268,6 +271,12 @@
                     <ol class="practice-list">
                       <li v-for="(step, sIdx) in card.practicePlan" :key="sIdx">{{ step }}</li>
                     </ol>
+                  </div>
+                  <div class="collapse-section" v-else>
+                    <h5 class="collapse-title">
+                      <span class="collapse-icon">💡</span> 学习建议
+                    </h5>
+                    <p class="collapse-placeholder">建议结合该资源类型制定学习计划，完成核心知识点学习并动手实践。</p>
                   </div>
                   <div class="collapse-section" v-if="card.recommendedTools && card.recommendedTools.length > 0">
                     <h5 class="collapse-title">
@@ -277,7 +286,56 @@
                       <li v-for="(tool, tIdx) in card.recommendedTools" :key="tIdx">{{ tool }}</li>
                     </ul>
                   </div>
+                  <div class="collapse-section" v-else>
+                    <h5 class="collapse-title">
+                      <span class="collapse-icon">🛠</span> 配套推荐工具
+                    </h5>
+                    <p class="collapse-placeholder">推荐使用 VS Code + Git + Chrome DevTools 进行开发实践。</p>
+                  </div>
                 </div>
+              </div>
+            </div>
+            <!-- 分页控件 -->
+            <div v-if="totalResourcePages > 1" class="resource-pagination">
+              <div class="pagination-info">
+                <span class="pagination-current">{{ resourcePage }}</span>
+                <span class="pagination-sep">/</span>
+                <span class="pagination-total-pages">{{ totalResourcePages }}</span>
+                <span class="pagination-total-count">共 {{ resourceCards.length }} 条资源</span>
+              </div>
+              <div class="pagination-controls">
+                <button
+                  class="pagination-btn pagination-prev"
+                  :disabled="resourcePage <= 1"
+                  @click="changeResourcePage(resourcePage - 1)"
+                  title="上一页"
+                >
+                  <svg class="pagination-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="14 18 8 12 14 6"></polyline>
+                  </svg>
+                </button>
+                <div class="pagination-pages">
+                  <template v-for="p in totalResourcePages">
+                    <button
+                      v-if="p === 1 || p === totalResourcePages || Math.abs(p - resourcePage) <= 1"
+                      :key="'page-' + p"
+                      class="pagination-page-btn"
+                      :class="{ active: p === resourcePage }"
+                      @click="changeResourcePage(p)"
+                    >{{ p }}</button>
+                    <span v-else-if="Math.abs(p - resourcePage) === 2" :key="'ellipsis-' + p" class="pagination-ellipsis">...</span>
+                  </template>
+                </div>
+                <button
+                  class="pagination-btn pagination-next"
+                  :disabled="resourcePage >= totalResourcePages"
+                  @click="changeResourcePage(resourcePage + 1)"
+                  title="下一页"
+                >
+                  <svg class="pagination-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="10 18 16 12 10 6"></polyline>
+                  </svg>
+                </button>
               </div>
             </div>
             <!-- 游客模式：资源被截断底部提示（资源不足2条时不展示，避免误导） -->
@@ -290,19 +348,103 @@
 
           <div class="rules-section">
             <div class="rules-column">
-              <h4 class="rules-title">🎯 推送规则</h4>
+              <h4 class="rules-title">
+                <span class="title-icon">🎯</span>
+                <span>智能推送规则</span>
+              </h4>
+              <div class="rules-badge-row">
+                <span class="rule-badge badge-primary">目标：{{ selectedPositionLabel }}</span>
+                <span class="rule-badge badge-success">精准匹配</span>
+                <span class="rule-badge badge-warning">实时更新</span>
+              </div>
               <ul class="rules-list">
-                <li><span class="rule-icon">📌</span> 目标岗位：{{ selectedPositionLabel }}</li>
-                <li><span class="rule-icon">⚙️</span> 匹配算法：JD技能 + 进度加权</li>
-                <li><span class="rule-icon">📊</span> 资源类型：视频/课程/图书</li>
+                <li>
+                  <span class="rule-icon">📌</span>
+                  <span class="rule-text">
+                    <strong>岗位驱动推送</strong>：基于JD技能要求动态匹配
+                  </span>
+                </li>
+                <li>
+                  <span class="rule-icon">🔍</span>
+                  <span class="rule-text">
+                    <strong>三级匹配引擎</strong>：精准库匹配 → AI智能生成 → 知识库兜底
+                  </span>
+                </li>
+                <li>
+                  <span class="rule-icon">📊</span>
+                  <span class="rule-text">
+                    <strong>多类型资源</strong>：官方文档 / 视频课程 / 实战教程 / 图书教材
+                  </span>
+                </li>
+                <li>
+                  <span class="rule-icon">🎯</span>
+                  <span class="rule-text">
+                    <strong>全技能覆盖</strong>：必备技能100%覆盖，优先/加分技能智能补充
+                  </span>
+                </li>
+                <li>
+                  <span class="rule-icon">🎓</span>
+                  <span class="rule-text">
+                    <strong>难度适配</strong>：根据学习进度动态调整资源难度等级
+                  </span>
+                </li>
               </ul>
             </div>
             <div class="rules-column">
-              <h4 class="rules-title">📈 推送机制</h4>
+              <h4 class="rules-title">
+                <span class="title-icon">⚙️</span>
+                <span>推送机制详解</span>
+              </h4>
+              <div class="rules-flow">
+                <div class="flow-step">
+                  <span class="flow-num">1</span>
+                  <span class="flow-label">技能解析</span>
+                  <span class="flow-value">权重10分/项</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                  <span class="flow-num">2</span>
+                  <span class="flow-label">资源筛选</span>
+                  <span class="flow-value">相关性≥60%</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                  <span class="flow-num">3</span>
+                  <span class="flow-label">质量校验</span>
+                  <span class="flow-value">评分≥4.5</span>
+                </div>
+              </div>
               <ul class="rules-list">
-                <li><span class="rule-icon">🔝</span> 必备技能权重10分/项</li>
-                <li><span class="rule-icon">🔸</span> 优先技能权重5分/项</li>
-                <li><span class="rule-icon">📐</span> 覆盖率 + 类型多样性</li>
+                <li>
+                  <span class="rule-icon">⚖️</span>
+                  <span class="rule-text">
+                    <strong>权重分级</strong>：必备技能10分/项，优先技能5分/项，加分技能2分/项
+                  </span>
+                </li>
+                <li>
+                  <span class="rule-icon">🔄</span>
+                  <span class="rule-text">
+                    <strong>多模态保障</strong>：每项技能至少1份文档 + 1个视频课程
+                  </span>
+                </li>
+                <li>
+                  <span class="rule-icon">✅</span>
+                  <span class="rule-text">
+                    <strong>实时链接校验</strong>：失效资源自动过滤，确保资源可访问
+                  </span>
+                </li>
+                <li>
+                  <span class="rule-icon">🔔</span>
+                  <span class="rule-text">
+                    <strong>每日巡检更新</strong>：资源库每日自动巡检，保证新鲜有效
+                  </span>
+                </li>
+                <li>
+                  <span class="rule-icon">📈</span>
+                  <span class="rule-text">
+                    <strong>学习轨迹追踪</strong>：基于你的学习行为动态优化推荐策略
+                  </span>
+                </li>
               </ul>
             </div>
           </div>
@@ -350,7 +492,20 @@
                       <li v-for="(sug, si) in aiSuggestions" :key="si" @click="useSuggestion(sug)">{{ sug }}</li>
                     </ul>
                   </div>
-                  <div v-else class="message-text">{{ msg.content }}<span v-if="msg.isStreaming" class="cursor">|</span></div>
+                  <div v-else class="message-text">
+                    <div v-if="msg.files && msg.files.length > 0" class="message-files">
+                      <div v-for="(f, fi) in msg.files" :key="fi" class="msg-file-item">
+                        <img v-if="f.isImage && f.previewUrl" :src="f.previewUrl" class="msg-file-img" @click="previewImage(f.previewUrl)" />
+                        <img v-else-if="f.isImage" :src="getFileIcon(f)" class="msg-file-img" />
+                        <div v-else class="msg-file-doc">
+                          <span>{{ f.icon || '📎' }}</span>
+                          <span class="msg-file-name">{{ f.name }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <span>{{ stripMarkdown(msg.content) }}</span>
+                    <span v-if="msg.isStreaming" class="cursor">|</span>
+                  </div>
                 </div>
               </div>
               <!-- 加载气泡：用户发送后显示，AI开始返回时消失 -->
@@ -374,7 +529,37 @@
               <span class="guest-hint-icon">🔒</span>
               <span>对话次数已用完，登录后可无限制使用</span>
             </div>
+            <!-- 已选文件预览区 -->
+            <div v-if="aiSelectedFiles.length > 0" class="ai-file-preview">
+              <div v-for="(file, idx) in aiSelectedFiles" :key="idx" class="file-preview-item">
+                <div v-if="file.isImage" class="file-preview-image">
+                  <img :src="file.previewUrl" :alt="file.name" />
+                </div>
+                <div v-else class="file-preview-doc">
+                  <span class="file-icon">{{ file.icon }}</span>
+                  <span class="file-name">{{ file.name }}</span>
+                  <span class="file-size">{{ file.sizeText }}</span>
+                </div>
+                <button class="file-remove" @click="removeFile(idx)">✕</button>
+              </div>
+            </div>
             <div class="ai-chat-input" :class="{ locked: aiLoading || aiChatLocked }">
+              <button 
+                class="ai-upload-btn" 
+                @click="triggerFileUpload"
+                :disabled="aiLoading || aiChatLocked"
+                title="上传图片或文件"
+              >
+                📎
+              </button>
+              <input 
+                ref="aiFileInputRef" 
+                type="file" 
+                multiple 
+                accept="image/*,.pdf,.doc,.docx,.txt,.js,.vue,.json,.zip,.md,.html,.css,.java,.py"
+                style="display:none"
+                @change="handleFileSelect"
+              />
               <input 
                 v-model="aiMessageInput" 
                 type="text" 
@@ -385,7 +570,7 @@
               <button 
                 class="ai-send-btn" 
                 @click="sendAIMessage"
-                :disabled="aiLoading || !aiMessageInput.trim() || aiChatLocked"
+                :disabled="aiLoading || (!aiMessageInput.trim() && aiSelectedFiles.length === 0) || aiChatLocked"
               >
                 {{ aiLoading ? '思考中...' : (aiChatLocked ? '已锁定' : '发送') }}
               </button>
@@ -405,6 +590,7 @@ import { useRouter } from 'vue-router'
 import { findMatchingResources, typeLabels } from '@/data/resources.js'
 import { useGuestMode } from '@/composables/useGuestMode'
 import { authFetch, getAuthHeaders } from '@/utils/auth'
+import { processLocalAIResponse } from '@/utils/localAIFallback.js'
 import LoginModal from '@/components/LoginModal.vue'
 
 const router = useRouter()
@@ -529,7 +715,18 @@ const saveAIHistory = () => {
   try {
     const toSave = aiMessages.value
       .filter(m => !m.isStreaming)
-      .map(m => ({ role: m.role, content: m.content, id: m.id }))
+      .map(m => {
+        const saved = { role: m.role, content: m.content, id: m.id }
+        if (m.files && m.files.length > 0) {
+          saved.files = m.files.map(f => ({
+            name: f.name,
+            isImage: f.isImage,
+            icon: f.icon,
+            sizeText: f.sizeText
+          }))
+        }
+        return saved
+      })
       .slice(-AI_HISTORY_MAX)
     localStorage.setItem(AI_HISTORY_KEY, JSON.stringify(toSave))
   } catch (e) {
@@ -573,6 +770,68 @@ const isLocalFallbackMode = ref(false)
 const cozeCreditExhausted = ref(false)
 let msgIdCounter = 0
 
+// 文件上传相关状态
+const aiFileInputRef = ref(null)
+const aiSelectedFiles = ref([])
+
+const FILE_ICONS = {
+  pdf: '📄', doc: '📝', docx: '📝', txt: '📃', js: '⚡', vue: '💚',
+  json: '📋', zip: '📦', md: '📑', html: '🌐', css: '🎨',
+  java: '☕', py: '🐍', ppt: '📊', pptx: '📊', xls: '📗', xlsx: '📗'
+}
+
+const triggerFileUpload = () => {
+  aiFileInputRef.value?.click()
+}
+
+const handleFileSelect = (e) => {
+  const files = Array.from(e.target.files || [])
+  for (const file of files) {
+    if (aiSelectedFiles.value.length >= 5) {
+      alert('最多只能上传5个文件')
+      break
+    }
+    const ext = file.name.split('.').pop().toLowerCase()
+    const isImage = file.type.startsWith('image/')
+    const fileInfo = {
+      raw: file,
+      name: file.name,
+      size: file.size,
+      sizeText: formatFileSize(file.size),
+      isImage,
+      icon: isImage ? '🖼️' : (FILE_ICONS[ext] || '📎'),
+      previewUrl: isImage ? URL.createObjectURL(file) : null
+    }
+    aiSelectedFiles.value.push(fileInfo)
+  }
+  e.target.value = ''
+}
+
+const removeFile = (idx) => {
+  const file = aiSelectedFiles.value[idx]
+  if (file?.previewUrl) URL.revokeObjectURL(file.previewUrl)
+  aiSelectedFiles.value.splice(idx, 1)
+}
+
+const clearFiles = () => {
+  aiSelectedFiles.value.forEach(f => { if (f.previewUrl) URL.revokeObjectURL(f.previewUrl) })
+  aiSelectedFiles.value = []
+}
+
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / 1024 / 1024).toFixed(1) + ' MB'
+}
+
+const previewImage = (url) => {
+  window.open(url, '_blank')
+}
+
+const getFileIcon = (f) => {
+  return f.icon || '🖼️'
+}
+
 const clearAIHistory = () => {
   if (!confirm('确定要清除所有对话历史吗？这将删除与AI顾问的所有对话记录。')) return
   localStorage.removeItem(AI_HISTORY_KEY)
@@ -604,6 +863,29 @@ const aiSuggestions = [
   '推荐一些JavaScript进阶学习资源'
 ]
 
+const stripMarkdown = (text) => {
+  if (!text) return ''
+  return text
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`]*`/g, '')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    .replace(/~~(.+?)~~/g, '$1')
+    .replace(/^>\s+/gm, '')
+    .replace(/^[-*+]\s+/gm, '• ')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/<[^>]+>/g, '')
+    .replace(/<\/?details>/g, '')
+    .replace(/<summary>/g, '【')
+    .replace(/<\/summary>/g, '】')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+}
+
 const useSuggestion = (text) => {
   aiMessageInput.value = text
   sendAIMessage()
@@ -617,7 +899,8 @@ const scrollChatToBottom = () => {
 
 const sendAIMessage = async () => {
   const message = aiMessageInput.value.trim()
-  if (!message || aiLoading.value) return
+  const hasFiles = aiSelectedFiles.value.length > 0
+  if ((!message && !hasFiles) || aiLoading.value) return
 
   // 游客对话次数校验：达到3轮上限后锁定输入框，弹出登录提示
   if (isGuestMode.value && isGuestAIChatExhausted()) {
@@ -627,6 +910,16 @@ const sendAIMessage = async () => {
 
   aiLoading.value = true
   aiStreamStarted.value = false
+
+  // 收集文件信息用于消息显示
+  const fileDisplayInfos = aiSelectedFiles.value.map(f => ({
+    name: f.name,
+    isImage: f.isImage,
+    icon: f.icon,
+    previewUrl: f.previewUrl,
+    sizeText: f.sizeText
+  }))
+
   aiMessageInput.value = ''
 
   // 游客发送消息后增加计数（一轮 = 用户发送一条消息算作一轮）
@@ -638,20 +931,30 @@ const sendAIMessage = async () => {
   aiMessages.value.push({
     id: 'user-' + msgIdCounter,
     role: 'user',
-    content: message,
-    isStreaming: false
+    content: message || '📎 发送了文件',
+    isStreaming: false,
+    files: fileDisplayInfos
   })
 
   const pendingAssistantIndex = aiMessages.value.length
 
   scrollChatToBottom()
 
-  try {
-    const historyForContext = aiMessages.value
-      .filter(m => !m.isStreaming && m.content)
-      .slice(-10)
-      .map(m => ({ role: m.role, content: m.content }))
+  const historyForContext = aiMessages.value
+    .filter(m => !m.isStreaming && m.content)
+    .slice(-10)
+    .map(m => ({ role: m.role, content: m.content }))
 
+  // 根据是否有文件选择不同请求方式
+  if (hasFiles) {
+    await sendWithFiles(message, fileDisplayInfos, historyForContext, pendingAssistantIndex)
+  } else {
+    await sendTextOnly(message, historyForContext, pendingAssistantIndex)
+  }
+}
+
+const sendTextOnly = async (message, historyForContext, pendingAssistantIndex) => {
+  try {
     const response = await authFetch('/api/ai/chat', {
       method: 'POST',
       headers: {
@@ -665,10 +968,8 @@ const sendAIMessage = async () => {
       })
     })
 
-    // 后端鉴权拦截：游客对话次数用完或游客调用受限接口，后端返回403
     if (response.status === 403) {
       const errData = await response.json().catch(() => ({}))
-      // 移除已添加的用户消息（发送被后端拒绝）
       aiMessages.value.pop()
       if (errData.code === 'GUEST_FORBIDDEN' || errData.code === 'GUEST_AI_LIMIT_EXCEEDED') {
         showLoginModal('您当前为游客模式，对话次数已用完。注册登录后，可无限制使用AI学习顾问！')
@@ -703,35 +1004,128 @@ const sendAIMessage = async () => {
             const data = JSON.parse(dataStr)
             handleAIResponse(data, pendingAssistantIndex)
           } catch (e) {
-            // 非JSON格式
           }
         }
       }
     }
 
-    // 确保最后一条消息停止流式
     if (aiMessages.value[pendingAssistantIndex]) {
       aiMessages.value[pendingAssistantIndex].isStreaming = false
     }
   } catch (error) {
-    console.error('AI请求错误:', error)
-    if (aiMessages.value[pendingAssistantIndex]) {
-      aiMessages.value[pendingAssistantIndex].content = '抱歉，AI服务暂时不可用，请稍后重试。'
-      aiMessages.value[pendingAssistantIndex].isStreaming = false
-    } else {
+    console.warn('AI请求失败，启用本地兜底:', error.message)
+    await localFallbackResponse(message, historyForContext, pendingAssistantIndex)
+  }
+
+  aiLoading.value = false
+  aiStreamStarted.value = false
+  saveAIHistory()
+}
+
+const sendWithFiles = async (message, fileInfos, historyForContext, pendingAssistantIndex) => {
+  try {
+    const formData = new FormData()
+    formData.append('message', message || '请分析我上传的文件')
+    formData.append('module', 'general')
+    formData.append('conversation_id', aiConversationId.value)
+    formData.append('user_id', aiUserId.value)
+    formData.append('history', JSON.stringify(historyForContext))
+    formData.append('fileCount', String(aiSelectedFiles.value.length))
+    formData.append('fileNames', JSON.stringify(aiSelectedFiles.value.map(f => f.name)))
+
+    aiSelectedFiles.value.forEach(f => {
+      formData.append('files', f.raw)
+    })
+
+    const response = await authFetch('/api/ai-assistant/chat', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (response.status === 403) {
+      const errData = await response.json().catch(() => ({}))
+      aiMessages.value.pop()
+      if (errData.code === 'GUEST_FORBIDDEN' || errData.code === 'GUEST_AI_LIMIT_EXCEEDED') {
+        showLoginModal('您当前为游客模式，对话次数已用完。注册登录后，可无限制使用AI学习顾问！')
+      } else {
+        showLoginModal(errData.message || '游客模式功能受限，请登录账号解锁完整功能')
+      }
+      clearFiles()
+      return
+    }
+
+    if (!response.ok) {
+      throw new Error('文件上传请求失败')
+    }
+
+    const data = await response.json()
+    if (data.success && data.data && data.data.reply) {
       msgIdCounter++
-      aiMessages.value.push({
+      aiMessages.value.splice(pendingAssistantIndex, 0, {
         id: 'assistant-' + msgIdCounter,
         role: 'assistant',
-        content: '抱歉，AI服务暂时不可用，请稍后重试。',
+        content: data.data.reply,
         isStreaming: false
       })
+    } else {
+      throw new Error(data.error || 'AI回复失败')
     }
-  } finally {
-    aiLoading.value = false
-    aiStreamStarted.value = false
-    saveAIHistory()
+  } catch (error) {
+    console.warn('文件上传请求失败，启用本地兜底:', error.message)
+    const fileContext = fileInfos.map(f => `用户上传了文件：${f.name}（${f.sizeText}）`).join('\n')
+    const enhancedMessage = (message ? message + '\n\n' : '') + fileContext
+    await localFallbackResponse(enhancedMessage, historyForContext, pendingAssistantIndex)
   }
+
+  clearFiles()
+  aiLoading.value = false
+  aiStreamStarted.value = false
+  saveAIHistory()
+}
+
+const localFallbackResponse = async (message, historyForContext, pendingAssistantIndex) => {
+  aiStreamStarted.value = true
+
+  const localResponse = processLocalAIResponse(message, historyForContext)
+
+  if (!aiMessages.value[pendingAssistantIndex] || aiMessages.value[pendingAssistantIndex].role !== 'assistant') {
+    msgIdCounter++
+    aiMessages.value.splice(pendingAssistantIndex, 0, {
+      id: 'assistant-' + msgIdCounter,
+      role: 'assistant',
+      content: '',
+      isStreaming: true
+    })
+  }
+
+  const sentences = localResponse.split(/(?<=[。！？\n])/)
+  const chunks = sentences.filter(s => s.trim())
+  let idx = 0
+
+  aiLoading.value = false
+  aiStreamStarted.value = true
+
+  return new Promise((resolve) => {
+    const typewriterTimer = setInterval(() => {
+      if (idx >= chunks.length) {
+        clearInterval(typewriterTimer)
+        if (aiMessages.value[pendingAssistantIndex]) {
+          aiMessages.value[pendingAssistantIndex].isStreaming = false
+        }
+        aiStreamStarted.value = false
+        saveAIHistory()
+        resolve()
+        return
+      }
+
+      const chunk = chunks[idx]
+      if (aiMessages.value[pendingAssistantIndex]) {
+        aiMessages.value[pendingAssistantIndex].content += chunk
+      }
+      idx++
+      scrollChatToBottom()
+    }, 30)
+  })
 }
 
 const handleAIResponse = (data, msgIndex) => {
@@ -821,6 +1215,30 @@ const handleAIResponse = (data, msgIndex) => {
 
 // 折叠面板状态：key为卡片id/索引，value为是否展开
 const expandedCards = ref({})
+
+// 分页状态：学习资源卡片分页
+const resourcePage = ref(1)
+const resourcePageSize = ref(6)
+const totalResourcePages = computed(() => {
+  return Math.max(1, Math.ceil(resourceCards.value.length / resourcePageSize.value))
+})
+const pagedResourceCards = computed(() => {
+  const start = (resourcePage.value - 1) * resourcePageSize.value
+  return resourceCards.value.slice(start, start + resourcePageSize.value)
+})
+const changeResourcePage = (page) => {
+  resourcePage.value = Math.max(1, Math.min(totalResourcePages.value, page))
+  // 滚动到资源列表顶部
+  const container = document.querySelector('.resource-cards-grid')
+  if (container) {
+    container.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+// 切换岗位时重置分页
+watch(selectedPosition, () => {
+  resourcePage.value = 1
+  expandedCards.value = {}
+})
 
 const toggleCardExpand = (key) => {
   expandedCards.value = {
@@ -1878,34 +2296,37 @@ const onPositionChange = async () => {
     return
   }
   localStorage.setItem('selectedPosition', key)
-  loadingResources.value = true
-  try {
-    const userProgress = parseInt(localStorage.getItem('learningProgress_' + key) || '0', 10)
-    const matched = findMatchingResources(key, userProgress)
-    const grouped = {}
-    if (matched && matched.length > 0) {
-      const skills = currentSkills.value.length > 0
-        ? currentSkills.value.map(s => s.name)
-        : (positionSkillMap[key] ? Object.values(positionSkillMap[key]).flat().map(s => s.name) : [])
-      skills.forEach(skillName => {
-        const related = matched.filter(m =>
-          m.matchedSkills && m.matchedSkills.some(ms => ms.name === skillName)
-        )
-        if (related.length > 0) {
-          grouped[skillName] = { resources: related, source: 'local' }
+  await fetchResources(key)
+}
+
+// 本地资源匹配兜底（当后端不可用时调用）
+const fallbackLocalResources = (key) => {
+  const userProgress = parseInt(localStorage.getItem('learningProgress_' + key) || '0', 10)
+  const matched = findMatchingResources(key, userProgress)
+  const grouped = {}
+  if (matched && matched.length > 0) {
+    const skillData = positionSkillMap[key]
+    const skills = []
+    if (skillData) {
+      for (const [, list] of Object.entries(skillData)) {
+        for (const s of list) {
+          skills.push(s.name)
         }
-      })
-      if (Object.keys(grouped).length === 0) {
-        grouped['综合推荐'] = { resources: matched, source: 'local' }
       }
     }
-    resourceMap.value = grouped
-  } catch (e) {
-    console.error('[Planning] 本地资源匹配失败:', e)
-    resourceMap.value = {}
-  } finally {
-    loadingResources.value = false
+    skills.forEach(skillName => {
+      const related = matched.filter(m =>
+        m.matchedSkills && m.matchedSkills.some(ms => ms.name === skillName)
+      )
+      if (related.length > 0) {
+        grouped[skillName] = { resources: related, source: 'local' }
+      }
+    })
+    if (Object.keys(grouped).length === 0) {
+      grouped['综合推荐'] = { resources: matched, source: 'local' }
+    }
   }
+  return grouped
 }
 
 const fetchResources = async (positionKey) => {
@@ -1915,33 +2336,73 @@ const fetchResources = async (positionKey) => {
     return
   }
   loadingResources.value = true
-  try {
-    const userProgress = parseInt(localStorage.getItem('learningProgress_' + key) || '0', 10)
-    const matched = findMatchingResources(key, userProgress)
-    const grouped = {}
-    if (matched && matched.length > 0) {
-      const skillData = positionSkillMap[key]
-      const skills = []
-      if (skillData) {
-        for (const [, list] of Object.entries(skillData)) {
-          for (const s of list) {
-            skills.push(s.name)
-          }
-        }
-      }
-      skills.forEach(skillName => {
-        const related = matched.filter(m =>
-          m.matchedSkills && m.matchedSkills.some(ms => ms.name === skillName)
-        )
-        if (related.length > 0) {
-          grouped[skillName] = { resources: related, source: 'local' }
-        }
-      })
-      if (Object.keys(grouped).length === 0) {
-        grouped['综合推荐'] = { resources: matched, source: 'local' }
+  resourceError.value = false
+
+  // 收集当前岗位所有技能（含等级），用于发送给后端三级匹配接口
+  const skillData = positionSkillMap[key]
+  const skills = []
+  if (skillData) {
+    for (const [, list] of Object.entries(skillData)) {
+      for (const s of list) {
+        skills.push({ name: s.name, level: s.level || 'must' })
       }
     }
-    resourceMap.value = grouped
+  }
+
+  // 优先调用后端 /api/resources/match-position（174 条资源库 + 三级匹配）
+  if (skills.length > 0) {
+    try {
+      const res = await fetch('/api/resources/match-position', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ positionKey: key, skills })
+      })
+      const data = await res.json()
+      if (data.success && data.data) {
+        // 后端返回 { [skillName]: { resources, source, practiceTip, tools } }
+        // 适配前端 resourceCards 期望的字段格式
+        const grouped = {}
+        for (const [skillName, skillResult] of Object.entries(data.data)) {
+          const resources = (skillResult.resources || []).map(r => ({
+            id: r.id,
+            title: r.title,
+            description: r.desc || '',
+            desc: r.desc || '',
+            type: r.type || 'doc',
+            difficulty: r.level || '入门',
+            duration: r.duration || 0,
+            provider: r.sourceName || r.source || '',
+            sourceName: r.sourceName || r.source || '',
+            matchedSkills: [{ name: skillName, level: 'must', relevance: 80 }],
+            rating: r.rating || 4.5,
+            students: r.students || 0,
+            url: r.url || '',
+            externalUrl: r.url || r.externalUrl || '',
+            practicePlan: r.practicePlan || [],
+            recommendedTools: r.recommendedTools || skillResult.tools || [],
+            relevanceScore: 80,
+            isHighlyRelevant: true
+          }))
+          if (resources.length > 0) {
+            grouped[skillName] = { resources, source: 'backend', practiceTip: skillResult.practiceTip || '' }
+          }
+        }
+        // 后端匹配到至少 1 个技能的资源 → 使用后端结果
+        if (Object.keys(grouped).length > 0) {
+          resourceMap.value = grouped
+          loadingResources.value = false
+          return
+        }
+      }
+    } catch (e) {
+      console.warn('[Planning] 后端资源匹配失败，降级到本地匹配:', e.message)
+      resourceError.value = true
+    }
+  }
+
+  // 降级：本地 findMatchingResources（61 条资源库）
+  try {
+    resourceMap.value = fallbackLocalResources(key)
   } catch (e) {
     console.error('[Planning] 本地资源匹配失败:', e)
     resourceMap.value = {}
@@ -1960,46 +2421,78 @@ const resourceCards = computed(() => {
   const cards = []
   const guestLimit = GUEST_LIMITS.MAX_RESOURCES_PER_SKILL
   const shouldTruncate = isGuestMode.value
+
+  // ===== 第一阶段：按技能分组收集资源 =====
+  // 使用复合键确保唯一性：id + url + title
+  const groupedByResourceKey = new Map()
+  const resourceOrder = []
+
   for (const [skillName, skillData] of Object.entries(resourceMap.value)) {
     let resources = skillData.resources || []
-    // 游客模式：每个技能最多展示 guestLimit 条资源
-    // （后端 /api/resources/match-position 亦有截断兜底，此处前端截断为纯本地资源库场景）
     if (shouldTruncate && resources.length > guestLimit) {
       resources = resources.slice(0, guestLimit)
     }
     for (const res of resources) {
-      cards.push({
-        id: res.id,
-        title: res.title,
-        desc: res.description || res.desc || '',
-        typeLabel: typeLabels[res.type] || res.type || '学习资源',
-        difficulty: res.difficulty || res.level || '入门',
-        durationText: formatDuration(res.duration || 0),
-        provider: res.provider || res.sourceName || '',
-        matchedSkills: res.matchedSkills ? res.matchedSkills.slice(0, 4) : [{ name: skillName }],
-        rating: res.rating || 0,
-        students: res.students || 0,
-        url: res.url || res.externalUrl || '',
-        externalUrl: res.externalUrl || res.url || '',
-        practicePlan: res.practicePlan || [],
-        recommendedTools: res.recommendedTools || [],
-        featured: cards.length === 0,
-        relevanceScore: res.relevanceScore || 0,
-        isHighlyRelevant: res.isHighlyRelevant || false
-      })
+      // 生成复合去重键，确保即使没有id/url也能通过标题区分
+      const key = (res.id || '') + '|' + (res.url || res.externalUrl || '') + '|' + (res.title || '')
+      if (!groupedByResourceKey.has(key)) {
+        groupedByResourceKey.set(key, {
+          resource: res,
+          skillNames: []
+        })
+        resourceOrder.push(key)
+      }
+      groupedByResourceKey.get(key).skillNames.push(skillName)
     }
   }
+
+  // ===== 第二阶段：转换为卡片结构（去重 + 合并匹配技能）=====
+  for (let idx = 0; idx < resourceOrder.length; idx++) {
+    const key = resourceOrder[idx]
+    const { resource: res, skillNames } = groupedByResourceKey.get(key)
+    // 生成唯一ID：优先使用原始id，其次url，最后基于索引的唯一ID
+    const cardId = res.id || (res.url ? 'url_' + btoa(encodeURIComponent(res.url)).slice(0, 12) : `res_${idx}_${Date.now().toString(36)}`)
+    cards.push({
+      id: cardId,
+      title: res.title,
+      desc: res.description || res.desc || '',
+      typeLabel: typeLabels[res.type] || res.type || '学习资源',
+      difficulty: res.difficulty || res.level || '入门',
+      durationText: formatDuration(res.duration || 0),
+      provider: res.provider || res.sourceName || '',
+      matchedSkills: skillNames.map(name => ({ name })),
+      rating: res.rating || 4.5,
+      students: res.students || 0,
+      url: res.url || res.externalUrl || '',
+      externalUrl: res.externalUrl || res.url || '',
+      practicePlan: res.practicePlan || [],
+      recommendedTools: res.recommendedTools || [],
+      featured: idx === 0,
+      relevanceScore: res.relevanceScore || 80,
+      isHighlyRelevant: res.isHighlyRelevant || true
+    })
+  }
+
   if (cards.length === 0) {
     const userProgress = parseInt(localStorage.getItem('learningProgress_' + selectedPosition.value) || '0', 10)
     const matched = findMatchingResources(selectedPosition.value, userProgress)
     if (matched && matched.length > 0) {
       let displayMatched = matched
-      // 游客模式兜底场景：限制综合推荐展示数量（不按技能分组，取配额×3为合理上限）
       if (shouldTruncate && displayMatched.length > guestLimit * 3) {
         displayMatched = displayMatched.slice(0, guestLimit * 3)
       }
-      return displayMatched.map((item, idx) => ({
-        id: item.id,
+      // 本地路径也需要去重
+      const seen = new Set()
+      const deduped = []
+      for (const item of displayMatched) {
+        const itemKey = (item.id || '') + '|' + (item.url || item.externalUrl || '') + '|' + (item.title || '')
+        if (!seen.has(itemKey)) {
+          seen.add(itemKey)
+          deduped.push(item)
+        }
+      }
+      return deduped.map((item, idx) => ({
+        id: item.id || `local_${idx}_${Date.now().toString(36)}`,
         title: item.title,
         desc: item.description,
         typeLabel: typeLabels[item.type] || item.type,
@@ -2084,31 +2577,58 @@ const drawBackground = () => {
   canvas.height = window.innerHeight
 
   const particles = []
-  const particleCount = 80
+  const particleCount = 60
+  const colors = [
+    { r: 74, g: 158, b: 255 },   // 蓝色
+    { r: 0, g: 212, b: 170 },    // 青色
+    { r: 147, g: 112, b: 219 },  // 紫色
+    { r: 255, g: 107, b: 157 }   // 粉色
+  ]
+
   for (let i = 0; i < particleCount; i++) {
+    const color = colors[Math.floor(Math.random() * colors.length)]
     particles.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      size: Math.random() * 2 + 0.5,
-      speedX: (Math.random() - 0.5) * 0.5,
-      speedY: (Math.random() - 0.5) * 0.5,
-      opacity: Math.random() * 0.5 + 0.2
+      size: Math.random() * 2 + 1,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: (Math.random() - 0.5) * 0.3,
+      opacity: Math.random() * 0.6 + 0.2,
+      color: color,
+      phase: Math.random() * Math.PI * 2
     })
   }
 
   const animate = () => {
-    ctx.fillStyle = 'rgba(10, 15, 25, 0.1)'
+    ctx.fillStyle = 'rgba(10, 15, 25, 0.05)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     particles.forEach(p => {
       p.x += p.speedX
       p.y += p.speedY
-      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1
-      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1
+      p.phase += 0.02
+      
+      if (p.x < -50) p.x = canvas.width + 50
+      if (p.x > canvas.width + 50) p.x = -50
+      if (p.y < -50) p.y = canvas.height + 50
+      if (p.y > canvas.height + 50) p.y = -50
+
+      const glow = Math.sin(p.phase) * 0.3 + 0.7
+      const opacity = p.opacity * glow
+      
+      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4)
+      gradient.addColorStop(0, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${opacity})`)
+      gradient.addColorStop(0.5, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${opacity * 0.3})`)
+      gradient.addColorStop(1, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0)`)
+      
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2)
+      ctx.fillStyle = gradient
+      ctx.fill()
 
       ctx.beginPath()
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(74, 158, 255, ${p.opacity})`
+      ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${opacity})`
       ctx.fill()
     })
 
@@ -2117,12 +2637,18 @@ const drawBackground = () => {
         const dx = p1.x - p2.x
         const dy = p1.y - p2.y
         const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 120) {
+        if (dist < 150) {
+          const lineOpacity = 0.1 * (1 - dist / 150)
           ctx.beginPath()
           ctx.moveTo(p1.x, p1.y)
           ctx.lineTo(p2.x, p2.y)
-          ctx.strokeStyle = `rgba(74, 158, 255, ${0.15 * (1 - dist / 120)})`
-          ctx.lineWidth = 0.5
+          
+          const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y)
+          gradient.addColorStop(0, `rgba(${p1.color.r}, ${p1.color.g}, ${p1.color.b}, ${lineOpacity})`)
+          gradient.addColorStop(1, `rgba(${p2.color.r}, ${p2.color.g}, ${p2.color.b}, ${lineOpacity})`)
+          
+          ctx.strokeStyle = gradient
+          ctx.lineWidth = 0.6
           ctx.stroke()
         }
       })
@@ -2169,9 +2695,33 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0f19 0%, #111b2e 50%, #0d1525 100%);
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(74, 158, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(147, 112, 219, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(0, 212, 170, 0.05) 0%, transparent 60%),
+    linear-gradient(135deg, #0a0f19 0%, #0f1726 50%, #0d1525 100%);
   overflow: hidden;
   color: #fff;
+}
+
+.planning-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 15% 85%, rgba(74, 158, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(147, 112, 219, 0.08) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 1;
+  animation: bgGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes bgGlow {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 
 .bg-canvas {
@@ -2821,6 +3371,195 @@ onUnmounted(() => {
   margin-bottom: 20px;
 }
 
+.resource-cards-grid {
+  scroll-margin-top: 80px;
+}
+
+/* 分页控件 */
+.resource-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(15, 25, 45, 0.8), rgba(20, 35, 60, 0.6));
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.pagination-info {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.pagination-current {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pagination-sep {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 300;
+}
+
+.pagination-total-pages {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+.pagination-total-count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.12), rgba(0, 212, 170, 0.08));
+  border: 1px solid rgba(74, 158, 255, 0.25);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.35), rgba(0, 212, 170, 0.2));
+  border-color: rgba(74, 158, 255, 0.6);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 158, 255, 0.25);
+}
+
+.pagination-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.pagination-page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: rgba(74, 158, 255, 0.08);
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.pagination-page-btn:hover {
+  background: rgba(74, 158, 255, 0.2);
+  color: #fff;
+  border-color: rgba(74, 158, 255, 0.4);
+}
+
+.pagination-page-btn.active {
+  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(74, 158, 255, 0.4);
+  font-weight: 600;
+}
+
+.pagination-ellipsis {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 14px;
+  padding: 0 4px;
+  user-select: none;
+}
+
+/* 资源卡片meta行：flex对齐 */
+.card-meta-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.4;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.meta-item-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.meta-icon {
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.meta-label {
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.meta-skills {
+  color: #4a9eff;
+  font-weight: 500;
+  word-break: break-all;
+}
+.collapse-placeholder {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 10px 14px;
+  background: rgba(74, 158, 255, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid rgba(74, 158, 255, 0.3);
+  margin: 0;
+}
+
 .resource-card {
   background: linear-gradient(145deg, rgba(30, 45, 70, 0.8), rgba(20, 30, 50, 0.8));
   border: 1px solid rgba(74, 158, 255, 0.15);
@@ -2944,13 +3683,14 @@ onUnmounted(() => {
 
 .card-meta-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-wrap: nowrap;
+  gap: 12px;
   margin-bottom: 10px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: rgba(74, 158, 255, 0.08);
   border-radius: 8px;
   border-left: 2px solid rgba(74, 158, 255, 0.3);
+  align-items: center;
 }
 
 .meta-item {
@@ -2959,6 +3699,14 @@ onUnmounted(() => {
   gap: 4px;
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.75);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.meta-item-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .meta-icon {
@@ -2984,7 +3732,7 @@ onUnmounted(() => {
   border-radius: 10px;
   font-size: 0.7rem;
   font-weight: 500;
-  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .relevance-badge.level-high {
@@ -3059,7 +3807,6 @@ onUnmounted(() => {
 }
 
 .source-label {
-  margin-left: auto;
   font-size: 0.68rem;
   color: rgba(255, 255, 255, 0.4);
 }
@@ -3090,21 +3837,126 @@ onUnmounted(() => {
 .rules-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 20px;
+  margin-top: 8px;
 }
 
 .rules-column {
-  background: rgba(30, 45, 70, 0.5);
-  border: 1px solid rgba(74, 158, 255, 0.1);
-  border-radius: 10px;
-  padding: 16px;
+  background: linear-gradient(145deg, rgba(30, 45, 70, 0.6), rgba(20, 30, 50, 0.5));
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rules-column::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.6), rgba(0, 212, 170, 0.6));
 }
 
 .rules-title {
-  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
   font-weight: 600;
+  color: #fff;
+  margin: 0 0 14px;
+}
+
+.rules-title .title-icon {
+  font-size: 1.1rem;
+}
+
+.rules-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.rule-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.rule-badge.badge-primary {
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.35);
   color: #4a9eff;
-  margin: 0 0 12px;
+}
+
+.rule-badge.badge-success {
+  background: rgba(0, 212, 170, 0.15);
+  border: 1px solid rgba(0, 212, 170, 0.35);
+  color: #00d4aa;
+}
+
+.rule-badge.badge-warning {
+  background: rgba(255, 180, 71, 0.15);
+  border: 1px solid rgba(255, 180, 71, 0.35);
+  color: #ffb447;
+}
+
+.rules-flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(74, 158, 255, 0.06);
+  border-radius: 10px;
+  border: 1px solid rgba(74, 158, 255, 0.1);
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+}
+
+.flow-num {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.35);
+}
+
+.flow-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.flow-value {
+  font-size: 0.62rem;
+  color: rgba(74, 158, 255, 0.8);
+}
+
+.flow-arrow {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.9rem;
+  font-weight: 300;
 }
 
 .rules-list {
@@ -3115,15 +3967,37 @@ onUnmounted(() => {
 
 .rules-list li {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 0;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.75);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  line-height: 1.6;
+}
+
+.rules-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.rules-list li:first-child {
+  padding-top: 0;
 }
 
 .rule-icon {
-  font-size: 0.9rem;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  margin-top: 1px;
+}
+
+.rule-text {
+  flex: 1;
+}
+
+.rule-text strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 600;
 }
 
 .ai-sidebar {
@@ -3625,6 +4499,142 @@ onUnmounted(() => {
   transform: translateX(4px);
 }
 
+/* 文件预览区样式 */
+.ai-file-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 20px 0;
+  background: rgba(17, 27, 46, 0.6);
+}
+
+.file-preview-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.8rem;
+  max-width: 200px;
+}
+
+.file-preview-image img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.file-preview-doc {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-icon {
+  font-size: 1.2rem;
+}
+
+.file-name {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+}
+
+.file-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  background: #ff4757;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-remove:hover {
+  background: #ff3742;
+}
+
+/* 消息中的文件显示 */
+.message-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.msg-file-item {
+  display: flex;
+  align-items: center;
+}
+
+.msg-file-img {
+  max-width: 120px;
+  max-height: 120px;
+  border-radius: 8px;
+  cursor: zoom-in;
+  border: 2px solid rgba(74, 158, 255, 0.3);
+}
+
+.msg-file-doc {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: rgba(74, 158, 255, 0.15);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.msg-file-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 上传按钮 */
+.ai-upload-btn {
+  padding: 8px 12px;
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-upload-btn:hover:not(:disabled) {
+  background: rgba(74, 158, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.ai-upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .ai-chat-input {
   display: flex;
   gap: 10px;
@@ -3737,6 +4747,27 @@ onUnmounted(() => {
   .resource-cards {
     grid-template-columns: repeat(2, 1fr);
   }
+  .resource-pagination {
+    padding: 12px 16px;
+  }
+  .pagination-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .pagination-page-btn {
+    min-width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  .pagination-current {
+    font-size: 24px;
+  }
+  .pagination-total-pages {
+    font-size: 16px;
+  }
+  .pagination-total-count {
+    display: none;
+  }
 }
 
 @media (max-width: 900px) {
@@ -3747,6 +4778,36 @@ onUnmounted(() => {
   }
   .resource-cards {
     grid-template-columns: 1fr;
+  }
+  .resource-pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+  .pagination-info {
+    order: 2;
+  }
+  .pagination-controls {
+    order: 1;
+  }
+  .pagination-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .pagination-page-btn {
+    min-width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .pagination-current {
+    font-size: 22px;
+  }
+  .pagination-total-pages {
+    font-size: 15px;
+  }
+  .pagination-total-count {
+    display: none;
   }
   .rules-section {
     grid-template-columns: 1fr;

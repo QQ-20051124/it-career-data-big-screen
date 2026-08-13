@@ -556,58 +556,6 @@
                 </label>
               </div>
             </div>
-
-            <!-- 管理员用户管理 -->
-            <div class="settings-section admin-section" v-if="userInfo.role === '系统管理员'">
-              <h4>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-                用户管理
-              </h4>
-              <div class="admin-user-list" v-if="adminUsers.length > 0">
-                <div class="admin-user-item" v-for="user in adminUsers" :key="user.id">
-                  <div class="admin-user-avatar">
-                    <span>{{ user.name ? user.name.charAt(0) : '?' }}</span>
-                  </div>
-                  <div class="admin-user-info">
-                    <div class="admin-user-name">
-                      {{ user.name || '未知用户' }}
-                      <span v-if="user.role === 'admin'" class="admin-badge">管理员</span>
-                      <span v-else class="user-badge">普通用户</span>
-                    </div>
-                    <div class="admin-user-email">{{ user.email }}</div>
-                    <div class="admin-user-meta">
-                      <span>注册: {{ formatDate(user.createdAt) }}</span>
-                      <span v-if="user.lastLoginAt">最近登录: {{ formatDate(user.lastLoginAt) }}</span>
-                    </div>
-                  </div>
-                  <div class="admin-user-actions">
-                    <select v-if="user.role !== 'admin'" :value="user.status" @change="handleUserStatusChange(user.id, $event.target.value)" class="status-select">
-                      <option value="active">启用</option>
-                      <option value="disabled">停用</option>
-                    </select>
-                    <button v-if="user.role !== 'admin'" class="reset-pwd-btn" @click="handleResetPassword(user.id)" title="重置密码">
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                      </svg>
-                    </button>
-                    <button v-if="user.role !== 'admin'" class="delete-user-btn" @click="handleDeleteUser(user.id)" title="删除用户">
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
-                        <path d="M10 11v6M14 11v6"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div v-else class="admin-empty">暂无用户数据</div>
-              <div class="admin-tip">
-                🔒 管理员可管理所有用户账号，包括启用/停用、重置密码和删除
-              </div>
-            </div>
           </div>
         </div>
 
@@ -987,23 +935,38 @@
           </div>
 
           <div class="resume-preview">
-            <div class="resume-doc">
+            <div class="resume-doc" v-if="hasResume">
               <div class="doc-header">
                 <div class="doc-icon">📄</div>
                 <span>个人简历</span>
               </div>
               <div class="doc-content">
-                <div class="doc-line"></div>
-                <div class="doc-line"></div>
-                <div class="doc-line short"></div>
-                <div class="doc-line"></div>
-                <div class="doc-line"></div>
-                <div class="doc-line short"></div>
+                <div class="doc-line doc-line-title">{{ resumeSummary.name || '未填写姓名' }} · {{ resumeSummary.intention || '未填写意向' }}</div>
+                <div class="doc-line">{{ resumeSummary.education || '学历未填写' }}<span v-if="resumeSummary.major"> · {{ resumeSummary.major }}</span></div>
+                <div class="doc-line short" v-if="resumeSummary.company">{{ resumeSummary.company }} · {{ resumeSummary.position }}</div>
+                <div class="doc-line" v-if="resumeSummary.skills && resumeSummary.skills.length > 0">
+                  <span class="doc-skills">
+                    <span v-for="skill in resumeSummary.skills.slice(0, 3)" :key="skill" class="doc-skill-tag">{{ skill }}</span>
+                    <span v-if="resumeSummary.skills.length > 3" class="doc-skill-more">+{{ resumeSummary.skills.length - 3 }}</span>
+                  </span>
+                </div>
+                <div class="doc-line short" v-if="resumeSummary.projects && resumeSummary.projects.length > 0">{{ resumeSummary.projects.length }} 个项目经历</div>
+              </div>
+            </div>
+            <div class="resume-doc empty-doc" v-else>
+              <div class="doc-header">
+                <div class="doc-icon">📄</div>
+                <span>个人简历</span>
+              </div>
+              <div class="doc-content empty-content">
+                <div class="empty-resume-icon">📝</div>
+                <p class="empty-resume-text">暂无简历数据</p>
+                <p class="empty-resume-hint">点击下方按钮创建AI简历</p>
               </div>
             </div>
           </div>
 
-          <button class="resume-btn" @click="openResume">查看完整简历</button>
+          <button class="resume-btn" @click="openResume">{{ hasResume ? '查看完整简历' : '创建AI简历' }}</button>
         </div>
       </div>
     </div>
@@ -1208,10 +1171,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { clearAuthInfo } from '@/utils/auth'
-import jobData from '../assets/all_cleaned_jobs.json'
-import { logout as authLogout } from '../utils/auth'
-import { getUserList, updateUserStatus, deleteUser, resetUserPassword, isAdmin } from '../utils/userStore'
+let jobData = []
 
 const router = useRouter()
 
@@ -1240,66 +1200,10 @@ const userInfo = reactive({
   name: '访客用户',
   role: '普通用户',
   loginType: '游客登录',
-  registerTime: '',
-  lastLogin: '',
-  loginDays: 0
+  registerTime: '2026-07-27',
+  lastLogin: new Date().toLocaleString('zh-CN'),
+  loginDays: 4
 })
-
-// 管理员用户管理
-const adminUsers = ref([])
-const currentUserId = computed(() => {
-  try {
-    const auth = JSON.parse(localStorage.getItem('auth_info') || '{}')
-    return auth.userId || ''
-  } catch { return '' }
-})
-
-const loadAdminUsers = () => {
-  if (userInfo.role === '系统管理员' && currentUserId.value) {
-    adminUsers.value = getUserList(currentUserId.value)
-  }
-}
-
-const formatDate = (timestamp) => {
-  if (!timestamp) return '未知'
-  try {
-    return new Date(timestamp).toLocaleString('zh-CN')
-  } catch { return '未知' }
-}
-
-const handleUserStatusChange = (userId, status) => {
-  try {
-    updateUserStatus(currentUserId.value, userId, status)
-    loadAdminUsers()
-  } catch (e) {
-    alert(e.message || '操作失败')
-  }
-}
-
-const handleResetPassword = async (userId) => {
-  const newPwd = prompt('请输入新密码（至少6位）：')
-  if (!newPwd) return
-  if (newPwd.length < 6) {
-    alert('密码长度不能少于6位')
-    return
-  }
-  try {
-    await resetUserPassword(currentUserId.value, userId, newPwd)
-    alert('密码重置成功')
-  } catch (e) {
-    alert(e.message || '重置失败')
-  }
-}
-
-const handleDeleteUser = (userId) => {
-  if (!confirm('确定要删除该用户吗？此操作不可恢复！')) return
-  try {
-    deleteUser(currentUserId.value, userId)
-    loadAdminUsers()
-  } catch (e) {
-    alert(e.message || '删除失败')
-  }
-}
 
 const settings = reactive({
   darkMode: false,
@@ -1463,7 +1367,7 @@ const openResume = () => {
       alert('简历数据读取失败，请重新生成')
     }
   } else {
-    alert('暂无简历数据，请先到AI简历页面生成简历')
+    router.push('/ai-resume')
   }
 }
 
@@ -1530,18 +1434,14 @@ const communityPosts = ref(
   }))
 )
 
-const totalJobs = jobData.length
-const avgSalary = Math.round(jobData.reduce((sum, job) => sum + (job.salary_avg || 0), 0) / totalJobs)
-const cities = [...new Set(jobData.map(j => j.city))].length
-
 const carouselSlides = ref([
   {
     icon: '📊',
     title: '实时有效岗位',
     desc: '当前市场最新岗位动态与趋势分析',
-    data1: { value: totalJobs.toLocaleString(), label: '有效岗位' },
-    data2: { value: cities, label: '覆盖城市' },
-    data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' },
+    data1: { value: '加载中', label: '有效岗位' },
+    data2: { value: '...', label: '覆盖城市' },
+    data3: { value: '...', label: '平均薪资' },
   },
   {
     icon: '🎯',
@@ -1557,7 +1457,7 @@ const carouselSlides = ref([
     desc: 'IT行业人才供需数据实时监控',
     data1: { value: '56,230', label: '人才储备' },
     data2: { value: '45.8%', label: '就业率' },
-    data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' },
+    data3: { value: '...', label: '平均薪资' },
   },
 ])
 
@@ -1627,9 +1527,7 @@ const navigateTo = (module) => {
 }
 
 const logout = () => {
-  authLogout()
-  showProfilePanel.value = false
-  router.replace('/')
+  router.push('/')
 }
 
 const initBackground = () => {
@@ -1856,43 +1754,55 @@ const initBackground = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const response = await fetch('/data/all_cleaned_jobs.json')
+    if (response.ok) {
+      jobData = await response.json()
+      const totalJobs = jobData.length
+      const avgSalary = Math.round(jobData.reduce((sum, job) => sum + (job.salary_avg || 0), 0) / totalJobs)
+      const cities = [...new Set(jobData.map(j => j.city))].length
+      carouselSlides.value[0] = {
+        icon: '📊',
+        title: '实时有效岗位',
+        desc: '当前市场最新岗位动态与趋势分析',
+        data1: { value: totalJobs.toLocaleString(), label: '有效岗位' },
+        data2: { value: cities, label: '覆盖城市' },
+        data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' },
+      }
+      carouselSlides.value[2].data3 = { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' }
+    }
+  } catch (err) {
+    console.warn('岗位数据加载失败:', err.message)
+  }
   initBackground()
   
-  // 从auth_info加载真实用户资料
+  // 从auth_info加载用户资料
   try {
     const authData = JSON.parse(localStorage.getItem('auth_info') || '{}')
     if (authData) {
-      if (authData.name) userInfo.name = authData.name
-      else if (authData.nickname) userInfo.name = authData.nickname
-      
-      if (authData.role === 'admin') {
-        userInfo.role = '系统管理员'
-      } else if (authData.role === 'guest') {
-        userInfo.role = '游客'
-      } else {
-        userInfo.role = '普通用户'
+      if (authData.nickname) userInfo.name = authData.nickname
+      if (authData.loginType) {
+        const typeMap = { wechat: '微信登录', qq: 'QQ登录', email: '邮箱登录', guest: '游客登录' }
+        userInfo.loginType = typeMap[authData.loginType] || authData.loginType
       }
-      
-      const typeMap = { email: '邮箱登录', guest: '游客登录' }
-      userInfo.loginType = typeMap[authData.loginType] || authData.loginType || '未知登录'
-      
       if (authData.loginTime) {
         userInfo.lastLogin = new Date(authData.loginTime).toLocaleString('zh-CN')
-        userInfo.registerTime = new Date(authData.loginTime).toISOString().split('T')[0]
+        const registerDate = new Date(authData.loginTime)
+        userInfo.registerTime = registerDate.toISOString().split('T')[0]
       }
     }
   } catch {}
   
-  // 计算在线天数
-  const authInfo = JSON.parse(localStorage.getItem('auth_info') || 'null')
-  if (authInfo && authInfo.loginTime) {
-    const days = Math.floor((Date.now() - authInfo.loginTime) / (1000 * 60 * 60 * 24))
-    userInfo.loginDays = Math.max(1, days)
-  }
-
-  // 管理员加载用户列表
-  loadAdminUsers()
+  // 兼容旧版本
+  const savedName = localStorage.getItem('userName')
+  if (savedName) userInfo.name = savedName
+  const savedRole = localStorage.getItem('userRole')
+  if (savedRole) userInfo.role = savedRole
+  const savedLoginType = localStorage.getItem('userLoginType')
+  if (savedLoginType) userInfo.loginType = savedLoginType
+  
+  refreshProfileData()
   
   slideInterval = setInterval(() => {
     currentSlide.value = (currentSlide.value + 1) % carouselSlides.value.length
@@ -3127,13 +3037,68 @@ onUnmounted(() => {
 }
 
 .doc-line {
-  height: 3px;
-  background: rgba(74, 158, 255, 0.3);
-  border-radius: 2px;
+  font-size: 0.75rem;
+  color: rgba(230, 241, 255, 0.8);
+  line-height: 1.4;
+  padding: 2px 0;
+}
+
+.doc-line-title {
+  font-weight: 600;
+  color: rgba(230, 241, 255, 0.95);
+  font-size: 0.8rem;
 }
 
 .doc-line.short {
-  width: 60%;
+  font-size: 0.7rem;
+  color: rgba(230, 241, 255, 0.6);
+}
+
+.doc-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.doc-skill-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  background: rgba(74, 158, 255, 0.2);
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  color: rgba(74, 158, 255, 0.9);
+}
+
+.doc-skill-more {
+  font-size: 0.65rem;
+  color: rgba(230, 241, 255, 0.5);
+}
+
+.empty-doc .empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  gap: 4px;
+}
+
+.empty-resume-icon {
+  font-size: 1.5rem;
+  opacity: 0.6;
+}
+
+.empty-resume-text {
+  font-size: 0.8rem;
+  color: rgba(230, 241, 255, 0.7);
+  margin: 0;
+}
+
+.empty-resume-hint {
+  font-size: 0.65rem;
+  color: rgba(230, 241, 255, 0.4);
+  margin: 0;
 }
 
 .resume-btn {
@@ -5610,167 +5575,5 @@ onUnmounted(() => {
 
 .edit-modal-body::-webkit-scrollbar-thumb:hover {
   background: rgba(74, 158, 255, 0.5);
-}
-
-/* 管理员用户管理 */
-.admin-section {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(74, 158, 255, 0.12);
-}
-
-.admin-section h4 {
-  color: #a78bfa;
-}
-
-.admin-section h4::before {
-  background: linear-gradient(180deg, #a78bfa, #f59e0b);
-  box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
-}
-
-.admin-user-list {
-  max-height: 320px;
-  overflow-y: auto;
-}
-
-.admin-user-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background: rgba(74, 158, 255, 0.05);
-  border: 1px solid rgba(74, 158, 255, 0.08);
-  border-radius: 10px;
-  margin-bottom: 8px;
-  transition: all 0.25s ease;
-}
-
-.admin-user-item:hover {
-  background: rgba(74, 158, 255, 0.08);
-  border-color: rgba(74, 158, 255, 0.15);
-}
-
-.admin-user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #4a9eff, #a855f7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.admin-user-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.admin-user-name {
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2px;
-}
-
-.admin-badge, .user-badge {
-  display: inline-block;
-  font-size: 0.7rem;
-  padding: 1px 8px;
-  border-radius: 10px;
-  margin-left: 6px;
-}
-
-.admin-badge {
-  background: rgba(245, 158, 11, 0.2);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.user-badge {
-  background: rgba(74, 158, 255, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(74, 158, 255, 0.25);
-}
-
-.admin-user-email {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 2px;
-}
-
-.admin-user-meta {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.35);
-  display: flex;
-  gap: 10px;
-}
-
-.admin-user-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.status-select {
-  background: rgba(10, 15, 35, 0.9);
-  border: 1px solid rgba(74, 158, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  cursor: pointer;
-}
-
-.status-select:focus {
-  outline: none;
-  border-color: rgba(74, 158, 255, 0.5);
-}
-
-.reset-pwd-btn, .delete-user-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 1px solid rgba(74, 158, 255, 0.2);
-  background: rgba(10, 15, 35, 0.8);
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.reset-pwd-btn:hover {
-  color: #60a5fa;
-  border-color: rgba(96, 165, 250, 0.5);
-  background: rgba(96, 165, 250, 0.1);
-}
-
-.delete-user-btn:hover {
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.5);
-  background: rgba(239, 68, 68, 0.1);
-}
-
-.admin-empty {
-  text-align: center;
-  padding: 20px;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 0.85rem;
-}
-
-.admin-tip {
-  margin-top: 12px;
-  padding: 10px 14px;
-  background: rgba(167, 139, 250, 0.08);
-  border: 1px solid rgba(167, 139, 250, 0.15);
-  border-radius: 8px;
-  font-size: 0.78rem;
-  color: rgba(167, 139, 250, 0.8);
-  line-height: 1.5;
 }
 </style>

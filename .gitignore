@@ -12,11 +12,3 @@ job_crawler/job51_userdata/
 job_crawler/liepin_userdata/
 job_crawler/zhaopin_userdata/
 my-vue3/
-
-# 环境变量配置（含API密钥，禁止提交）
-**/.env
-**/.env.local
-**/.env.*.local
-
-# 用户数据（含密码哈希，禁止提交）
-backend/data/users.json

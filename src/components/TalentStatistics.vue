@@ -259,8 +259,7 @@
                     <span class="match-dot"></span>
                     {{ getPolicyMatchCount(policy) }} 个岗位符合
                   </span>
-                  <a v-if="policy.url" :href="policy.url" target="_blank" rel="noopener noreferrer" class="detail-btn" @click.stop>查看详情 ↗</a>
-                  <span v-else class="detail-btn disabled">暂无链接</span>
+                  <button class="detail-btn" @click.stop="openPolicyUrl(policy)">查看详情 ↗</button>
                 </div>
               </div>
             </div>
@@ -290,12 +289,8 @@
            class="card-popup-overlay" 
            :class="{ 'overlay-pinned': pinnedCard }"
            @click="closePopup">
-        <div class="card-popup" 
-             :class="'popup-' + activePopupCard" 
-             @click.stop
-             @mouseenter="handlePopupEnter"
-             @mouseleave="handlePopupLeave">
-            <button class="popup-close" @click.stop="closePopup">×</button>
+        <div class="card-popup" :class="'popup-' + activePopupCard" @click.stop>
+            <button class="popup-close" @click="closePopup">×</button>
             <div class="popup-close-hint" v-if="pinnedCard">点击空白处关闭</div>
 
             <!-- Hero卡浮窗：中国地图 -->
@@ -441,7 +436,8 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import jobData from '../assets/all_cleaned_jobs.json'
+let jobData = []
+const dataTrigger = ref(0)
 
 const router = useRouter()
 const searchKeyword = ref('')
@@ -460,8 +456,6 @@ const popupSalaryEduRef = ref(null)
 
 const hoveredCard = ref(null)
 const pinnedCard = ref(null)
-const dismissedCard = ref(null)
-let popupHoverTimer = null
 
 const policyDatabase = ref([])
 const policyUpdateTime = ref('')
@@ -479,65 +473,32 @@ const activePopupCard = computed(() => pinnedCard.value || hoveredCard.value)
 let popupTimer = null
 
 const handleCardHover = (card) => {
-  if (pinnedCard.value) return
-  if (dismissedCard.value === card) return
-  if (popupTimer) {
-    clearTimeout(popupTimer)
-    popupTimer = null
+  if (!pinnedCard.value) {
+    if (popupTimer) clearTimeout(popupTimer)
+    hoveredCard.value = card
   }
-  if (popupHoverTimer) {
-    clearTimeout(popupHoverTimer)
-    popupHoverTimer = null
-  }
-  hoveredCard.value = card
 }
 const handleCardLeave = () => {
-  if (pinnedCard.value) return
-  if (popupTimer) clearTimeout(popupTimer)
-  popupTimer = setTimeout(() => {
-    hoveredCard.value = null
-    popupTimer = null
-  }, 300)
-}
-const handlePopupEnter = () => {
-  if (pinnedCard.value) return
-  if (popupTimer) {
-    clearTimeout(popupTimer)
-    popupTimer = null
+  if (!pinnedCard.value) {
+    if (popupTimer) clearTimeout(popupTimer)
+    popupTimer = setTimeout(() => {
+      if (!pinnedCard.value) {
+        hoveredCard.value = null
+      }
+    }, 300)
   }
-  if (popupHoverTimer) {
-    clearTimeout(popupHoverTimer)
-    popupHoverTimer = null
-  }
-}
-const handlePopupLeave = () => {
-  if (pinnedCard.value) return
-  if (popupHoverTimer) clearTimeout(popupHoverTimer)
-  popupHoverTimer = setTimeout(() => {
-    hoveredCard.value = null
-    popupHoverTimer = null
-  }, 100)
 }
 const handleCardClick = (card) => {
   if (popupTimer) clearTimeout(popupTimer)
-  if (popupHoverTimer) clearTimeout(popupHoverTimer)
   if (pinnedCard.value === card) {
     pinnedCard.value = null
   } else {
     pinnedCard.value = card
     hoveredCard.value = null
-    dismissedCard.value = null
   }
 }
 const closePopup = () => {
   if (popupTimer) clearTimeout(popupTimer)
-  if (popupHoverTimer) clearTimeout(popupHoverTimer)
-  if (hoveredCard.value) {
-    dismissedCard.value = hoveredCard.value
-  }
-  if (pinnedCard.value) {
-    dismissedCard.value = pinnedCard.value
-  }
   pinnedCard.value = null
   hoveredCard.value = null
 }
@@ -550,6 +511,7 @@ const policyTabs = [
 ]
 
 const validData = computed(() => {
+  dataTrigger.value
   return jobData.filter(item => !isNaN(item.salary_avg) && item.salary_avg > 0 && item.salary_avg < 200000)
 })
 
@@ -784,54 +746,14 @@ const initMiniCharts = () => {
 }
 
 const FALLBACK_POLICIES = [
-  // ========== 国家级政策 ==========
-  { title: '加快数字人才培育支撑数字经济发展行动方案（2024-2026年）', level: '国家级', city: '全国', jobs: '大数据工程师、人工智能、集成电路、数据安全', amount: '职称衔接+专项培训', conditions: '数字领域新职业从业者', validity: '2024-2026年', tags: ['AI', '大数据', '全国'], type: 'national', url: 'https://www.gov.cn/zhengce/zhengceku/202404/content_6945920.htm' },
-  { title: '加强数据要素学科专业建设和数字人才队伍建设意见', level: '国家级', city: '全国', jobs: '数据科学、数据分析、数据安全、数字经济', amount: '学科建设+产教融合', conditions: '高校学生、数据从业者', validity: '2025-2030年', tags: ['数据要素', '数字人才'], type: 'national', url: 'https://www.gov.cn/zhengce/zhengceku/202512/content_7050192.htm' },
-  { title: '专业技术人才知识更新工程', level: '国家级', city: '全国', jobs: '新一代信息技术、人工智能、大数据、云计算', amount: '每年培训100万人', conditions: '中高层次专业技术人员', validity: '2021-2030年', tags: ['继续教育', '知识更新'], type: 'national', url: 'https://www.gov.cn/zhengce/zhengceku/2021-10/11/content_5641891.htm' },
-  { title: '新一代人工智能创新人才支持计划', level: '国家级', city: '全国', jobs: '人工智能算法工程师、机器学习工程师', amount: '最高50万元', conditions: '本科及以上，35岁以下', validity: '2024-2026年', tags: ['AI', '研发'], type: 'national', url: 'https://www.gov.cn/zhengce/content/2017-07/20/content_5211996.htm' },
-  { title: '集成电路产业人才专项计划', level: '国家级', city: '全国', jobs: '芯片设计工程师、IC验证工程师', amount: '最高50万元', conditions: '本科及以上，相关专业', validity: '2024-2026年', tags: ['芯片', '紧缺'], type: 'national', url: 'https://www.gov.cn/zhengce/content/2020-08/04/content_5532370.htm' },
-  { title: '重庆数字技术工程师培育项目实施方案（2025-2030年）', level: '国家级', city: '重庆', jobs: '人工智能、物联网、大数据、云计算工程师', amount: '等级评价费用补贴', conditions: '专科及以上学历，在职从业者', validity: '2025-2030年', tags: ['数字技术', 'AI', '培训'], type: 'national', url: 'https://www.gov.cn/' },
-
-  // ========== 省级政策 ==========
-  { title: '广东省网络安全人才培养计划', level: '省级', city: '广东', jobs: '网络安全工程师、渗透测试工程师', amount: '最高25万元', conditions: '本科及以上，相关认证', validity: '2024-2026年', tags: ['网络安全', '广东'], type: 'provincial', url: 'http://hrss.gd.gov.cn/zcfg/' },
-  { title: '江苏省软件人才引进计划', level: '省级', city: '江苏', jobs: 'Java/Python/C++开发工程师', amount: '最高15万元', conditions: '本科及以上，3年以上经验', validity: '2024-2026年', tags: ['软件开发', '江苏'], type: 'provincial', url: 'https://jshrss.jiangsu.gov.cn/' },
-  { title: '贵州省大数据发展专项资金支持数据产业重点发展方向（2025年版）', level: '省级', city: '贵州', jobs: '数据产品研发、数据分析、数据运营', amount: '核心团队30万+个人50万', conditions: '年营收增长30%以上数据企业', validity: '2025年版', tags: ['大数据', '贵州'], type: 'provincial', url: 'http://www.guizhou.gov.cn/' },
-  { title: '山东省新兴领域人才集聚政策', level: '省级', city: '山东', jobs: '人工智能、集成电路、量子技术、数字人才', amount: '泰山人才工程专项', conditions: '战略新兴领域人才', validity: '2026年起实施', tags: ['人工智能', '山东'], type: 'provincial', url: 'http://hrss.shandong.gov.cn/' },
-  { title: '日照数字服务外包人才一揽子政策', level: '省级', city: '山东日照', jobs: '软件工程师、IT服务外包、数字经济', amount: '每月1000-5000元生活补贴', conditions: '本科及以上，数字服务外包企业', validity: '2025年起', tags: ['数字人才', '日照'], type: 'provincial', url: 'http://hrss.shandong.gov.cn/' },
-  { title: '宜昌三峡英才计划高层次人才政策', level: '省级', city: '湖北宜昌', jobs: 'STEM专业博士、人工智能、大数据', amount: '国家级最高100万元+住房', conditions: '全职引进高层次人才', validity: '2025年9月起', tags: ['高层次', '宜昌'], type: 'provincial', url: 'http://www.hubei.gov.cn/' },
-
-  // ========== 市级政策 - 一线城市 ==========
-  { title: '北京市高精尖产业人才引进计划', level: '市级', city: '北京', jobs: '集成电路、人工智能、医药健康', amount: '计划单列落户+专项补贴', conditions: '世界前200高校本科以上', validity: '长期有效', tags: ['北京', '高精尖'], type: 'city', url: 'https://rsj.beijing.gov.cn/' },
-  { title: '上海软件和信息技术服务业人才补贴', level: '市级', city: '上海', jobs: '软件工程师、前端开发', amount: '最高20万元', conditions: '本科及以上，在沪工作满1年', validity: '2024-2025年', tags: ['软件开发', '上海'], type: 'city', url: 'https://rsj.sh.gov.cn/' },
-  { title: '上海市关于进一步扩大人工智能应用的若干措施', level: '市级', city: '上海', jobs: 'AI工程师、大模型开发、算法工程师', amount: '算力券6亿+模型券3亿+语料券1亿', conditions: 'AI企业、科研机构', validity: '2025年7月起', tags: ['AI', '上海', '算力'], type: 'city', url: 'https://www.shanghai.gov.cn/' },
-  { title: '深圳光明区关于推动人工智能和软件信息产业高质量发展的若干措施', level: '市级', city: '深圳光明', jobs: 'AI算法工程师、大模型研发、软件工程师', amount: '算力补贴600万+上云补贴100万+研发奖励5000万', conditions: '光明区AI/软件信息企业', validity: '2025年3月起', tags: ['AI', '深圳', '光明'], type: 'city', url: 'http://www.szgm.gov.cn/' },
-  { title: '深圳罗湖区人才政策升级', level: '市级', city: '深圳罗湖', jobs: 'AI团队带头人、人工智能工程师、软件开发者', amount: '团队创业20-100万+带头人300万+购房最高800万', conditions: '人工智能、生命健康领域人才', validity: '2025年9月起', tags: ['AI', '深圳', '罗湖'], type: 'city', url: 'http://www.sz.gov.cn/' },
-  { title: '广州青年人才5项支持政策', level: '市级', city: '广州', jobs: '博士、博士后、IT创业团队', amount: '安家费最高30万+创业1000万', conditions: '高校毕业生、博士后', validity: '2025年9月起', tags: ['广州', '青年人才'], type: 'city', url: 'http://www.gz.gov.cn/' },
-
-  // ========== 市级政策 - 新一线城市 ==========
-  { title: '杭州数字经济人才专项计划', level: '市级', city: '杭州', jobs: '大数据分析师、数据科学家', amount: '本科1万+硕士3万+博士10万', conditions: '本科及以上，2年以上经验', validity: '2024-2026年', tags: ['大数据', '杭州'], type: 'city', url: 'http://hrss.hangzhou.gov.cn/' },
-  { title: '杭州市加快建设人工智能创新高地实施方案（2025年版）', level: '市级', city: '杭州', jobs: 'AI工程师、算法科学家、大模型研发', amount: '领军团队500万+顶尖人才60万/年', conditions: 'AI领域高层次人才和团队', validity: '2025年版', tags: ['AI', '杭州', '创新高地'], type: 'city', url: 'http://www.hangzhou.gov.cn/' },
-  { title: '成都市企业引进急需紧缺人才安家补贴', level: '市级', city: '成都', jobs: '3星紧缺岗位、ABC类人才、博士', amount: '每月3000元安家补贴，3年累计10.8万', conditions: '2025年新引进，6个月社保', validity: '2025年度', tags: ['成都', '紧缺人才'], type: 'city', url: 'http://www.chengdu.gov.cn/' },
-  { title: '重庆高新区新凤人才政策', level: '市级', city: '重庆', jobs: '集成电路、智能终端、数字经济', amount: '博士购房补贴+8.5折配售房', conditions: '重点企业技术人才，年薪达标', validity: '2026年新政', tags: ['重庆', '新凤人才'], type: 'city', url: 'http://www.cq.gov.cn/' },
-  { title: '重庆支持人工智能OPC创业发展的十二条措施', level: '市级', city: '重庆', jobs: 'AI创业者、AI开发者、单人创业OPC', amount: '创业补贴8000元+创业贷款最高600万', conditions: '人工智能领域创业者', validity: '2025年', tags: ['AI', '重庆', '创业'], type: 'city', url: 'http://www.cq.gov.cn/' },
-  { title: '长沙高精尖与紧缺急需人才引育', level: '市级', city: '长沙', jobs: '人工智能、先进计算、北斗、新能源', amount: '顶尖200万+领军100万+紧缺50万', conditions: '2021.5.20后引进或创业', validity: '常年申报', tags: ['长沙', '高精尖'], type: 'city', url: 'http://www.changsha.gov.cn/' },
-  { title: '长沙青年小荷人才奖励', level: '市级', city: '长沙', jobs: 'AI、先进计算、新材料等领域青年科技', amount: '一次性20万元奖励', conditions: '40岁以下，企业科技工作者', validity: '2026年度', tags: ['长沙', '青年人才'], type: 'city', url: 'http://www.changsha.gov.cn/' },
-  { title: '长沙博士购房补贴', level: '市级', city: '长沙', jobs: '境外高校博士、35岁以下国内博士', amount: '12万元购房补贴', conditions: '2025.5.28后首次购房', validity: '2025年5月起', tags: ['长沙', '博士补贴'], type: 'city', url: 'http://www.changsha.gov.cn/' },
-
-  // ========== 市级政策 - 特色城市 ==========
-  { title: '厦门市AI产业人才8条', level: '市级', city: '厦门', jobs: '人工智能算法、大模型、AI芯片', amount: '创业最高500万+博士每年15万', conditions: 'AI领域人才，赛事获奖选手', validity: '2025年8月起', tags: ['厦门', 'AI专项'], type: 'city', url: 'http://www.xm.gov.cn/' },
-  { title: '昆山市人工智能领域人才9条', level: '市级', city: '江苏昆山', jobs: 'AI高端人才、青年博士、技术骨干', amount: '项目400万+购房60万+博士20万', conditions: '人工智能重点企业，年薪资60万+', validity: '2025年6月起', tags: ['昆山', '人工智能'], type: 'city', url: 'http://www.ks.gov.cn/' },
-  { title: '苏州市软件产业高质量发展人才计划', level: '市级', city: '苏州', jobs: '软件工程师、工业软件、嵌入式系统', amount: '软件企业引才最高100万元奖励', conditions: '全职引进高层次创新创业人才', validity: '2026-2027年', tags: ['苏州', '软件产业'], type: 'city', url: 'http://www.suzhou.gov.cn/' },
-  { title: '天津软件园人才队伍建设支持', level: '市级', city: '天津', jobs: '博士、博士后、高技能软件人才', amount: '博士20万+高技能最高50万', conditions: '园区重点产业链企业引进', validity: '2024年7月起', tags: ['天津', '软件园'], type: 'city', url: 'http://www.tj.gov.cn/' },
-  { title: '银川市算力人才职称证书补贴', level: '市级', city: '银川', jobs: '算力工程师、AI工程师、网络安全工程师', amount: '高级职称6000元+中级3000元', conditions: '银川市民营企业在职人员，取得软考/职称证书', validity: '2025年度', tags: ['银川', '算力', '职称'], type: 'city', url: 'http://www.yinchuan.gov.cn/' },
-  { title: '郑州高新区人才新政13条', level: '市级', city: '郑州', jobs: '博士硕士、研发人员、海外科技人才', amount: '团队最高2000万+博士5万企业补贴', conditions: '全职从事研发，45岁以下', validity: '2025年11月起', tags: ['郑州', '创业人才'], type: 'city', url: 'http://www.zzgx.gov.cn/' },
-
-  // ========== 市级政策 - 更多城市 ==========
-  { title: '西安高层次人才安居及创业支持', level: '市级', city: '西安', jobs: '软件工程师、半导体、人工智能', amount: '购房补贴最高100万+创业贷款贴息', conditions: 'ABCDE类人才认定', validity: '长期实施', tags: ['西安', '人才安居'], type: 'city', url: 'http://xaahrss.xa.gov.cn/' },
-  { title: '宁波数字经济人才引进政策', level: '市级', city: '宁波', jobs: '软件和信息服务、智能制造、数据工程师', amount: '顶尖人才1000万资助+安家补助', conditions: '数字经济领域高层次人才', validity: '2024-2026年', tags: ['宁波', '数字经济'], type: 'city', url: 'http://rsj.ningbo.gov.cn/' },
-  { title: '青岛市软件人才培养与引进计划', level: '市级', city: '青岛', jobs: '工业互联网、软件开发、嵌入式', amount: '人才公寓+每月500-3000元补贴', conditions: '本科以上，软件企业全职', validity: '2024年起', tags: ['青岛', '工业互联网'], type: 'city', url: 'http://hrss.qingdao.gov.cn/' },
-  { title: '南京大学生租房补贴与创业补助', level: '市级', city: '南京', jobs: '学士/硕士/博士、IT从业者', amount: '每月600-2000元租房补贴', conditions: '毕业2年内，36个月期限', validity: '长期实施', tags: ['南京', '租房补贴'], type: 'city', url: 'http://rsj.nanjing.gov.cn/' },
-  { title: '合肥人才租房与购房补贴', level: '市级', city: '合肥', jobs: '本科/硕士/博士毕业生', amount: '每年1.5万-3.6万租房补贴+购房补贴', conditions: '40岁以下本科以上', validity: '3年免费租住国有住房', tags: ['合肥', '住房补贴'], type: 'city', url: 'http://rsj.hefei.gov.cn/' }
+  { title: '新一代人工智能创新人才支持计划', level: '国家级', city: '全国', jobs: '人工智能算法工程师、机器学习工程师', amount: '最高50万元', conditions: '本科及以上，35岁以下', validity: '2024-2026年', tags: ['AI', '研发'], type: 'national' },
+  { title: '集成电路产业人才专项计划', level: '国家级', city: '全国', jobs: '芯片设计工程师、IC验证工程师', amount: '最高50万元', conditions: '本科及以上，相关专业', validity: '2024-2026年', tags: ['芯片', '紧缺'], type: 'national' },
+  { title: '上海软件和信息技术服务业人才补贴', level: '市级', city: '上海', jobs: '软件工程师、前端开发', amount: '最高20万元', conditions: '本科及以上，在沪工作满1年', validity: '2024-2025年', tags: ['软件开发', '上海'], type: 'city' },
+  { title: '深圳高层次人才认定及补贴', level: '市级', city: '深圳', jobs: '人工智能、大数据、云计算相关岗位', amount: '最高60万元', conditions: '硕士及以上，符合认定标准', validity: '长期有效', tags: ['深圳', '高层次'], type: 'city' },
+  { title: '杭州数字经济人才专项计划', level: '市级', city: '杭州', jobs: '大数据分析师、数据科学家', amount: '最高30万元', conditions: '本科及以上，2年以上经验', validity: '2024-2026年', tags: ['大数据', '杭州'], type: 'city' },
+  { title: '广东省网络安全人才培养计划', level: '省级', city: '广东', jobs: '网络安全工程师、渗透测试工程师', amount: '最高25万元', conditions: '本科及以上，相关认证', validity: '2024-2026年', tags: ['网络安全', '广东'], type: 'provincial' },
+  { title: '北京市科技创新人才计划', level: '市级', city: '北京', jobs: '云计算工程师、DevOps工程师', amount: '最高35万元', conditions: '硕士及以上，在京高新企业', validity: '2024-2025年', tags: ['云计算', '北京'], type: 'city' },
+  { title: '江苏省软件人才引进计划', level: '省级', city: '江苏', jobs: 'Java/Python/C++开发工程师', amount: '最高15万元', conditions: '本科及以上，3年以上经验', validity: '2024-2026年', tags: ['软件开发', '江苏'], type: 'provincial' }
 ]
 
 const loadPolicyData = async () => {
@@ -1254,7 +1176,16 @@ const initPopupSalaryEdu = async () => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const response = await fetch('/data/all_cleaned_jobs.json')
+    if (response.ok) {
+      jobData = await response.json()
+      dataTrigger.value++
+    }
+  } catch (err) {
+    console.warn('岗位数据加载失败:', err.message)
+  }
   initSalaryChart(); initCityChart(); initBackground(); loadPolicyData(); updateCityBars()
   initMiniCharts()
   window.addEventListener('resize', handleResize)
@@ -2097,17 +2028,6 @@ onUnmounted(() => {
   border-color: var(--border-glow);
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
-.detail-btn.disabled {
-  cursor: not-allowed;
-  color: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.1);
-  font-size: 11px;
-  padding: 4px 10px;
-}
-.detail-btn.disabled:hover {
-  background: transparent;
-  box-shadow: none;
-}
 .policy-footer {
   display: flex;
   flex-direction: column;
@@ -2525,9 +2445,6 @@ onUnmounted(() => {
   border-radius: 16px;
   padding: 28px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 240, 255, 0.1);
-  pointer-events: none;
-}
-.card-popup-overlay.overlay-pinned .card-popup {
   pointer-events: auto;
 }
 .card-popup::before {
