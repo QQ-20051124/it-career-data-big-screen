@@ -23,14 +23,19 @@
         <span class="logo-icon">◆</span>
         <span class="logo-text">IT学习与就业数据可视化导航系统</span>
       </div>
+      <div class="top-bar-center">
+        <div class="data-status" @click="refreshData" :title="'点击刷新数据'">
+          <span class="status-dot" :class="{ active: dataStatus.loading }"></span>
+          <span class="status-text">
+            数据: {{ dataStatus.totalCount > 0 ? dataStatus.totalCount.toLocaleString() + ' 条' : '加载中' }}
+          </span>
+          <span class="status-refresh" :class="{ spinning: dataStatus.loading }">⟳</span>
+        </div>
+      </div>
       <div class="top-bar-right">
         <button class="profile-btn" @click="toggleProfilePanel">
           <div class="profile-avatar">
-            <img v-if="userAvatar" :src="userAvatar" class="profile-avatar-img" alt="用户头像"/>
-            <svg v-else viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
+            <img :src="userAvatar" class="profile-avatar-img" alt="用户头像"/>
           </div>
           <div class="profile-info">
             <span class="profile-name">个人中心</span>
@@ -58,11 +63,7 @@
           <div class="panel-avatar-large" @click="triggerAvatarUpload" title="点击更换头像">
             <div class="avatar-ring-deco"></div>
             <div class="avatar-ring-deco-2"></div>
-            <img v-if="userAvatar" :src="userAvatar" class="avatar-user-img" alt="用户头像"/>
-            <svg v-else viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
+            <img :src="userAvatar" class="avatar-user-img" alt="用户头像"/>
             <div class="avatar-upload-hint">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -590,11 +591,7 @@
         <div class="edit-modal-body">
           <div class="edit-avatar-section" @click="triggerAvatarUpload">
             <div class="edit-avatar-preview">
-              <img v-if="userAvatar" :src="userAvatar" alt="头像预览"/>
-              <svg v-else viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
+              <img :src="userAvatar" alt="头像预览"/>
             </div>
             <span class="edit-avatar-text">点击更换头像</span>
           </div>
@@ -775,7 +772,7 @@
           <div class="carousel-wrapper">
             <div class="carousel-content" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
               <div class="carousel-item" v-for="(slide, index) in carouselSlides" :key="index">
-                <div class="slide-card">
+                <div class="slide-card" :style="{ backgroundImage: `linear-gradient(135deg, rgba(10,20,40,0.85) 0%, rgba(10,20,40,0.4) 50%, rgba(10,20,40,0.1) 100%), url(${slide.bgImage})` }">
                   <div class="slide-icon">{{ slide.icon }}</div>
                   <h4>{{ slide.title }}</h4>
                   <p>{{ slide.desc }}</p>
@@ -815,158 +812,54 @@
                 <line x1="16" y1="17" x2="8" y2="17"/>
               </svg>
             </div>
-            <span>查看简历</span>
+            <span>求职简历</span>
           </div>
 
           <div class="resume-avatar-section">
-            <div class="tech-avatar">
-              <svg viewBox="0 0 160 160" width="120" height="120">
-                <defs>
-                  <radialGradient id="bgGrad" cx="45%" cy="35%" r="80%">
-                    <stop offset="0%" style="stop-color:#a5b4fc"/>
-                    <stop offset="30%" style="stop-color:#6366f1"/>
-                    <stop offset="70%" style="stop-color:#312e81"/>
-                    <stop offset="100%" style="stop-color:#1e1b4b"/>
-                  </radialGradient>
-                  <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:#818cf8"/>
-                    <stop offset="50%" style="stop-color:#6366f1"/>
-                    <stop offset="100%" style="stop-color:#4338ca"/>
-                  </linearGradient>
-                  <linearGradient id="eyeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#67e8f9"/>
-                    <stop offset="50%" style="stop-color:#22d3ee"/>
-                    <stop offset="100%" style="stop-color:#0891b2"/>
-                  </linearGradient>
-                  <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#a855f7"/>
-                    <stop offset="50%" style="stop-color:#4a9eff"/>
-                    <stop offset="100%" style="stop-color:#22d3ee"/>
-                  </linearGradient>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                    <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
-                  <filter id="strongGlow">
-                    <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
-                    <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
-                </defs>
-                <circle cx="80" cy="80" r="78" fill="url(#bgGrad)" stroke="rgba(139,92,246,0.3)" stroke-width="2"/>
-                <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(139,92,246,0.15)" stroke-width="1" stroke-dasharray="6 4"/>
-                <circle cx="80" cy="80" r="55" fill="none" stroke="rgba(74,158,255,0.1)" stroke-width="0.5"/>
-                <ellipse cx="80" cy="85" rx="48" ry="52" fill="#fef3c7"/>
-                <ellipse cx="80" cy="88" rx="45" ry="48" fill="#fde68a"/>
-                <path d="M40 40 Q50 25 80 22 Q110 25 120 40 Q135 55 135 80 Q135 110 115 125 Q100 135 80 135 Q60 135 45 125 Q25 110 25 80 Q25 55 40 40" fill="url(#hairGrad)" stroke="#312e81" stroke-width="1.5"/>
-                <path d="M35 45 Q45 35 60 32" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
-                <path d="M105 32 Q115 35 125 45" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
-                <path d="M55 38 Q50 50 55 65" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
-                <path d="M105 38 Q110 50 105 65" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
-                <ellipse cx="60" cy="75" rx="14" ry="16" fill="white"/>
-                <ellipse cx="100" cy="75" rx="14" ry="16" fill="white"/>
-                <ellipse cx="60" cy="75" rx="12" ry="14" fill="url(#eyeGrad)"/>
-                <ellipse cx="100" cy="75" rx="12" ry="14" fill="url(#eyeGrad)"/>
-                <circle cx="57" cy="72" r="4" fill="#0f172a"/>
-                <circle cx="97" cy="72" r="4" fill="#0f172a"/>
-                <circle cx="55" cy="70" r="1.5" fill="white"/>
-                <circle cx="95" cy="70" r="1.5" fill="white"/>
-                <circle cx="58" cy="74" r="0.8" fill="rgba(255,255,255,0.6)"/>
-                <circle cx="98" cy="74" r="0.8" fill="rgba(255,255,255,0.6)"/>
-                <ellipse cx="56" cy="85" rx="6" ry="3" fill="#fda4af" opacity="0.6"/>
-                <ellipse cx="104" cy="85" rx="6" ry="3" fill="#fda4af" opacity="0.6"/>
-                <ellipse cx="80" cy="95" rx="8" ry="5" fill="#f9a8d4"/>
-                <path d="M72 93 Q80 100 88 93" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round"/>
-                <path d="M74 97 L86 97" fill="none" stroke="#ec4899" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M45 85 Q40 95 45 105" fill="none" stroke="rgba(168,85,247,0.6)" stroke-width="1"/>
-                <path d="M115 85 Q120 95 115 105" fill="none" stroke="rgba(168,85,247,0.6)" stroke-width="1"/>
-                <rect x="30" y="60" width="12" height="35" fill="rgba(59,130,246,0.2)" stroke="rgba(59,130,246,0.4)" stroke-width="1" rx="3"/>
-                <rect x="118" y="60" width="12" height="35" fill="rgba(59,130,246,0.2)" stroke="rgba(59,130,246,0.4)" stroke-width="1" rx="3"/>
-                <circle cx="36" cy="66" r="2" fill="#22d3ee" filter="url(#glow)">
-                  <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="36" cy="73" r="2" fill="#4a9eff" filter="url(#glow)">
-                  <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="36" cy="80" r="2" fill="#a855f7" filter="url(#glow)">
-                  <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="36" cy="87" r="2" fill="#22d3ee" filter="url(#glow)">
-                  <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="124" cy="66" r="2" fill="#a855f7" filter="url(#glow)">
-                  <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="124" cy="73" r="2" fill="#4a9eff" filter="url(#glow)">
-                  <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="124" cy="80" r="2" fill="#22d3ee" filter="url(#glow)">
-                  <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="124" cy="87" r="2" fill="#a855f7" filter="url(#glow)">
-                  <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="30" cy="55" r="3" fill="#a855f7" filter="url(#strongGlow)">
-                  <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="130" cy="55" r="3" fill="#22d3ee" filter="url(#strongGlow)">
-                  <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="25" cy="90" r="2" fill="#4a9eff" filter="url(#glow)">
-                  <animate attributeName="opacity" values="0.5;0.2;0.5" dur="1.5s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="135" cy="90" r="2" fill="#4a9eff" filter="url(#glow)">
-                  <animate attributeName="opacity" values="0.2;0.5;0.2" dur="1.5s" repeatCount="indefinite"/>
-                </circle>
-                <path d="M32 50 Q38 45 45 50" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-                <path d="M115 50 Q122 45 128 50" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-                <ellipse cx="80" cy="55" rx="15" ry="8" fill="rgba(168,85,247,0.1)"/>
-                <path d="M65 55 Q80 48 95 55" fill="none" stroke="rgba(168,85,247,0.3)" stroke-width="1"/>
-              </svg>
+            <div class="tech-avatar cartoon" @mouseenter="onResumeBtnEnter" @mouseleave="onResumeBtnLeave">
+              <img :src="resumeAvatar" alt="简历头像" class="resume-avatar-img"/>
               <div class="avatar-ring"></div>
               <div class="avatar-ring ring-2"></div>
+              <div class="avatar-hint">悬停查看简历</div>
             </div>
           </div>
 
-          <div class="resume-preview">
-            <div class="resume-doc" v-if="hasResume">
-              <div class="doc-header">
-                <div class="doc-icon">📄</div>
-                <span>个人简历</span>
+          <div class="resume-summary">
+            <div class="summary-header">
+              <div class="summary-name">{{ resumeSummary.name || '同学' }}</div>
+              <div class="summary-intention">{{ resumeSummary.intention || '求职意向：未填写' }}</div>
+            </div>
+            <div class="summary-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ resumeSummary.skills ? resumeSummary.skills.length : 0 }}</span>
+                <span class="stat-label">技能</span>
               </div>
-              <div class="doc-content">
-                <div class="doc-line doc-line-title">{{ resumeSummary.name || '未填写姓名' }} · {{ resumeSummary.intention || '未填写意向' }}</div>
-                <div class="doc-line">{{ resumeSummary.education || '学历未填写' }}<span v-if="resumeSummary.major"> · {{ resumeSummary.major }}</span></div>
-                <div class="doc-line short" v-if="resumeSummary.company">{{ resumeSummary.company }} · {{ resumeSummary.position }}</div>
-                <div class="doc-line" v-if="resumeSummary.skills && resumeSummary.skills.length > 0">
-                  <span class="doc-skills">
-                    <span v-for="skill in resumeSummary.skills.slice(0, 3)" :key="skill" class="doc-skill-tag">{{ skill }}</span>
-                    <span v-if="resumeSummary.skills.length > 3" class="doc-skill-more">+{{ resumeSummary.skills.length - 3 }}</span>
-                  </span>
-                </div>
-                <div class="doc-line short" v-if="resumeSummary.projects && resumeSummary.projects.length > 0">{{ resumeSummary.projects.length }} 个项目经历</div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-value">{{ resumeSummary.projects ? resumeSummary.projects.length : 0 }}</span>
+                <span class="stat-label">项目</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-value">{{ hasResume ? '✓' : '—' }}</span>
+                <span class="stat-label">简历</span>
               </div>
             </div>
-            <div class="resume-doc empty-doc" v-else>
-              <div class="doc-header">
-                <div class="doc-icon">📄</div>
-                <span>个人简历</span>
-              </div>
-              <div class="doc-content empty-content">
-                <div class="empty-resume-icon">📝</div>
-                <p class="empty-resume-text">暂无简历数据</p>
-                <p class="empty-resume-hint">点击下方按钮创建AI简历</p>
-              </div>
+            <div class="skill-chips" v-if="resumeSummary.skills && resumeSummary.skills.length > 0">
+              <span v-for="s in resumeSummary.skills.slice(0, 3)" :key="s" class="skill-chip">{{ s }}</span>
+              <span v-if="resumeSummary.skills.length > 3" class="skill-chip more">+{{ resumeSummary.skills.length - 3 }}</span>
             </div>
+            <div class="skill-chips empty-hint" v-else>暂无技能</div>
           </div>
 
-          <button class="resume-btn" @click="openResume">{{ hasResume ? '查看完整简历' : '创建AI简历' }}</button>
+          <div class="resume-btn-wrapper">
+            <button class="resume-btn primary" @click="openResume">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+              {{ hasResume ? '查看完整简历' : '创建AI简历' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1050,6 +943,93 @@
       </div>
     </div>
   </div>
+
+  <!-- 悬浮预览：深色主题卡片风格 -->
+  <transition name="hover-fade">
+    <div v-if="showResumeHover" class="resume-hover-overlay">
+      <div v-if="hasResume && resumeData" class="resume-hover-card">
+        <div class="hover-card-header">
+          <div class="hover-card-title">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color:#4a9eff;margin-right:8px">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            <span>个人简历预览</span>
+          </div>
+          <div class="hover-card-badge">悬浮预览</div>
+        </div>
+        <div class="hover-card-body">
+          <div class="hover-section">
+            <div class="hover-name-row">
+              <div class="hover-avatar">
+                <img v-if="resumeData.photo" :src="resumeData.photo" alt=""/>
+                <img v-else :src="defaultUserAvatar" class="hover-avatar-ph"/>
+              </div>
+              <div class="hover-name-info">
+                <div class="hover-name">{{ resumeData.name || '未填写' }}</div>
+                <div class="hover-intention">{{ resumeData.intention || '未填写求职意向' }}</div>
+                <div class="hover-contact">
+                  <span v-if="resumeData.phone">📞 {{ resumeData.phone }}</span>
+                  <span v-if="resumeData.email">✉ {{ resumeData.email }}{{ resumeData.emailType ? '@' + resumeData.emailType + '.com' : '' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hover-section">
+            <h4 class="hover-section-title"><span class="hover-title-bar"></span>教育背景</h4>
+            <div class="hover-info-row">
+              <span class="hover-item">{{ resumeData.school || '未填写' }}</span>
+              <span class="hover-item-light">{{ resumeData.major || '' }}</span>
+              <span class="hover-item-light">{{ (resumeData.education || '') + (resumeData.degree ? ' · ' + resumeData.degree : '') }}</span>
+            </div>
+          </div>
+          <div v-if="resumeData.company || resumeData.position" class="hover-section">
+            <h4 class="hover-section-title"><span class="hover-title-bar"></span>实习经历</h4>
+            <div class="hover-timeline-item">
+              <div class="hover-timeline-dot"></div>
+              <div class="hover-timeline-content">
+                <div class="hover-timeline-header">
+                  <span class="hover-timeline-title">{{ resumeData.position || '未填写' }}</span>
+                  <span class="hover-timeline-sub">{{ resumeData.company || '' }}</span>
+                </div>
+                <div v-if="resumeData.responsibilities" class="hover-timeline-desc">{{ resumeData.responsibilities }}</div>
+              </div>
+            </div>
+          </div>
+          <div v-if="resumeData.projects && resumeData.projects.length > 0" class="hover-section">
+            <h4 class="hover-section-title"><span class="hover-title-bar"></span>项目经历</h4>
+            <div v-for="(project, index) in resumeData.projects" :key="index" class="hover-timeline-item" v-show="project && project.name">
+              <div class="hover-timeline-dot"></div>
+              <div class="hover-timeline-content">
+                <div class="hover-timeline-header">
+                  <span class="hover-timeline-title">{{ project.name }}</span>
+                  <span class="hover-timeline-sub">{{ project.role || '' }}</span>
+                </div>
+                <div v-if="project.desc" class="hover-timeline-desc">{{ project.desc }}</div>
+              </div>
+            </div>
+          </div>
+          <div v-if="resumeData.skills && resumeData.skills.length > 0" class="hover-section">
+            <h4 class="hover-section-title"><span class="hover-title-bar"></span>专业技能</h4>
+            <div class="hover-skills">
+              <span v-for="skill in resumeData.skills" :key="skill" class="hover-skill-tag">{{ skill }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="hover-card-footer">
+          <span>点击查看完整简历 →</span>
+        </div>
+      </div>
+      <div v-else-if="!hasResume" class="resume-hover-card empty-hover-card">
+        <div class="hover-empty-icon">📄</div>
+        <div class="hover-empty-text">您还没有简历</div>
+        <div class="hover-empty-hint">点击按钮创建AI简历</div>
+      </div>
+    </div>
+  </transition>
 
   <div v-if="showResumeModal" class="resume-modal" @click.self="closeResume">
     <div class="resume-container">
@@ -1169,9 +1149,90 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { logout as authLogout, getAuthInfo } from '@/utils/auth'
+import { useGuestMode } from '@/composables/useGuestMode'
+import { generateAvatar, generateGuestName, getRandomAvatar } from '@/utils/avatar'
+
+import carouselImg1 from '@/assets/carousel/slide1-jobs.jpg'
+import carouselImg2 from '@/assets/carousel/slide2-skills.jpg'
+import carouselImg3 from '@/assets/carousel/slide3-salary.jpg'
+import carouselImg4 from '@/assets/carousel/slide4-cities.jpg'
+
+const carouselImages = {
+  jobs: carouselImg1,
+  skills: carouselImg2,
+  salary: carouselImg3,
+  cities: carouselImg4
+}
+
+const { refreshAuthState } = useGuestMode()
 let jobData = []
+
+const dataStatus = ref({ loading: false, lastUpdated: null, totalCount: 0, sources: {} })
+const dataInfo = ref({ lastUpdated: null })
+
+const fetchDataInfo = async () => {
+  try {
+    const resp = await fetch('/api/jobs/data-info')
+    if (resp.ok) {
+      const result = await resp.json()
+      if (result.success) {
+        dataStatus.value = {
+          loading: false,
+          lastUpdated: result.data.lastUpdated,
+          totalCount: result.data.totalCount,
+          sources: result.data.dataSources
+        }
+      }
+    }
+  } catch (e) {
+    // API不可用时保持静默
+  }
+}
+
+const refreshData = async () => {
+  dataStatus.value.loading = true
+  try {
+    const resp = await fetch('/api/jobs/reload', { method: 'POST' })
+    if (resp.ok) {
+      const result = await resp.json()
+      if (result.success) {
+        await fetchDataInfo()
+        // 重新加载岗位数据
+        const dataResp = await fetch('/data/all_cleaned_jobs.json')
+        if (dataResp.ok) {
+          jobData = await dataResp.json()
+          updateCarouselStats()
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('数据刷新失败:', e.message)
+  } finally {
+    dataStatus.value.loading = false
+  }
+}
+
+const updateCarouselStats = () => {
+  if (!jobData.length) return
+  const totalJobs = jobData.length
+  const avgSalary = Math.round(jobData.reduce((sum, job) => sum + (job.salary_avg || 0), 0) / totalJobs)
+  const cities = [...new Set(jobData.map(j => j.city))].length
+  carouselSlides.value[0] = {
+    icon: '📊',
+    title: '实时有效岗位',
+    desc: '当前市场最新岗位动态与趋势分析',
+    bgImage: carouselImages.jobs,
+    data1: { value: totalJobs.toLocaleString(), label: '有效岗位' },
+    data2: { value: cities, label: '覆盖城市' },
+    data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' },
+  }
+  carouselSlides.value[2].data3 = { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' }
+  carouselSlides.value[3].data1 = { value: totalJobs.toLocaleString(), label: '在招岗位' }
+  carouselSlides.value[3].data2 = { value: cities + '+', label: '覆盖城市' }
+}
 
 const router = useRouter()
 
@@ -1195,15 +1256,63 @@ const resumeData = ref(null)
 
 const showProfilePanel = ref(false)
 const activeProfileTab = ref('info')
+const route = useRoute()
 
 const userInfo = reactive({
-  name: '访客用户',
+  name: generateGuestName(),
   role: '普通用户',
   loginType: '游客登录',
   registerTime: '2026-07-27',
-  lastLogin: new Date().toLocaleString('zh-CN'),
+  lastLogin: formatLoginTime(new Date()),
   loginDays: 4
 })
+
+const loadUserInfo = () => {
+  const authData = getAuthInfo()
+  if (authData) {
+    // 登录用户
+    if (authData.name || authData.username) {
+      userInfo.name = authData.name || authData.username
+      userAvatar.value = generateAvatar(userInfo.name)
+      resumeAvatar.value = generateAvatar(userInfo.name)
+    }
+    if (authData.role) userInfo.role = authData.role
+    if (authData.loginType) {
+      const typeMap = { wechat: '微信登录', qq: 'QQ登录', email: '邮箱登录', guest: '游客登录', account: '账号登录' }
+      userInfo.loginType = typeMap[authData.loginType] || authData.loginType
+    }
+    if (authData.loginTime) {
+      userInfo.lastLogin = formatLoginTime(new Date(authData.loginTime))
+      const registerDate = new Date(authData.loginTime)
+      userInfo.registerTime = registerDate.toISOString().split('T')[0]
+    }
+    if (authData.loginCount) {
+      userInfo.loginDays = authData.loginCount
+    }
+  } else {
+    // 游客模式 - 为每个游客生成唯一名称和头像
+    const guestName = generateGuestName()
+    userInfo.name = guestName
+    userInfo.role = '普通用户'
+    userInfo.loginType = '游客登录'
+    userAvatar.value = generateAvatar(guestName)
+    resumeAvatar.value = generateAvatar(guestName)
+  }
+}
+
+// 监听路由变化，重新加载用户信息（处理从登录页跳转到Dashboard的场景）
+watch(() => route.path, (newPath) => {
+  if (newPath === '/dashboard') {
+    loadUserInfo()
+  }
+}, { immediate: false })
+
+function formatLoginTime(date) {
+  if (!date) return '-'
+  const d = new Date(date)
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
 
 const settings = reactive({
   darkMode: false,
@@ -1234,8 +1343,9 @@ const refreshProfileData = () => {
   try { profileFavorites.value = JSON.parse(localStorage.getItem('jobFavorites') || '[]') } catch { profileFavorites.value = [] }
   // 刷新投递记录
   try { appliedJobs.value = JSON.parse(localStorage.getItem('jobApplications') || '[]') } catch { appliedJobs.value = [] }
-  // 刷新简历
-  try { resumeSummary.value = JSON.parse(localStorage.getItem('resumeData') || '{}') } catch { resumeSummary.value = {} }
+  // 刷新简历（只读取用户隔离的数据）
+  const resumeStr = localStorage.getItem(getResumeStorageKey())
+  try { resumeSummary.value = JSON.parse(resumeStr || '{}') } catch { resumeSummary.value = {} }
   // 刷新学习进度
   const list = []
   for (let i = 0; i < localStorage.length; i++) {
@@ -1275,7 +1385,8 @@ const toggleProfilePanel = () => {
 // 编辑资料弹窗相关
 const showEditModal = ref(false)
 const avatarInputRef = ref(null)
-const userAvatar = ref(localStorage.getItem('userAvatar') || '')
+const userAvatar = ref(getRandomAvatar())
+const resumeAvatar = ref(getRandomAvatar())
 const editForm = reactive({
   name: '',
   role: '',
@@ -1357,8 +1468,43 @@ const formatFavoriteTime = (time) => {
   return favoriteDate.toLocaleDateString('zh-CN')
 }
 
+const showResumeHover = ref(false)
+
+// 获取当前用户的简历存储键（用户隔离）
+const getResumeStorageKey = () => {
+  const auth = getAuthInfo()
+  if (auth && auth.userId) {
+    return `resumeData_${auth.userId}`
+  }
+  return 'resumeData_guest'
+}
+
+const loadResumeData = () => {
+  // 只读取用户隔离的数据
+  const saved = localStorage.getItem(getResumeStorageKey())
+  if (saved) {
+    try {
+      resumeData.value = JSON.parse(saved)
+    } catch (e) {
+      resumeData.value = null
+    }
+  } else {
+    resumeData.value = null
+  }
+}
+
+const onResumeBtnEnter = async () => {
+  loadResumeData()
+  showResumeHover.value = true
+}
+
+const onResumeBtnLeave = () => {
+  showResumeHover.value = false
+}
+
 const openResume = () => {
-  const saved = localStorage.getItem('resumeData')
+  // 只读取用户隔离的数据
+  const saved = localStorage.getItem(getResumeStorageKey())
   if (saved) {
     try {
       resumeData.value = JSON.parse(saved)
@@ -1377,16 +1523,6 @@ const closeResume = () => {
 
 const goToVisualization = () => {
   router.push('/analytics')
-}
-
-const generateAvatar = (name) => {
-  const colors = ['#4a9eff', '#00d4aa', '#a855f7', '#f59e0b', '#ec4899', '#ef4444', '#10b981', '#3b82f6']
-  const color = colors[name.length % colors.length]
-  const initial = name.charAt(0)
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="${color}"/><text x="20" y="26" text-anchor="middle" fill="white" font-size="18" font-weight="600">${initial}</text></svg>`
-  const utf8Bytes = new TextEncoder().encode(svg)
-  const base64String = btoa(String.fromCharCode(...utf8Bytes))
-  return `data:image/svg+xml;base64,${base64String}`
 }
 
 const communitySourceData = [
@@ -1439,25 +1575,37 @@ const carouselSlides = ref([
     icon: '📊',
     title: '实时有效岗位',
     desc: '当前市场最新岗位动态与趋势分析',
+    bgImage: carouselImages.jobs,
     data1: { value: '加载中', label: '有效岗位' },
     data2: { value: '...', label: '覆盖城市' },
     data3: { value: '...', label: '平均薪资' },
   },
   {
     icon: '🎯',
-    title: '个性化学习路线',
-    desc: '基于AI智能推荐的学习路径规划',
+    title: '热门技能趋势',
+    desc: 'IT行业前沿技术与技能需求分析',
+    bgImage: carouselImages.skills,
     data1: { value: '9,856', label: '学习用户' },
     data2: { value: '98.2%', label: '匹配度' },
-    data3: { value: '128', label: '学习路径' },
+    data3: { value: '128', label: '技能标签' },
   },
   {
-    icon: '📈',
-    title: '战略人才统计',
-    desc: 'IT行业人才供需数据实时监控',
+    icon: '💰',
+    title: '薪资分布分析',
+    desc: 'IT行业薪资水平与增长趋势洞察',
+    bgImage: carouselImages.salary,
     data1: { value: '56,230', label: '人才储备' },
     data2: { value: '45.8%', label: '就业率' },
     data3: { value: '...', label: '平均薪资' },
+  },
+  {
+    icon: '🗺️',
+    title: '城市就业热度',
+    desc: '全国主要城市IT就业市场分布',
+    bgImage: carouselImages.cities,
+    data1: { value: '27,901', label: '在招岗位' },
+    data2: { value: '28+', label: '覆盖城市' },
+    data3: { value: '3大', label: '数据平台' },
   },
 ])
 
@@ -1527,6 +1675,8 @@ const navigateTo = (module) => {
 }
 
 const logout = () => {
+  authLogout()
+  refreshAuthState()
   router.push('/')
 }
 
@@ -1759,48 +1909,25 @@ onMounted(async () => {
     const response = await fetch('/data/all_cleaned_jobs.json')
     if (response.ok) {
       jobData = await response.json()
-      const totalJobs = jobData.length
-      const avgSalary = Math.round(jobData.reduce((sum, job) => sum + (job.salary_avg || 0), 0) / totalJobs)
-      const cities = [...new Set(jobData.map(j => j.city))].length
-      carouselSlides.value[0] = {
-        icon: '📊',
-        title: '实时有效岗位',
-        desc: '当前市场最新岗位动态与趋势分析',
-        data1: { value: totalJobs.toLocaleString(), label: '有效岗位' },
-        data2: { value: cities, label: '覆盖城市' },
-        data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' },
-      }
-      carouselSlides.value[2].data3 = { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' }
+      updateCarouselStats()
     }
   } catch (err) {
     console.warn('岗位数据加载失败:', err.message)
   }
+
+  fetchDataInfo()
   initBackground()
   
-  // 从auth_info加载用户资料
-  try {
-    const authData = JSON.parse(localStorage.getItem('auth_info') || '{}')
-    if (authData) {
-      if (authData.nickname) userInfo.name = authData.nickname
-      if (authData.loginType) {
-        const typeMap = { wechat: '微信登录', qq: 'QQ登录', email: '邮箱登录', guest: '游客登录' }
-        userInfo.loginType = typeMap[authData.loginType] || authData.loginType
-      }
-      if (authData.loginTime) {
-        userInfo.lastLogin = new Date(authData.loginTime).toLocaleString('zh-CN')
-        const registerDate = new Date(authData.loginTime)
-        userInfo.registerTime = registerDate.toISOString().split('T')[0]
-      }
-    }
-  } catch {}
+  // 使用新的loadUserInfo函数加载用户资料
+  loadUserInfo()
   
   // 兼容旧版本
   const savedName = localStorage.getItem('userName')
-  if (savedName) userInfo.name = savedName
+  if (savedName && userInfo.name === '访客用户') userInfo.name = savedName
   const savedRole = localStorage.getItem('userRole')
   if (savedRole) userInfo.role = savedRole
   const savedLoginType = localStorage.getItem('userLoginType')
-  if (savedLoginType) userInfo.loginType = savedLoginType
+  if (savedLoginType && userInfo.loginType === '游客登录') userInfo.loginType = savedLoginType
   
   refreshProfileData()
   
@@ -2020,6 +2147,70 @@ onUnmounted(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.top-bar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.data-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.25);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+}
+
+.data-status:hover {
+  background: rgba(74, 158, 255, 0.2);
+  border-color: rgba(74, 158, 255, 0.5);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00d4aa;
+  box-shadow: 0 0 8px #00d4aa;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.active {
+  background: #ffb547;
+  box-shadow: 0 0 8px #ffb547;
+  animation: pulse 0.8s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.status-text {
+  color: rgba(200, 220, 255, 0.8);
+  font-weight: 500;
+}
+
+.status-refresh {
+  color: rgba(74, 158, 255, 0.8);
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.status-refresh.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .logout-btn {
@@ -2754,10 +2945,11 @@ onUnmounted(() => {
   flex-shrink: 0;
   width: 46px;
   height: 46px;
-  border-radius: 12px;
+  border-radius: 50%;
   overflow: hidden;
   background: rgba(74, 158, 255, 0.12);
-  border: 1px solid rgba(74, 158, 255, 0.2);
+  border: 2px solid rgba(74, 158, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .post-avatar img {
@@ -2855,7 +3047,9 @@ onUnmounted(() => {
 .slide-card {
   width: 100%;
   height: 100%;
-  background: rgba(74, 158, 255, 0.08);
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
   border-radius: 12px;
   border: 1px solid rgba(74, 158, 255, 0.2);
   padding: 15px 25px;
@@ -2864,6 +3058,8 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .slide-icon {
@@ -2994,111 +3190,144 @@ onUnmounted(() => {
   to { transform: rotate(360deg); }
 }
 
-.resume-preview {
+.resume-summary {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 15px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(5, 12, 35, 0.6), rgba(8, 16, 42, 0.5));
+  border-radius: 12px;
+  border: 1px solid rgba(74, 158, 255, 0.15);
 }
 
-.resume-doc {
-  width: 100%;
-  max-width: 200px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  border: 1px solid rgba(74, 158, 255, 0.1);
-  padding: 12px;
-}
-
-.doc-header {
+.summary-header {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+  flex-direction: column;
+  gap: 4px;
 }
 
-.doc-icon {
-  font-size: 1.2rem;
-}
-
-.doc-header span {
-  font-size: 0.85rem;
+.summary-name {
   color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.summary-intention {
+  color: #4a9eff;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
-.doc-content {
+.summary-stats {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 8px;
+  background: rgba(74, 158, 255, 0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(74, 158, 255, 0.12);
 }
 
-.doc-line {
-  font-size: 0.75rem;
-  color: rgba(230, 241, 255, 0.8);
-  line-height: 1.4;
-  padding: 2px 0;
-}
-
-.doc-line-title {
-  font-weight: 600;
-  color: rgba(230, 241, 255, 0.95);
-  font-size: 0.8rem;
-}
-
-.doc-line.short {
-  font-size: 0.7rem;
-  color: rgba(230, 241, 255, 0.6);
-}
-
-.doc-skills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.doc-skill-tag {
-  display: inline-block;
-  padding: 2px 6px;
-  background: rgba(74, 158, 255, 0.2);
-  border: 1px solid rgba(74, 158, 255, 0.4);
-  border-radius: 4px;
-  font-size: 0.65rem;
-  color: rgba(74, 158, 255, 0.9);
-}
-
-.doc-skill-more {
-  font-size: 0.65rem;
-  color: rgba(230, 241, 255, 0.5);
-}
-
-.empty-doc .empty-content {
+.stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 3px;
+}
+
+.stat-value {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.68rem;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(74, 158, 255, 0.2);
+}
+
+.skill-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-chip {
+  padding: 3px 10px;
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 10px;
+  color: #4a9eff;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.skill-chip.more {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.skill-chips.empty-hint {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.avatar-hint {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: rgba(74, 158, 255, 0.8);
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.tech-avatar.cartoon:hover .avatar-hint {
+  opacity: 1;
+}
+
+.tech-avatar.cartoon svg {
+  filter: drop-shadow(0 4px 12px rgba(251, 191, 36, 0.3));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.tech-avatar.cartoon:hover svg {
+  transform: scale(1.05);
+  filter: drop-shadow(0 6px 16px rgba(251, 191, 36, 0.5));
+}
+
+.resume-avatar-img {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  filter: drop-shadow(0 4px 12px rgba(251, 191, 36, 0.3));
+  transition: transform 0.3s ease, filter 0.3s ease;
+  object-fit: cover;
+}
+
+.tech-avatar.cartoon:hover .resume-avatar-img {
+  transform: scale(1.05);
+  filter: drop-shadow(0 6px 16px rgba(251, 191, 36, 0.5));
+}
+
+.resume-avatar-section {
+  position: relative;
+  display: flex;
   justify-content: center;
-  padding: 10px 0;
-  gap: 4px;
-}
-
-.empty-resume-icon {
-  font-size: 1.5rem;
-  opacity: 0.6;
-}
-
-.empty-resume-text {
-  font-size: 0.8rem;
-  color: rgba(230, 241, 255, 0.7);
-  margin: 0;
-}
-
-.empty-resume-hint {
-  font-size: 0.65rem;
-  color: rgba(230, 241, 255, 0.4);
-  margin: 0;
 }
 
 .resume-btn {
@@ -3117,6 +3346,328 @@ onUnmounted(() => {
 .resume-btn:hover {
   background: rgba(74, 158, 255, 0.4);
   box-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+}
+
+.resume-btn.primary {
+  background: linear-gradient(135deg, #4a9eff 0%, #2563eb 100%);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.resume-btn.primary:hover {
+  background: linear-gradient(135deg, #5aaeff 0%, #3573fb 100%);
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.resume-btn.primary:hover svg {
+  transform: translateX(3px);
+}
+
+.resume-btn.primary svg {
+  transition: transform 0.3s ease;
+}
+
+.resume-btn-wrapper {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+}
+
+.resume-hover-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.resume-hover-card {
+  width: 85vw;
+  max-width: 720px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #1a2332 0%, #0d1520 100%);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5), 0 0 40px rgba(74, 158, 255, 0.15);
+  pointer-events: auto;
+}
+
+.hover-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: linear-gradient(90deg, rgba(74, 158, 255, 0.15), transparent);
+  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.hover-card-title {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.hover-card-badge {
+  background: rgba(74, 158, 255, 0.2);
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  color: #4a9eff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.hover-card-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.hover-card-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hover-card-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.hover-card-body::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.4);
+  border-radius: 3px;
+}
+
+.hover-section {
+  margin-bottom: 20px;
+}
+
+.hover-section-title {
+  display: flex;
+  align-items: center;
+  color: #4a9eff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+.hover-title-bar {
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: #4a9eff;
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.hover-name-row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.hover-avatar {
+  width: 72px;
+  height: 72px;
+  border: 2px solid rgba(74, 158, 255, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.hover-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hover-avatar-ph {
+  border-radius: 8px;
+}
+
+.hover-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hover-name-info {
+  flex: 1;
+}
+
+.hover-name {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.hover-intention {
+  color: #4a9eff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.hover-contact {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hover-contact span {
+  background: rgba(74, 158, 255, 0.1);
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.hover-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: center;
+}
+
+.hover-item {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.hover-item-light {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+}
+
+.hover-timeline-item {
+  position: relative;
+  padding-left: 16px;
+  border-left: 2px solid rgba(74, 158, 255, 0.3);
+  margin-bottom: 10px;
+}
+
+.hover-timeline-dot {
+  position: absolute;
+  left: -7px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  background: #4a9eff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+}
+
+.hover-timeline-content {
+  padding-left: 4px;
+}
+
+.hover-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.hover-timeline-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.hover-timeline-sub {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+}
+
+.hover-timeline-desc {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.hover-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hover-skill-tag {
+  padding: 4px 12px;
+  background: rgba(74, 158, 255, 0.15);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 12px;
+  color: #4a9eff;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.hover-card-footer {
+  padding: 12px 24px;
+  background: rgba(74, 158, 255, 0.08);
+  border-top: 1px solid rgba(74, 158, 255, 0.15);
+  text-align: center;
+  color: rgba(74, 158, 255, 0.8);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.empty-hover-card {
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.hover-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.hover-empty-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.hover-empty-hint {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.hover-fade-enter-active,
+.hover-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.hover-fade-enter-from,
+.hover-fade-leave-to {
+  opacity: 0;
+}
+
+.hover-fade-enter-to,
+.hover-fade-leave-from {
+  opacity: 1;
 }
 
 /* ===== 3D Immersive Zone ===== */

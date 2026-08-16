@@ -12,3 +12,5 @@ job_crawler/job51_userdata/
 job_crawler/liepin_userdata/
 job_crawler/zhaopin_userdata/
 my-vue3/
+job_crawler/debug_html/
+job_crawler/*.csv

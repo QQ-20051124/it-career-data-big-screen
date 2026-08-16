@@ -23,15 +23,51 @@ const getDistanceScore = (jobCity, userCity) => {
 }
 
 let jobData = []
+let lastUpdated = null
 
 const initData = async () => {
   try {
     const rawData = await fs.readFile(dataFilePath, 'utf-8')
     jobData = JSON.parse(rawData)
+    lastUpdated = new Date().toISOString()
     console.log(`Loaded ${jobData.length} job records`)
   } catch (error) {
     console.error('Error loading job data:', error)
     jobData = []
+  }
+}
+
+const reloadData = async () => {
+  try {
+    const rawData = await fs.readFile(dataFilePath, 'utf-8')
+    const newData = JSON.parse(rawData)
+    const oldCount = jobData.length
+    jobData = newData
+    lastUpdated = new Date().toISOString()
+    const added = newData.length - oldCount
+    return {
+      success: true,
+      oldCount,
+      newCount: newData.length,
+      added: added > 0 ? added : 0,
+      lastUpdated
+    }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+}
+
+const getDataInfo = () => {
+  const sources = {}
+  jobData.forEach(job => {
+    const src = job.data_source || '未知'
+    sources[src] = (sources[src] || 0) + 1
+  })
+  return {
+    totalCount: jobData.length,
+    dataSources: sources,
+    lastUpdated,
+    dataFilePath
   }
 }
 
@@ -329,6 +365,8 @@ const getJobTrends = (days = 30) => {
 
 module.exports = {
   initData,
+  reloadData,
+  getDataInfo,
   searchJobs,
   getJobById,
   getCategories,

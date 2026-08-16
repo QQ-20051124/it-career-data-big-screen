@@ -984,7 +984,7 @@
                   <div><span class="label">籍贯：</span>{{ formData.origin || '未填写' }}</div>
                   <div><span class="label">现居地：</span>{{ formData.residence || '未填写' }}</div>
                   <div><span class="label">联系电话：</span>{{ formData.phone || '未填写' }}</div>
-                  <div><span class="label">邮箱：</span>{{ formData.email && formData.emailType ? formData.email + '@' + formData.emailType + '.com' : (formData.email ? formData.email : '未填写') }}</div>
+                  <div class="email-item"><span class="label">邮箱：</span><span class="email-text">{{ formData.email && formData.emailType ? formData.email + '@' + formData.emailType + '.com' : (formData.email ? formData.email : '未填写') }}</span></div>
                 </div>
               </div>
               <div class="photo-section">
@@ -1135,8 +1135,18 @@ import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { Document, Packer, Paragraph, TextRun, AlignmentType, Table, TableRow, TableCell, ShadingType, WidthType, BorderStyle, ImageRun, HeightRule } from 'docx'
 import html2pdf from 'html2pdf.js'
+import { getAuthInfo } from '@/utils/auth'
 
 const router = useRouter()
+
+// 获取当前用户的简历存储键（用户隔离）
+const getResumeStorageKey = () => {
+  const auth = getAuthInfo()
+  if (auth && auth.userId) {
+    return `resumeData_${auth.userId}`
+  }
+  return 'resumeData_guest'
+}
 
 const goBack = () => {
   router.push('/dashboard')
@@ -1551,7 +1561,7 @@ const smartOptimizeResume = async () => {
     applyAiOptimizations(result)
     activeAiTab.value = 2
     
-    localStorage.setItem('resumeData', JSON.stringify(formData.value))
+    localStorage.setItem(getResumeStorageKey(), JSON.stringify(formData.value))
     
     aiOptimizationHistory.value.push({
       timestamp: new Date().toLocaleString(),
@@ -1646,7 +1656,7 @@ const smartOptimizeResume = async () => {
       }
     }
     
-    localStorage.setItem('resumeData', JSON.stringify(formData.value))
+    localStorage.setItem(getResumeStorageKey(), JSON.stringify(formData.value))
     
     setTimeout(() => {
       if (optimizations.length > 0) {
@@ -1697,7 +1707,7 @@ const applyAiOptimizations = (result) => {
   }
   
   // 保存简历数据
-  localStorage.setItem('resumeData', JSON.stringify(formData.value))
+  localStorage.setItem(getResumeStorageKey(), JSON.stringify(formData.value))
   
   // 显示优化结果
   if (optimizations.length > 0) {
@@ -1723,7 +1733,7 @@ const applyRewrite = (type, content) => {
   formData.value[field] = content
   
   // 保存到本地
-  localStorage.setItem('resumeData', JSON.stringify(formData.value))
+  localStorage.setItem(getResumeStorageKey(), JSON.stringify(formData.value))
   
   // 显示提示
   setTimeout(() => {
@@ -2264,7 +2274,7 @@ const calculateCompletionRate = () => {
 }
 
 const handleSaveNext = () => {
-  localStorage.setItem('resumeData', JSON.stringify(formData.value))
+  localStorage.setItem(getResumeStorageKey(), JSON.stringify(formData.value))
   
   if (currentStep.value < steps.length - 1) {
     currentStep.value++
@@ -2274,7 +2284,7 @@ const handleSaveNext = () => {
 const showResume = ref(false)
 
 const generateResume = () => {
-  localStorage.setItem('resumeData', JSON.stringify(formData.value))
+  localStorage.setItem(getResumeStorageKey(), JSON.stringify(formData.value))
   showResume.value = true
 }
 
@@ -2868,17 +2878,17 @@ onMounted(() => {
     }
   }
   
-  // 读取已保存的简历数据
-  const savedResume = localStorage.getItem('resumeData')
+  // 读取已保存的简历数据（使用用户隔离的存储键）
+  const savedResume = localStorage.getItem(getResumeStorageKey())
   if (savedResume) {
     try {
       const resumeData = JSON.parse(savedResume)
-      // 保留已有的简历数据
       Object.assign(formData.value, resumeData)
     } catch (e) {
       console.error('Failed to parse resume data:', e)
     }
   }
+  // 注意：不再自动迁移旧的resumeData，避免不同用户看到相同数据
 
   const particles = []
   for (let i = 0; i < 60; i++) {
@@ -6106,7 +6116,7 @@ onUnmounted(() => {
 }
 
 .section {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -6180,19 +6190,19 @@ onUnmounted(() => {
 }
 
 .personal-header {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .name-title h2 {
   font-size: 24px;
   font-weight: 700;
-  color: #2c3e50;
+  color: #222;
   margin: 0 0 6px 0;
 }
 
 .name-title p {
   font-size: 14px;
-  color: #d4a853;
+  color: #555;
   font-weight: 500;
   margin: 0;
 }
@@ -6206,7 +6216,16 @@ onUnmounted(() => {
 .info-grid div {
   font-size: 13px;
   line-height: 1.8;
-  color: #555;
+  color: #333;
+}
+
+.info-grid .email-item {
+  grid-column: 1 / -1;
+  white-space: nowrap;
+}
+
+.info-grid .email-text {
+  word-break: break-all;
 }
 
 .label {
@@ -6216,7 +6235,7 @@ onUnmounted(() => {
 
 .timeline-item {
   position: relative;
-  padding: 12px 20px;
+  padding: 6px 20px;
   border-bottom: 1px dashed #e0e0e0;
 }
 
@@ -6239,7 +6258,7 @@ onUnmounted(() => {
 .timeline-header .title {
   font-size: 15px;
   font-weight: 700;
-  color: #2c3e50;
+  color: #333;
 }
 
 .timeline-header .time {
@@ -6262,12 +6281,12 @@ onUnmounted(() => {
 
 .section > .timeline-item,
 .section > div > .timeline-item {
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .section > *:not(h3) {
-  padding: 16px 20px;
+  padding: 8px 20px;
 }
 
 .skills-container {
@@ -6377,7 +6396,7 @@ onUnmounted(() => {
   align-items: flex-start;
   gap: 24px;
   background: #f8f9fa;
-  padding: 24px;
+  padding: 16px;
   border-radius: 8px;
 }
 
@@ -6386,22 +6405,20 @@ onUnmounted(() => {
 }
 
 .personal-header {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #4a9eff;
+  margin-bottom: 8px;
 }
 
 .name-title h2 {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 700;
-  color: #2c3e50;
-  margin: 0 0 8px 0;
+  color: #222;
+  margin: 0 0 4px 0;
 }
 
 .name-title p {
-  font-size: 16px;
-  color: #4a9eff;
-  font-weight: 600;
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
   margin: 0;
 }
 
@@ -6411,16 +6428,16 @@ onUnmounted(() => {
 
 .resume-photo {
   width: 120px;
-  height: 160px;
+  height: 150px;
   object-fit: cover;
   border-radius: 4px;
-  border: 1px solid #eee;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .photo-placeholder-resume {
   width: 120px;
-  height: 160px;
+  height: 150px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -6431,13 +6448,22 @@ onUnmounted(() => {
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 12px;
 }
 
 .info-grid div {
-  font-size: 14px;
-  line-height: 1.8;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.info-grid .email-item {
+  grid-column: 1 / -1;
+}
+
+.info-grid .email-text {
+  word-break: break-all;
 }
 
 @media print {

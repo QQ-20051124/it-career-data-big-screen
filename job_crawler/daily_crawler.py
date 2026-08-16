@@ -48,9 +48,6 @@ JOB51_USERDATA_DIR.mkdir(parents=True, exist_ok=True)
 # 猎聘、前程无忧的关键词（可改）
 KEYWORDS = ["计算机"]
 
-# False=显示浏览器（可观察过程），True=无界面静默运行
-HEADLESS = False
-
 # 登录超时（秒），超时跳过该网站，不阻塞后续
 LOGIN_TIMEOUT = 120
 
@@ -64,7 +61,17 @@ FORCE_RELOGIN = False
 DAILY_CRAWL_TIMES = ["08:00", "20:00"]
 
 # 是否启用定时任务（True=启用定时，False=立即执行一次后退出）
-ENABLE_SCHEDULER = False
+ENABLE_SCHEDULER = True
+
+# ================== 运行模式 ==================
+# HEADLESS = False: 显示浏览器窗口（可观察，推荐用于首次调试）
+# HEADLESS = True: 无界面静默运行（适合后台定时任务，但可能被反爬）
+HEADLESS = False
+
+# ================== 调试模式 ==================
+# DEBUG_SAVE_HTML = True: 保存页面HTML用于调试
+# DEBUG_SAVE_HTML = False: 不保存HTML
+DEBUG_SAVE_HTML = True
 
 # ================== 数据库初始化 ==================
 def init_db():
@@ -103,6 +110,28 @@ def init_db():
     logger.info("数据库初始化完成")
 
 # ================== 保存函数 ==================
+def parse_salary_to_avg(salary_str):
+    if not salary_str or salary_str.strip() in ('', '面议'):
+        return 0
+    import re
+    m = re.search(r'([\d.]+)\s*-?\s*([\d.]+)?\s*(万|千)?', salary_str)
+    if not m:
+        return 0
+    lo = float(m.group(1))
+    hi = float(m.group(2)) if m.group(2) else lo
+    unit = m.group(3) or ''
+    mult = 10000 if unit == '万' else 1000 if unit == '千' else 1
+    return round((lo + hi) / 2 * mult)
+
+
+def extract_city(city_str):
+    if not city_str:
+        return ''
+    import re
+    parts = re.split(r'[·\-]', city_str)
+    return parts[0].strip()
+
+
 def save_all_data(all_jobs, date_str):
     if not all_jobs:
         logger.warning("没有获取到任何数据")
@@ -141,6 +170,61 @@ def save_all_data(all_jobs, date_str):
     conn.close()
     logger.info(f"数据库新增 {insert_count} 条（重复已跳过）")
     print(f"[OK] 数据库新增 {insert_count} 条（重复已跳过）")
+
+    # 自动合并到系统JSON数据
+    merge_to_system_json(all_jobs)
+
+
+def merge_to_system_json(all_jobs):
+    """将爬虫数据转换格式并合并到系统数据中"""
+    project_root = BASE_DIR.parent
+    json_path = project_root / "backend" / "data" / "all_cleaned_jobs.json"
+
+    if not json_path.exists():
+        logger.warning(f"系统数据文件不存在: {json_path}")
+        print(f"[WARN] 系统数据文件不存在: {json_path}")
+        return
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        existing_data = json.load(f)
+
+    existing_keys = set()
+    for item in existing_data:
+        key = f"{item.get('data_source', '')}|{item.get('job_name', '')}|{item.get('company', '')}|{item.get('city', '')}"
+        existing_keys.add(key)
+
+    added = 0
+    duplicates = 0
+    for job in all_jobs:
+        key = f"{job['数据来源']}|{job['岗位名称']}|{job['公司名称']}|{extract_city(job['城市'])}"
+        if key in existing_keys:
+            duplicates += 1
+            continue
+        existing_keys.add(key)
+        existing_data.append({
+            "job_name": job['岗位名称'],
+            "city": extract_city(job['城市']),
+            "education": job['学历要求'] or "不限",
+            "work_exp": job['经验要求'] or "不限",
+            "company": job['公司名称'],
+            "salary_avg": parse_salary_to_avg(job['薪资']),
+            "data_source": job['数据来源']
+        })
+        added += 1
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(existing_data, f, ensure_ascii=False, indent=2)
+
+    logger.info(f"合并到系统数据: 新增 {added} 条, 跳过重复 {duplicates} 条, 总计 {len(existing_data)} 条")
+    print(f"[OK] 合并到系统数据: 新增 {added} 条, 跳过重复 {duplicates} 条, 总计 {len(existing_data)} 条")
+
+    # 同步到其他位置
+    for rel_path in ["public/data/all_cleaned_jobs.json", "dist/data/all_cleaned_jobs.json", "src/assets/all_cleaned_jobs.json"]:
+        target = project_root / rel_path
+        if target.parent.exists():
+            with open(target, "w", encoding="utf-8") as f:
+                json.dump(existing_data, f, ensure_ascii=False, indent=2)
+            print(f"[OK] 已同步: {rel_path}")
 
 # ================== 智联自动登录检测 ==================
 def wait_for_zhaopin_login(page, timeout=LOGIN_TIMEOUT):
@@ -245,6 +329,34 @@ def crawl_zhaopin(keyword="计算机"):
                 print("[WARN] 未找到岗位列表，尝试刷新")
                 page.reload(wait_until="domcontentloaded")
                 time.sleep(5)
+                
+                # 调试：保存HTML分析
+                if DEBUG_SAVE_HTML:
+                    debug_dir = BASE_DIR / "debug_html"
+                    debug_dir.mkdir(exist_ok=True)
+                    html_content = page.content()
+                    with open(debug_dir / "zhaopin_search.html", "w", encoding="utf-8") as f:
+                        f.write(html_content)
+                    logger.info(f"[DEBUG] 智联搜索页HTML已保存到 debug_html/zhaopin_search.html ({len(html_content)} bytes)")
+                    print(f"[DEBUG] 智联搜索页HTML已保存")
+                
+                # 输出页面中所有class包含job的元素
+                try:
+                    job_elements = page.locator("[class*='job']")
+                    count = job_elements.count()
+                    logger.info(f"[DEBUG] 页面中包含job的元素数量: {count}")
+                    if count > 0:
+                        for i in range(min(count, 10)):
+                            el = job_elements.nth(i)
+                            try:
+                                cls = el.get_attribute("class") or ""
+                                tag = el.evaluate("el => el.tagName")
+                                logger.info(f"[DEBUG] job元素{i}: tag={tag}, class={cls[:100]}")
+                            except:
+                                pass
+                except:
+                    pass
+                
                 for selector in selectors_to_try:
                     try:
                         if page.locator(selector).count() > 0:
@@ -531,16 +643,30 @@ def crawl_liepin(keyword):
                 pass
 
             api_data = []
+            api_responses = []  # 存储所有API响应用于调试
             def capture_api(response):
-                if 'com.liepin.searchfront4c.pc-search-job' in response.url:
+                # 捕获所有搜索相关的API
+                if 'search' in response.url.lower() or 'job' in response.url.lower():
                     try:
                         data = response.json()
-                        if 'data' in data and 'data' in data['data'] and 'jobCardList' in data['data']['data']:
-                            api_data.append(data)
+                        api_responses.append({"url": response.url, "data": data})
+                        if 'com.liepin.searchfront4c.pc-search-job' in response.url:
+                            if 'data' in data and 'data' in data['data'] and 'jobCardList' in data['data']['data']:
+                                api_data.append(data)
+                                logger.info(f"[DEBUG] 捕获到猎聘搜索API: {response.url[:80]}")
                     except:
                         pass
 
             page.on('response', capture_api)
+            
+            # 打开搜索页面前先保存HTML
+            if DEBUG_SAVE_HTML:
+                debug_dir = BASE_DIR / "debug_html"
+                debug_dir.mkdir(exist_ok=True)
+                html_content = page.content()
+                with open(debug_dir / "liepin_search_page1.html", "w", encoding="utf-8") as f:
+                    f.write(html_content)
+                logger.info(f"[DEBUG] 猎聘搜索页HTML已保存 ({len(html_content)} bytes)")
 
             for page_num in range(1, 11):
                 logger.info(f"猎聘 {keyword} 第 {page_num} 页...")
@@ -567,6 +693,28 @@ def crawl_liepin(keyword):
                             "学历要求": job_info.get('requireEduLevel', ''),
                             "公司名称": comp_info.get('compName', ''),
                         })
+                else:
+                    # 调试：如果没有获取到API数据，检查api_responses
+                    if page_num == 1 and api_responses:
+                        logger.warning(f"[DEBUG] 第1页未获取到搜索API数据，但捕获了 {len(api_responses)} 个其他API响应")
+                        for i, resp in enumerate(api_responses[:3]):
+                            logger.info(f"[DEBUG] API响应{i}: url={resp['url'][:100]}")
+                            if 'data' in resp['data']:
+                                data_keys = list(resp['data'].keys())[:5]
+                                logger.info(f"[DEBUG] 数据key: {data_keys}")
+                    elif page_num == 1:
+                        logger.warning("[DEBUG] 第1页未捕获到任何搜索相关API响应")
+                        # 尝试直接解析页面DOM
+                        try:
+                            job_cards = page.locator('.job-card, .job-card-box, [class*="jobCard"]')
+                            dom_count = job_cards.count()
+                            logger.info(f"[DEBUG] 页面DOM中job卡片数量: {dom_count}")
+                            if dom_count > 0:
+                                for i in range(min(dom_count, 3)):
+                                    card_html = job_cards.nth(i).evaluate("el => el.outerHTML.substring(0, 300)")
+                                    logger.info(f"[DEBUG] 卡片{i} HTML: {card_html}")
+                        except Exception as e:
+                            logger.info(f"[DEBUG] DOM解析失败: {e}")
 
                 if page_num < 10:
                     page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
@@ -699,11 +847,25 @@ def crawl_51job(keyword):
                             page.goto(url, wait_until="networkidle", timeout=60000)
                             time.sleep(5)
                         else:
-                            # 如果找不到全国选项，提示用户手动选择
-                            logger.warning("未能自动找到全国选项，请手动选择")
-                            print("[WARN] 未能自动找到全国选项，请手动选择")
-                            print("[INFO] 请在浏览器中点击地区选择框，选择'全国'后按回车继续...")
-                            input("请手动选择全国地区后按回车继续...")
+                            # 如果找不到全国选项，尝试等待用户在浏览器中操作
+                            logger.warning("未能自动找到全国选项，等待用户在浏览器中选择")
+                            print("[WARN] 未能自动找到全国选项")
+                            print("[INFO] 请在浏览器中手动点击地区，选择'全国'")
+                            print("[INFO] 程序将等待30秒...")
+                            
+                            # 等待一段时间让用户在浏览器中操作
+                            wait_start = time.time()
+                            while time.time() - wait_start < 30:
+                                # 检查是否选择成功
+                                try:
+                                    current_url = page.url
+                                    if "全国" in page.content() or "area=0" in current_url:
+                                        logger.info("检测到全国地区选择成功")
+                                        print("[OK] 检测到全国地区选择成功")
+                                        break
+                                except:
+                                    pass
+                                time.sleep(2)
                             
                             # 重新加载页面
                             page.goto(url, wait_until="networkidle", timeout=60000)
@@ -714,8 +876,21 @@ def crawl_51job(keyword):
                 except Exception as e:
                     logger.error(f"自动选择地区失败: {e}")
                     print(f"[FAIL] 自动选择地区失败: {e}")
-                    print("[INFO] 请手动选择全国地区后按回车继续...")
-                    input("请手动选择全国地区后按回车继续...")
+                    print("[INFO] 请在浏览器中手动选择全国地区")
+                    print("[INFO] 程序将等待30秒...")
+                    
+                    # 等待一段时间让用户在浏览器中操作
+                    wait_start = time.time()
+                    while time.time() - wait_start < 30:
+                        try:
+                            current_url = page.url
+                            if "全国" in page.content() or "area=0" in current_url:
+                                logger.info("检测到全国地区选择成功")
+                                print("[OK] 检测到全国地区选择成功")
+                                break
+                        except:
+                            pass
+                        time.sleep(2)
                     
                     # 重新加载页面
                     page.goto(url, wait_until="networkidle", timeout=60000)
@@ -742,6 +917,34 @@ def crawl_51job(keyword):
             # 解析页面数据
             job_cards = page.locator('.job-item, .joblist-item, .el-card')
             card_count = job_cards.count()
+            
+            # 调试：如果找不到卡片，保存HTML并尝试其他选择器
+            if card_count == 0 and DEBUG_SAVE_HTML:
+                debug_dir = BASE_DIR / "debug_html"
+                debug_dir.mkdir(exist_ok=True)
+                html_content = page.content()
+                with open(debug_dir / "51job_search.html", "w", encoding="utf-8") as f:
+                    f.write(html_content)
+                logger.info(f"[DEBUG] 前程无忧搜索页HTML已保存 ({len(html_content)} bytes)")
+                print(f"[DEBUG] 前程无忧搜索页HTML已保存到 debug_html/51job_search.html")
+                
+                # 尝试其他选择器
+                alternative_selectors = [
+                    '.job-list-item', '.job-card', '.list-item', 
+                    '[class*="job-list"]', '[class*="JobCard"]',
+                    '.j_jobbox', '.job-box', '.item'
+                ]
+                for alt_sel in alternative_selectors:
+                    try:
+                        alt_count = page.locator(alt_sel).count()
+                        if alt_count > 0:
+                            logger.info(f"[DEBUG] 选择器 {alt_sel} 找到 {alt_count} 个元素")
+                            # 尝试第一个元素的结构
+                            if alt_count > 0:
+                                sample_html = page.locator(alt_sel).first.evaluate("el => el.outerHTML.substring(0, 500)")
+                                logger.info(f"[DEBUG] 示例元素HTML: {sample_html}")
+                    except:
+                        pass
             
             if card_count > 0:
                 logger.info(f"从页面获取到 {card_count} 条数据")
@@ -899,16 +1102,40 @@ def scheduler_thread():
         time.sleep(1)
 
 def main():
-    run_crawler()
+    logger.info("=" * 50)
+    logger.info("IT岗位爬虫系统启动")
+    logger.info(f"定时任务配置: {DAILY_CRAWL_TIMES}")
+    logger.info(f"运行模式: {'定时模式' if ENABLE_SCHEDULER else '单次执行模式'}")
+    logger.info(f"浏览器模式: {'无界面(后台)' if HEADLESS else '有界面(可观察)'}")
+    logger.info("=" * 50)
+    
     if ENABLE_SCHEDULER:
+        # 启动时立即执行一次
+        logger.info("首次启动，立即执行一次爬取...")
+        print("\n[INIT] 首次启动执行爬取...")
+        run_crawler()
+        
+        # 设置每日定时任务
         for t in DAILY_CRAWL_TIMES:
             schedule.every().day.at(t).do(run_crawler)
             logger.info(f"已设置每日 {t} 自动爬取")
-        logger.info("定时任务调度器已启动")
-        print("\n[WAIT] 定时任务已启动，等待下次执行时间...")
+            print(f"[OK] 已设置每日 {t} 自动爬取")
+        
+        logger.info("定时任务调度器已启动，等待下次执行时间...")
+        print("\n" + "=" * 50)
+        print("[WAIT] 定时任务调度器已启动")
+        print(f"[NEXT] 下次执行时间: {', '.join(DAILY_CRAWL_TIMES)}")
+        print("[INFO] 按 Ctrl+C 停止")
+        print("=" * 50 + "\n")
+        
         t = threading.Thread(target=scheduler_thread, daemon=True)
         t.start()
         t.join()
+    else:
+        # 单次执行模式
+        logger.info("单次执行模式，开始爬取...")
+        run_crawler()
+        logger.info("任务完成，程序退出")
 
 if __name__ == "__main__":
     main()

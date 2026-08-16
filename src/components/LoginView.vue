@@ -96,22 +96,8 @@
         <div class="brand-section">
           <div ref="globeContainer" class="globe-container"></div>
           <div class="brand-text-wrapper">
-            <div class="title-globe">
-              <div class="globe-core"></div>
-              <div class="globe-ring ring-1"></div>
-              <div class="globe-ring ring-2"></div>
-              <div class="globe-glow"></div>
-              <div class="globe-particles">
-                <div class="particle p1"></div>
-                <div class="particle p2"></div>
-                <div class="particle p3"></div>
-                <div class="particle p4"></div>
-                <div class="particle p5"></div>
-              </div>
-            </div>
             <h1 class="brand-title">计程·职道</h1>
-            <div class="title-glow"></div>
-            <div class="title-border"></div>
+            <div class="title-accent"></div>
           </div>
           <div class="brand-features">
             <div class="feature-item">
@@ -156,11 +142,6 @@
 
       <div class="right-panel">
         <div ref="loginCard" class="login-card" @mousemove="handleCardMouseMove" @mouseleave="handleCardMouseLeave">
-          <div class="card-corner top-left"></div>
-          <div class="card-corner top-right"></div>
-          <div class="card-corner bottom-left"></div>
-          <div class="card-corner bottom-right"></div>
-
           <div class="ai-network-bg">
             <svg class="network-svg" viewBox="0 0 400 500">
               <line v-for="link in networkLinks" :key="link.id" 
@@ -208,40 +189,128 @@
               <p>登录您的AI职业导航空间</p>
             </div>
 
-            <form class="login-form" @submit.prevent="handleLogin">
-              <div class="input-group" @focus="focusedInput = 'username'" @blur="focusedInput = null">
-                <div class="input-glow"></div>
-                <div class="input-ring"></div>
-                <div class="input-icon">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                </div>
-                <input type="email" v-model="form.username" placeholder="请输入邮箱" required />
-                <div class="input-status-dot"></div>
-              </div>
+            <!-- 登录方式切换 -->
+            <div class="login-tabs">
+              <button 
+                class="login-tab" 
+                :class="{ active: loginMethod === 'password' }"
+                @click="switchLoginMethod('password')"
+              >
+                <i class="fa-solid fa-key"></i>
+                账号密码
+              </button>
+              <button 
+                class="login-tab" 
+                :class="{ active: loginMethod === 'phone' }"
+                @click="switchLoginMethod('phone')"
+              >
+                <i class="fa-solid fa-mobile-screen"></i>
+                手机验证码
+              </button>
+            </div>
 
-              <div class="input-group" @focus="focusedInput = 'password'" @blur="focusedInput = null">
-                <div class="input-glow"></div>
-                <div class="input-ring"></div>
-                <div class="input-icon">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
+            <form class="login-form" @submit.prevent="handleLogin">
+              <!-- 账号密码登录 -->
+              <template v-if="loginMethod === 'password'">
+                <div class="input-group" :class="usernameStatus" @focus="focusedInput = 'username'" @blur="focusedInput = null">
+                  <div class="input-glow"></div>
+                  <div class="input-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                  </div>
+                  <input 
+                    type="email" 
+                    v-model="form.username" 
+                    placeholder="请输入邮箱" 
+                    @input="validateUsername"
+                  />
+                  <div class="input-status-icon">
+                    <i v-if="usernameStatus === 'success'" class="fa-solid fa-check"></i>
+                    <i v-else-if="usernameStatus === 'error'" class="fa-solid fa-circle-exclamation"></i>
+                  </div>
                 </div>
-                <input :type="showPassword ? 'text' : 'password'" v-model="form.password" placeholder="密码" required />
-                <div class="toggle-pwd" @click="showPassword = !showPassword">
-                  <svg v-if="!showPassword" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                  <svg v-else viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.58 18.58 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.58 18.58 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1 4.24 4.24"/>
-                  </svg>
+                <div v-if="usernameError" class="field-error">{{ usernameError }}</div>
+
+                <div class="input-group" :class="passwordStatus" @focus="focusedInput = 'password'" @blur="focusedInput = null">
+                  <div class="input-glow"></div>
+                  <div class="input-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  </div>
+                  <input 
+                    :type="showPassword ? 'text' : 'password'" 
+                    v-model="form.password" 
+                    placeholder="密码" 
+                    @input="validatePassword"
+                  />
+                  <div class="toggle-pwd" @click="showPassword = !showPassword">
+                    <svg v-if="!showPassword" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg v-else viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.58 18.58 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.58 18.58 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1 4.24 4.24"/>
+                    </svg>
+                  </div>
                 </div>
-              </div>
+                <div v-if="passwordError" class="field-error">{{ passwordError }}</div>
+              </template>
+
+              <!-- 手机验证码登录 -->
+              <template v-else>
+                <div class="input-group" :class="phoneStatus" @focus="focusedInput = 'phone'" @blur="focusedInput = null">
+                  <div class="input-glow"></div>
+                  <div class="input-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                      <line x1="12" y1="18" x2="12.01" y2="18"/>
+                    </svg>
+                  </div>
+                  <input 
+                    type="tel" 
+                    v-model="phoneForm.phone" 
+                    placeholder="请输入手机号" 
+                    maxlength="11"
+                    @input="validatePhone"
+                  />
+                  <div class="input-status-icon">
+                    <i v-if="phoneStatus === 'success'" class="fa-solid fa-check"></i>
+                    <i v-else-if="phoneStatus === 'error'" class="fa-solid fa-circle-exclamation"></i>
+                  </div>
+                </div>
+                <div v-if="phoneError" class="field-error">{{ phoneError }}</div>
+
+                <div class="input-group" :class="codeStatus" @focus="focusedInput = 'code'" @blur="focusedInput = null">
+                  <div class="input-glow"></div>
+                  <div class="input-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                      <path d="M2 17l10 5 10-5"/>
+                      <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                  </div>
+                  <input 
+                    type="text" 
+                    v-model="phoneForm.code" 
+                    placeholder="请输入验证码" 
+                    maxlength="6"
+                    @input="validateCode"
+                  />
+                  <button 
+                    type="button" 
+                    class="send-code-btn"
+                    :disabled="codeCountdown > 0 || !isPhoneValid"
+                    @click="sendVerificationCode"
+                  >
+                    {{ codeCountdown > 0 ? `${codeCountdown}s 后重试` : '获取验证码' }}
+                  </button>
+                </div>
+                <div v-if="codeError" class="field-error">{{ codeError }}</div>
+              </template>
 
               <div class="form-options">
                 <label class="checkbox">
@@ -256,7 +325,7 @@
                 <span class="btn-pulse"></span>
                 <span class="btn-wave"></span>
                 <span v-if="loading" class="spinner"></span>
-                {{ loading ? 'AI认证中...' : '智能登录' }}
+                {{ loading ? 'AI认证中...' : (loginMethod === 'phone' ? '验证码登录' : '智能登录') }}
               </button>
             </form>
 
@@ -450,9 +519,12 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import * as THREE from 'three'
+
 import { loginWithEmail, loginAsGuest, registerWithEmail } from '@/utils/auth'
 import { validateEmailFormat } from '@/utils/userStore'
+import { useGuestMode } from '@/composables/useGuestMode'
+
+const { refreshAuthState } = useGuestMode()
 
 const route = useRoute()
 const showPassword = ref(false)
@@ -461,6 +533,246 @@ const bgCanvas = ref(null)
 const globeContainer = ref(null)
 const loginCard = ref(null)
 const focusedInput = ref(null)
+
+// 登录方式切换
+const loginMethod = ref('password') // 'password' | 'phone'
+
+// 表单验证状态
+const usernameStatus = ref('') // '' | 'success' | 'error'
+const passwordStatus = ref('')
+const phoneStatus = ref('')
+const codeStatus = ref('')
+
+const usernameError = ref('')
+const passwordError = ref('')
+const phoneError = ref('')
+const codeError = ref('')
+
+// 手机验证码相关
+const phoneForm = reactive({
+  phone: '',
+  code: ''
+})
+const codeCountdown = ref(0)
+let countdownTimer = null
+const isPhoneValid = ref(false)
+
+const switchLoginMethod = (method) => {
+  loginMethod.value = method
+  clearValidation()
+}
+
+const clearValidation = () => {
+  usernameStatus.value = ''
+  passwordStatus.value = ''
+  phoneStatus.value = ''
+  codeStatus.value = ''
+  usernameError.value = ''
+  passwordError.value = ''
+  phoneError.value = ''
+  codeError.value = ''
+}
+
+// 验证邮箱
+const validateUsername = () => {
+  const email = form.username.trim()
+  if (!email) {
+    usernameStatus.value = ''
+    usernameError.value = ''
+    return false
+  }
+  
+  if (!validateEmailFormat(email)) {
+    usernameStatus.value = 'error'
+    usernameError.value = '请输入有效的邮箱地址'
+    return false
+  }
+  
+  usernameStatus.value = 'success'
+  usernameError.value = ''
+  return true
+}
+
+// 验证密码
+const validatePassword = () => {
+  const pwd = form.password
+  if (!pwd) {
+    passwordStatus.value = ''
+    passwordError.value = ''
+    return false
+  }
+  
+  if (pwd.length < 6) {
+    passwordStatus.value = 'error'
+    passwordError.value = '密码长度至少6位'
+    return false
+  }
+  
+  passwordStatus.value = 'success'
+  passwordError.value = ''
+  return true
+}
+
+// 验证手机号
+const validatePhone = () => {
+  const phone = phoneForm.phone.trim()
+  if (!phone) {
+    phoneStatus.value = ''
+    phoneError.value = ''
+    isPhoneValid.value = false
+    return false
+  }
+  
+  const phoneRegex = /^1[3-9]\d{9}$/
+  if (!phoneRegex.test(phone)) {
+    phoneStatus.value = 'error'
+    phoneError.value = '请输入有效的11位手机号'
+    isPhoneValid.value = false
+    return false
+  }
+  
+  phoneStatus.value = 'success'
+  phoneError.value = ''
+  isPhoneValid.value = true
+  return true
+}
+
+// 验证验证码
+const validateCode = () => {
+  const code = phoneForm.code.trim()
+  if (!code) {
+    codeStatus.value = ''
+    codeError.value = ''
+    return false
+  }
+  
+  if (code.length !== 6) {
+    codeStatus.value = 'error'
+    codeError.value = '验证码为6位数字'
+    return false
+  }
+  
+  codeStatus.value = 'success'
+  codeError.value = ''
+  return true
+}
+
+// 验证码存储key前缀
+const OTP_STORAGE_KEY = 'login_otp_'
+const OTP_EXPIRE_TIME = 5 * 60 * 1000 // 5分钟过期
+const OTP_RESEND_INTERVAL = 60 * 1000 // 60秒重发间隔
+
+// 生成验证码
+const generateOtp = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString()
+}
+
+// 保存验证码到localStorage
+const saveOtp = (phone, code) => {
+  const key = OTP_STORAGE_KEY + phone
+  const data = {
+    code: code,
+    createTime: Date.now(),
+    expireTime: Date.now() + OTP_EXPIRE_TIME
+  }
+  localStorage.setItem(key, JSON.stringify(data))
+}
+
+// 获取验证码
+const getOtp = (phone) => {
+  const key = OTP_STORAGE_KEY + phone
+  const data = localStorage.getItem(key)
+  if (!data) return null
+  
+  try {
+    const otpData = JSON.parse(data)
+    if (Date.now() > otpData.expireTime) {
+      localStorage.removeItem(key)
+      return null
+    }
+    return otpData
+  } catch {
+    localStorage.removeItem(key)
+    return null
+  }
+}
+
+// 验证验证码
+const verifyOtp = (phone, code) => {
+  const otpData = getOtp(phone)
+  if (!otpData) {
+    return { valid: false, message: '验证码已过期或不存在，请重新获取' }
+  }
+  if (otpData.code !== code) {
+    return { valid: false, message: '验证码不正确' }
+  }
+  return { valid: true }
+}
+
+// 清除验证码
+const clearOtp = (phone) => {
+  const key = OTP_STORAGE_KEY + phone
+  localStorage.removeItem(key)
+}
+
+// 发送验证码
+const sendVerificationCode = async () => {
+  if (!isPhoneValid.value) {
+    validatePhone()
+    return
+  }
+  
+  const phone = phoneForm.phone
+  
+  // 检查重发间隔
+  const existingOtp = getOtp(phone)
+  if (existingOtp) {
+    const elapsed = Date.now() - existingOtp.createTime
+    if (elapsed < OTP_RESEND_INTERVAL) {
+      const remaining = Math.ceil((OTP_RESEND_INTERVAL - elapsed) / 1000)
+      phoneError.value = `请等待 ${remaining} 秒后再重新获取`
+      setTimeout(() => { phoneError.value = '' }, 3000)
+      return
+    }
+  }
+  
+  // 生成并保存验证码
+  const code = generateOtp()
+  saveOtp(phone, code)
+  
+  // 在控制台输出验证码（演示模式）
+  console.log(`[验证码] 手机号: ${phone}, 验证码: ${code}`)
+  
+  codeError.value = ''
+  
+  // 开始倒计时
+  codeCountdown.value = 60
+  countdownTimer = setInterval(() => {
+    codeCountdown.value--
+    if (codeCountdown.value <= 0) {
+      clearInterval(countdownTimer)
+      countdownTimer = null
+    }
+  }, 1000)
+  
+  // 显示验证码（演示模式）
+  phoneError.value = `验证码已发送：${code}（5分钟内有效）`
+  phoneForm.code = code // 自动填入验证码，方便测试
+  setTimeout(() => { phoneError.value = '' }, 8000)
+}
+
+// 验证表单
+const validateForm = () => {
+  if (loginMethod.value === 'password') {
+    const isUserValid = validateUsername()
+    const isPwdValid = validatePassword()
+    return isUserValid && isPwdValid
+  } else {
+    const isPhValid = validatePhone()
+    const isCdValid = validateCode()
+    return isPhValid && isCdValid
+  }
+}
 
 const showEmailModal = ref(false)
 const emailForm = reactive({
@@ -567,21 +879,70 @@ const networkLinks = ref([
 ])
 
 const handleLogin = async () => {
-  if (!form.username || !form.password) {
-    alert('请输入账号和密码')
+  // 实时验证
+  const isValid = validateForm()
+  
+  if (!isValid) {
+    // 显示错误提示
+    if (loginMethod.value === 'password') {
+      if (!form.username) {
+        usernameStatus.value = 'error'
+        usernameError.value = '请输入邮箱地址'
+      }
+      if (!form.password) {
+        passwordStatus.value = 'error'
+        passwordError.value = '请输入密码'
+      }
+    } else {
+      if (!phoneForm.phone) {
+        phoneStatus.value = 'error'
+        phoneError.value = '请输入手机号'
+      }
+      if (!phoneForm.code) {
+        codeStatus.value = 'error'
+        codeError.value = '请输入验证码'
+      }
+    }
     return
   }
-  if (!validateEmailFormat(form.username)) {
-    alert('请输入正确的邮箱格式')
-    return
+  
+  // 手机验证码登录验证
+  if (loginMethod.value === 'phone') {
+    const verifyResult = verifyOtp(phoneForm.phone, phoneForm.code)
+    if (!verifyResult.valid) {
+      codeStatus.value = 'error'
+      codeError.value = verifyResult.message
+      return
+    }
   }
+  
   loading.value = true
+  
+  // 模拟加载效果
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  
   try {
-    await loginWithEmail(form.username, form.password)
+    if (loginMethod.value === 'phone') {
+      // 手机验证码登录成功后清除验证码（一次性使用）
+      clearOtp(phoneForm.phone)
+      
+      // 手机验证码登录
+      const loginName = '手机用户_' + phoneForm.phone.slice(-4)
+      loginWithEmail(loginName, phoneForm.phone)
+    } else {
+      // 账号密码登录
+      await loginWithEmail(form.username, form.password)
+    }
+    refreshAuthState()
     const redirect = route.query.redirect
     window.location.href = redirect || '/dashboard'
   } catch (e) {
-    alert('登录失败：' + (e.message || '账号或密码错误'))
+    if (loginMethod.value === 'phone') {
+      phoneError.value = '登录失败，请重试'
+    } else {
+      usernameError.value = '登录失败：账号或密码错误'
+      passwordStatus.value = 'error'
+    }
   } finally {
     loading.value = false
   }
@@ -589,6 +950,7 @@ const handleLogin = async () => {
 
 const handleGuest = () => {
   loginAsGuest()
+  refreshAuthState()
   window.location.href = '/dashboard'
 }
 
@@ -638,6 +1000,7 @@ const submitEmailLogin = async () => {
 
   try {
     await loginWithEmail(emailForm.email, emailForm.password)
+    refreshAuthState()
     showEmailModal.value = false
     const redirect = route.query.redirect
     window.location.href = redirect || '/dashboard'
@@ -963,290 +1326,272 @@ const initBackground = () => {
   animate()
 }
 
+function createGlowTexture() {
+  const size = 128
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  const cx = size / 2, cy = size / 2, r = size / 2
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
+  grad.addColorStop(0, 'rgba(255,255,255,1)')
+  grad.addColorStop(0.2, 'rgba(180,230,255,0.9)')
+  grad.addColorStop(0.5, 'rgba(100,200,255,0.4)')
+  grad.addColorStop(1, 'rgba(0,150,255,0)')
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, size, size)
+}
+
 const initGlobe = () => {
   if (!globeContainer.value) return
 
   const container = globeContainer.value
-  const width = container.clientWidth
-  const height = container.clientHeight
+  const canvas = document.createElement('canvas')
+  canvas.style.width = '100%'
+  canvas.style.height = '100%'
+  canvas.style.display = 'block'
+  container.appendChild(canvas)
 
-  const scene = new THREE.Scene()
+  const ctx = canvas.getContext('2d')
+  let width = 0, height = 0
+  const particles = []
+  const rings = []
+  const shards = []
 
-  const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
-  camera.position.z = 5
+  const resize = () => {
+    const rect = container.getBoundingClientRect()
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    width = rect.width
+    height = rect.height
+    canvas.width = width * dpr
+    canvas.height = height * dpr
+    canvas.style.width = width + 'px'
+    canvas.style.height = height + 'px'
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  }
+  resize()
+  window.addEventListener('resize', resize)
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-  renderer.setSize(width, height)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-  container.appendChild(renderer.domElement)
+  const cx = () => width / 2
+  const cy = () => height / 2
+  const baseR = () => Math.min(width, height) * 0.28
 
-  const globeRadius = 1.8
-
-  const innerGeometry = new THREE.SphereGeometry(globeRadius * 0.95, 64, 64)
-  const innerMaterial = new THREE.MeshBasicMaterial({
-    color: 0x0a1628,
-    transparent: true,
-    opacity: 0.9
-  })
-  const innerSphere = new THREE.Mesh(innerGeometry, innerMaterial)
-  scene.add(innerSphere)
-
-  const gridGeometry = new THREE.SphereGeometry(globeRadius, 48, 48)
-  const gridMaterial = new THREE.MeshBasicMaterial({
-    color: 0x00ccff,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.15
-  })
-  const gridSphere = new THREE.Mesh(gridGeometry, gridMaterial)
-  scene.add(gridSphere)
-
-  const gridGeometry2 = new THREE.SphereGeometry(globeRadius * 1.01, 32, 32)
-  const gridMaterial2 = new THREE.MeshBasicMaterial({
-    color: 0x818cf8,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.08
-  })
-  const gridSphere2 = new THREE.Mesh(gridGeometry2, gridMaterial2)
-  scene.add(gridSphere2)
-
-  const dotGeometry = new THREE.BufferGeometry()
-  const dotCount = 1200
-  const dotPositions = []
-  const dotColors = []
-  const dotSizes = []
-
-  for (let i = 0; i < dotCount; i++) {
-    const theta = Math.random() * Math.PI * 2
-    const phi = Math.acos(2 * Math.random() - 1)
-    const radius = globeRadius * (0.98 + Math.random() * 0.04)
-
-    const x = radius * Math.sin(phi) * Math.cos(theta)
-    const y = radius * Math.sin(phi) * Math.sin(theta)
-    const z = radius * Math.cos(phi)
-
-    dotPositions.push(x, y, z)
-
-    const color = new THREE.Color()
-    const rand = Math.random()
-    if (rand > 0.92) {
-      color.setHex(0x00ffff)
-    } else if (rand > 0.7) {
-      color.setHex(0x60a5fa)
-    } else {
-      color.setHex(0x818cf8)
-    }
-    dotColors.push(color.r, color.g, color.b)
-
-    dotSizes.push(0.012 + Math.random() * 0.025)
+  for (let i = 0; i < 50; i++) {
+    particles.push({
+      angle: Math.random() * Math.PI * 2,
+      dist: baseR() * (1.0 + Math.random() * 1.2),
+      speed: 0.001 + Math.random() * 0.0025,
+      size: 0.5 + Math.random() * 2.5,
+      alpha: 0.2 + Math.random() * 0.6,
+      hue: 30 + Math.random() * 20,
+      drift: Math.random() * 0.5
+    })
   }
 
-  dotGeometry.setAttribute('position', new THREE.Float32BufferAttribute(dotPositions, 3))
-  dotGeometry.setAttribute('color', new THREE.Float32BufferAttribute(dotColors, 3))
-  dotGeometry.setAttribute('size', new THREE.Float32BufferAttribute(dotSizes, 1))
+  for (let i = 0; i < 3; i++) {
+    rings.push({
+      radius: baseR() * (0.9 + i * 0.25),
+      width: 1 + Math.random() * 1.5,
+      alpha: 0.15 + Math.random() * 0.15,
+      rotSpeed: (Math.random() - 0.5) * 0.003,
+      phase: Math.random() * Math.PI * 2,
+      segments: 6 + Math.floor(Math.random() * 8)
+    })
+  }
 
-  const dotVertexShader = `
-    attribute float size;
-    varying vec3 vColor;
-    uniform float time;
-    void main() {
-      vColor = color;
-      float twinkle = sin(time * 3.0 + position.x * 20.0 + position.y * 10.0) * 0.3 + 0.7;
-      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-      gl_PointSize = size * twinkle * (350.0 / -mvPosition.z);
-      gl_Position = projectionMatrix * mvPosition;
-    }
-  `
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2 + Math.random() * 0.3
+    const r = baseR() * (0.55 + Math.random() * 0.2)
+    shards.push({
+      x: Math.cos(angle) * r,
+      y: Math.sin(angle) * r,
+      size: 3 + Math.random() * 6,
+      angle: angle,
+      speed: 0.2 + Math.random() * 0.4,
+      alpha: 0.4 + Math.random() * 0.3,
+      rotSpeed: (Math.random() - 0.5) * 0.02
+    })
+  }
 
-  const dotFragmentShader = `
-    varying vec3 vColor;
-    void main() {
-      float dist = length(gl_PointCoord - vec2(0.5));
-      if (dist > 0.5) discard;
-      float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-      vec3 glow = vColor * 2.5 * (1.0 - dist * 2.0);
-      vec3 finalColor = mix(vColor, glow, 0.6);
-      gl_FragColor = vec4(finalColor, alpha);
-    }
-  `
+  let globalTime = 0
 
-  const dotMaterial = new THREE.ShaderMaterial({
-    uniforms: { time: { value: 0 } },
-    vertexShader: dotVertexShader,
-    fragmentShader: dotFragmentShader,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    vertexColors: true
-  })
+  const drawCrystal = (t) => {
+    const centerX = cx()
+    const centerY = cy()
+    const R = baseR()
 
-  const dots = new THREE.Points(dotGeometry, dotMaterial)
-  scene.add(dots)
+    ctx.save()
+    ctx.translate(centerX, centerY)
 
-  const linePositions = []
-  const positionsArray = dotGeometry.attributes.position.array
-  const connectionDistance = 0.3
+    // outer glow
+    const glowGrad = ctx.createRadialGradient(0, 0, R * 0.2, 0, 0, R * 2.0)
+    glowGrad.addColorStop(0, 'rgba(255, 200, 80, 0.12)')
+    glowGrad.addColorStop(0.4, 'rgba(255, 170, 50, 0.06)')
+    glowGrad.addColorStop(1, 'rgba(255, 140, 30, 0)')
+    ctx.fillStyle = glowGrad
+    ctx.fillRect(-width, -height, width * 2, height * 2)
 
-  for (let i = 0; i < dotCount; i++) {
-    for (let j = i + 1; j < dotCount; j++) {
-      const ix = positionsArray[i * 3]
-      const iy = positionsArray[i * 3 + 1]
-      const iz = positionsArray[i * 3 + 2]
-      const jx = positionsArray[j * 3]
-      const jy = positionsArray[j * 3 + 1]
-      const jz = positionsArray[j * 3 + 2]
+    // core glow
+    const coreGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 1.1)
+    coreGlow.addColorStop(0, 'rgba(255, 230, 150, 0.35)')
+    coreGlow.addColorStop(0.3, 'rgba(255, 190, 90, 0.2)')
+    coreGlow.addColorStop(0.7, 'rgba(200, 130, 40, 0.08)')
+    coreGlow.addColorStop(1, 'rgba(180, 100, 20, 0)')
+    ctx.fillStyle = coreGlow
+    ctx.fillRect(-width, -height, width * 2, height * 2)
 
-      const dx = ix - jx
-      const dy = iy - jy
-      const dz = iz - jz
-      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
-
-      if (dist < connectionDistance && Math.random() > 0.85) {
-        linePositions.push(ix, iy, iz)
-        linePositions.push(jx, jy, jz)
+    // rotating outer rings
+    rings.forEach((ring, idx) => {
+      const r = ring.radius * (1 + 0.03 * Math.sin(t * 0.5 + ring.phase))
+      ctx.save()
+      ctx.rotate(t * ring.rotSpeed + ring.phase)
+      ctx.beginPath()
+      const seg = ring.segments
+      for (let i = 0; i <= seg; i++) {
+        const a = (i / seg) * Math.PI * 2
+        const wobble = 1 + 0.08 * Math.sin(a * 3 + t * 0.3 + idx)
+        const px = Math.cos(a) * r * wobble
+        const py = Math.sin(a) * r * wobble
+        if (i === 0) ctx.moveTo(px, py)
+        else ctx.lineTo(px, py)
       }
+      ctx.strokeStyle = `hsla(${35 + idx * 5}, 80%, 70%, ${ring.alpha})`
+      ctx.lineWidth = ring.width
+      ctx.stroke()
+      ctx.restore()
+    })
+
+    // crystal body - octagon facets
+    const crystalR = R * 0.55
+    ctx.save()
+    const tiltX = Math.sin(t * 0.3) * 0.3
+    const tiltY = Math.cos(t * 0.25) * 0.3
+    ctx.rotate(tiltX + t * 0.15)
+
+    // main crystal fill
+    ctx.beginPath()
+    const facets = 8
+    for (let i = 0; i <= facets; i++) {
+      const a = (i / facets) * Math.PI * 2 - Math.PI / 2
+      const r = crystalR * (0.85 + 0.15 * Math.sin(a * 2 + t))
+      const px = Math.cos(a) * r
+      const py = Math.sin(a) * r
+      if (i === 0) ctx.moveTo(px, py)
+      else ctx.lineTo(px, py)
     }
-  }
+    ctx.closePath()
 
-  const lineGeometry = new THREE.BufferGeometry()
-  lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3))
+    const crystalGrad = ctx.createLinearGradient(-crystalR, -crystalR, crystalR, crystalR)
+    crystalGrad.addColorStop(0, 'rgba(255, 220, 140, 0.9)')
+    crystalGrad.addColorStop(0.35, 'rgba(230, 170, 80, 0.85)')
+    crystalGrad.addColorStop(0.65, 'rgba(200, 130, 40, 0.8)')
+    crystalGrad.addColorStop(1, 'rgba(160, 90, 20, 0.75)')
+    ctx.fillStyle = crystalGrad
+    ctx.fill()
 
-  const lineMaterial = new THREE.LineBasicMaterial({
-    color: 0x60a5fa,
-    transparent: true,
-    opacity: 0.08,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-  })
-
-  const lines = new THREE.LineSegments(lineGeometry, lineMaterial)
-  scene.add(lines)
-
-  const atmosphereGeometry = new THREE.SphereGeometry(globeRadius * 1.03, 64, 64)
-  const atmosphereMaterial = new THREE.ShaderMaterial({
-    vertexShader: `
-      varying vec3 vNormal;
-      varying vec3 vViewPosition;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        vViewPosition = -mvPosition.xyz;
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    `,
-    fragmentShader: `
-      varying vec3 vNormal;
-      varying vec3 vViewPosition;
-      void main() {
-        float intensity = pow(0.65 - dot(vNormal, normalize(vViewPosition)), 2.0);
-        gl_FragColor = vec4(0.2, 0.5, 1.0, 1.0) * intensity * 0.9;
-      }
-    `,
-    side: THREE.BackSide,
-    blending: THREE.AdditiveBlending,
-    transparent: true
-  })
-  const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial)
-  scene.add(atmosphere)
-
-  const glowGeometry = new THREE.SphereGeometry(globeRadius * 1.05, 32, 32)
-  const glowMaterial = new THREE.MeshBasicMaterial({
-    color: 0x00aaff,
-    transparent: true,
-    opacity: 0.05,
-    side: THREE.BackSide,
-    blending: THREE.AdditiveBlending
-  })
-  const glow = new THREE.Mesh(glowGeometry, glowMaterial)
-  scene.add(glow)
-
-  const ringGeometry = new THREE.RingGeometry(globeRadius * 1.08, globeRadius * 1.1, 128)
-  const ringMaterial = new THREE.MeshBasicMaterial({
-    color: 0x00ccff,
-    transparent: true,
-    opacity: 0.35,
-    side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending
-  })
-  const ring = new THREE.Mesh(ringGeometry, ringMaterial)
-  ring.rotation.x = Math.PI / 2
-  ring.rotation.z = 0.25
-  scene.add(ring)
-
-  const orbitingParticlesGeometry = new THREE.BufferGeometry()
-  const orbitingCount = 150
-  const orbitingPositions = []
-  const orbitingColors = []
-
-  for (let i = 0; i < orbitingCount; i++) {
-    const theta = Math.random() * Math.PI * 2
-    const phi = Math.acos(2 * Math.random() - 1)
-    const radius = globeRadius * (1.15 + Math.random() * 0.6)
-
-    const x = radius * Math.sin(phi) * Math.cos(theta)
-    const y = radius * Math.sin(phi) * Math.sin(theta)
-    const z = radius * Math.cos(phi)
-
-    orbitingPositions.push(x, y, z)
-
-    const color = new THREE.Color()
-    const rand = Math.random()
-    if (rand > 0.7) {
-      color.setHex(0x00ffff)
-    } else {
-      color.setHex(0x60a5fa)
+    // crystal facet lines
+    ctx.strokeStyle = 'rgba(255, 230, 170, 0.5)'
+    ctx.lineWidth = 1.2
+    for (let i = 0; i < facets; i++) {
+      const a = (i / facets) * Math.PI * 2 - Math.PI / 2
+      const r = crystalR * (0.85 + 0.15 * Math.sin(a * 2 + t))
+      const px = Math.cos(a) * r
+      const py = Math.sin(a) * r
+      ctx.beginPath()
+      ctx.moveTo(0, 0)
+      ctx.lineTo(px, py)
+      ctx.stroke()
     }
-    orbitingColors.push(color.r, color.g, color.b)
+
+    // crystal outer edge glow
+    ctx.beginPath()
+    for (let i = 0; i <= facets; i++) {
+      const a = (i / facets) * Math.PI * 2 - Math.PI / 2
+      const r = crystalR * (0.85 + 0.15 * Math.sin(a * 2 + t))
+      const px = Math.cos(a) * r
+      const py = Math.sin(a) * r
+      if (i === 0) ctx.moveTo(px, py)
+      else ctx.lineTo(px, py)
+    }
+    ctx.closePath()
+    ctx.strokeStyle = 'rgba(255, 240, 180, 0.8)'
+    ctx.lineWidth = 2
+    ctx.shadowColor = 'rgba(255, 200, 100, 0.6)'
+    ctx.shadowBlur = 20
+    ctx.stroke()
+    ctx.shadowBlur = 0
+
+    ctx.restore()
+
+    // inner bright core
+    const coreR = crystalR * 0.25
+    const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreR * 2)
+    coreGrad.addColorStop(0, 'rgba(255, 255, 240, 1)')
+    coreGrad.addColorStop(0.4, 'rgba(255, 230, 170, 0.8)')
+    coreGrad.addColorStop(1, 'rgba(255, 200, 100, 0)')
+    ctx.fillStyle = coreGrad
+    ctx.beginPath()
+    ctx.arc(0, 0, coreR * 2, 0, Math.PI * 2)
+    ctx.fill()
+
+    // orbiting shards (small geometric pieces)
+    shards.forEach((shard, i) => {
+      const angle = shard.angle + t * shard.speed
+      const x = shard.x * Math.cos(angle) - shard.y * Math.sin(angle)
+      const y = shard.x * Math.sin(angle) + shard.y * Math.cos(angle)
+      const sz = shard.size * (0.8 + 0.2 * Math.sin(t * 2 + i))
+      
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate(angle * 2 + t * shard.rotSpeed)
+      ctx.globalAlpha = shard.alpha
+      
+      ctx.beginPath()
+      ctx.moveTo(0, -sz)
+      ctx.lineTo(sz * 0.6, 0)
+      ctx.lineTo(0, sz)
+      ctx.lineTo(-sz * 0.6, 0)
+      ctx.closePath()
+      
+      const shardGrad = ctx.createLinearGradient(-sz, -sz, sz, sz)
+      shardGrad.addColorStop(0, 'rgba(255, 220, 140, 0.9)')
+      shardGrad.addColorStop(1, 'rgba(220, 150, 50, 0.6)')
+      ctx.fillStyle = shardGrad
+      ctx.fill()
+      ctx.strokeStyle = 'rgba(255, 240, 180, 0.7)'
+      ctx.lineWidth = 0.8
+      ctx.stroke()
+      ctx.globalAlpha = 1
+      ctx.restore()
+    })
+
+    // floating particles
+    particles.forEach((p) => {
+      p.angle += p.speed
+      p.dist += Math.sin(t + p.drift) * 0.3
+      const px = Math.cos(p.angle) * p.dist
+      const py = Math.sin(p.angle) * p.dist
+      
+      const twinkle = 0.5 + 0.5 * Math.sin(t * 2 + p.drift * 5)
+      const alpha = p.alpha * twinkle
+      
+      ctx.beginPath()
+      const pGrad = ctx.createRadialGradient(px, py, 0, px, py, p.size * 3)
+      pGrad.addColorStop(0, `hsla(${p.hue}, 90%, 75%, ${alpha})`)
+      pGrad.addColorStop(0.5, `hsla(${p.hue}, 80%, 60%, ${alpha * 0.4})`)
+      pGrad.addColorStop(1, `hsla(${p.hue}, 70%, 50%, 0)`)
+      ctx.fillStyle = pGrad
+      ctx.arc(px, py, p.size * 3, 0, Math.PI * 2)
+      ctx.fill()
+    })
+
+    ctx.restore()
   }
-
-  orbitingParticlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(orbitingPositions, 3))
-  orbitingParticlesGeometry.setAttribute('color', new THREE.Float32BufferAttribute(orbitingColors, 3))
-
-  const orbitingMaterial = new THREE.PointsMaterial({
-    size: 0.025,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.6,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-  })
-
-  const orbitingParticles = new THREE.Points(orbitingParticlesGeometry, orbitingMaterial)
-  scene.add(orbitingParticles)
-
-  const onResize = () => {
-    const newWidth = container.clientWidth
-    const newHeight = container.clientHeight
-    camera.aspect = newWidth / newHeight
-    camera.updateProjectionMatrix()
-    renderer.setSize(newWidth, newHeight)
-  }
-  window.addEventListener('resize', onResize)
 
   const animate = () => {
-    const time = Date.now() * 0.001
-    dotMaterial.uniforms.time.value = time
-
-    innerSphere.rotation.y += 0.0006
-    innerSphere.rotation.x += 0.00015
-    gridSphere.rotation.y += 0.0008
-    gridSphere.rotation.x += 0.0002
-    gridSphere2.rotation.y += 0.0004
-    gridSphere2.rotation.x -= 0.0001
-    dots.rotation.y += 0.0006
-    dots.rotation.x += 0.00015
-    lines.rotation.y += 0.0006
-    lines.rotation.x += 0.00015
-    atmosphere.rotation.y += 0.0006
-    atmosphere.rotation.x += 0.00015
-    glow.rotation.y += 0.0005
-    ring.rotation.y += 0.0004
-    ring.rotation.z += 0.0001
-    orbitingParticles.rotation.y += 0.0003
-    orbitingParticles.rotation.x += 0.0001
-
-    renderer.render(scene, camera)
+    globalTime += 0.016
+    ctx.clearRect(0, 0, width, height)
+    drawCrystal(globalTime)
     globeAnimationId = requestAnimationFrame(animate)
   }
 
@@ -1775,196 +2120,95 @@ onUnmounted(() => {
 }
 
 .globe-container {
-  width: 300px;
-  height: 300px;
-  margin: 0 0 25px;
+  width: 420px;
+  height: 420px;
+  margin: 0 0 30px;
+  position: relative;
+  overflow: visible;
+}
+
+.globe-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 183, 77, 0.10) 0%, rgba(255, 138, 0, 0.05) 40%, transparent 70%);
+  animation: globeGlow 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.globe-container::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 241, 118, 0.15) 0%, transparent 60%);
+  filter: blur(10px);
+  animation: globeInnerGlow 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes globeGlow {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+@keyframes globeInnerGlow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.globe-container canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .brand-text-wrapper {
   position: relative;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.title-globe {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.globe-core {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 40%, #818cf8 70%, #60a5fa 100%);
-  background-size: 300% 300%;
-  animation: globeGradient 4s ease infinite;
-  box-shadow: 
-    0 0 20px rgba(96, 165, 250, 0.6),
-    0 0 40px rgba(167, 139, 250, 0.4),
-    inset 0 -8px 20px rgba(0, 0, 0, 0.3),
-    inset 0 8px 20px rgba(255, 255, 255, 0.15);
-  position: relative;
-}
-
-.globe-core::before {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 12px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  filter: blur(2px);
-}
-
-.globe-core::after {
-  content: '';
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  width: 4px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-}
-
-.globe-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 2px solid rgba(96, 165, 250, 0.3);
-  animation: ringRotate 20s linear infinite;
-}
-
-.ring-1 {
-  width: 60px;
-  height: 60px;
-  border-color: rgba(96, 165, 250, 0.25);
-  animation-direction: normal;
-}
-
-.ring-2 {
-  width: 75px;
-  height: 75px;
-  border-color: rgba(167, 139, 250, 0.2);
-  animation-direction: reverse;
-  animation-duration: 25s;
-}
-
-.globe-glow {
-  position: absolute;
+.title-accent {
   width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(96, 165, 250, 0.15) 0%, rgba(167, 139, 250, 0.08) 40%, transparent 70%);
-  animation: glowPulse 3s ease-in-out infinite;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #29b6f6, #00acc1, #29b6f6, transparent);
+  border-radius: 2px;
+  animation: accentFlow 3s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(41, 182, 246, 0.5);
 }
 
-.globe-particles {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: rgba(96, 165, 250, 0.8);
-  border-radius: 50%;
-  animation: particleOrbit 8s ease-in-out infinite;
-}
-
-.p1 { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
-.p2 { top: 50%; right: 0; transform: translateY(-50%); animation-delay: 1.6s; }
-.p3 { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 3.2s; }
-.p4 { top: 50%; left: 0; transform: translateY(-50%); animation-delay: 4.8s; }
-.p5 { top: 20%; right: 20%; animation-delay: 6.4s; }
-
-@keyframes globeGradient {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-@keyframes ringRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
-}
-
-@keyframes particleOrbit {
-  0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+@keyframes accentFlow {
+  0%, 100% { opacity: 0.6; transform: scaleX(0.9); }
+  50% { opacity: 1; transform: scaleX(1.1); }
 }
 
 .brand-title {
-  font-size: 4.8rem;
+  font-size: 4.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #7dd3fc 0%, #93c5fd 20%, #c4b5fd 40%, #a78bfa 55%, #818cf8 70%, #60a5fa 85%, #93c5fd 100%);
+  background: linear-gradient(135deg, #81d4fa 0%, #29b6f6 25%, #00acc1 50%, #26c6da 75%, #81d4fa 100%);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 15px;
-  letter-spacing: 20px;
+  margin-bottom: 12px;
+  letter-spacing: 16px;
   position: relative;
   z-index: 2;
   animation: titleGradient 6s ease infinite;
-  text-shadow: 
-    0 0 30px rgba(96, 165, 250, 0.4),
-    0 0 60px rgba(167, 139, 250, 0.2),
-    0 0 100px rgba(129, 140, 248, 0.1);
-}
-
-.title-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  height: 70%;
-  background: radial-gradient(ellipse at center, rgba(96, 165, 250, 0.25) 0%, rgba(167, 139, 250, 0.15) 40%, rgba(129, 140, 248, 0.08) 60%, transparent 80%);
-  filter: blur(40px);
-  z-index: 1;
-  animation: glowPulse 4s ease-in-out infinite;
-}
-
-.title-border {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.8), rgba(167, 139, 250, 0.6), transparent);
-  border-radius: 2px;
-  animation: borderPulse 3s ease-in-out infinite;
-}
-
-@keyframes borderPulse {
-  0%, 100% { opacity: 0.5; transform: translateX(-50%) scaleX(1); }
-  50% { opacity: 1; transform: translateX(-50%) scaleX(1.2); }
-}
-
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-}
-
-@keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  text-shadow: 0 0 40px rgba(41, 182, 246, 0.3);
 }
 
 @keyframes titleGradient {
@@ -1978,80 +2222,66 @@ onUnmounted(() => {
 }
 
 .brand-subtitle {
-  font-size: 1.3rem;
-  letter-spacing: 6px;
+  font-size: 1.1rem;
+  letter-spacing: 4px;
   font-weight: 400;
   text-transform: uppercase;
-  background: linear-gradient(90deg, #4ade80, #67e8f9, #a5f3fc, #67e8f9, #4ade80);
+  background: linear-gradient(90deg, #4fc3f7, #81d4fa, #26c6da, #81d4fa, #4fc3f7);
   background-size: 300% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: subtitleGradient 6s ease infinite;
-  text-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+}
+
+@keyframes subtitleGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .brand-features {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   margin-bottom: 35px;
-  padding: 10px 40px;
+  padding: 10px 30px;
   width: 100%;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 1.05rem;
-  color: rgba(140, 170, 210, 0.6);
+  gap: 10px;
+  font-size: 0.95rem;
+  color: rgba(180, 200, 230, 0.55);
   transition: all 0.3s ease;
-  padding: 12px 22px;
+  padding: 10px 18px;
   white-space: nowrap;
   position: relative;
-  background: rgba(96, 165, 250, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(96, 165, 250, 0.08);
-}
-
-.feature-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.1), transparent, rgba(167, 139, 250, 0.05));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+  background: rgba(41, 182, 246, 0.04);
+  border-radius: 10px;
+  border: 1px solid rgba(41, 182, 246, 0.1);
 }
 
 .feature-item:hover {
-  color: rgba(200, 220, 250, 0.95);
-  transform: translateY(-3px);
-  background: rgba(96, 165, 250, 0.08);
-  border-color: rgba(96, 165, 250, 0.2);
-  box-shadow: 0 0 30px rgba(96, 165, 250, 0.15);
-}
-
-.feature-item:hover::before {
-  opacity: 1;
+  color: rgba(200, 230, 255, 0.95);
+  transform: translateY(-2px);
+  background: rgba(41, 182, 246, 0.08);
+  border-color: rgba(41, 182, 246, 0.3);
+  box-shadow: 0 0 25px rgba(41, 182, 246, 0.15);
 }
 
 .feature-item svg {
-  color: #60a5fa;
+  color: #29b6f6;
   transition: all 0.3s ease;
-  filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.3));
+  filter: drop-shadow(0 0 6px rgba(41, 182, 246, 0.4));
 }
 
 .feature-item:hover svg {
-  color: #93c5fd;
-  filter: drop-shadow(0 0 20px rgba(96, 165, 250, 0.6));
-  transform: scale(1.15);
+  color: #4fc3f7;
+  filter: drop-shadow(0 0 15px rgba(41, 182, 246, 0.7));
+  transform: scale(1.1);
 }
 
 .feature-divider {
@@ -2092,20 +2322,20 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 15px 45px;
+  padding: 14px 40px;
   border: none;
-  border-radius: 45px;
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(167, 139, 250, 0.15));
-  color: #c7d2fe;
-  font-size: 1.05rem;
+  border-radius: 40px;
+  background: linear-gradient(135deg, rgba(41, 182, 246, 0.15), rgba(123, 77, 255, 0.1));
+  color: #e0f7fa;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.4s ease;
-  backdrop-filter: blur(15px);
+  backdrop-filter: blur(10px);
   letter-spacing: 2px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(96, 165, 250, 0.2);
+  border: 1px solid rgba(41, 182, 246, 0.25);
 }
 
 .guest-btn::before {
@@ -2115,16 +2345,16 @@ onUnmounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
   transition: left 0.6s ease;
 }
 
 .guest-btn:hover {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.35), rgba(167, 139, 250, 0.25));
+  background: linear-gradient(135deg, rgba(41, 182, 246, 0.3), rgba(123, 77, 255, 0.2));
   color: #ffffff;
-  box-shadow: 0 0 50px rgba(96, 165, 250, 0.35);
-  transform: translateY(-4px) scale(1.02);
-  border-color: rgba(96, 165, 250, 0.4);
+  box-shadow: 0 0 40px rgba(41, 182, 246, 0.3);
+  transform: translateY(-3px) scale(1.02);
+  border-color: rgba(41, 182, 246, 0.5);
 }
 
 .guest-btn:hover::before {
@@ -2148,127 +2378,29 @@ onUnmounted(() => {
 
 .login-card {
   width: 100%;
-  background: rgba(15, 20, 50, 0.5);
-  backdrop-filter: blur(40px) saturate(150%);
-  border-radius: 28px;
-  border: 1px solid rgba(74, 158, 255, 0.3);
+  background: rgba(12, 17, 40, 0.65);
+  backdrop-filter: blur(30px) saturate(140%);
+  border-radius: 24px;
+  border: 1px solid rgba(41, 182, 246, 0.25);
   box-shadow: 
-    0 0 60px rgba(74, 158, 255, 0.2),
-    0 0 100px rgba(167, 139, 250, 0.1),
-    0 20px 60px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 50px rgba(41, 182, 246, 0.15),
+    0 15px 50px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
     inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  padding: 50px;
+  padding: 45px;
   position: relative;
   overflow: hidden;
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s ease;
 }
 
-.login-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    linear-gradient(135deg, rgba(74, 158, 255, 0.08) 0%, transparent 50%),
-    linear-gradient(225deg, rgba(0, 212, 170, 0.05) 0%, transparent 50%),
-    linear-gradient(45deg, transparent 50%, rgba(167, 139, 250, 0.05) 100%);
-  pointer-events: none;
-  animation: cardGradientShift 10s ease-in-out infinite;
-}
-
-@keyframes cardGradientShift {
-  0%, 100% { opacity: 0.5; transform: rotate(0deg); }
-  50% { opacity: 1; transform: rotate(180deg); }
-}
-
 .login-card:hover {
   box-shadow: 
-    0 0 80px rgba(74, 158, 255, 0.25),
-    0 0 120px rgba(167, 139, 250, 0.15),
-    0 0 160px rgba(0, 212, 170, 0.08),
-    0 30px 80px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 60px rgba(41, 182, 246, 0.25),
+    0 0 100px rgba(0, 131, 143, 0.12),
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
     inset 0 -1px 0 rgba(0, 0, 0, 0.25);
-  border-color: rgba(74, 158, 255, 0.5);
-  background: rgba(15, 20, 50, 0.6);
-}
-
-.card-corner {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border: 2px solid rgba(74, 158, 255, 0.4);
-  pointer-events: none;
-  z-index: 2;
-}
-
-.card-corner.top-left {
-  top: 20px;
-  left: 20px;
-  border-right: none;
-  border-bottom: none;
-  border-radius: 8px 0 0 0;
-}
-
-.card-corner.top-right {
-  top: 20px;
-  right: 20px;
-  border-left: none;
-  border-bottom: none;
-  border-radius: 0 8px 0 0;
-}
-
-.card-corner.bottom-left {
-  bottom: 20px;
-  left: 20px;
-  border-right: none;
-  border-top: none;
-  border-radius: 0 0 0 8px;
-}
-
-.card-corner.bottom-right {
-  bottom: 20px;
-  right: 20px;
-  border-left: none;
-  border-top: none;
-  border-radius: 0 0 8px 0;
-}
-
-.card-corner::after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: rgba(74, 158, 255, 0.6);
-  box-shadow: 0 0 15px rgba(74, 158, 255, 0.8);
-  animation: cornerPulse 2s ease-in-out infinite;
-}
-
-.card-corner.top-left::after {
-  top: -2px;
-  left: -2px;
-  animation-delay: 0s;
-}
-
-.card-corner.top-right::after {
-  top: -2px;
-  right: -2px;
-  animation-delay: 0.5s;
-}
-
-.card-corner.bottom-left::after {
-  bottom: -2px;
-  left: -2px;
-  animation-delay: 1s;
-}
-
-.card-corner.bottom-right::after {
-  bottom: -2px;
-  right: -2px;
-  animation-delay: 1.5s;
+  border-color: rgba(41, 182, 246, 0.45);
 }
 
 @keyframes cornerPulse {
@@ -2519,24 +2651,24 @@ onUnmounted(() => {
 }
 
 .header-icon {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 20px;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 18px;
   border-radius: 50%;
-  background: rgba(74, 158, 255, 0.1);
-  border: 1px solid rgba(74, 158, 255, 0.3);
+  background: rgba(41, 182, 246, 0.08);
+  border: 1px solid rgba(41, 182, 246, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 
-    0 0 30px rgba(74, 158, 255, 0.2),
-    inset 0 0 20px rgba(74, 158, 255, 0.05);
+    0 0 25px rgba(41, 182, 246, 0.15),
+    inset 0 0 15px rgba(41, 182, 246, 0.05);
   animation: iconPulse 4s ease-in-out infinite;
 }
 
 @keyframes iconPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(74, 158, 255, 0.2); }
-  50% { transform: scale(1.05); box-shadow: 0 0 45px rgba(74, 158, 255, 0.35); }
+  0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(41, 182, 246, 0.15); }
+  50% { transform: scale(1.05); box-shadow: 0 0 35px rgba(41, 182, 246, 0.3); }
 }
 
 .card-header::before {
@@ -2598,28 +2730,25 @@ onUnmounted(() => {
 .input-group {
   position: relative;
   background: rgba(10, 15, 40, 0.5);
-  border: 1px solid rgba(74, 158, 255, 0.3);
+  border: 1px solid rgba(74, 158, 255, 0.2);
   border-radius: 20px;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   overflow: hidden;
 }
 
-.input-group::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 24px;
-  padding: 2px;
-  background: linear-gradient(135deg, rgba(74, 158, 255, 0.6), rgba(167, 139, 250, 0.4), rgba(0, 212, 170, 0.3), rgba(167, 139, 250, 0.4), rgba(74, 158, 255, 0.6));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.3;
-  transition: opacity 0.5s ease, padding 0.5s ease;
-  pointer-events: none;
+.input-group.error {
+  border-color: rgba(255, 99, 99, 0.7);
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.input-group.success {
+  border-color: rgba(0, 212, 170, 0.6);
 }
 
 .input-glow {
@@ -2629,7 +2758,7 @@ onUnmounted(() => {
   transform: translate(-50%, -50%);
   width: 0;
   height: 0;
-  background: radial-gradient(circle, rgba(74, 158, 255, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(74, 158, 255, 0.2) 0%, transparent 70%);
   border-radius: 50%;
   transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   pointer-events: none;
@@ -2640,38 +2769,27 @@ onUnmounted(() => {
   height: 300px;
 }
 
-.input-ring {
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 22px;
-  border: 2px solid transparent;
-  background: linear-gradient(rgba(10, 15, 40, 0.5), rgba(10, 15, 40, 0.5)) padding-box,
-              linear-gradient(135deg, rgba(74, 158, 255, 0), rgba(0, 212, 170, 0), rgba(74, 158, 255, 0)) border-box;
-  transition: background 0.5s ease;
-  pointer-events: none;
-}
-
-.input-group:focus-within .input-ring {
-  background: linear-gradient(rgba(10, 15, 40, 0.5), rgba(10, 15, 40, 0.5)) padding-box,
-              linear-gradient(135deg, rgba(74, 158, 255, 0.7), rgba(0, 212, 170, 0.5), rgba(74, 158, 255, 0.7)) border-box;
-}
-
-.input-group:focus-within::before {
-  opacity: 1;
-  padding: 4px;
-}
-
 .input-group:focus-within {
   box-shadow: 
-    0 0 80px rgba(74, 158, 255, 0.5),
-    0 0 120px rgba(167, 139, 250, 0.3),
-    0 0 160px rgba(0, 212, 170, 0.15),
-    inset 0 0 35px rgba(74, 158, 255, 0.18);
-  transform: translateY(-6px) scale(1.02);
-  border-color: rgba(74, 158, 255, 0.5);
+    0 0 40px rgba(74, 158, 255, 0.3),
+    0 0 60px rgba(38, 198, 218, 0.15),
+    inset 0 0 20px rgba(74, 158, 255, 0.1);
+  transform: translateY(-3px);
+  border-color: rgba(74, 158, 255, 0.4);
+}
+
+.input-group.error:focus-within {
+  box-shadow: 
+    0 0 40px rgba(255, 99, 99, 0.3),
+    inset 0 0 20px rgba(255, 99, 99, 0.1);
+  border-color: rgba(255, 99, 99, 0.6);
+}
+
+.input-group.success:focus-within {
+  box-shadow: 
+    0 0 40px rgba(0, 212, 170, 0.3),
+    inset 0 0 20px rgba(0, 212, 170, 0.1);
+  border-color: rgba(0, 212, 170, 0.5);
 }
 
 .input-icon {
@@ -2794,37 +2912,33 @@ onUnmounted(() => {
 }
 
 .login-btn {
-  padding: 22px;
+  padding: 20px;
   margin-top: 20px;
-  background: linear-gradient(135deg, #1e40af 0%, #4c1d95 25%, #0369a1 50%, #059669 75%, #1e40af 100%);
-  background-size: 500% 500%;
-  border: 1px solid rgba(74, 158, 255, 0.4);
-  border-radius: 24px;
+  background: linear-gradient(135deg, #0277bd 0%, #00838f 30%, #00acc1 60%, #0277bd 100%);
+  background-size: 400% 400%;
+  border: 1px solid rgba(41, 182, 246, 0.4);
+  border-radius: 20px;
   color: #fff;
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-size: 1.05rem;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  animation: buttonGradient 8s ease infinite;
+  gap: 12px;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: buttonGradient 6s ease infinite;
   position: relative;
   overflow: hidden;
   box-shadow: 
-    0 12px 40px rgba(74, 158, 255, 0.4),
-    0 0 60px rgba(0, 212, 170, 0.2),
-    0 0 100px rgba(79, 70, 229, 0.12);
+    0 10px 35px rgba(41, 182, 246, 0.35),
+    0 0 50px rgba(0, 131, 143, 0.15);
   letter-spacing: 1px;
 }
 
 @keyframes buttonGradient {
   0%, 100% { background-position: 0% 50%; }
-  20% { background-position: 100% 0%; }
-  40% { background-position: 100% 100%; }
-  60% { background-position: 0% 100%; }
-  80% { background-position: 50% 0%; }
+  50% { background-position: 100% 50%; }
 }
 
 .btn-pulse {
@@ -2895,7 +3009,7 @@ onUnmounted(() => {
   box-shadow: 
     0 20px 60px rgba(74, 158, 255, 0.5),
     0 0 80px rgba(0, 212, 170, 0.35),
-    0 0 120px rgba(79, 70, 229, 0.15),
+    0 0 120px rgba(0, 131, 143, 0.15),
     inset 0 0 30px rgba(255, 255, 255, 0.15);
 }
 
@@ -3001,7 +3115,7 @@ onUnmounted(() => {
   bottom: 0;
   border-radius: 50%;
   padding: 2px;
-  background: linear-gradient(135deg, rgba(74, 158, 255, 0.7), rgba(167, 139, 250, 0.5), rgba(0, 212, 170, 0.4));
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.7), rgba(38, 198, 218, 0.5), rgba(0, 212, 170, 0.4));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -3105,19 +3219,6 @@ onUnmounted(() => {
   .brand-title {
     font-size: 1.8rem;
     letter-spacing: 4px;
-  }
-
-  .card-corner {
-    width: 20px;
-    height: 20px;
-  }
-
-  .card-corner::before {
-    height: 15px;
-  }
-
-  .card-corner::after {
-    width: 15px;
   }
 }
 
@@ -3508,5 +3609,282 @@ onUnmounted(() => {
   font-size: 12px;
   color: #999;
   line-height: 1.6;
+}
+
+/* 登录方式切换标签 */
+.login-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  padding: 4px;
+  background: rgba(10, 15, 40, 0.5);
+  border-radius: 16px;
+  border: 1px solid rgba(74, 158, 255, 0.15);
+}
+
+.login-tab {
+  flex: 1;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: rgba(150, 180, 220, 0.6);
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-tab:hover {
+  color: rgba(200, 220, 255, 0.8);
+  background: rgba(74, 158, 255, 0.08);
+}
+
+.login-tab.active {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.25), rgba(0, 212, 170, 0.2));
+  color: #fff;
+  box-shadow: 
+    0 0 20px rgba(74, 158, 255, 0.3),
+    inset 0 0 15px rgba(74, 158, 255, 0.1);
+}
+
+.login-tab i {
+  font-size: 1rem;
+}
+
+/* 验证状态图标 */
+.input-status-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.input-group.success .input-status-icon {
+  opacity: 1;
+  color: #00d4aa;
+}
+
+.input-group.error .input-status-icon {
+  opacity: 1;
+  color: #ff6b6b;
+}
+
+.input-status-icon i {
+  font-size: 14px;
+  animation: iconBounce 0.4s ease;
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+/* 错误提示文本 */
+.field-error {
+  font-size: 0.82rem;
+  color: #ff6b6b;
+  margin-top: -8px;
+  margin-bottom: 4px;
+  padding-left: 8px;
+  animation: fadeInDown 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 验证码发送按钮 */
+.send-code-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.2), rgba(0, 212, 170, 0.15));
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 12px;
+  color: rgba(180, 220, 255, 0.9);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.send-code-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.35), rgba(0, 212, 170, 0.25));
+  border-color: rgba(74, 158, 255, 0.5);
+  box-shadow: 0 0 20px rgba(74, 158, 255, 0.2);
+  color: #fff;
+}
+
+.send-code-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 骨架屏加载状态 */
+.skeleton-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(12, 17, 40, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  z-index: 100;
+}
+
+.skeleton-content {
+  text-align: center;
+  color: rgba(180, 220, 255, 0.8);
+}
+
+.skeleton-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(74, 158, 255, 0.2);
+  border-top-color: rgba(74, 158, 255, 0.8);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: skeletonSpin 0.8s linear infinite;
+}
+
+@keyframes skeletonSpin {
+  to { transform: rotate(360deg); }
+}
+
+.skeleton-text {
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+}
+
+.skeleton-dots::after {
+  content: '';
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+/* 无障碍焦点样式 */
+*:focus-visible {
+  outline: 2px solid rgba(74, 158, 255, 0.8);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+button:focus-visible {
+  outline: none;
+}
+
+input:focus-visible {
+  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.3);
+}
+
+/* 响应式适配 */
+@media (max-width: 1024px) {
+  .login-container {
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  .left-panel {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .right-panel {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .login-card {
+    padding: 30px 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 25px 20px;
+    border-radius: 20px;
+  }
+  
+  .card-header h2 {
+    font-size: 1.8rem;
+  }
+  
+  .login-tabs {
+    flex-direction: row;
+  }
+  
+  .login-tab {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+  
+  .login-tab span {
+    display: none;
+  }
+  
+  .input-group {
+    padding: 0 16px;
+  }
+  
+  .send-code-btn {
+    padding: 8px 12px;
+    font-size: 0.78rem;
+  }
+  
+  .login-btn {
+    padding: 16px;
+    font-size: 0.95rem;
+  }
+  
+  .form-options {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}
+
+/* 夜间模式优化（当前已是深色主题） */
+@media (prefers-color-scheme: dark) {
+  .login-card {
+    background: rgba(8, 12, 30, 0.75);
+  }
+  
+  .input-group {
+    background: rgba(6, 10, 30, 0.6);
+  }
 }
 </style>

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="job-community">
     <canvas ref="bgCanvas" class="bg-canvas"></canvas>
     <div class="community-container">
@@ -108,11 +108,11 @@
                       <span v-if="item.comments > 100" class="badge active">💬 热议</span>
                     </div>
                     <div class="card-header">
-                      <img :src="item.avatar" class="card-avatar" />
+                      <img :src="item.avatar" class="card-avatar" @click.stop="openUserProfile(item.author)" />
                       <div class="card-title-wrap">
                         <h3 class="card-title">{{ item.title }}</h3>
                         <div class="card-meta">
-                          <span class="card-author">{{ item.author }}</span>
+                          <span class="card-author" @click.stop="openUserProfile(item.author)">{{ item.author }}</span>
                           <span class="card-time">{{ item.time }}</span>
                           <span class="card-status" :class="getOnlineStatus(item.author)">在线</span>
                         </div>
@@ -163,11 +163,11 @@
                       <span v-if="item.comments > 100" class="badge active">💬 热议</span>
                     </div>
                     <div class="card-header">
-                      <img :src="item.avatar" class="card-avatar" />
+                      <img :src="item.avatar" class="card-avatar" @click.stop="openUserProfile(item.author)" />
                       <div class="card-title-wrap">
                         <h3 class="card-title">{{ item.title }}</h3>
                         <div class="card-meta">
-                          <span class="card-author">{{ item.author }}</span>
+                          <span class="card-author" @click.stop="openUserProfile(item.author)">{{ item.author }}</span>
                           <span class="card-time">{{ item.time }}</span>
                           <span class="card-status" :class="getOnlineStatus(item.author)">在线</span>
                         </div>
@@ -286,7 +286,7 @@
             <div class="qa-list">
               <div v-for="(qa, index) in paginatedQAs" :key="index" class="qa-card" @click="openDetail('qa', qa)">
                 <div class="qa-header">
-                  <img :src="qa.avatar" class="qa-avatar" />
+                  <img :src="qa.avatar" class="qa-avatar" @click.stop="openUserProfile(qa.author)" />
                   <div class="qa-title-wrap">
                     <div class="qa-title-row">
                       <h3 class="qa-title">{{ qa.title }}</h3>
@@ -295,7 +295,7 @@
                       </span>
                     </div>
                     <div class="qa-meta">
-                      <span>{{ qa.author }}</span>
+                      <span @click.stop="openUserProfile(qa.author)">{{ qa.author }}</span>
                       <span>{{ qa.time }}</span>
                     </div>
                   </div>
@@ -476,10 +476,10 @@
             <h3>评论 ({{ detailData.comments }})</h3>
             <div class="comment-list">
               <div v-for="(comment, index) in detailData.commentList" :key="index" class="comment-item">
-                <img :src="comment.avatar" class="comment-avatar" />
+                <img :src="comment.avatar" class="comment-avatar" @click="openUserProfile(comment.author)" />
                 <div class="comment-content">
                   <div class="comment-header">
-                    <span class="comment-author">{{ comment.author }}</span>
+                    <span class="comment-author" @click="openUserProfile(comment.author)">{{ comment.author }}</span>
                     <span class="comment-time">{{ comment.time }}</span>
                   </div>
                   <p>{{ comment.content }}</p>
@@ -534,11 +534,11 @@
 
         <div v-if="detailType === 'qa'" class="detail-body">
           <div class="detail-header">
-            <img :src="detailData.avatar" class="detail-avatar" />
+            <img :src="detailData.avatar" class="detail-avatar" @click="closeDetail(); openUserProfile(detailData.author)" />
             <div class="detail-author">
               <h2>{{ detailData.title }}</h2>
               <div class="detail-meta">
-                <span>{{ detailData.author }}</span>
+                <span @click="closeDetail(); openUserProfile(detailData.author)">{{ detailData.author }}</span>
                 <span>{{ detailData.time }}</span>
                 <span :class="['qa-status', detailData.solved ? 'solved' : 'unsolved']">{{ detailData.solved ? '✅ 已解答' : '⏳ 待解答' }}</span>
                 <button class="qa-follow-btn" :class="{ followed: followedQuestionIds.has(detailData.title) }" @click="toggleFollowQuestion(detailData)">
@@ -561,10 +561,10 @@
             </div>
             <div class="comment-list">
               <div v-for="(ans, index) in (detailData.answerList || [])" :key="index" class="comment-item">
-                <img :src="ans.avatar" class="comment-avatar" />
+                <img :src="ans.avatar" class="comment-avatar" @click="openUserProfile(ans.author)" />
                 <div class="comment-content">
                   <div class="comment-header">
-                    <span class="comment-author">{{ ans.author }}</span>
+                    <span class="comment-author" @click="openUserProfile(ans.author)">{{ ans.author }}</span>
                     <span class="comment-time">{{ ans.time }}</span>
                   </div>
                   <p>{{ ans.content }}</p>
@@ -1087,6 +1087,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { getAuthInfo } from '@/utils/auth'
+import { generateAvatar, generateGuestName, getRandomAvatar } from '@/utils/avatar'
 let jobData = []
 const dataTrigger = ref(0)
 
@@ -1149,43 +1151,51 @@ const qaCurrentPage = ref(1)
 const qaPageSize = ref(5)
 const jobTotalPages = computed(() => Math.ceil(paginatedFilteredJobs.value.length / jobPageSize.value))
 
+const getUserScopedKey = (baseKey) => {
+  const auth = getAuthInfo()
+  if (auth && auth.userId) {
+    return `${baseKey}_${auth.userId}`
+  }
+  return `${baseKey}_guest`
+}
+
 const loadPersistedState = () => {
   try {
     console.log('[加载持久化] 开始加载localStorage数据...')
     
-    const applied = JSON.parse(localStorage.getItem('jc_appliedJobs') || '[]')
+    const applied = JSON.parse(localStorage.getItem(getUserScopedKey('jc_appliedJobs')) || '[]')
     appliedJobs.value = applied
     appliedJobIds.value = new Set(applied.map(j => j.id))
     console.log('[加载持久化] 投递记录:', applied.length, '条')
     
-    const followed = JSON.parse(localStorage.getItem('jc_followedQuestions') || '[]')
+    const followed = JSON.parse(localStorage.getItem(getUserScopedKey('jc_followedQuestions')) || '[]')
     followedQuestionIds.value = new Set(followed)
     console.log('[加载持久化] 关注问题:', followed.length, '条')
     
-    const followedUsersData = JSON.parse(localStorage.getItem('jc_followedUsers') || '[]')
+    const followedUsersData = JSON.parse(localStorage.getItem(getUserScopedKey('jc_followedUsers')) || '[]')
     followedUsers.value = new Set(followedUsersData)
     console.log('[加载持久化] 关注用户:', followedUsersData.length, '条')
     
-    const joinedGroups = JSON.parse(localStorage.getItem('jc_joinedGroups') || '[]')
+    const joinedGroups = JSON.parse(localStorage.getItem(getUserScopedKey('jc_joinedGroups')) || '[]')
     joinedGroupIds.value = new Set(joinedGroups)
     groupList.value.forEach(g => { g.joined = joinedGroupIds.value.has(g.name) })
     console.log('[加载持久化] 已加入小组:', joinedGroups.length, '条')
     
-    const collectedPosts = JSON.parse(localStorage.getItem('jc_collectedPosts') || '[]')
+    const collectedPosts = JSON.parse(localStorage.getItem(getUserScopedKey('jc_collectedPosts')) || '[]')
     collectedPosts.forEach(title => {
       const post = hotInterviews.value.find(i => i.title === title)
       if (post) post.collected = true
     })
     console.log('[加载持久化] 收藏帖子:', collectedPosts.length, '条')
     
-    const collectedJobs = JSON.parse(localStorage.getItem('jc_collectedJobs') || '[]')
+    const collectedJobs = JSON.parse(localStorage.getItem(getUserScopedKey('jc_collectedJobs')) || '[]')
     collectedJobs.forEach(id => {
       const job = realJobs.value.find(j => j.id === id)
       if (job) job.collected = true
     })
     console.log('[加载持久化] 收藏岗位:', collectedJobs.length, '条')
 
-    const publishedData = JSON.parse(localStorage.getItem('jc_publishedPosts') || '[]')
+    const publishedData = JSON.parse(localStorage.getItem(getUserScopedKey('jc_publishedPosts')) || '[]')
     console.log('[加载持久化] 已发布帖子:', publishedData.length, '篇，准备恢复...')
     let restoredCount = 0
     publishedData.forEach(post => {
@@ -1206,30 +1216,30 @@ const loadPersistedState = () => {
 }
 
 const persistAppliedJobs = () => {
-  localStorage.setItem('jc_appliedJobs', JSON.stringify(appliedJobs.value))
+  localStorage.setItem(getUserScopedKey('jc_appliedJobs'), JSON.stringify(appliedJobs.value))
 }
 const persistFollowedQuestions = () => {
-  localStorage.setItem('jc_followedQuestions', JSON.stringify([...followedQuestionIds.value]))
+  localStorage.setItem(getUserScopedKey('jc_followedQuestions'), JSON.stringify([...followedQuestionIds.value]))
 }
 const persistFollowedUsers = () => {
-  localStorage.setItem('jc_followedUsers', JSON.stringify([...followedUsers.value]))
+  localStorage.setItem(getUserScopedKey('jc_followedUsers'), JSON.stringify([...followedUsers.value]))
 }
 const persistJoinedGroups = () => {
-  localStorage.setItem('jc_joinedGroups', JSON.stringify([...joinedGroupIds.value]))
+  localStorage.setItem(getUserScopedKey('jc_joinedGroups'), JSON.stringify([...joinedGroupIds.value]))
 }
 const persistCollectedPosts = () => {
   const titles = hotInterviews.value.filter(i => i.collected).map(i => i.title)
-  localStorage.setItem('jc_collectedPosts', JSON.stringify(titles))
+  localStorage.setItem(getUserScopedKey('jc_collectedPosts'), JSON.stringify(titles))
 }
 const persistCollectedJobs = () => {
   const ids = realJobs.value.filter(j => j.collected).map(j => j.id)
-  localStorage.setItem('jc_collectedJobs', JSON.stringify(ids))
+  localStorage.setItem(getUserScopedKey('jc_collectedJobs'), JSON.stringify(ids))
 }
 const persistPublishedPosts = () => {
   const allUserPosts = hotInterviews.value.filter(i => i.author === currentUser.value.name && i.isUserPublished)
-  localStorage.setItem('jc_publishedPosts', JSON.stringify(allUserPosts))
+  localStorage.setItem(getUserScopedKey('jc_publishedPosts'), JSON.stringify(allUserPosts))
   console.log('[持久化-发布] 已保存用户发布帖子:', allUserPosts.length, '篇')
-  console.log('[持久化-发布] localStorage键 jc_publishedPosts 已更新')
+  console.log('[持久化-发布] localStorage键已更新')
 }
 
 const publishForm = ref({
@@ -1239,20 +1249,32 @@ const publishForm = ref({
   content: ''
 })
 
-const currentUser = ref({
-  name: '求职者小王',
-  avatar: generateAvatar('求职者小王')
-})
-
-function generateAvatar(name) {
-  const colors = ['#4a9eff', '#00d4aa', '#a855f7', '#f59e0b', '#ec4899', '#ef4444', '#10b981', '#3b82f6']
-  const color = colors[name.length % colors.length]
-  const initial = name.charAt(0)
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="${color}"/><text x="20" y="26" text-anchor="middle" fill="white" font-size="18" font-weight="600">${initial}</text></svg>`
-  const utf8Bytes = new TextEncoder().encode(svg)
-  const base64String = btoa(String.fromCharCode(...utf8Bytes))
-  return `data:image/svg+xml;base64,${base64String}`
+const loadCurrentUser = () => {
+  const auth = getAuthInfo()
+  if (auth) {
+    const displayName = auth.name || auth.username || auth.email || '用户'
+    currentUser.value = {
+      name: displayName,
+      avatar: generateAvatar(displayName),
+      role: auth.role || 'user',
+      loginType: auth.loginType
+    }
+  } else {
+    // 游客模式或未登录 - 为每个游客生成唯一名称和头像
+    const guestName = generateGuestName()
+    currentUser.value = {
+      name: guestName,
+      avatar: generateAvatar(guestName),
+      role: 'guest',
+      loginType: 'guest'
+    }
+  }
 }
+
+const currentUser = ref({
+  name: '加载中...',
+  avatar: getRandomAvatar()
+})
 
 const extractTags = (jobName) => {
   const tags = []
@@ -2205,7 +2227,11 @@ const computeHeat = (post) => {
 
 // 打开用户主页：聚合该用户的所有面经、问答及活跃榜信息
 const openUserProfile = (userName) => {
-  if (!userName) return
+  console.log('openUserProfile called with:', userName)
+  if (!userName) {
+    console.warn('openUserProfile: userName is empty')
+    return
+  }
   // 查找用户信息
   const rankEntry = weeklyRank.value.find(r => r.name === userName)
   const recommendUser = recommendUsers.value.find(u => u.name === userName)
@@ -2217,7 +2243,6 @@ const openUserProfile = (userName) => {
   const userQAs = qaList.value.filter(qa => {
     if (qa.author === userName) return true
     if (qa.bestAnswer && qa.bestAnswer.author === userName) return true
-    // 也检查回答列表中是否包含该用户
     if (qa.answerList && qa.answerList.some(ans => ans.author === userName)) return true
     return false
   })
@@ -2250,6 +2275,7 @@ const openUserProfile = (userName) => {
   }
   userProfileTab.value = userPosts.length > 0 ? 'posts' : 'qas'
   showUserProfile.value = true
+  console.log('openUserProfile: showUserProfile set to true')
 }
 
 const closeUserProfile = () => {
@@ -2336,12 +2362,12 @@ const addToSearchHistory = (query) => {
   const history = searchHistory.value.filter(h => h !== query)
   history.unshift(query)
   searchHistory.value = history.slice(0, 10)
-  localStorage.setItem('jc_searchHistory', JSON.stringify(searchHistory.value))
+  localStorage.setItem(getUserScopedKey('jc_searchHistory'), JSON.stringify(searchHistory.value))
 }
 
 const clearSearchHistory = () => {
   searchHistory.value = []
-  localStorage.removeItem('jc_searchHistory')
+  localStorage.removeItem(getUserScopedKey('jc_searchHistory'))
 }
 
 const handleApply = (job) => {
@@ -2542,6 +2568,9 @@ const initBackground = () => {
 }
 
 onMounted(async () => {
+  // 加载当前用户信息
+  loadCurrentUser()
+  
   try {
     const response = await fetch('/data/all_cleaned_jobs.json')
     if (response.ok) {
@@ -2556,7 +2585,7 @@ onMounted(async () => {
   initBackground()
   loadPersistedState()
   // 加载搜索历史
-  const savedHistory = JSON.parse(localStorage.getItem('jc_searchHistory') || '[]')
+  const savedHistory = JSON.parse(localStorage.getItem(getUserScopedKey('jc_searchHistory')) || '[]')
   if (savedHistory.length > 0) {
     searchHistory.value = savedHistory
   }
@@ -2976,6 +3005,14 @@ onUnmounted(() => {
   width: 48px; height: 48px; border-radius: 50%;
   border: 1px solid var(--border-glow);
   box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+  transition: all 0.3s;
+}
+.card-avatar:hover {
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+  transform: scale(1.05);
 }
 .card-title-wrap { flex: 1; }
 .card-title {
@@ -2984,7 +3021,19 @@ onUnmounted(() => {
   text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
 }
 .card-meta { display: flex; gap: 18px; }
-.card-author { font-size: 0.95rem; color: var(--cyan); text-shadow: 0 0 6px rgba(0, 229, 255, 0.4); }
+.card-author { 
+  font-size: 0.95rem; 
+  color: var(--cyan); 
+  text-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+  transition: all 0.3s;
+}
+.card-author:hover {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.8);
+}
 .card-time { font-size: 0.9rem; color: rgba(230, 241, 255, 0.5); font-family: var(--font-mono); }
 
 .card-tags { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; }

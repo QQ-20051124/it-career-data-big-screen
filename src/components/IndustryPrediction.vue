@@ -2110,6 +2110,7 @@ onUnmounted(() => {
 }
 
 .back-btn {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2130,8 +2131,10 @@ onUnmounted(() => {
 }
 
 .logo-section {
+  flex: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 15px;
 }
 
@@ -2164,6 +2167,7 @@ onUnmounted(() => {
 }
 
 .search-bar {
+  flex-shrink: 0;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -2240,11 +2244,13 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  margin-top: 5px;
 }
 
 .tag-label {
   font-size: 0.85rem;
   color: #64748b;
+  flex-shrink: 0;
 }
 
 .smart-tag {
