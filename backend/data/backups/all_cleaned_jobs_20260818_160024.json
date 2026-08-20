@@ -1,0 +1,4844 @@
+[
+  {
+    "job_name": "高级数据架构工程师",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "5年以上",
+    "company": "粤海水务",
+    "salary_avg": 23000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "策略数据分析师",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "3年以上",
+    "company": "携程集团",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高级AI业务系统架构师",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "纳百机器人",
+    "salary_avg": 55000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "杭州",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "东莞泗杰电子科技有限公司",
+    "salary_avg": 11000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "深圳",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "东莞市海淼科技有限公司",
+    "salary_avg": 11000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "行政文员",
+    "city": "芜湖",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "舟山飞旭科技有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "招聘计算机专业应届生/往届生（车辆软件开发）",
+    "city": "青岛",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "青岛中鸿重型机械有限公司",
+    "salary_avg": 9500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法专家",
+    "city": "郑州",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "郑州煦秋信息科技有限公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机与信息通信网络调试维护",
+    "city": "北京",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "融通人力资源开发有限公司北京分公司",
+    "salary_avg": 12000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "大学计算机教师岗",
+    "city": "南昌",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某国内大型学校教育公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI算力芯片建模工程师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "5-10年",
+    "company": "云天励飞",
+    "salary_avg": 75000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "郑州",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "河南列阁影视传媒有限公司",
+    "salary_avg": 8000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "智驾-计算机视觉算法工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1年以上",
+    "company": "东软集团有限公司",
+    "salary_avg": 19500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉/图像算法工程师",
+    "city": "济南",
+    "education": "硕士",
+    "work_exp": "1年以上",
+    "company": "山东金钟科技集团股份有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "天津",
+    "education": "本科",
+    "work_exp": "5年以上",
+    "company": "天津前程海越技术有限公司",
+    "salary_avg": 8500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "海外社媒投放经理 (MJ033583)",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "携程集团",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "助理硬件工程师（计算机方向）",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "柏飞电子",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "客户经理",
+    "city": "广州",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "武汉市聚盈汇证券投资咨询有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "初中计算机教师",
+    "city": "广州",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某广州大型培训服务公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "测试工程师（计算机存储类）",
+    "city": "长沙",
+    "education": "本科",
+    "work_exp": "5年以上",
+    "company": "某长沙电子/半导体/集成电路上市公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "法务/总助",
+    "city": "广州",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "鼎甲科技",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "Performance Marketing Growth Manager (MJ035997)",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "携程集团",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术人员--湘潭",
+    "city": "长沙",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "某国内计算机软件公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "大学计算机教师岗",
+    "city": "九江",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某国内大型学校教育公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计",
+    "city": "广州",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "湘北威尔曼制药股份有限公司广州分公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师（双休/五险一金）",
+    "city": "重庆",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某重庆通信设备公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机网络管理员",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "北京郡雅科贸有限公司",
+    "salary_avg": 8000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "软件开发工程师",
+    "city": "苏州",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "某上海大型机械/设备公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机少儿编程培训教师",
+    "city": "枣庄",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "枣庄宝优教育科技有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师",
+    "city": "重庆",
+    "education": "统招本科",
+    "work_exp": "2年以上",
+    "company": "重庆市莱克顿教育科技有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "教师讲师（计算机）",
+    "city": "郑州",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某郑州IT服务上市公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "实验室计算机验证工程师",
+    "city": "苏州",
+    "education": "硕士",
+    "work_exp": "3年以下",
+    "company": "某北京大型制药公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉（医学图像）算法工程师招聘",
+    "city": "重庆",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "华大集团",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "深圳盛亚环境技术有限公司",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机整机工程师",
+    "city": "深圳",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "深圳市奥盛通科技有限公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机软件工程师",
+    "city": "重庆",
+    "education": "统招本科",
+    "work_exp": "1年以上",
+    "company": "重庆赛迪奇智人工智能科技有限公司",
+    "salary_avg": 16500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "某上海人力资源服务公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机科学老师 (Computer Science)",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "广州引力科技有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AIDD计算机辅助药物研发",
+    "city": "成都",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "成都先导药物开发股份有限公司",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机审计",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-5年",
+    "company": "容诚会计师事务所(特殊普通合伙)",
+    "salary_avg": 14500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机专业课教师",
+    "city": "重庆",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "重庆北方影视传媒(集团)有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "A-Level学科老师 (数学、物理、经济、计算机科学...)",
+    "city": "广州",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "广州引力科技有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机信息类专业教师",
+    "city": "西安",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "西安科技大学高新学院",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机科学教师（新手教师）",
+    "city": "苏州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "雅力教育",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机老师",
+    "city": "宁波",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "某宁波培训服务公司",
+    "salary_avg": 18500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计初级研究员",
+    "city": "武汉",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "远大医药科技(武汉)有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI前端开发工程师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "上海航天技术基础研究所",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高级 Agent 开发工程师(J10500)",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "华曦达科技",
+    "salary_avg": 21500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机研究员",
+    "city": "深圳",
+    "education": "学历不限",
+    "work_exp": "3-5年",
+    "company": "某深圳基金/证券/期货公司",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "世界500强三亚计算机人工智能算法大模型博士教育教师",
+    "city": "三亚",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某北京大型人力资源服务公司",
+    "salary_avg": 26500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中计算机教师",
+    "city": "大连",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "英领国际学校",
+    "salary_avg": 9000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中计算机教师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "上海金瑞学校",
+    "salary_avg": 21000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系统验证工程师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "恒瑞医药",
+    "salary_avg": 14500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "国际学校计算机老师",
+    "city": "武汉",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "爱莎国际教育集团",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "开发工程师 L14140",
+    "city": "连云港",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "欧美斯集团",
+    "salary_avg": 11000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "青岛",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "青岛中绵针织有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "徐州",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "海南伽欣睿贸易有限公司",
+    "salary_avg": 15500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "新东方国际课程/物理/化学/计算机/经济教师",
+    "city": "武汉",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "新东方教育科技集团有限公司",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "25-26届硕博应届生（人工智能，计算机）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某北京机械/设备上市公司",
+    "salary_avg": 20500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI产品经理—计算机上市公司",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某北京计算机硬件上市公司",
+    "salary_avg": 14500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "数学讲师（计算机类）",
+    "city": "郑州",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某郑州IT服务上市公司",
+    "salary_avg": 11000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "信息技术教师（计算机、编程、人工智能）",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "北京凯文德信教育科技股份有限公司上海分公司",
+    "salary_avg": 9500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系统工程师【需有GMP同岗位经验】",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "3年以上",
+    "company": "北京华放天实生物制药有限责任公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机设计研究实习生",
+    "city": "重庆",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "湖南大学重庆研究院",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系统验证工程师",
+    "city": "武汉",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "武汉点风信息科技有限公司",
+    "salary_avg": 9000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "5年以上",
+    "company": "锦泓时装集团股份有限公司",
+    "salary_avg": 14500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "玫德集团有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI研究员（通信/电子/计算机方向）",
+    "city": "北京",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某北京大型信托公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "武汉",
+    "education": "硕士",
+    "work_exp": "1-10年",
+    "company": "武汉港迪技术股份有限公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "西安",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "烟台睿创微纳技术股份有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机老师",
+    "city": "宁波",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "某宁波培训服务公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语A level计算机老师-上海知名国际学校",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某上海学校教育公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机教师",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "爱乐惟教育科技(深圳)有限公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "兼职A-Level / AP / IB 化学、生物、计算机、心理学科教师",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "1年以上",
+    "company": "知氏科技",
+    "salary_avg": 2500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "国际高中计算机教师",
+    "city": "大连",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "英领国际学校",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "研发测试工程师（计算机方向）",
+    "city": "上海",
+    "education": "大专",
+    "work_exp": "3-5年",
+    "company": "柏飞电子",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师（多模态方向）",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "杭州弓叶科技有限公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机/信息技术老师（国际学校）",
+    "city": "重庆",
+    "education": "统招本科",
+    "work_exp": "2-4年",
+    "company": "某北京大型培训服务公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "杭州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "创邻科技",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师",
+    "city": "石家庄",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "河北外国语学院",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "南京",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "海南佳秋好居房产咨询有限公司",
+    "salary_avg": 15500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系统验证工程师(CSV工程师)",
+    "city": "杭州",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "武汉点风信息科技有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "研究院-计算机行业分析师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "太平洋证券",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机与信息网络总体工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "苍宇天基(北京)信息通信技术有限公司",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "南京开缘智能科技有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机软件测试工程师",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "三一集团",
+    "salary_avg": 24000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "苏州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "江苏烽禾升智能科技有限公司",
+    "salary_avg": 21000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "FPGA工程师（计算机方向）",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1年以下",
+    "company": "柏飞电子",
+    "salary_avg": 23000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机老师",
+    "city": "北京",
+    "education": "学历不限",
+    "work_exp": "5-10年",
+    "company": "某北京大型培训服务公司",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "文案设计",
+    "city": "佛山",
+    "education": "中专/中技",
+    "work_exp": "经验不限",
+    "company": "海南省志熙宇广告有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "(计算机，传媒)行业研究员",
+    "city": "上海",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某上海基金/证券/期货公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "DJI 大疆",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "装修设计师",
+    "city": "舟山",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "嘉兴新模文化传媒有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "测试专家（计算机、硬盘、存储）",
+    "city": "长沙",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某长沙电子/半导体/集成电路上市公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉开发工程师 (MJ007777)",
+    "city": "合肥",
+    "education": "本科",
+    "work_exp": "5年以上",
+    "company": "上海移远通信技术股份有限公司",
+    "salary_avg": 18500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助抗体药物设计工程师",
+    "city": "苏州",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "苏州予路乾行生物科技有限公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机结构工程师",
+    "city": "合肥",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "合肥陆通智能科技有限公司",
+    "salary_avg": 13500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "交互式广告制作--实习",
+    "city": "洛阳",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "洛阳星航游戏科技有限公司",
+    "salary_avg": 3500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "算法工程师 （计算机视觉方向）",
+    "city": "沈阳",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "沈阳新松机器人自动化股份有限公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI研究员（通信/电子/计算机方向）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某央企旗下信托公司",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "量子计算机测控系统软件开发工程师",
+    "city": "合肥",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "某北京大型运营商/增值服务公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "软件开发实习（AI）",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某重庆人力资源服务公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "徐州一中国际部双语计算机/数学教师",
+    "city": "徐州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "天霖教育",
+    "salary_avg": 9500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "南京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "常州鉴芯半导体设备有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师 · 高考英语AI学习产品",
+    "city": "成都",
+    "education": "学历不限",
+    "work_exp": "3-5年",
+    "company": "重庆精卓企业管理咨询有限公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "北京同一伟业科技有限公司",
+    "salary_avg": 8500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "长沙",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "湖南华芯通网络科技有限公司",
+    "salary_avg": 10500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助小分子药物设计工程师/研究员",
+    "city": "苏州",
+    "education": "硕士",
+    "work_exp": "1-6年",
+    "company": "苏州予路乾行生物科技有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "CADD（计算机辅助药物设计）",
+    "city": "苏州",
+    "education": "硕士",
+    "work_exp": "1年以上",
+    "company": "朗睿生物医药",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "全栈开发工程师",
+    "city": "马鞍山",
+    "education": "统招本科",
+    "work_exp": "5年以上",
+    "company": "合肥某国有企业",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "C++软件开发工程师",
+    "city": "苏州",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "融速科技",
+    "salary_avg": 19500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机老师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "领科教育上海校区",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "光剑美高-双语计算机教师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "光华教育",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "CADD（计算机辅助药物设计）",
+    "city": "广州",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "广州英赛特生物技术有限公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "大学教师- base三亚，世界500强旗下教育模块，看【计算机、经济学、教育学】相关专业，学历必须博士",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某北京大型人力资源服务公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "跨端APP开发工程师",
+    "city": "深圳",
+    "education": "大专",
+    "work_exp": "1年以上",
+    "company": "深圳市科力晟通科技有限公司",
+    "salary_avg": 14000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系统管理员",
+    "city": "徐州",
+    "education": "大专",
+    "work_exp": "3年以上",
+    "company": "江苏星诺医药科技有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "SMT PQE工程师（计算机、电脑主板）",
+    "city": "深圳",
+    "education": "大专",
+    "work_exp": "3年以上",
+    "company": "某深圳计算机硬件公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "IGCSE&A-LEVEL计算机老师",
+    "city": "厦门",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "厦门洲邻国际教育咨询有限公司",
+    "salary_avg": 21500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "青岛",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "玫德集团有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助设计工程师",
+    "city": "西安",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "西安永瑞自动化有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP/A-level计算机教师",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "北京顶思致远教育咨询有限公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "IB学科老师 (数学、物理、经济、计算机科学...)",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "广州引力科技有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP计算机老师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某北京大型培训服务公司",
+    "salary_avg": 17000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "大学老师-人工智能方向【base三亚/博士学历/计算机相关专业/人工智能研究方向优先】",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某北京大型人力资源服务公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "web前端工程师",
+    "city": "石家庄",
+    "education": "统招本科",
+    "work_exp": "2年以上",
+    "company": "河北凝讯科技有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机网络系统集成工程师",
+    "city": "西安",
+    "education": "本科",
+    "work_exp": "2-4年",
+    "company": "陕西中跃龙安全科技有限责任公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "会计经理/主管",
+    "city": "杭州",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "温州市讯和电脑科技有限公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP学科老师 (微积分、物理、经济、计算机科学...)",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "广州引力科技有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "数学物理化学历史计算机双语国际学科教师",
+    "city": "扬州",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某国内大型学校教育公司",
+    "salary_avg": 28000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "算法研究员（计算机视觉，不用加班）",
+    "city": "无锡",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "知名的智能语音和人工智能上市企业",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "上海康昱盛信息科技有限公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "昆山积元科技有限公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "榆林",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "佰特沃德(大连)石油化工有限公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "千问事业部-iOS高级开发工程师（UC浏览器）-北京/广州",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "阿里巴巴集团",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "Alevel 计算机老师-14薪",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "某学校教育公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术人员",
+    "city": "长沙",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "某国内计算机软件公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "(计算机，传媒)行业研究员",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "某基金/证券/期货上市公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "上海国际学校高中计算机教师招聘",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "某上海人力资源服务公司",
+    "salary_avg": 15500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "普高和竞赛ICT计算机老师",
+    "city": "北京",
+    "education": "学历不限",
+    "work_exp": "2年以上",
+    "company": "某北京大型其他教育培训公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "长沙",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "三一集团",
+    "salary_avg": 21500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "量子计算机测控系统软件开发工程师",
+    "city": "合肥",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "某知名公司",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "结构TQC（知名计算机软件公司，需研发背景）",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "某大型知名计算机软件公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "Java后端开发工程师（计算机）",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "某深圳电子商务公司",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "内勤",
+    "city": "上海",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "蓝亲(上海)科技有限公司",
+    "salary_avg": 9500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机老师",
+    "city": "北京",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "某北京大型培训服务公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "系统工程师（计算机/存储）",
+    "city": "长沙",
+    "education": "硕士",
+    "work_exp": "5-10年",
+    "company": "某长沙电子/半导体/集成电路上市公司",
+    "salary_avg": 70000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "成都",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "某成都IT服务公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "玫德集团有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI计算机视觉工程师",
+    "city": "青岛",
+    "education": "统招本科",
+    "work_exp": "2年以上",
+    "company": "北京国信会视科技有限公司",
+    "salary_avg": 16500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉生成式技术研究员",
+    "city": "北京",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某北京互联网公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "飞控/飞管计算机设计",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某西安大型计算机硬件公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "济南",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "玫德集团有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "在职博士后【金融/计算机（青年教师可投递）】",
+    "city": "杭州",
+    "education": "博士",
+    "work_exp": "1-3年",
+    "company": "某杭州大型计算机软件公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉高级工程师",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某深圳大型货运/物流/仓储公司",
+    "salary_avg": 70000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "衡水",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "北京虹基企业管理有限责任公司",
+    "salary_avg": 9500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "408计算机老师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "上海新航道好轻松教育科技有限公司",
+    "salary_avg": 15500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机安全保密管理员",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "新时代工程咨询有限公司",
+    "salary_avg": 8500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "生产安全员（河源，本科，2-10年制造业经验，7k~9k*11薪，财务管理、计算机应用、统计学、数据科学等相关专业）",
+    "city": "河源",
+    "education": "本科",
+    "work_exp": "2-10年",
+    "company": "某郑州大型食品/饮料/酒水公司",
+    "salary_avg": 8000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机科学老师(J10235)",
+    "city": "苏州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "雅力教育",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "软件开发",
+    "city": "保定",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "长城汽车",
+    "salary_avg": 13000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计负责人",
+    "city": "北京",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某北京制药上市公司",
+    "salary_avg": 75000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机网络工程师",
+    "city": "唐山",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "唐山国控科创集团有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机组装安装技术员",
+    "city": "上海",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "宸联科技(上海)有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机及人工智能教师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "上海嘉定区民办华盛怀少学校",
+    "salary_avg": 16500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系统工程师（硬件）",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "3年以上",
+    "company": "上海信达威科技有限公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "华润健康",
+    "salary_avg": 9000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "杭州",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "昂坤半导体",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机与AI课程教师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "上海金瑞学校",
+    "salary_avg": 17000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中双语计算机CS教师",
+    "city": "宁波",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "某宁波培训服务公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "IG/A-Level/AP计算机科学双语教师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "北京大成临川学校",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机设备管理员",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "北京航空兴业文化发展有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机老师",
+    "city": "重庆",
+    "education": "统招本科",
+    "work_exp": "2-4年",
+    "company": "某北京大型培训服务公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机岗位-苏州市区",
+    "city": "苏州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "某苏州学校教育公司",
+    "salary_avg": 20500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "电子/计算机行业研究员",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "2-5年",
+    "company": "金鹰基金",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "软件开发岗-F1275H",
+    "city": "三亚",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "京东商城",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "券商研究所-行业研究岗-北上深 行业：计算机/科技/有色/金属矿业/机械/新材料/新能源/电新/医药/化工",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某大型基金/证券/期货公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "数据治理和系统支持岗-上海央企30万本，金融 + 数据 / 计算机复合背景优先；3年以上保险资管、基金、银行理财等同业资管中台",
+    "city": "上海",
+    "education": "学历不限",
+    "work_exp": "3-5年",
+    "company": "某北京保险上市公司",
+    "salary_avg": 26000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机（科学）老师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "某上海人力资源服务公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "涉密计算机安全管理员",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "星际防务",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中A level计算机教师",
+    "city": "宁波",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "某宁波培训服务公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机安全保密管理员",
+    "city": "西安",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "西安润道智检科技有限公司",
+    "salary_avg": 8000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助设计中高级研究员",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "2年以下",
+    "company": "维琪科技",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机老师",
+    "city": "武汉",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "武汉惟楚信息技术有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "机械结构工程师（具有工业计算机、特种计算机经验优先）",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "3年以上",
+    "company": "北京鲁成伟业科技发展有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机管理",
+    "city": "衢州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "浙江锦华新材料股份有限公司",
+    "salary_avg": 8500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "曲靖",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "云南建功星",
+    "salary_avg": 4000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机老师",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某北京大型专业技术服务公司",
+    "salary_avg": 65000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "硬件工程师(计算机）",
+    "city": "长沙",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "湖南航天捷诚电子装备有限责任公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "项目专员兼计算机维护",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "中国医药集团联合工程有限公司广州分公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "超导量子计算机测控工程师",
+    "city": "合肥",
+    "education": "本科",
+    "work_exp": "5-10年",
+    "company": "某合肥大型通信设备公司",
+    "salary_avg": 42500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP物理/数学/化学/计算机教师",
+    "city": "成都",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "狄邦教育集团",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "视觉工程师（计算机视觉算法方向）",
+    "city": "南京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某知名公司",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "语/数/英/计算机/体育/旅游/美术/思政/药学  任课教师（需兼班主任）",
+    "city": "长沙",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "长沙华中涉外职业高中有限责任公司",
+    "salary_avg": 6000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "超导量子计算机测控工程师",
+    "city": "北京",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "某合肥大型通信设备公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "项目经理（汽车、机器人、自动化、机械、电气、计算机等）",
+    "city": "长沙",
+    "education": "统招本科",
+    "work_exp": "3年以上",
+    "company": "某长沙大型工业自动化公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "招商专员",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "深圳市和鑫晟食品科技有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "宏观/策略/计算机/煤炭/家电/机械/通信/汽车行业分析师（职级职位不限）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "4年以上",
+    "company": "山西证券股份有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "c#开发工程师",
+    "city": "苏州",
+    "education": "大专",
+    "work_exp": "3-5年",
+    "company": "昆山嘉华电子有限公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师(J10492)",
+    "city": "宁波",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "震裕科技",
+    "salary_avg": 24000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉",
+    "city": "重庆",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "某重庆大型学校教育公司",
+    "salary_avg": 11000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师",
+    "city": "佛山",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "三江职业技术学校",
+    "salary_avg": 11000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "软件开发岗（前端）-G2137M",
+    "city": "三亚",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "京东商城",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机运维工程师",
+    "city": "深圳",
+    "education": "大专",
+    "work_exp": "3-5年",
+    "company": "深圳市三奇科技有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机老师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某北京大型专业技术服务公司",
+    "salary_avg": 60000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系统验证（CSV）主管",
+    "city": "徐州",
+    "education": "本科",
+    "work_exp": "5年以上",
+    "company": "江苏星诺医药科技有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机与人工智能研究岗",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "中山证券有限责任公司",
+    "salary_avg": 18500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机研究员",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某上海基金/证券/期货公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "行业分析师（策略、非银行金融、有色金属、建筑建材&中小盘、汽车和汽车零部件、计算机）",
+    "city": "北京",
+    "education": "博士",
+    "work_exp": "1-3年",
+    "company": "某上海基金/证券/期货上市公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "研究员（计算机/科技/有色/金属矿业/机械/新材料/新能源/电新/医药/化工）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "某基金/证券/期货上市公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "客户端Cocos Creator/高级--主程",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "3-10年",
+    "company": "某上海大型游戏公司",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "凉山",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "四川省世纪恒源档案整理服务有限公司",
+    "salary_avg": 4500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "量子计算机测控系统软件开发工程师",
+    "city": "北京",
+    "education": "统招本科",
+    "work_exp": "3年以上",
+    "company": "某大型通信设备公司",
+    "salary_avg": 31500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中计算机Ap教师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "某上海学校教育公司",
+    "salary_avg": 15500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "软件开发工程师（前端方向）",
+    "city": "重庆",
+    "education": "硕士",
+    "work_exp": "5年以上",
+    "company": "重庆市渝发水利科学研究院有限公司",
+    "salary_avg": 15500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中计算机老师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某上海学校教育公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "销售内勤",
+    "city": "安庆",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "安庆上达贸易有限公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机管理人员",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "新时代工程咨询有限公司",
+    "salary_avg": 8500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "A-level/AP双语老师（数学/物理/化学/计算机/经济/生物）-光华剑桥",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "光华教育",
+    "salary_avg": 15500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "北京郡雅科贸有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP计算机老师",
+    "city": "廊坊",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "北京正源拓维教育咨询有限公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "开发工程师",
+    "city": "无锡",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "VEM电机",
+    "salary_avg": 10500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机讲师",
+    "city": "南宁",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "广西中公教育",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发",
+    "city": "杭州",
+    "education": "大专",
+    "work_exp": "3年以上",
+    "company": "恩士迅",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法专家",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "5-10年",
+    "company": "某深圳知名公司",
+    "salary_avg": 65000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "项目经理型美工( 应用工程师)",
+    "city": "上海",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "上海担路网络科技有限公司",
+    "salary_avg": 9000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "售前售后客服",
+    "city": "杭州",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "赣州泰酷拉电子商务有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "大学计算机基础教师",
+    "city": "成都",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "四川电影电视学院",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "广东美捷威通生物科技有限公司",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机编程",
+    "city": "上海",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "上海意硕工程设备有限公司",
+    "salary_avg": 10500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机工程师",
+    "city": "孝感",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "湖北三江航天万山特种车辆有限公司",
+    "salary_avg": 11000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中计算机教师（双语学校）",
+    "city": "常州",
+    "education": "本科",
+    "work_exp": "3-10年",
+    "company": "某知名公司",
+    "salary_avg": 19500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "深圳",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "华为云计算技术有限公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "Windows运维工程师（全球知名汽车零部件、日语流利、熟悉计算机网络和网络安全的调试，NAT网关，ACL等相关技术、有云部署经验优先）",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某知名公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机或电子信息相关专业策划编辑",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "科学出版社职教技术出版中心",
+    "salary_avg": 10500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师（SLAM方向）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "千寻位置网络有限公司",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机老师（川内就近分配）",
+    "city": "成都",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "七洲教育",
+    "salary_avg": 13500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "摄影测量、计算机视觉、点云算法工程师",
+    "city": "成都",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "成都联科",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机科学与技术专业教师",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "广州知藤教育科技有限公司",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发",
+    "city": "北京",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某北京大型计算机软件公司",
+    "salary_avg": 14500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中AP计算机科学教师",
+    "city": "杭州",
+    "education": "本科",
+    "work_exp": "6年以上",
+    "company": "某杭州大型学校教育公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机老师（全国有岗）",
+    "city": "上海",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某武汉学校教育公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "图像处理/计算机视觉/机器学习/人工智能算法研发实习生",
+    "city": "烟台",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "烟台睿创微纳技术股份有限公司",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机老师-国际课程",
+    "city": "成都",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "狄邦教育集团",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系统工程师",
+    "city": "西安",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某西安大型计算机硬件公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "青岛",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "山东鲁冠教育科技有限公司",
+    "salary_avg": 3500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助大分子/多肽药物设计工程师/研究员",
+    "city": "苏州",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "苏州予路乾行生物科技有限公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机网络老师",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "广州市电子商务技工学校",
+    "salary_avg": 6000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "量子计算机测控系统软件开发工程师",
+    "city": "合肥",
+    "education": "本科",
+    "work_exp": "5-10年",
+    "company": "某合肥大型通信设备公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高级计算机视觉算法工程师",
+    "city": "武汉",
+    "education": "学历不限",
+    "work_exp": "5年以上",
+    "company": "某武汉工业自动化上市公司",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP计算机教师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "北京顶思致远教育咨询有限公司",
+    "salary_avg": 18500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "普高ICT合格考/计算机教师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "某北京大型其他教育培训公司",
+    "salary_avg": 18500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "小学计算机老师",
+    "city": "江门",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "凯洛斯教育科技(广州)有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "二级系统工程师（冶金自动化/计算机）",
+    "city": "北京",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "某北京电气机械/器材公司",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "开发工程师（低代码方向）",
+    "city": "成都",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "创意信息",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "卡勒蜜",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "稷山县为真商贸有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机科学与数字设计见习教师",
+    "city": "杭州",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "某杭州学校教育公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件工程师",
+    "city": "北京",
+    "education": "学历不限",
+    "work_exp": "1-3年",
+    "company": "某大型医疗器械公司",
+    "salary_avg": 13500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "中职计算机基础老师",
+    "city": "石家庄",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "河北知行本一教育科技有限公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机服务工程师",
+    "city": "清远",
+    "education": "中专/中技",
+    "work_exp": "经验不限",
+    "company": "广东蓝石科技有限公司",
+    "salary_avg": 4500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "重庆",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "重庆市万州区焓扬电脑有限公司",
+    "salary_avg": 4000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "研究所研究部计算机行业分析师/研究员/研究助理(000667)",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "国盛证券",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机类论文辅导",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "深圳市摸鱼贸易有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件工程师",
+    "city": "镇江",
+    "education": "大专",
+    "work_exp": "1年以下",
+    "company": "江苏华弘数科技术有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "仓库管理员",
+    "city": "重庆",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "温州市讯和电脑科技有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "驻马店",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "河南宇康新材料科技有限公司",
+    "salary_avg": 5000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "诚聘计算机配件外贸业务员",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "某深圳批发/零售公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "量子计算机测控系统软件开发工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "某合肥大型通信设备公司",
+    "salary_avg": 50000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "院校渠道主管（大学计算机学院方向）",
+    "city": "西安",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某西安培训服务公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "投资经理-AI/泛半导体/计算机",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "1-6年",
+    "company": "上海常春藤投资控股有限公司",
+    "salary_avg": 20500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "广州文冲船厂技工学校",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "电子/计算机行业研究员",
+    "city": "广州",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "金鹰基金",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高级计算机视觉算法工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5-10年",
+    "company": "南京开缘智能科技有限公司",
+    "salary_avg": 24000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机软件工程师（深度学习、机器人）",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某上海大型机械/设备公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某深圳大型科技金融公司",
+    "salary_avg": 50000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语高中教师（数学、物理、化学、计算机都需要）",
+    "city": "青岛",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "某青岛学校教育公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机行业",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "上海于启茶信息科技有限公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "中职计算机组装与维护教师",
+    "city": "临沂",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "临沂财贸学校有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机，编程，AI应用相关课程讲师",
+    "city": "南通",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "南通市人工智能科技馆",
+    "salary_avg": 5000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计助理",
+    "city": "苏州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "宁波礼达先导生物技术有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "潍坊",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "德拉特信息技术(上海)有限公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "1191MG-前端开发工程师",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "平安科技",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "咸阳",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "中科软",
+    "salary_avg": 13000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "TMT电子、通信、计算机行业研究员（券商研究所）",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "上海商投创业投资有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "宏观/策略/计算机/煤炭/家电/机械/通信/汽车行业分析师（职级职位不限）",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "4年以上",
+    "company": "山西证券股份有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "中小学计算机教师（北京校区）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "北京市二十一世纪学校",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护",
+    "city": "郑州",
+    "education": "本科",
+    "work_exp": "1年以下",
+    "company": "郑州丹尼斯百货有限公司",
+    "salary_avg": 4500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "个性化服务部高中数学/物理/经济/化学/计算机培训老师",
+    "city": "武汉",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "武汉英中高级中学",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机研究岗",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "国内某知名证券公司",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "行业研究员（计算机行业）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "国联安基金",
+    "salary_avg": 23000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "算法应用工程师（计算机视觉）",
+    "city": "深圳",
+    "education": "学历不限",
+    "work_exp": "3-5年",
+    "company": "某深圳人工智能公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "世界五百强—博士教师（人工智能/计算机/大模型/汽车/商学/教育学等方向都要人）",
+    "city": "三亚",
+    "education": "学历不限",
+    "work_exp": "1-3年",
+    "company": "某大型生产制造公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "长沙",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "智芯云途",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机专业老师",
+    "city": "威海",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "山东伯润金服信息科技有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机讲师",
+    "city": "咸阳",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "陕西厚溥教育科技有限公司",
+    "salary_avg": 8000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机互联网研究员（A股+H股）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "国金基金管理有限公司",
+    "salary_avg": 21500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计（已上市成熟产品biotech企业）",
+    "city": "上海",
+    "education": "博士",
+    "work_exp": "2年以上",
+    "company": "某上海制药公司",
+    "salary_avg": 67500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "长安学习中心-前端开发工程师（安驿公司）(J26847)",
+    "city": "重庆",
+    "education": "统招本科",
+    "work_exp": "3年以上",
+    "company": "长安汽车",
+    "salary_avg": 10500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "B/S开发工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "北京数服科技有限公司",
+    "salary_avg": 13500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师",
+    "city": "青岛",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "青岛城市学院",
+    "salary_avg": 9000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "某深圳科技推广服务公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机软件工程师",
+    "city": "哈尔滨",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "哈尔滨圣昌科技开发有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "苏州",
+    "education": "中专/中技",
+    "work_exp": "经验不限",
+    "company": "苏州秦视智能科技有限公司",
+    "salary_avg": 4500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师（立体视觉方向）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "千寻位置网络有限公司",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP计算机老师（兼职）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "北京成长拼图科技发展有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法专家",
+    "city": "郑州",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "武汉市群淼巨科技有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "采购助理",
+    "city": "上海",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "上海诚楷宏贸易有限公司",
+    "salary_avg": 9000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "瑞为技术",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "数字技术研究部：计算机视觉研究员",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某知名公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师（大模型方向）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "千寻位置网络有限公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师（图像算法方向）",
+    "city": "厦门",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "某厦门计算机软件公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "销售工程师(计算机方向)",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "2年以上",
+    "company": "广州市智慧农业服务股份有限公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机老师",
+    "city": "天津",
+    "education": "本科",
+    "work_exp": "5年以上",
+    "company": "北京欧洛斯咨询有限公司",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "北京幺幺科技有限公司",
+    "salary_avg": 9500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "出纳财务",
+    "city": "上海",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "上海翰轨沣贸易有限公司",
+    "salary_avg": 8500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机专业课教师（转本）",
+    "city": "徐州",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "新东方教育科技集团有限公司",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机行业研究员",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某知名基金/证券/期货上市公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机讲师",
+    "city": "大连",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "艾雅人工智能科技(大连)有限公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机专任教师",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "广州现代信息工程职业技术学院",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机与物联网专业硕士",
+    "city": "重庆",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "国内某知名企业",
+    "salary_avg": 20500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机专业讲师",
+    "city": "天津",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "权善教育",
+    "salary_avg": 8000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机维护工程师",
+    "city": "合肥",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "南京顺盛通信科技有限责任公司",
+    "salary_avg": 5000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法软件工程师",
+    "city": "苏州",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "某北京大型电子/半导体/集成电路公司",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "职业教育计算机 AI 培训取证方向校长",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5-10年",
+    "company": "某北京培训服务公司",
+    "salary_avg": 47500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机网络系统管理员",
+    "city": "嘉兴",
+    "education": "大专",
+    "work_exp": "3年以上",
+    "company": "朝晖过滤",
+    "salary_avg": 8500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "2年以上",
+    "company": "追知工科",
+    "salary_avg": 25500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师-CV",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "5-10年",
+    "company": "某互联网大厂",
+    "salary_avg": 55000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法⼯程师（药理影像与数字孪⽣）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "康龙化成",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "创鑫激光",
+    "salary_avg": 39000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机数据专家",
+    "city": "金华",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某国内制药上市公司",
+    "salary_avg": 26500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师（三维重建方向）",
+    "city": "上海",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "禾赛科技",
+    "salary_avg": 50000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "CIM工程师（计算机整合制造工程师）",
+    "city": "南京",
+    "education": "硕士",
+    "work_exp": "2年以下",
+    "company": "台积电(南京)有限公司",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "产品经理（商用计算机）(J10021)",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "杰和科技",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "兼职计算机视觉线上论文辅导",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "上海马拉火车信息技术有限公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "研究所计算机行业分析师/研究员/研究助理(000667)(GSZQ000667)",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "国盛证券",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "晰见科技",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "软件前端开发工程师",
+    "city": "无锡",
+    "education": "本科",
+    "work_exp": "5年以上",
+    "company": "斯帝尔科技",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "星载计算机架构师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "5-10年",
+    "company": "曙光信息产业(北京)",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "大模型应用工程师（大模型、计算机、AI、信息通讯工程）",
+    "city": "杭州",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某人力资源服务公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP计算机老师",
+    "city": "苏州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "苏州学之领教育咨询有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "办公室管理",
+    "city": "嘉兴",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "嘉兴新模文化传媒有限公司",
+    "salary_avg": 5000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "人事经理/主管",
+    "city": "临沂",
+    "education": "大专",
+    "work_exp": "1年以下",
+    "company": "威海恒旺光伏发电服务有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机教师（英语）",
+    "city": "大连",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "英领国际学校",
+    "salary_avg": 12000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计CADD-大分子",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "神州细胞工程有限公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI智能体开发工程师(J11766)",
+    "city": "杭州",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "烟台睿创微纳技术股份有限公司",
+    "salary_avg": 24000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "系统开发工程师（前端方向）",
+    "city": "郑州",
+    "education": "统招本科",
+    "work_exp": "3年以上",
+    "company": "蜜雪冰城股份有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "算法工程师（计算机视觉、Infra算法、数据算法、视频生成/世界模型、3D渲染）",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某上海智能硬件/消费电子上市公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机操作人员1名",
+    "city": "曲靖",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "曲靖市青年职业培训学校有限公司",
+    "salary_avg": 4500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "【量化基金】IT招聘",
+    "city": "广州",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "辰元资管",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机图形学工程师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "某上海科技推广服务公司",
+    "salary_avg": 80000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "Opencv 计算机视觉",
+    "city": "成都",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "英纳智能科技(成都)有限公司",
+    "salary_avg": 9500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机维护工程师",
+    "city": "深圳",
+    "education": "中专/中技",
+    "work_exp": "1-3年",
+    "company": "深圳市明信润丰科技有限公司",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "德利九州物流自动化系统(北京)有限公司",
+    "salary_avg": 21000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法",
+    "city": "上海",
+    "education": "学历不限",
+    "work_exp": "3-5年",
+    "company": "某合肥互联网上市公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机渠道经理",
+    "city": "郑州",
+    "education": "大专",
+    "work_exp": "1年以上",
+    "company": "河南科讯",
+    "salary_avg": 7500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师-兼职",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "新东方教育科技集团有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机行业研究",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某深圳基金证券上市公司",
+    "salary_avg": 24000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机专业专任教师",
+    "city": "青岛",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某青岛大型学校教育公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "5-10年",
+    "company": "梦机科技",
+    "salary_avg": 52500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "宏观/策略/化工/计算机/有色//煤炭/家电/机械/通信/汽车行业分析师（北上深）",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "4年以上",
+    "company": "山西证券股份有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机网络管理员",
+    "city": "广州",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "广州瑞川",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机管理员",
+    "city": "龙岩",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "太阳电缆(龙岩)有限公司",
+    "salary_avg": 3500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机行业研究员",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某成都基金/证券/期货公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高级硬件开发工程师（计算机方向）",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "柏飞电子",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某北京人工智能公司",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "专升本计算机老师",
+    "city": "天水",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "陕西桃阳优课教育科技有限责任公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师（YS07）",
+    "city": "合肥",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "江淮前沿技术协同创新中心(江淮实验室)",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机考研专业课讲师",
+    "city": "西安",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "陕西文都教育科技有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "天源迪科",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机教师",
+    "city": "大连",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "大连金州新区创博职业培训学校",
+    "salary_avg": 4000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "【日语云架构项目经理】某计算机软件公司[Z191331]",
+    "city": "北京",
+    "education": "学历不限",
+    "work_exp": "5-10年",
+    "company": "某北京计算机软件公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "行政",
+    "city": "昆明",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "昆明卉柑商贸有限公司",
+    "salary_avg": 8000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机与数字设计见习教师",
+    "city": "杭州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "杭州汉基外籍人员子女学校",
+    "salary_avg": 16500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "服务器BIOS工程师/主管-苏州/深圳（计算机硬件/研产销企业）",
+    "city": "苏州",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "某知名计算机硬件公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机文员",
+    "city": "西安",
+    "education": "大专",
+    "work_exp": "经验不限",
+    "company": "创灵科技",
+    "salary_avg": 1500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "服务器BIOS工程师-深圳/苏州（计算机行业）",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "某知名计算机硬件公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "资阳",
+    "education": "学历不限",
+    "work_exp": "1-3年",
+    "company": "四川天兴源生物科技有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法",
+    "city": "西安",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某知名公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机导师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "光华启迪",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计（CADD）科学家(J19244)",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "上海复宏汉霖生物技术股份有限公司",
+    "salary_avg": 24000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "成都",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "先进科技",
+    "salary_avg": 22000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "硬件开发工程师（计算机方向）",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "柏飞电子",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "世界500强招聘博士（40w，智驾 计算机、教育学、金融学、人工智能相关连的专业博士学历就可以，应届也行）base三亚、必须博士学历",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某北京大型人力资源服务公司",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某人工智能公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法专家",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "湖北六杰贸易有限公司",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机网络管理专员",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "福建国力民生科技发展有限公司北京分公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "人工智能学院【高校老师】—要博士学历，人工智大模型能或者汽车智能相关方向/ 教育学方向/ 计算机方向/ 商学方向， 500强集团，八险一金",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某北京大型人力资源服务公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机图形学工程师",
+    "city": "天津",
+    "education": "本科",
+    "work_exp": "3年以下",
+    "company": "普莱诺(天津)科技有限公司",
+    "salary_avg": 21000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "算法工程师（计算机视觉方向）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "爱医舟科技",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机专员",
+    "city": "天津",
+    "education": "大专",
+    "work_exp": "3-5年",
+    "company": "天津市译森翻译有限公司",
+    "salary_avg": 4500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "杭州",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "清软微视(杭州)科技有限公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅导老师",
+    "city": "南京",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "常州壹综评教育科技有限公司",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "软件开发-Q5911A",
+    "city": "北京",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "京东物流",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI药物开发工程师-计算机辅助药物设计",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "北京安必奇生物科技有限公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "电话销售客服",
+    "city": "重庆",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "温州市讯和电脑科技有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "嵌入式（安全计算机平台方向）",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "5-7年",
+    "company": "某深圳智能硬件/消费电子公司",
+    "salary_avg": 55000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "南京",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "某南京电气机械/器材公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "广州",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某知名公司",
+    "salary_avg": 38500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法专家",
+    "city": "香港",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "寰宇创科有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机系主任",
+    "city": "北京",
+    "education": "统招本科",
+    "work_exp": "10年以上",
+    "company": "某北京大型培训服务公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机方向教师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "北方工业大学",
+    "salary_avg": 18500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "广州",
+    "education": "统招本科",
+    "work_exp": "3年以上",
+    "company": "金税信息技术服务股份有限公司",
+    "salary_avg": 14000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "外企科创导师-海本申请（工程、计算机方向）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "某上海培训服务公司",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师（英语可）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "某知名公司",
+    "salary_avg": 42500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机行业研究",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "国内某知名证券公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高中Alevel数学&计算机教师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "某北京大型其他教育培训公司",
+    "salary_avg": 19500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机安全管理员（保密）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "北京长峰海维电子技术研究所",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机安全保密管理员",
+    "city": "厦门",
+    "education": "统招本科",
+    "work_exp": "5年以上",
+    "company": "奇安信集团",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机基础内容讲师",
+    "city": "锦州",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "沈阳领先文硕教育咨询有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "宜春",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "宜春市林轩科技有限公司",
+    "salary_avg": 5000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "多模态大模型算法工程师(计算机视觉/宜居城市)",
+    "city": "南京",
+    "education": "学历不限",
+    "work_exp": "3-5年",
+    "company": "某知名上市公司",
+    "salary_avg": 50000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "超导量子计算机硬件专家",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "九州量子",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师（高级）",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某东莞其他商务服务业公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "专升本计算机老师+五险一金+双休",
+    "city": "重庆",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "重庆金东方企业管理有限公司",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AI 应用开发工程师（兼职）",
+    "city": "长春",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "吉林省盖软科技有限公司",
+    "salary_avg": 15000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP数学跨经济/计算机教师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "某人力资源服务公司",
+    "salary_avg": 26000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "中级算法工程师（计算机视觉算法，传统算法+深度学习）语义分割，图像分割，目标检测，小目标检测",
+    "city": "杭州",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某杭州专业技术服务公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "HTML5",
+    "city": "天津",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某天津科技推广服务公司",
+    "salary_avg": 11000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "U9开发工程师",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "福建拓鸿智慧信息技术有限公司",
+    "salary_avg": 13500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "博士教师（博士，计算机/管理学/教育学方向均有需求，某世界500强下属教育板块，base三亚）",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某知名公司",
+    "salary_avg": 21500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "大学教师 【三亚，统招博士（不限经验），人工智能/计算机相关专业,40万左右】",
+    "city": "三亚",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某知名公司",
+    "salary_avg": 23000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机维护工程师",
+    "city": "遵义",
+    "education": "学历不限",
+    "work_exp": "1-3年",
+    "company": "贵州晟仁信息科技有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机课程讲师",
+    "city": "天津",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "权善教育",
+    "salary_avg": 5000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师（iOS/球类运动科技方向）",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "鲜猿科技",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "爱卫夫健康管理(广州)有限公司",
+    "city": "广州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "爱卫夫健康管理(广州)有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "5年以上",
+    "company": "震雄集团",
+    "salary_avg": 16500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计（CADD）",
+    "city": "杭州",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "南京光一领星量子科技有限公司杭州分公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法专家（工业视觉方向）",
+    "city": "南宁",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "某知名公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "电商客服文员（居家版）",
+    "city": "佛山",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "佛山市海楚柏餐饮管理有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "行业产品经理（国企，硕士，40岁，5年及以上物联网、通信、电子、计算机、统计学等相关专业，南京，35万-50万，）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "5年以上",
+    "company": "某北京大型运营商/增值服务公司",
+    "salary_avg": 34000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "嵌入式计算机（开发板）淘宝客服",
+    "city": "北京",
+    "education": "高中",
+    "work_exp": "经验不限",
+    "company": "北京博航恒业科技有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某北京计算机软件公司",
+    "salary_avg": 33000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "博士教师【世界500强    跨时代跃迁人才培养】base三亚    通讯、电子、车辆工程、机械，计算机等专业都可，博士学历",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "5-10年",
+    "company": "某知名公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "北京星源智机器人科技有限公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机智能设备研发项目负责人",
+    "city": "昆明",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "裕众光学",
+    "salary_avg": 10000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "Agent开发工程师",
+    "city": "广州",
+    "education": "统招本科",
+    "work_exp": "1年以上",
+    "company": "广州美太",
+    "salary_avg": 16000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "智机科技",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "学院及学术辅助部门助理/专员/高级专员（计算机/数据科学教学辅助）",
+    "city": "东莞",
+    "education": "硕士",
+    "work_exp": "8年以下",
+    "company": "香港城市大学(东莞)",
+    "salary_avg": 9000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发",
+    "city": "佛山",
+    "education": "统招本科",
+    "work_exp": "5年以上",
+    "company": "库卡机器人",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机体系架构副研/助研",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "中科院自动化研究所",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法（明星团队）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某电子/半导体/集成电路公司",
+    "salary_avg": 47500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机网络专业教师",
+    "city": "四平",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "吉林省盈科教育研究院有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "行业分析师（策略、非银行金融、有色金属、建筑建材&中小盘、汽车和汽车零部件、计算机）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "某大型基金/证券/期货公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "QA计算机验证主管",
+    "city": "苏州",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "苏州朗科生物技术股份有限公司",
+    "salary_avg": 11500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "算法应用工程师（计算机视觉）",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "某深圳科技推广服务公司",
+    "salary_avg": 47500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "全日制专升本语/数/英/计算机老师",
+    "city": "潍坊",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "山东盛世康瑞健康科技有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机技术员",
+    "city": "成都",
+    "education": "学历不限",
+    "work_exp": "1年以下",
+    "company": "成都恒旭通科技有限公司",
+    "salary_avg": 3500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "物联网云平台前端软件工程师",
+    "city": "深圳",
+    "education": "大专",
+    "work_exp": "3-5年",
+    "company": "深圳市君升科技有限公司",
+    "salary_avg": 4000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某深圳电子/半导体/集成电路公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法专家",
+    "city": "武汉",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "湖北裕美达医疗器械有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "数字绿土",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "算法工程师（人工智能、计算机视觉方向）",
+    "city": "福州",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "新大陆自动识别",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "AP教师（统计/计算机科学/心理学/微积分）",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "橘郡美高",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机行业咨询顾问",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "上海于启茶信息科技有限公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "华东销售总监（.AI边缘计算硬件/工业计算机主板/工业计算机整机/信创计算硬件产品）",
+    "city": "苏州",
+    "education": "大专",
+    "work_exp": "5-10年",
+    "company": "某深圳计算机硬件公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "专升本计算机助教",
+    "city": "临沂",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "临沂心远教育信息咨询有限公司",
+    "salary_avg": 5000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师（三维重建方向）",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某知名公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "发财务",
+    "city": "重庆",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "重庆修修客电子产品有限公司",
+    "salary_avg": 7000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "FPGA开发工程师(计算机存储方向、通信方向）",
+    "city": "长沙",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "某长沙电子/半导体/集成电路上市公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "北京美照算算智能科技有限公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "组稿编辑（计算机科技图书）",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "5年以上",
+    "company": "清华大学出版社有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师/六险一金/带薪年假",
+    "city": "东莞",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "某世界500强通信设备公司",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "算法中级工程师（ 计算机视觉）",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "美的集团",
+    "salary_avg": 35500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法专家（机器人/智驾/无人机）",
+    "city": "上海",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "某知名公司",
+    "salary_avg": 62500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "上海",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某上海电子/半导体/集成电路公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机图形工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "Baidu",
+    "salary_avg": 50000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "业务助理",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "nan",
+    "company": "上海茫讯商务咨询中心",
+    "salary_avg": 650000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "研究员（计算机方向）(J10499)",
+    "city": "成都",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "清华四川能源互联网研究院",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机校招",
+    "city": "北京",
+    "education": "博士",
+    "work_exp": "1年以下",
+    "company": "某北京通信设备上市公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "中级计算机硬件工程师",
+    "city": "北京",
+    "education": "大专",
+    "work_exp": "1-3年",
+    "company": "天若影(西安)科技有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "博士教师【40W】【世界500强】(base三亚，可接受应届，计算机人工智能、商学、教育学均可",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某国内人力资源服务公司",
+    "salary_avg": 27500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "研究所计算机行业分析师/研究员/研究助理(000667)(GSZQ000667)",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "国盛证券",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师-上海",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某北京智能硬件/消费电子公司",
+    "salary_avg": 55000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "量子计算机测控系统软件开发工程师（偏大模型方向）-合肥/北京",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某合肥大型通信设备公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机考研408专业课辅导",
+    "city": "沈阳",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "抚顺万学海文教育咨询服务有限公司",
+    "salary_avg": 3500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "中/高级计算机视觉算法工程师（推荐&搜索） (MJ006391)",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "DJI 大疆",
+    "salary_avg": 50000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "统招专升本计算机助教老师",
+    "city": "成都",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "成都轻备教育科技有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师 (MJ000132)",
+    "city": "无锡",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "太初(杭州)集成电路有限公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语计算机老师（ICT)",
+    "city": "深圳",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "狄邦教育集团",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "CADD 计算机辅助药物研发(大分子)主任/高级科学家",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "上海齐鲁制药",
+    "salary_avg": 47500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机生物学家",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "某北京科技推广服务公司",
+    "salary_avg": 35000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师（无人机）",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "深圳市海科技术有限公司",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉/深度学习专家",
+    "city": "苏州",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某苏州仪器仪表公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "飞控/飞管计算机硬件工程师",
+    "city": "西安",
+    "education": "统招本科",
+    "work_exp": "2年以上",
+    "company": "某西安大型计算机硬件公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "研发工程师（计算机视觉/交通事件检测）",
+    "city": "武汉",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "中国电子云",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "【500强旗下高校】招聘博士教师（可应届），要三个方向的人：【教育学】【商学/经济】【汽车/智能驾驶/计算机/人工智能】，40万以内",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "10年以上",
+    "company": "某知名上市公司",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "硬件工程师（管控计算机模块设计）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "苏州中科光桥空间技术有限公司",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "营销/市场/运营【计算机相关专业】",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某深圳大型通信设备公司",
+    "salary_avg": 13500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "美团",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机硬件维护工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "北京市彩虹恒远电子产品有限公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法研究员",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "3年以上",
+    "company": "联想",
+    "salary_avg": 55000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "双语数学/物理/生物/化学/计算机/语文/科学教师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "某北京大型培训服务公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "世界500强院校大学博士教师（计算机人工智能/ 整个汽车的技术/教育/商学的方向】，薪资40W内）",
+    "city": "三亚",
+    "education": "博士",
+    "work_exp": "经验不限",
+    "company": "某国内大型人力资源服务公司",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "融合高中计算机教师",
+    "city": "镇江",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "句容碧桂园学校",
+    "salary_avg": 20500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师（UMI/EGO） (MJ001181)",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "思谋科技",
+    "salary_avg": 25500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机辅助药物设计（CADD）高级研究员",
+    "city": "成都",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "北京安必奇生物科技有限公司",
+    "salary_avg": 20000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "深象智能-计算机视觉算法工程师",
+    "city": "杭州",
+    "education": "硕士",
+    "work_exp": "1-4年",
+    "company": "银泰商业集团有限公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法研究员-多模态理解",
+    "city": "无锡",
+    "education": "硕士",
+    "work_exp": "5-10年",
+    "company": "某知名上市公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "（三维重建）中/高级计算机视觉算法工程师",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "5-10年",
+    "company": "某深圳大型智能硬件/消费电子公司",
+    "salary_avg": 65000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "电气工程师（工业/加固计算机优先）",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "北京鲁成伟业科技发展有限公司",
+    "salary_avg": 10500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法研究员-多模态生成",
+    "city": "合肥",
+    "education": "硕士",
+    "work_exp": "5-10年",
+    "company": "某知名上市公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "酒店前台",
+    "city": "长沙",
+    "education": "学历不限",
+    "work_exp": "经验不限",
+    "company": "长沙禾隆壹号酒店管理有限公司",
+    "salary_avg": 5500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "飞控/飞管计算机产品设计",
+    "city": "西安",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "某西安大型计算机硬件公司",
+    "salary_avg": 12500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "军工飞控系统嵌入式软件工程师（航空航天、军工、无人机、飞控计算机类，嵌入式实时操作系统）",
+    "city": "西安",
+    "education": "本科",
+    "work_exp": "5-10年",
+    "company": "某西安IT服务公司",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "华为",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "高机计算机视觉算法工程师",
+    "city": "武汉",
+    "education": "硕士",
+    "work_exp": "5-10年",
+    "company": "某武汉仪器仪表公司",
+    "salary_avg": 32500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师（高级）",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "3-5年",
+    "company": "某东莞人力资源服务公司",
+    "salary_avg": 45000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "感知与计算机视觉算法工程师",
+    "city": "北京",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "幻力魔方(北京)科技产业有限公司",
+    "salary_avg": 18000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "上海",
+    "education": "硕士",
+    "work_exp": "1-3年",
+    "company": "某上海智能硬件/消费电子上市公司",
+    "salary_avg": 52500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "专利代理师--计算机/通讯/光电领域",
+    "city": "武汉",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "臻诚",
+    "salary_avg": 17500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "苏州",
+    "education": "硕士",
+    "work_exp": "2年以上",
+    "company": "清软微视(杭州)科技有限公司",
+    "salary_avg": 30000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机维护和管理人员",
+    "city": "天津",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "天津市静海城市基础设施建设投资集团有限公司",
+    "salary_avg": 3000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "北京",
+    "education": "硕士",
+    "work_exp": "经验不限",
+    "company": "三星电子",
+    "salary_avg": 22500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "上海",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "华为",
+    "salary_avg": 25000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机算法工程师od",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "经验不限",
+    "company": "深圳华为云计算技术有限公司",
+    "salary_avg": 26500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "工厂普工",
+    "city": "滁州",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "广州广谷电子有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "科研基金标书撰写 - 计算机科学",
+    "city": "长沙",
+    "education": "本科",
+    "work_exp": "经验不限",
+    "company": "长沙深算科技有限公司",
+    "salary_avg": 6500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法工程师",
+    "city": "深圳",
+    "education": "本科",
+    "work_exp": "3年以上",
+    "company": "某深圳科技推广服务公司",
+    "salary_avg": 37500,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉工程师（工业检测-天津/烟台）",
+    "city": "天津",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某国内大型石化公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "前端开发工程师（终端平台开发组）",
+    "city": "深圳",
+    "education": "统招本科",
+    "work_exp": "1-3年",
+    "company": "某深圳大型互联网公司",
+    "salary_avg": 22000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "计算机视觉算法研究员-多模态理解",
+    "city": "合肥",
+    "education": "硕士",
+    "work_exp": "3-5年",
+    "company": "某知名上市公司",
+    "salary_avg": 40000,
+    "data_source": "猎聘"
+  },
+  {
+    "job_name": "电子工程师（小家电/整机程序方向）",
+    "city": "云浮",
+    "education": "大专",
+    "work_exp": "5年及以上",
+    "company": "广东万事泰集团",
+    "salary_avg": 16000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "运维工程师",
+    "city": "云浮",
+    "education": "大专",
+    "work_exp": "2年及以上",
+    "company": "广东顺畅科技",
+    "salary_avg": 7000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "系统运维工程师（1人）",
+    "city": "云浮",
+    "education": "大专",
+    "work_exp": "3年及以上",
+    "company": "广东微容电子科技",
+    "salary_avg": 8000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "软件开发工程师",
+    "city": "云浮",
+    "education": "大专",
+    "work_exp": "3年及以上",
+    "company": "佛山市三水凤铝铝业",
+    "salary_avg": 13000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "信息专员",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "3年及以上",
+    "company": "翔顺控股集团",
+    "salary_avg": 8000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "查勘定损岗",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "无需经验",
+    "company": "中国人寿财产保险股份有限公司广东省",
+    "salary_avg": 5000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "PIE工程师",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "广东海泰金属制品",
+    "salary_avg": 8500,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "体系工程师",
+    "city": "云浮",
+    "education": "大专",
+    "work_exp": "5年及以上",
+    "company": "广东海泰金属制品",
+    "salary_avg": 9000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "SAP FICO顾问",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "广东微容电子科技",
+    "salary_avg": 17500,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "财务BP",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "3-5年",
+    "company": "广东微容电子科技",
+    "salary_avg": 9000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "电器测试工程师",
+    "city": "云浮",
+    "education": "大专",
+    "work_exp": "3年及以上",
+    "company": "广东万事泰集团",
+    "salary_avg": 6000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "软件测试工程师",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "1-2年",
+    "company": "广东微容电子科技",
+    "salary_avg": 7000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "销售工程师+五险+双休+丰厚奖金",
+    "city": "云浮",
+    "education": "大专",
+    "work_exp": "1年及以上",
+    "company": "上海东方泵业（集团）",
+    "salary_avg": 8000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "会计信息化专员",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "1-3年",
+    "company": "广东微容电子科技",
+    "salary_avg": 8000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "项目专员/进校工程师（灵活办公/应届生）",
+    "city": "云浮",
+    "education": "大专",
+    "work_exp": "无需经验",
+    "company": "广东德诚科教",
+    "salary_avg": 5000,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "CNAS实验室工程师",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "广东万事泰集团",
+    "salary_avg": 12500,
+    "data_source": "前程无忧"
+  },
+  {
+    "job_name": "财务经理",
+    "city": "云浮",
+    "education": "本科",
+    "work_exp": "5年及以上",
+    "company": "广东微容电子科技",
+    "salary_avg": 15500,
+    "data_source": "前程无忧"
+  }
+]

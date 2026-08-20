@@ -1,101 +1,79 @@
-from DrissionPage import ChromiumPage
-import csv
-import time
+# -*- coding: utf-8 -*-
+"""
+前程无忧爬虫（上海入口）—— 【无地域限制全量采集】
+改造说明：取消一切地区筛选、城市限制，自动遍历页面可见全部城市入口
+（北京、上海、广州、深圳、武汉、西安、杭州、南京、成都、重庆、东莞、云浮、其他城市），
+逐个城市依次采集，不再写死上海城市编码 040000。
+本文件作为独立入口，复用 spider/前程无忧.py 的全量采集逻辑。
+- 关键词固定仅【计算机】
+- 采用点击分页按钮方式翻页（修复原URL参数分页不生效问题）
+- 连续3页0条新岗位才判定采集结束
+- 采集完成后：后置过滤非IT岗位 → 去重 → 历史快照 → 覆盖 all_cleaned_jobs.json
+"""
+import sys
+import importlib.util
 import datetime
-import os
-import json
+from pathlib import Path
 
-def load_existed_data():
-    existed = set()
-    if os.path.exists('final_jobs.csv'):
-        try:
-            with open('final_jobs.csv', 'r', encoding='utf-8-sig') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    company = row.get('公司', '').strip()
-                    city = row.get('城市', '').strip()
-                    job = row.get('职位', '').strip()
-                    key = (company, city, job)
-                    existed.add(key)
-        except:
-            pass
-    return existed
+# 导入共享工具模块
+PROJECT_ROOT = Path(__file__).parent.parent.absolute()
+sys.path.insert(0, str(PROJECT_ROOT))
+import crawler_utils
 
-def write_job_to_csv(dit):
-    fieldnames = [
-        '职位', '最高薪资', '最低薪资', '薪资', '全职/兼职', '经验', '学历',
-        '省份', '城市', '区域', '经度', '纬度',
-        '公司', '公司领域', '公司规模', '公司类型',
-        '职位标签', '职位描述', '职位详情页', '公司详情页', '爬取时间'
-    ]
-    file_exists = os.path.exists('final_jobs.csv')
-    with open('final_jobs.csv', 'a', newline='', encoding='utf-8-sig') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(dit)
+# 通过 importlib 加载 spider/前程无忧.py（中文名模块），复用全量采集逻辑
+_QCWY_PATH = PROJECT_ROOT / "spider" / "前程无忧.py"
+
+
+def _load_qiancheng_module():
+    """动态加载 spider/前程无忧.py 模块"""
+    spec = importlib.util.spec_from_file_location("qiancheng_wuyou", str(_QCWY_PATH))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
 
 def main():
-    existed_keys = load_existed_data()
-    print(f"上海开始爬取：{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    """主流程：复用前程无忧全量采集逻辑（遍历全部城市）"""
+    print("\n" + "=" * 60)
+    print("【无地域限制全量采集】前程无忧(上海入口→全量遍历)启动 - "
+          + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    print("关键词固定：计算机")
+    print("说明：已取消上海单一城市限制，自动遍历全部城市入口")
+    print("=" * 60)
+
+    # 加载并复用前程无忧全量采集逻辑
+    qcw_module = _load_qiancheng_module()
+
+    from DrissionPage import ChromiumPage
     dp = ChromiumPage()
-    dp.listen.start('search-pc')
-    dp.get('https://we.51job.com/pc/search?jobArea=040000&keyword=计算机&searchType=2')
-    time.sleep(3)
-
-    for page in range(1, 9):
+    all_jobs = []
+    try:
+        all_jobs = qcw_module.crawl_51job_all_cities(dp, qcw_module.KEYWORD)
+    finally:
         try:
-            resp = dp.listen.wait(timeout=10)
-            json_data = resp.response.body
-            if isinstance(json_data, str):
-                json_data = json.loads(json_data)
+            dp.quit()
         except:
-            break
+            pass
 
-        items = json_data.get('resultbody', {}).get('job', {}).get('items', [])
-        for item in items:
-            job = item.get('jobName', '')
-            company = item.get('companyName', '')
-            area = item.get('jobAreaLevelDetail', {})
-            city = area.get('cityString', '')
-            key = (company.strip(), city.strip(), job.strip())
-            if key in existed_keys:
-                continue
+    print(f"\n[COLLECT] 前程无忧(上海入口→全量) 采集完成，原始汇总: {len(all_jobs)} 条")
 
-            dit = {
-                '职位': job,
-                '公司': company,
-                '城市': city,
-                '省份': area.get('province', ''),
-                '区域': area.get('district', ''),
-                '薪资': item.get('provideSalaryString', ''),
-                '最高薪资': item.get('jobSalaryMax', ''),
-                '最低薪资': item.get('jobSalaryMin', ''),
-                '经验': item.get('workYearString', ''),
-                '学历': item.get('degreeString', ''),
-                '全职/兼职': item.get('termStr', ''),
-                '公司领域': item.get('companyIndustryType1Str', ''),
-                '公司规模': item.get('companySizeString', ''),
-                '公司类型': item.get('companyTypeString', ''),
-                '职位标签': '',
-                '职位描述': item.get('jobDescribe', ''),
-                '职位详情页': item.get('jobHref', ''),
-                '公司详情页': item.get('companyHref', ''),
-                '经度': item.get('lon', ''),
-                '纬度': item.get('lat', ''),
-                '爬取时间': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
-            write_job_to_csv(dit)
-            print(f"新增：{dit['职位']} | {dit['公司']} | {dit['城市']}")
+    # 后置处理：过滤非IT岗位 → 去重 → 历史快照 → 覆盖主文件 → CSV
+    date_str = datetime.datetime.now().strftime('%Y%m%d')
+    snapshot_path, main_path, final_jobs = crawler_utils.post_process_and_persist(
+        all_jobs, base_dir=PROJECT_ROOT, save_csv=True, date_str=date_str
+    )
 
-        dp.scroll.to_bottom()
-        time.sleep(1)
-        nxt = dp.ele('css:.btn-next', timeout=2)
-        if not nxt:
-            break
-        nxt.click()
-        time.sleep(2)
-    dp.quit()
+    # 汇总日志
+    crawler_utils.log_global_summary(final_jobs, snapshot_path, {
+        "前程无忧": {"total_pages": 0, "raw_count": len(all_jobs)}
+    })
+
+    print(f"\n[DONE] 【无地域限制全量采集】前程无忧(上海入口→全量)完成 - "
+          f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"[STATS] 本次共获取 {len(final_jobs)} 条岗位数据（去重+过滤后）")
+    print(f"[SNAPSHOT] 历史快照：{snapshot_path}")
+    print(f"[MAIN] 主文件已覆盖：{main_path}")
+
 
 if __name__ == '__main__':
     main()

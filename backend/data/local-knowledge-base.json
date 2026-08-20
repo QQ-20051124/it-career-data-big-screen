@@ -1620,9 +1620,9 @@
         "HTML5/CSS3适配",
         "HTML5"
       ],
-      "status": "valid",
-      "lastChecked": "2026-08-16T12:34:00.772Z",
-      "failCount": 0
+      "status": "unknown",
+      "lastChecked": "2026-08-20T07:07:14.473Z",
+      "failCount": 1
     },
     {
       "id": "res_html_02",
@@ -1637,9 +1637,9 @@
         "HTML5/CSS3适配",
         "HTML5"
       ],
-      "status": "valid",
-      "lastChecked": "2026-08-16T12:34:01.761Z",
-      "failCount": 0
+      "status": "unknown",
+      "lastChecked": "2026-08-20T07:07:24.788Z",
+      "failCount": 1
     },
     {
       "id": "res_html_03",
@@ -1654,9 +1654,9 @@
         "HTML5/CSS3适配",
         "HTML5"
       ],
-      "status": "valid",
-      "lastChecked": "2026-08-16T12:34:02.852Z",
-      "failCount": 0
+      "status": "unknown",
+      "lastChecked": "2026-08-20T07:07:35.093Z",
+      "failCount": 1
     },
     {
       "id": "res_css_01",
@@ -1671,9 +1671,9 @@
         "响应式设计",
         "CSS3动画"
       ],
-      "status": "valid",
-      "lastChecked": "2026-08-16T12:34:03.667Z",
-      "failCount": 0
+      "status": "unknown",
+      "lastChecked": "2026-08-20T07:07:45.407Z",
+      "failCount": 1
     },
     {
       "id": "res_css_02",
@@ -1689,7 +1689,7 @@
         "CSS3动画"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:04.500Z",
+      "lastChecked": "2026-08-20T07:07:46.364Z",
       "failCount": 0
     },
     {
@@ -1706,7 +1706,7 @@
         "CSS3动画"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:05.163Z",
+      "lastChecked": "2026-08-20T07:07:46.810Z",
       "failCount": 0
     },
     {
@@ -1725,7 +1725,7 @@
         "Ajax/Fetch"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:05.569Z",
+      "lastChecked": "2026-08-20T07:07:47.477Z",
       "failCount": 0
     },
     {
@@ -1744,7 +1744,7 @@
         "Ajax/Fetch"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:06.439Z",
+      "lastChecked": "2026-08-20T07:07:48.417Z",
       "failCount": 0
     },
     {
@@ -1763,7 +1763,7 @@
         "Ajax/Fetch"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:06.772Z",
+      "lastChecked": "2026-08-20T07:07:48.746Z",
       "failCount": 0
     },
     {
@@ -1783,7 +1783,7 @@
         "Vue.js/React"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:07.739Z",
+      "lastChecked": "2026-08-20T07:07:49.888Z",
       "failCount": 0
     },
     {
@@ -1803,7 +1803,7 @@
         "Vue.js/React"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:08.616Z",
+      "lastChecked": "2026-08-20T07:07:50.854Z",
       "failCount": 0
     },
     {
@@ -1823,7 +1823,7 @@
         "Vue.js/React"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:08.953Z",
+      "lastChecked": "2026-08-20T07:07:51.389Z",
       "failCount": 0
     },
     {
@@ -1844,7 +1844,7 @@
         "Vue.js/React"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:09.578Z",
+      "lastChecked": "2026-08-20T07:07:52.325Z",
       "failCount": 0
     },
     {
@@ -1865,7 +1865,7 @@
         "Vue.js/React"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:10.420Z",
+      "lastChecked": "2026-08-20T07:07:53.302Z",
       "failCount": 0
     },
     {
@@ -1886,7 +1886,7 @@
         "Vue.js/React"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:10.760Z",
+      "lastChecked": "2026-08-20T07:07:59.924Z",
       "failCount": 0
     },
     {
@@ -1902,7 +1902,7 @@
         "JavaScript/TypeScript"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:11.818Z",
+      "lastChecked": "2026-08-20T07:08:01.114Z",
       "failCount": 0
     },
     {
@@ -1918,7 +1918,7 @@
         "JavaScript/TypeScript"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:12.576Z",
+      "lastChecked": "2026-08-20T07:08:02.529Z",
       "failCount": 0
     },
     {
@@ -1934,7 +1934,7 @@
         "JavaScript/TypeScript"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:12.913Z",
+      "lastChecked": "2026-08-20T07:08:02.967Z",
       "failCount": 0
     },
     {
@@ -1955,7 +1955,7 @@
         "Express/Koa"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:13.354Z",
+      "lastChecked": "2026-08-20T07:08:03.426Z",
       "failCount": 0
     },
     {
@@ -1976,7 +1976,7 @@
         "Express/Koa"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:14.175Z",
+      "lastChecked": "2026-08-20T07:08:04.338Z",
       "failCount": 0
     },
     {
@@ -1997,7 +1997,7 @@
         "Express/Koa"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:14.519Z",
+      "lastChecked": "2026-08-20T07:08:04.670Z",
       "failCount": 0
     },
     {
@@ -2013,7 +2013,7 @@
         "Vite/Rollup"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:14.998Z",
+      "lastChecked": "2026-08-20T07:08:05.430Z",
       "failCount": 0
     },
     {
@@ -2029,7 +2029,7 @@
         "Vite/Rollup"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:15.860Z",
+      "lastChecked": "2026-08-20T07:08:06.321Z",
       "failCount": 0
     },
     {
@@ -2046,7 +2046,7 @@
         "Vue CLI/Vite"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:17.356Z",
+      "lastChecked": "2026-08-20T07:08:07.678Z",
       "failCount": 0
     },
     {
@@ -2062,7 +2062,7 @@
         "Git/SVN"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:19.439Z",
+      "lastChecked": "2026-08-20T07:08:09.039Z",
       "failCount": 0
     },
     {
@@ -2078,7 +2078,7 @@
         "Git/SVN"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:20.355Z",
+      "lastChecked": "2026-08-20T07:08:09.852Z",
       "failCount": 0
     },
     {
@@ -2094,7 +2094,7 @@
         "Git/SVN"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:20.716Z",
+      "lastChecked": "2026-08-20T07:08:10.239Z",
       "failCount": 0
     },
     {
@@ -2113,7 +2113,7 @@
         "Java/Python"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:21.134Z",
+      "lastChecked": "2026-08-20T07:08:10.749Z",
       "failCount": 0
     },
     {
@@ -2132,7 +2132,7 @@
         "Java/Python"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:22.034Z",
+      "lastChecked": "2026-08-20T07:08:11.662Z",
       "failCount": 0
     },
     {
@@ -2151,7 +2151,7 @@
         "Java/Python"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:22.366Z",
+      "lastChecked": "2026-08-20T07:08:12.060Z",
       "failCount": 0
     },
     {
@@ -2169,7 +2169,7 @@
         "Spring Boot/Express"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:23.738Z",
+      "lastChecked": "2026-08-20T07:08:13.536Z",
       "failCount": 0
     },
     {
@@ -2187,7 +2187,7 @@
         "Spring Boot/Express"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:24.597Z",
+      "lastChecked": "2026-08-20T07:08:14.403Z",
       "failCount": 0
     },
     {
@@ -2205,8 +2205,8 @@
         "Spring Boot/Express"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:34:25.296Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:08:15.058Z",
+      "failCount": 25
     },
     {
       "id": "res_python_01",
@@ -2225,7 +2225,7 @@
         "Python/Java"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:25.857Z",
+      "lastChecked": "2026-08-20T07:08:15.672Z",
       "failCount": 0
     },
     {
@@ -2245,7 +2245,7 @@
         "Python/Java"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:26.711Z",
+      "lastChecked": "2026-08-20T07:08:16.786Z",
       "failCount": 0
     },
     {
@@ -2265,7 +2265,7 @@
         "Python/Java"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:27.031Z",
+      "lastChecked": "2026-08-20T07:08:17.173Z",
       "failCount": 0
     },
     {
@@ -2285,7 +2285,7 @@
         "数据库核心"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:27.845Z",
+      "lastChecked": "2026-08-20T07:08:17.976Z",
       "failCount": 0
     },
     {
@@ -2305,7 +2305,7 @@
         "数据库核心"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:28.647Z",
+      "lastChecked": "2026-08-20T07:08:18.858Z",
       "failCount": 0
     },
     {
@@ -2325,7 +2325,7 @@
         "数据库核心"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:28.984Z",
+      "lastChecked": "2026-08-20T07:08:19.940Z",
       "failCount": 0
     },
     {
@@ -2341,7 +2341,7 @@
         "Redis缓存"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:30.825Z",
+      "lastChecked": "2026-08-20T07:08:22.849Z",
       "failCount": 0
     },
     {
@@ -2357,7 +2357,7 @@
         "Redis缓存"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:31.773Z",
+      "lastChecked": "2026-08-20T07:08:23.849Z",
       "failCount": 0
     },
     {
@@ -2373,7 +2373,7 @@
         "Redis缓存"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:32.116Z",
+      "lastChecked": "2026-08-20T07:08:24.222Z",
       "failCount": 0
     },
     {
@@ -2391,9 +2391,9 @@
         "Docker",
         "容器技术"
       ],
-      "status": "unknown",
-      "lastChecked": "2026-08-16T12:34:32.500Z",
-      "failCount": 2
+      "status": "valid",
+      "lastChecked": "2026-08-20T07:08:25.032Z",
+      "failCount": 0
     },
     {
       "id": "res_docker_02",
@@ -2411,7 +2411,7 @@
         "容器技术"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:33.435Z",
+      "lastChecked": "2026-08-20T07:08:25.923Z",
       "failCount": 0
     },
     {
@@ -2430,7 +2430,7 @@
         "容器技术"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:33.767Z",
+      "lastChecked": "2026-08-20T07:08:26.324Z",
       "failCount": 0
     },
     {
@@ -2448,7 +2448,7 @@
         "Docker/K8s"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:35.232Z",
+      "lastChecked": "2026-08-20T07:08:27.507Z",
       "failCount": 0
     },
     {
@@ -2466,7 +2466,7 @@
         "Docker/K8s"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:36.183Z",
+      "lastChecked": "2026-08-20T07:08:28.594Z",
       "failCount": 0
     },
     {
@@ -2484,8 +2484,8 @@
         "Docker/K8s"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:34:37.450Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:08:31.030Z",
+      "failCount": 25
     },
     {
       "id": "res_linux_01",
@@ -2502,7 +2502,7 @@
         "Linux驱动开发"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:37.999Z",
+      "lastChecked": "2026-08-20T07:08:31.806Z",
       "failCount": 0
     },
     {
@@ -2520,7 +2520,7 @@
         "Linux驱动开发"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:38.880Z",
+      "lastChecked": "2026-08-20T07:08:32.724Z",
       "failCount": 0
     },
     {
@@ -2538,7 +2538,7 @@
         "Linux驱动开发"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:39.214Z",
+      "lastChecked": "2026-08-20T07:08:33.053Z",
       "failCount": 0
     },
     {
@@ -2555,9 +2555,9 @@
         "Go/Rust",
         "C++/Go/Java"
       ],
-      "status": "unknown",
-      "lastChecked": "2026-08-16T12:34:49.529Z",
-      "failCount": 2
+      "status": "valid",
+      "lastChecked": "2026-08-20T07:08:34.176Z",
+      "failCount": 0
     },
     {
       "id": "res_go_02",
@@ -2574,7 +2574,7 @@
         "C++/Go/Java"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:50.423Z",
+      "lastChecked": "2026-08-20T07:08:35.192Z",
       "failCount": 0
     },
     {
@@ -2592,7 +2592,7 @@
         "C++/Go/Java"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:50.809Z",
+      "lastChecked": "2026-08-20T07:08:35.634Z",
       "failCount": 0
     },
     {
@@ -2610,7 +2610,7 @@
         "PyTorch/TensorFlow"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:52.896Z",
+      "lastChecked": "2026-08-20T07:08:37.337Z",
       "failCount": 0
     },
     {
@@ -2628,7 +2628,7 @@
         "PyTorch/TensorFlow"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:53.785Z",
+      "lastChecked": "2026-08-20T07:08:38.303Z",
       "failCount": 0
     },
     {
@@ -2646,7 +2646,7 @@
         "PyTorch/TensorFlow"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:34:54.217Z",
+      "lastChecked": "2026-08-20T07:08:39.041Z",
       "failCount": 0
     },
     {
@@ -2663,8 +2663,8 @@
         "TensorFlow/PyTorch"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:35:04.543Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:08:49.357Z",
+      "failCount": 25
     },
     {
       "id": "res_tf_02",
@@ -2680,7 +2680,7 @@
         "TensorFlow/PyTorch"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:05.421Z",
+      "lastChecked": "2026-08-20T07:08:50.335Z",
       "failCount": 0
     },
     {
@@ -2697,8 +2697,8 @@
         "TensorFlow/PyTorch"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:35:05.770Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:08:50.730Z",
+      "failCount": 25
     },
     {
       "id": "res_ml_01",
@@ -2714,7 +2714,7 @@
         "机器学习基础"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:06.583Z",
+      "lastChecked": "2026-08-20T07:08:51.539Z",
       "failCount": 0
     },
     {
@@ -2731,7 +2731,7 @@
         "机器学习基础"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:07.501Z",
+      "lastChecked": "2026-08-20T07:08:52.456Z",
       "failCount": 0
     },
     {
@@ -2748,8 +2748,8 @@
         "机器学习基础"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:35:07.946Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:08:53.082Z",
+      "failCount": 25
     },
     {
       "id": "res_hadoop_01",
@@ -2765,7 +2765,7 @@
         "Hadoop/HDFS"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:08.711Z",
+      "lastChecked": "2026-08-20T07:08:58.640Z",
       "failCount": 0
     },
     {
@@ -2782,7 +2782,7 @@
         "Hadoop/HDFS"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:09.565Z",
+      "lastChecked": "2026-08-20T07:09:00.812Z",
       "failCount": 0
     },
     {
@@ -2799,7 +2799,7 @@
         "Hadoop/HDFS"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:10.683Z",
+      "lastChecked": "2026-08-20T07:09:01.813Z",
       "failCount": 0
     },
     {
@@ -2819,7 +2819,7 @@
         "Spark/Flink"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:11.230Z",
+      "lastChecked": "2026-08-20T07:09:03.563Z",
       "failCount": 0
     },
     {
@@ -2839,7 +2839,7 @@
         "Spark/Flink"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:12.066Z",
+      "lastChecked": "2026-08-20T07:09:06.086Z",
       "failCount": 0
     },
     {
@@ -2859,7 +2859,7 @@
         "Spark/Flink"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:13.576Z",
+      "lastChecked": "2026-08-20T07:09:07.693Z",
       "failCount": 0
     },
     {
@@ -2875,8 +2875,8 @@
         "Spark/Flink"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:35:14.310Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:09:11.033Z",
+      "failCount": 25
     },
     {
       "id": "res_flink_02",
@@ -2891,7 +2891,7 @@
         "Spark/Flink"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:15.316Z",
+      "lastChecked": "2026-08-20T07:09:12.861Z",
       "failCount": 0
     },
     {
@@ -2907,7 +2907,7 @@
         "Spark/Flink"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:15.762Z",
+      "lastChecked": "2026-08-20T07:09:16.540Z",
       "failCount": 0
     },
     {
@@ -2923,7 +2923,7 @@
         "Kafka/RabbitMQ"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:16.454Z",
+      "lastChecked": "2026-08-20T07:09:24.228Z",
       "failCount": 0
     },
     {
@@ -2939,7 +2939,7 @@
         "Kafka/RabbitMQ"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:17.333Z",
+      "lastChecked": "2026-08-20T07:09:25.151Z",
       "failCount": 0
     },
     {
@@ -2955,8 +2955,8 @@
         "Kafka/RabbitMQ"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:35:20.515Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:09:30.475Z",
+      "failCount": 25
     },
     {
       "id": "res_dsa_01",
@@ -2973,7 +2973,7 @@
         "动态规划"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:21.121Z",
+      "lastChecked": "2026-08-20T07:09:32.561Z",
       "failCount": 0
     },
     {
@@ -2991,7 +2991,7 @@
         "动态规划"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:22.012Z",
+      "lastChecked": "2026-08-20T07:09:33.946Z",
       "failCount": 0
     },
     {
@@ -3009,7 +3009,7 @@
         "动态规划"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:22.348Z",
+      "lastChecked": "2026-08-20T07:09:35.950Z",
       "failCount": 0
     },
     {
@@ -3024,7 +3024,7 @@
         "Nginx"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:23.612Z",
+      "lastChecked": "2026-08-20T07:09:42.891Z",
       "failCount": 0
     },
     {
@@ -3038,9 +3038,9 @@
       "skillTags": [
         "Nginx"
       ],
-      "status": "valid",
-      "lastChecked": "2026-08-16T12:35:24.395Z",
-      "failCount": 0
+      "status": "unknown",
+      "lastChecked": "2026-08-20T07:09:53.219Z",
+      "failCount": 1
     },
     {
       "id": "res_nginx_03",
@@ -3054,7 +3054,7 @@
         "Nginx"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:25.189Z",
+      "lastChecked": "2026-08-20T07:09:54.243Z",
       "failCount": 0
     },
     {
@@ -3071,7 +3071,7 @@
         "索引优化"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:26.949Z",
+      "lastChecked": "2026-08-20T07:09:56.317Z",
       "failCount": 0
     },
     {
@@ -3088,7 +3088,7 @@
         "索引优化"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:27.827Z",
+      "lastChecked": "2026-08-20T07:09:57.235Z",
       "failCount": 0
     },
     {
@@ -3105,7 +3105,7 @@
         "索引优化"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:28.165Z",
+      "lastChecked": "2026-08-20T07:09:57.625Z",
       "failCount": 0
     },
     {
@@ -3121,7 +3121,7 @@
         "Figma/Sketch"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:29.522Z",
+      "lastChecked": "2026-08-20T07:09:59.084Z",
       "failCount": 0
     },
     {
@@ -3137,7 +3137,7 @@
         "Figma/Sketch"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:30.449Z",
+      "lastChecked": "2026-08-20T07:09:59.911Z",
       "failCount": 0
     },
     {
@@ -3155,7 +3155,7 @@
         "交互设计"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:31.162Z",
+      "lastChecked": "2026-08-20T07:10:07.284Z",
       "failCount": 0
     },
     {
@@ -3172,7 +3172,7 @@
         "Django"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:31.769Z",
+      "lastChecked": "2026-08-20T07:10:08.472Z",
       "failCount": 0
     },
     {
@@ -3189,7 +3189,7 @@
         "Django"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:32.624Z",
+      "lastChecked": "2026-08-20T07:10:16.959Z",
       "failCount": 0
     },
     {
@@ -3206,7 +3206,7 @@
         "Django"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:33.533Z",
+      "lastChecked": "2026-08-20T07:10:18.091Z",
       "failCount": 0
     },
     {
@@ -3222,9 +3222,9 @@
         "Android",
         "Android核心"
       ],
-      "status": "valid",
-      "lastChecked": "2026-08-16T12:35:35.018Z",
-      "failCount": 0
+      "status": "unknown",
+      "lastChecked": "2026-08-20T07:10:28.404Z",
+      "failCount": 1
     },
     {
       "id": "res_android_02",
@@ -3240,7 +3240,7 @@
         "Android核心"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:35.902Z",
+      "lastChecked": "2026-08-20T07:10:31.245Z",
       "failCount": 0
     },
     {
@@ -3257,7 +3257,7 @@
         "Android核心"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:38.033Z",
+      "lastChecked": "2026-08-20T07:10:32.741Z",
       "failCount": 0
     },
     {
@@ -3275,7 +3275,7 @@
         "iOS生命周期"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:38.910Z",
+      "lastChecked": "2026-08-20T07:10:33.417Z",
       "failCount": 0
     },
     {
@@ -3293,7 +3293,7 @@
         "iOS生命周期"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:40.326Z",
+      "lastChecked": "2026-08-20T07:10:34.216Z",
       "failCount": 0
     },
     {
@@ -3311,7 +3311,7 @@
         "iOS生命周期"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:47.086Z",
+      "lastChecked": "2026-08-20T07:10:38.780Z",
       "failCount": 0
     },
     {
@@ -3329,7 +3329,7 @@
         "Flutter核心"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:47.830Z",
+      "lastChecked": "2026-08-20T07:10:39.312Z",
       "failCount": 0
     },
     {
@@ -3347,7 +3347,7 @@
         "Flutter核心"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:48.882Z",
+      "lastChecked": "2026-08-20T07:10:40.891Z",
       "failCount": 0
     },
     {
@@ -3365,7 +3365,7 @@
         "Flutter核心"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:49.299Z",
+      "lastChecked": "2026-08-20T07:10:41.384Z",
       "failCount": 0
     },
     {
@@ -3382,7 +3382,7 @@
         "Unity/Unreal"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:50.970Z",
+      "lastChecked": "2026-08-20T07:10:42.619Z",
       "failCount": 0
     },
     {
@@ -3399,7 +3399,7 @@
         "Unity/Unreal"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:51.775Z",
+      "lastChecked": "2026-08-20T07:10:43.636Z",
       "failCount": 0
     },
     {
@@ -3416,8 +3416,8 @@
         "Unity/Unreal"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:35:53.143Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:10:45.089Z",
+      "failCount": 25
     },
     {
       "id": "res_cpp_01",
@@ -3434,8 +3434,8 @@
         "C++/Go/Java"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:35:54.311Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:10:46.340Z",
+      "failCount": 25
     },
     {
       "id": "res_cpp_02",
@@ -3452,7 +3452,7 @@
         "C++/Go/Java"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:55.208Z",
+      "lastChecked": "2026-08-20T07:10:47.365Z",
       "failCount": 0
     },
     {
@@ -3470,7 +3470,7 @@
         "C++/Go/Java"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:35:55.555Z",
+      "lastChecked": "2026-08-20T07:10:47.759Z",
       "failCount": 0
     },
     {
@@ -3486,9 +3486,9 @@
         "Verilog/SystemVerilog",
         "SystemVerilog"
       ],
-      "status": "unknown",
-      "lastChecked": "2026-08-16T12:36:05.877Z",
-      "failCount": 1
+      "status": "invalid",
+      "lastChecked": "2026-08-20T07:10:58.072Z",
+      "failCount": 10
     },
     {
       "id": "res_verilog_02",
@@ -3504,7 +3504,7 @@
         "SystemVerilog"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:36:07.312Z",
+      "lastChecked": "2026-08-20T07:10:58.974Z",
       "failCount": 0
     },
     {
@@ -3521,7 +3521,7 @@
         "SystemVerilog"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:36:08.289Z",
+      "lastChecked": "2026-08-20T07:11:01.148Z",
       "failCount": 0
     },
     {
@@ -3538,7 +3538,7 @@
         "网络安全"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:36:09.832Z",
+      "lastChecked": "2026-08-20T07:11:04.195Z",
       "failCount": 0
     },
     {
@@ -3555,7 +3555,7 @@
         "网络安全"
       ],
       "status": "valid",
-      "lastChecked": "2026-08-16T12:36:10.768Z",
+      "lastChecked": "2026-08-20T07:11:05.127Z",
       "failCount": 0
     },
     {
@@ -3572,8 +3572,8 @@
         "网络安全"
       ],
       "status": "invalid",
-      "lastChecked": "2026-08-16T12:36:11.495Z",
-      "failCount": 16
+      "lastChecked": "2026-08-20T07:11:05.935Z",
+      "failCount": 25
     }
   ]
 }

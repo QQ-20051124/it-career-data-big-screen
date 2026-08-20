@@ -1,6 +1,13 @@
 /**
  * 模拟爬虫数据更新演示脚本
  * 演示爬虫数据如何实时合并到系统中
+ *
+ * ⚠️⚠️⚠️ 严禁警告 ⚠️⚠️⚠️
+ * 本脚本为【演示假数据脚本】，仅用于演示爬虫数据合并流程，使用模拟数据。
+ * 1. 仅允许读写演示专用文件 demo_jobs.json，【禁止读写正式 all_cleaned_jobs.json】
+ * 2. 严禁接入正式业务数据源（spider 采集结果、后端 data 目录等）
+ * 3. 禁止被任何定时任务调用（run_all.py / daily_crawler.py / Windows 任务计划程序 均不可调用本脚本）
+ * 4. 本脚本产生的 demo_jobs.json 不会被前端大屏 / Express 后端读取，与正式数据完全隔离
  */
 
 const fs = require('fs');
@@ -8,7 +15,19 @@ const path = require('path');
 
 // 配置
 const PROJECT_ROOT = path.join(__dirname);
-const DATA_FILE = path.join(PROJECT_ROOT, 'backend', 'data', 'all_cleaned_jobs.json');
+// 演示专用数据文件（与正式 all_cleaned_jobs.json 完全隔离，禁止指向正式数据）
+const DATA_FILE = path.join(PROJECT_ROOT, 'demo_jobs.json');
+
+// 安全读取演示数据：文件不存在时返回空数组（演示文件首次运行自动创建）
+function readDemoData() {
+    try {
+        if (!fs.existsSync(DATA_FILE)) return [];
+        return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+    } catch (e) {
+        console.warn('   [WARN] demo_jobs.json 读取失败，按空数据处理:', e.message);
+        return [];
+    }
+}
 
 // 生成模拟爬虫数据（模拟从三个网站爬取的新数据）
 function generateMockCrawlerData() {
@@ -84,10 +103,10 @@ function mergeToSystemJson(newJobs) {
     console.log('📊 爬虫数据合并过程');
     console.log('='.repeat(50));
 
-    // 1. 读取现有数据
-    console.log('\n📁 步骤1: 读取现有系统数据...');
-    const existingData = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-    console.log(`   当前数据量: ${existingData.length.toLocaleString()} 条`);
+    // 1. 读取现有数据（仅读演示文件 demo_jobs.json，禁止读正式 all_cleaned_jobs.json）
+    console.log('\n📁 步骤1: 读取现有演示数据...');
+    const existingData = readDemoData();
+    console.log(`   当前演示数据量: ${existingData.length.toLocaleString()} 条`);
 
     // 2. 构建去重键
     console.log('\n🔍 步骤2: 构建去重索引...');
@@ -179,8 +198,8 @@ async function main() {
         console.log('   系统已就绪，可通过 API 访问最新数据');
 
         // 4. 恢复数据（演示用，不实际添加测试数据）
-        console.log('\n🔄 恢复原始数据（演示模式）...');
-        const originalData = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+        console.log('\n🔄 恢复原始演示数据（演示模式）...');
+        const originalData = readDemoData();
         const restoredData = originalData.filter(item => {
             const isMock = (
                 (item.job_name === '前端开发工程师' && item.company === '字节跳动') ||

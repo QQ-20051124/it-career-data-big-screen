@@ -9,6 +9,12 @@
         <span class="logo-text">IT学习与就业数据可视化导航系统</span>
       </div>
       <div class="header-right">
+        <button class="back-btn" @click="goBack">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+          <span>返回</span>
+        </button>
         <div class="live-indicator">
           <span class="pulse-dot"></span>
           <span>实时监控</span>
@@ -160,10 +166,18 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import 'echarts-wordcloud'
 import 'echarts-gl'
-import jobData from '@/assets/all_cleaned_jobs.json'
+
+let jobData = []
+
+const router = useRouter()
+
+const goBack = () => {
+  router.push('/dashboard')
+}
 
 // 响应式数据
 const bgCanvas = ref(null)
@@ -1303,6 +1317,17 @@ onMounted(async () => {
   await nextTick()
   drawStarBackground()
   updateTime()
+
+  try {
+    const response = await fetch('/data/all_cleaned_jobs.json')
+    if (response.ok) {
+      jobData = await response.json()
+      console.log('大屏数据加载成功:', jobData.length, '条岗位')
+    }
+  } catch (err) {
+    console.warn('大屏数据加载失败，使用默认数据:', err.message)
+  }
+
   updateIndexData()
   refreshAllCharts()
   timeTimer = setInterval(updateTime, 1000)
@@ -1382,7 +1407,26 @@ onUnmounted(() => {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(74, 158, 255, 0.8);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-btn:hover {
+  background: rgba(74, 158, 255, 0.15);
+  border-color: rgba(74, 158, 255, 0.35);
 }
 
 .live-indicator {

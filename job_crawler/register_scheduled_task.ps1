@@ -1,47 +1,55 @@
 # ================================================
 # Windows 定时任务注册脚本
-# 功能：将爬虫注册为 Windows 定时任务
+# 功能：将爬虫注册为 Windows 定时任务（唯一正式定时任务）
 # 使用：以管理员身份运行此脚本
+#
+# ⚠️ 唯一正式定时任务：每日凌晨 02:00 执行 spider/run_all.py（DrissionPage 版）
+#   注册动作 = 调起 start_crawler.bat → .venv312\Scripts\python.exe spider\run_all.py
+#   禁止再注册任何指向 daily_crawler.py（Playwright 旧版）的重复定时任务，
+#   避免两套爬虫并行采集、重复写入主数据文件导致岗位数据丢失。
 # ================================================
 
 param(
     [string]$Action = "install",  # install=安装, uninstall=卸载, status=查看状态
     [string]$TaskName = "ITJobCrawler",
-    [string]$StartTime = "08:00",
-    [string]$EndTime = "20:00"
+    [string]$StartTime = "02:00",  # 凌晨2点定时任务（唯一正式调度时间）
+    [string]$EndTime = "02:00"
 )
 
 $ErrorActionPreference = "Continue"
 $CrawlerPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-$CrawlerScript = Join-Path $CrawlerPath "daily_crawler.py"
-$PythonExe = "python"
+# 官方入口：start_crawler.bat（内部调起 spider/run_all.py，使用 .venv312 + DrissionPage）
+$CrawlerBat = Join-Path $CrawlerPath "start_crawler.bat"
 
 function Install-Task {
-    Write-Host "=== 安装 Windows 定时任务 ===" -ForegroundColor Cyan
+    Write-Host "=== 安装 Windows 定时任务（唯一正式定时任务） ===" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "任务名称: $TaskName"
-    Write-Host "爬虫脚本: $CrawlerScript"
-    Write-Host "执行时间: 每日 $StartTime 和 $EndTime"
+    Write-Host "执行入口: $CrawlerBat（→ spider/run_all.py）"
+    Write-Host "执行时间: 每日 $StartTime（凌晨2点定时任务）"
     Write-Host ""
-    
+
+    if (-not (Test-Path $CrawlerBat)) {
+        Write-Host "[ERROR] 未找到官方入口 $CrawlerBat，终止注册。" -ForegroundColor Red
+        exit 1
+    }
+
     # 删除已存在的任务
     $existingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
     if ($existingTask) {
         Write-Host "[INFO] 发现已存在的任务，正在删除..." -ForegroundColor Yellow
         Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
     }
-    
-    # 创建触发器 - 每天执行两次
+
+    # 创建触发器 - 每天凌晨2点执行
     $trigger1 = New-ScheduledTaskTrigger -Daily -At $StartTime
-    $trigger2 = New-ScheduledTaskTrigger -Daily -At $EndTime
-    
-    # 设置任务重复间隔（每12小时一次）
+
+    # 设置任务重复间隔（每24小时一次）
     $trigger1.Repetition.Interval = [TimeSpan]::FromHours(24)
     
-    # 创建任务动作
+    # 创建任务动作：直接调起 start_crawler.bat（→ spider/run_all.py）
     $action = New-ScheduledTaskAction `
-        -Execute $PythonExe `
-        -Argument "`"$CrawlerScript`"" `
+        -Execute "`"$CrawlerBat`"" `
         -WorkingDirectory $CrawlerPath
     
     # 设置任务主体
@@ -62,10 +70,10 @@ function Install-Task {
     Register-ScheduledTask `
         -TaskName $TaskName `
         -Action $action `
-        -Trigger $trigger1, $trigger2 `
+        -Trigger $trigger1 `
         -Principal $principal `
         -Settings $settings `
-        -Description "IT岗位爬虫 - 每日定时更新招聘数据" `
+        -Description "IT岗位爬虫 - 凌晨2点定时全量采集（无地域限制）" `
         -Force
     
     Write-Host "[OK] 定时任务安装成功！" -ForegroundColor Green

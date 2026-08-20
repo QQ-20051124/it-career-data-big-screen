@@ -1,8 +1,10 @@
 <template>
   <router-view />
+  <FloatingAIAssistant />
 </template>
 
 <script setup>
+import FloatingAIAssistant from './components/FloatingAIAssistant.vue'
 </script>
 
 <style>
@@ -16,10 +18,36 @@ html, body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #app {
   width: 100%;
   min-height: 100vh;
+}
+
+body {
+  font-family: 'Microsoft YaHei', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #050a1e;
+  color: #fff;
+  overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(74, 158, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 158, 255, 0.5);
 }
 </style>

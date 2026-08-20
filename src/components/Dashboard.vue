@@ -769,36 +769,185 @@
         </div>
 
         <div class="center-panel carousel-panel">
-          <div class="carousel-wrapper">
-            <div class="carousel-content" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
-              <div class="carousel-item" v-for="(slide, index) in carouselSlides" :key="index">
-                <div class="slide-card" :style="{ backgroundImage: `linear-gradient(135deg, rgba(10,20,40,0.85) 0%, rgba(10,20,40,0.4) 50%, rgba(10,20,40,0.1) 100%), url(${slide.bgImage})` }">
-                  <div class="slide-icon">{{ slide.icon }}</div>
-                  <h4>{{ slide.title }}</h4>
-                  <p>{{ slide.desc }}</p>
-                  <div class="slide-data">
-                    <div class="data-item">
-                      <span class="data-value">{{ slide.data1.value }}</span>
-                      <span class="data-label">{{ slide.data1.label }}</span>
+          <div class="carousel-main" @mouseenter="pauseAutoPlay" @mouseleave="resumeAutoPlay">
+            <div class="carousel-track">
+              <div
+                v-for="(slide, index) in carouselSlides"
+                :key="index"
+                class="carousel-slide-full"
+                :class="{ active: currentSlide === index, leaving: leavingSlide === index }"
+                :style="getSlideAccentStyle(index)"
+              >
+                <div class="slide-bg-mesh"></div>
+                <div class="slide-bg-grid"></div>
+                <div class="slide-bg-particles">
+                  <span v-for="n in 20" :key="'p'+n" class="particle" :style="getParticleStyle(n)"></span>
+                </div>
+                <div class="slide-overlay"></div>
+
+                <div class="slide-content">
+                  <div class="slide-content-left">
+                    <div class="slide-tag-row">
+                      <div class="slide-tag" :style="{ borderColor: slide.accent }">
+                        <span class="tag-dot" :style="{ background: slide.accent, boxShadow: '0 0 8px ' + slide.accent }"></span>
+                        {{ slide.tag }}
+                      </div>
+                      <span class="slide-number-label">{{ String(index + 1).padStart(2, '0') }} / {{ String(carouselSlides.length).padStart(2, '0') }}</span>
                     </div>
-                    <div class="data-item">
-                      <span class="data-value">{{ slide.data2.value }}</span>
-                      <span class="data-label">{{ slide.data2.label }}</span>
+
+                    <h2 class="slide-title-main" :style="{ background: 'linear-gradient(135deg, #fff 0%, ' + slide.accent + ' 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }">{{ slide.title }}</h2>
+                    <p class="slide-desc-main">{{ slide.desc }}</p>
+
+                    <div class="slide-visual" v-if="index === 0">
+                      <svg viewBox="0 0 280 100" width="280" height="100" class="area-chart">
+                        <defs>
+                          <linearGradient :id="'areaGrad'+index" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" :stop-color="slide.accent" stop-opacity="0.4"/>
+                            <stop offset="100%" :stop-color="slide.accent" stop-opacity="0.02"/>
+                          </linearGradient>
+                        </defs>
+                        <path d="M0,70 Q35,50 70,55 T140,30 T210,20 T280,10 L280,100 L0,100 Z" :fill="'url(#areaGrad'+index+')'"/>
+                        <path d="M0,70 Q35,50 70,55 T140,30 T210,20 T280,10" fill="none" :stroke="slide.accent" stroke-width="2" stroke-linecap="round" class="chart-line"/>
+                        <circle v-for="(pt, i) in [[0,70],[70,55],[140,30],[210,20],[280,10]]" :key="'pt'+i" :cx="pt[0]" :cy="pt[1]" r="4" :fill="slide.accent" class="chart-dot"/>
+                        <g stroke="rgba(74,158,255,0.15)" stroke-width="1">
+                          <line x1="0" y1="25" x2="280" y2="25" stroke-dasharray="3,3"/>
+                          <line x1="0" y1="50" x2="280" y2="50" stroke-dasharray="3,3"/>
+                          <line x1="0" y1="75" x2="280" y2="75" stroke-dasharray="3,3"/>
+                        </g>
+                      </svg>
+                      <div class="visual-legend"><span class="legend-dot" :style="{background: slide.accent}"></span>岗位需求趋势 · 近30天</div>
                     </div>
-                    <div class="data-item">
-                      <span class="data-value">{{ slide.data3.value }}</span>
-                      <span class="data-label">{{ slide.data3.label }}</span>
+
+                    <div class="slide-visual" v-else-if="index === 1">
+                      <svg viewBox="0 0 240 140" width="240" height="140" class="radar-chart">
+                        <g :stroke="slide.accent" stroke-width="1" fill="none" opacity="0.3">
+                          <polygon points="120,20 200,60 200,120 120,140 40,120 40,60"/>
+                          <polygon points="120,40 180,70 180,110 120,125 60,110 60,70"/>
+                          <polygon points="120,60 160,80 160,100 120,110 80,100 80,80"/>
+                        </g>
+                        <polygon points="120,25 195,65 185,118 120,135 45,115 50,65" :fill="slide.accent" fill-opacity="0.25" :stroke="slide.accent" stroke-width="2" class="radar-area"/>
+                        <g v-for="(label, i) in [['Vue',120,15],['React',210,60],['Python',210,125],['Java',120,148],['Go',30,125],['AI',30,60]]" :key="'rl'+i">
+                          <text :x="label[1]" :y="label[2]" text-anchor="middle" fill="rgba(200,220,255,0.8)" font-size="9" font-weight="600">{{ label[0] }}</text>
+                        </g>
+                        <circle v-for="(pt, i) in [[120,25],[195,65],[185,118],[120,135],[45,115],[50,65]]" :key="'rd'+i" :cx="pt[0]" :cy="pt[1]" r="3" :fill="slide.accent" class="radar-dot"/>
+                      </svg>
+                    </div>
+
+                    <div class="slide-visual" v-else-if="index === 2">
+                      <svg viewBox="0 0 280 100" width="280" height="100" class="distribution-chart">
+                        <defs>
+                          <linearGradient :id="'distGrad'+index" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" :stop-color="slide.accent" stop-opacity="0.6"/>
+                            <stop offset="100%" :stop-color="slide.accent" stop-opacity="0"/>
+                          </linearGradient>
+                        </defs>
+                        <line x1="0" y1="90" x2="280" y2="90" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                        <path d="M20,85 Q50,82 70,75 T110,45 T140,25 T170,20 T200,30 T230,55 T260,78" fill="none" :stroke="slide.accent" stroke-width="2.5" stroke-linecap="round" class="dist-line"/>
+                        <path d="M20,85 Q50,82 70,75 T110,45 T140,25 T170,20 T200,30 T230,55 T260,78 L260,90 L20,90 Z" :fill="'url(#distGrad'+index+')'"/>
+                        <g :fill="slide.accent" class="dist-dots">
+                          <circle cx="70" cy="75" r="3"/><circle cx="110" cy="45" r="3"/><circle cx="140" cy="25" r="3"/><circle cx="170" cy="20" r="3"/><circle cx="200" cy="30" r="3"/><circle cx="230" cy="55" r="3"/>
+                        </g>
+                        <g fill="rgba(150,180,220,0.5)" font-size="8">
+                          <text x="20" y="98">5K</text><text x="70" y="98">10K</text><text x="140" y="98">18K</text><text x="210" y="98">30K</text><text x="250" y="98">50K+</text>
+                        </g>
+                      </svg>
+                      <div class="visual-legend"><span class="legend-dot" :style="{background: slide.accent}"></span>薪资分布曲线 · 单位: 元</div>
+                    </div>
+
+                    <div class="slide-visual" v-else-if="index === 3">
+                      <svg viewBox="0 0 280 100" width="280" height="100" class="heatmap-chart">
+                        <g v-for="row in 5" :key="'row'+row">
+                          <rect v-for="col in 14" :key="'c'+col" :x="(col-1)*20+5" :y="(row-1)*18+5" width="16" height="14" rx="2" :fill="getHeatColor(row-1,col-1,slide.accent)" class="heat-cell"/>
+                        </g>
+                      </svg>
+                      <div class="visual-legend"><span class="legend-dot" :style="{background: slide.accent}"></span>城市岗位热度热力图</div>
+                    </div>
+
+                    <button class="slide-cta" :style="{ background: 'linear-gradient(135deg, ' + slide.accent + ', ' + slide.accent + 'cc)' }" @click="handleSlideClick(index)">
+                      <span>立即探索</span>
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="slide-content-right">
+                    <div class="data-cards">
+                      <div class="data-card" v-if="slide.data1" :style="{ borderColor: slide.accent + '40' }">
+                        <div class="card-icon" :style="{ background: slide.data1.color }">
+                          <svg v-if="index===0" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                          <svg v-else-if="index===1" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                          <svg v-else-if="index===2" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                          <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div class="card-data">
+                          <span class="card-value" :style="{ color: slide.accent }">{{ slide.data1.value }}</span>
+                          <span class="card-label">{{ slide.data1.label }}</span>
+                        </div>
+                      </div>
+                      <div class="data-card" v-if="slide.data2" :style="{ borderColor: slide.accent + '40' }">
+                        <div class="card-icon" :style="{ background: slide.data2.color }">
+                          <svg v-if="index===0" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          <svg v-else-if="index===1" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                          <svg v-else-if="index===2" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                          <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="card-data">
+                          <span class="card-value" :style="{ color: slide.accent }">{{ slide.data2.value }}</span>
+                          <span class="card-label">{{ slide.data2.label }}</span>
+                        </div>
+                      </div>
+                      <div class="data-card" v-if="slide.data3" :style="{ borderColor: slide.accent + '40' }">
+                        <div class="card-icon" :style="{ background: slide.data3.color }">
+                          <svg v-if="index===0" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                          <svg v-else-if="index===1" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                          <svg v-else-if="index===2" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        </div>
+                        <div class="card-data">
+                          <span class="card-value" :style="{ color: slide.accent }">{{ slide.data3.value }}</span>
+                          <span class="card-label">{{ slide.data3.label }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="slide-decorative-element">
+                      <div class="deco-number" :style="{ color: slide.accent + '50' }">{{ String(index + 1).padStart(2, '0') }}</div>
+                      <div class="deco-line-vertical" :style="{ background: 'linear-gradient(180deg, ' + slide.accent + '60, transparent)' }"></div>
+                      <div class="deco-total">{{ String(carouselSlides.length).padStart(2, '0') }}</div>
                     </div>
                   </div>
-                  <button class="slide-btn">立即查看</button>
+                </div>
+
+                <div class="slide-progress-bar">
+                  <div class="progress-fill" :style="{ background: slide.accent }" :class="{ active: currentSlide === index }"></div>
                 </div>
               </div>
             </div>
+
+            <button class="carousel-nav nav-prev" @click="prevSlide">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <button class="carousel-nav nav-next" @click="nextSlide">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </button>
           </div>
-          <div class="carousel-indicators">
-            <span v-for="(_, index) in carouselSlides" :key="index" 
-              class="indicator" :class="{ active: currentSlide === index }"
-              @click="currentSlide = index"></span>
+
+          <div class="carousel-indicator-row">
+            <div
+              v-for="(slide, index) in carouselSlides"
+              :key="index"
+              class="indicator-item"
+              :class="{ active: currentSlide === index }"
+              @click="goToSlide(index)"
+              :style="currentSlide === index ? { '--accent': slide.accent } : {}"
+            >
+              <div class="indicator-bar" :style="currentSlide === index ? { background: 'linear-gradient(90deg, ' + slide.accent + ', ' + slide.accent + '88)' } : {}"></div>
+              <span class="indicator-title">{{ slide.title }}</span>
+            </div>
           </div>
         </div>
 
@@ -1220,18 +1369,27 @@ const updateCarouselStats = () => {
   const totalJobs = jobData.length
   const avgSalary = Math.round(jobData.reduce((sum, job) => sum + (job.salary_avg || 0), 0) / totalJobs)
   const cities = [...new Set(jobData.map(j => j.city))].length
+  const savedAccent = carouselSlides.value[0].accent
+  const savedAccentRgb = carouselSlides.value[0].accentRgb
+  const savedDataColors = {
+    d1: carouselSlides.value[0].data1?.color,
+    d2: carouselSlides.value[0].data2?.color,
+    d3: carouselSlides.value[0].data3?.color
+  }
   carouselSlides.value[0] = {
     icon: '📊',
+    tag: '岗位大数据',
     title: '实时有效岗位',
-    desc: '当前市场最新岗位动态与趋势分析',
-    bgImage: carouselImages.jobs,
-    data1: { value: totalJobs.toLocaleString(), label: '有效岗位' },
-    data2: { value: cities, label: '覆盖城市' },
-    data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' },
+    desc: '基于' + totalJobs.toLocaleString() + '条真实招聘数据的市场动态监测与趋势预测，实时掌握IT就业脉搏与行业变化',
+    accent: savedAccent,
+    accentRgb: savedAccentRgb,
+    data1: { value: totalJobs.toLocaleString(), label: '有效岗位', color: savedDataColors.d1 || 'linear-gradient(135deg, #4a9eff, #2563eb)' },
+    data2: { value: cities + '+', label: '覆盖城市', color: savedDataColors.d2 || 'linear-gradient(135deg, #6366f1, #4a9eff)' },
+    data3: { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资', color: savedDataColors.d3 || 'linear-gradient(135deg, #06b6d4, #4a9eff)' },
   }
-  carouselSlides.value[2].data3 = { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资' }
-  carouselSlides.value[3].data1 = { value: totalJobs.toLocaleString(), label: '在招岗位' }
-  carouselSlides.value[3].data2 = { value: cities + '+', label: '覆盖城市' }
+  carouselSlides.value[2].data3 = { value: '¥' + (avgSalary / 1000).toFixed(1) + 'K', label: '平均薪资', color: carouselSlides.value[2].data3.color }
+  carouselSlides.value[3].data1 = { value: totalJobs.toLocaleString(), label: '在招岗位', color: carouselSlides.value[3].data1.color }
+  carouselSlides.value[3].data2 = { value: cities + '+', label: '覆盖城市', color: carouselSlides.value[3].data2.color }
 }
 
 const router = useRouter()
@@ -1247,9 +1405,123 @@ const recordBrowseHistory = (type, title, pageName, url) => {
 }
 const bgCanvas = ref(null)
 const currentSlide = ref(0)
+const leavingSlide = ref(-1)
 const activeModule = ref('function')
 let slideInterval = null
 let bgAnimationId = null
+const AUTO_PLAY_INTERVAL = 5000
+
+const carouselSlideRoutes = ['/job-recommend', '/planning', '/analytics', '/industry-prediction']
+
+const getSlideStyle = (index) => {
+  const total = carouselSlides.value.length
+  let offset = index - currentSlide.value
+  if (offset > total / 2) offset -= total
+  if (offset < -total / 2) offset += total
+
+  const absOffset = Math.abs(offset)
+  const translateX = offset * 40
+  const rotateY = offset * -25
+  const scale = absOffset === 0 ? 1 : absOffset === 1 ? 0.90 : 0.74
+  const zIndex = 100 - absOffset * 10
+  const opacity = absOffset > 2 ? 0 : absOffset === 2 ? 0.3 : 1
+  const blur = absOffset > 1 ? 4 : 0
+
+  return {
+    transform: `translateX(${translateX}%) rotateY(${rotateY}deg) scale(${scale})`,
+    zIndex: zIndex,
+    opacity: opacity,
+    pointerEvents: absOffset <= 1 ? 'auto' : 'none',
+    filter: blur ? `blur(${blur}px)` : 'none'
+  }
+}
+
+const getSlideAccentStyle = (index) => {
+  const slide = carouselSlides.value[index]
+  if (!slide) return {}
+  return {
+    '--accent': slide.accent,
+    '--accent-rgb': slide.accentRgb
+  }
+}
+
+const getParticleStyle = (n) => {
+  const seed = n * 7 + 13
+  const left = (seed * 37 % 100)
+  const top = (seed * 53 % 100)
+  const size = (seed % 3) + 1
+  const delay = (n * 0.3) % 4
+  const duration = 3 + (n % 3)
+  return {
+    left: left + '%',
+    top: top + '%',
+    width: size + 'px',
+    height: size + 'px',
+    animationDelay: delay + 's',
+    animationDuration: duration + 's'
+  }
+}
+
+const getHeatColor = (row, col, accent) => {
+  const intensity = ((row * 14 + col) * 7 + 30) % 100
+  if (intensity < 20) return 'rgba(' + accent + 'Rgb,0.08)'.replace(accent + 'Rgb', '100,120,180')
+  if (intensity < 40) return 'rgba(74,158,255,0.18)'
+  if (intensity < 60) return 'rgba(74,158,255,0.32)'
+  if (intensity < 80) return 'rgba(74,158,255,0.5)'
+  return 'rgba(74,158,255,0.7)'
+}
+
+const nextSlide = () => {
+  leavingSlide.value = currentSlide.value
+  currentSlide.value = (currentSlide.value + 1) % carouselSlides.value.length
+  resetAutoPlay()
+}
+
+const prevSlide = () => {
+  leavingSlide.value = currentSlide.value
+  currentSlide.value = (currentSlide.value - 1 + carouselSlides.value.length) % carouselSlides.value.length
+  resetAutoPlay()
+}
+
+const goToSlide = (index) => {
+  leavingSlide.value = currentSlide.value
+  currentSlide.value = index
+  resetAutoPlay()
+}
+
+const handleSlideClick = (index) => {
+  const route = carouselSlideRoutes[index]
+  if (route) {
+    router.push(route)
+  }
+}
+
+const pauseAutoPlay = () => {
+  if (slideInterval) {
+    clearInterval(slideInterval)
+    slideInterval = null
+  }
+}
+
+const resumeAutoPlay = () => {
+  if (!slideInterval) {
+    startAutoPlay()
+  }
+}
+
+const resetAutoPlay = () => {
+  if (slideInterval) {
+    clearInterval(slideInterval)
+  }
+  startAutoPlay()
+}
+
+const startAutoPlay = () => {
+  slideInterval = setInterval(() => {
+    leavingSlide.value = currentSlide.value
+    currentSlide.value = (currentSlide.value + 1) % carouselSlides.value.length
+  }, AUTO_PLAY_INTERVAL)
+}
 
 const showResumeModal = ref(false)
 const resumeData = ref(null)
@@ -1573,39 +1845,47 @@ const communityPosts = ref(
 const carouselSlides = ref([
   {
     icon: '📊',
+    tag: '岗位大数据',
     title: '实时有效岗位',
-    desc: '当前市场最新岗位动态与趋势分析',
-    bgImage: carouselImages.jobs,
-    data1: { value: '加载中', label: '有效岗位' },
-    data2: { value: '...', label: '覆盖城市' },
-    data3: { value: '...', label: '平均薪资' },
+    desc: '基于28,556条真实招聘数据的市场动态监测与趋势预测，实时掌握IT就业脉搏与行业变化',
+    accent: '#4a9eff',
+    accentRgb: '74,158,255',
+    data1: { value: '28,556', label: '有效岗位', color: 'linear-gradient(135deg, #4a9eff, #2563eb)' },
+    data2: { value: '229+', label: '覆盖城市', color: 'linear-gradient(135deg, #6366f1, #4a9eff)' },
+    data3: { value: '¥18.2K', label: '平均薪资', color: 'linear-gradient(135deg, #06b6d4, #4a9eff)' },
   },
   {
     icon: '🎯',
+    tag: '技能图谱',
     title: '热门技能趋势',
-    desc: 'IT行业前沿技术与技能需求分析',
-    bgImage: carouselImages.skills,
-    data1: { value: '9,856', label: '学习用户' },
-    data2: { value: '98.2%', label: '匹配度' },
-    data3: { value: '128', label: '技能标签' },
+    desc: 'AI、大数据、云计算等前沿技术技能需求深度分析，实时追踪技术栈热度变化，助力技能规划',
+    accent: '#00d4aa',
+    accentRgb: '0,212,170',
+    data1: { value: '9,856', label: '学习用户', color: 'linear-gradient(135deg, #00d4aa, #059669)' },
+    data2: { value: '98.2%', label: '岗位匹配度', color: 'linear-gradient(135deg, #10b981, #00d4aa)' },
+    data3: { value: '128+', label: '技能标签', color: 'linear-gradient(135deg, #06b6d4, #00d4aa)' },
   },
   {
     icon: '💰',
+    tag: '薪资洞察',
     title: '薪资分布分析',
-    desc: 'IT行业薪资水平与增长趋势洞察',
-    bgImage: carouselImages.salary,
-    data1: { value: '56,230', label: '人才储备' },
-    data2: { value: '45.8%', label: '就业率' },
-    data3: { value: '...', label: '平均薪资' },
+    desc: '全行业薪资水平与增长趋势可视化呈现，多维度薪资区间分布分析，助力职业价值评估与薪资谈判',
+    accent: '#ffa500',
+    accentRgb: '255,165,0',
+    data1: { value: '56,230', label: '人才储备', color: 'linear-gradient(135deg, #ffa500, #f59e0b)' },
+    data2: { value: '45.8%', label: '就业率', color: 'linear-gradient(135deg, #fb923c, #ffa500)' },
+    data3: { value: '¥18.2K', label: '平均薪资', color: 'linear-gradient(135deg, #f97316, #ffa500)' },
   },
   {
     icon: '🗺️',
+    tag: '区域热力',
     title: '城市就业热度',
-    desc: '全国主要城市IT就业市场分布',
-    bgImage: carouselImages.cities,
-    data1: { value: '27,901', label: '在招岗位' },
-    data2: { value: '28+', label: '覆盖城市' },
-    data3: { value: '3大', label: '数据平台' },
+    desc: '全国主要城市IT就业市场分布可视化，岗位密度与薪资水平双维度分析，精准定位目标城市与发展机会',
+    accent: '#a855f7',
+    accentRgb: '168,85,247',
+    data1: { value: '28,556', label: '在招岗位', color: 'linear-gradient(135deg, #a855f7, #7c3aed)' },
+    data2: { value: '229+', label: '覆盖城市', color: 'linear-gradient(135deg, #8b5cf6, #a855f7)' },
+    data3: { value: '3大平台', label: '数据源', color: 'linear-gradient(135deg, #c084fc, #a855f7)' },
   },
 ])
 
@@ -1931,9 +2211,7 @@ onMounted(async () => {
   
   refreshProfileData()
   
-  slideInterval = setInterval(() => {
-    currentSlide.value = (currentSlide.value + 1) % carouselSlides.value.length
-  }, 5000)
+  startAutoPlay()
 })
 
 onUnmounted(() => {
@@ -2852,6 +3130,10 @@ onUnmounted(() => {
   backdrop-filter: blur(10px);
 }
 
+.center-panel {
+  overflow: visible;
+}
+
 .left-panel::before, .center-panel::before, .right-panel::before {
   content: '';
   position: absolute;
@@ -3019,129 +3301,462 @@ onUnmounted(() => {
 .carousel-panel {
   display: flex;
   flex-direction: column;
-  min-height: 220px;
+  min-height: 300px;
 }
 
-.carousel-wrapper {
+.carousel-main {
   flex: 1;
-  overflow: hidden;
-  border-radius: 12px;
   position: relative;
-  min-height: 180px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(74, 158, 255, 0.25);
+  min-height: 260px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 60px rgba(74, 158, 255, 0.08);
 }
 
-.carousel-content {
-  display: flex;
-  height: 100%;
-  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.carousel-item {
-  flex: 1;
-  min-width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.slide-card {
+.carousel-track {
+  position: relative;
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: right center;
-  background-repeat: no-repeat;
-  border-radius: 12px;
-  border: 1px solid rgba(74, 158, 255, 0.2);
-  padding: 15px 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  position: relative;
+}
+
+.carousel-slide-full {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
   overflow: hidden;
+  background: #050c20;
 }
 
-.slide-icon {
-  font-size: 1.8rem;
-  margin-bottom: 6px;
+.carousel-slide-full.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 5;
 }
 
-.slide-card h4 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: rgba(74, 158, 255, 0.95);
-  margin-bottom: 4px;
+.carousel-slide-full.leaving {
+  opacity: 0;
+  transform: translateX(-3%) scale(0.98);
 }
 
-.slide-card p {
-  font-size: 0.75rem;
-  color: rgba(150, 180, 220, 0.4);
-  margin-bottom: 10px;
+.slide-bg-mesh {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 80% 60% at 20% 50%, var(--accent, #4a9eff) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 80% 30%, rgba(100, 150, 255, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 70% 80%, rgba(0, 212, 170, 0.15) 0%, transparent 50%),
+    linear-gradient(135deg, #0a1228 0%, #050c20 50%, #0a0f1e 100%);
+  z-index: 0;
 }
 
-.slide-data {
+.slide-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(74, 158, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 158, 255, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 90% 80% at 30% 50%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 30% 50%, black 30%, transparent 100%);
+  z-index: 0;
+}
+
+.slide-bg-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  background: var(--accent, #4a9eff);
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 6px var(--accent, #4a9eff);
+  animation: particleFloat 4s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+  0%, 100% { opacity: 0; transform: translateY(0); }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.4; }
+  50% { transform: translateY(-10px); }
+}
+
+.slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgba(5, 12, 32, 0.85) 0%, rgba(5, 12, 32, 0.55) 30%, rgba(5, 12, 32, 0.2) 60%, rgba(5, 12, 32, 0) 100%);
+  z-index: 1;
+}
+
+.slide-content {
+  position: relative;
+  z-index: 2;
   display: flex;
-  gap: 25px;
-  margin-bottom: 10px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: 32px 40px;
+  gap: 24px;
 }
 
-.data-item {
+.slide-content-left {
+  flex: 1;
+  max-width: 55%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 3px;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-.data-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: rgba(74, 158, 255, 0.9);
-  text-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
-}
-
-.data-label {
-  font-size: 0.65rem;
-  color: rgba(150, 180, 220, 0.4);
-}
-
-.slide-btn {
-  padding: 6px 18px;
-  background: rgba(74, 158, 255, 0.3);
-  border: 1px solid rgba(74, 158, 255, 0.5);
-  border-radius: 12px;
-  color: rgba(74, 158, 255, 0.9);
-  font-weight: 600;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.slide-btn:hover {
-  background: rgba(74, 158, 255, 0.5);
-  box-shadow: 0 0 15px rgba(74, 158, 255, 0.3);
-}
-
-.carousel-indicators {
+.slide-tag-row {
   display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 8px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2px;
 }
 
-.indicator {
+.slide-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid var(--accent, #4a9eff);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  color: var(--accent, #4a9eff);
+  font-weight: 500;
+  letter-spacing: 1.5px;
+}
+
+.tag-dot {
   width: 6px;
   height: 6px;
+  background: #4a9eff;
   border-radius: 50%;
-  background: rgba(74, 158, 255, 0.2);
+}
+
+.slide-number-label {
+  font-size: 0.65rem;
+  color: rgba(150, 180, 220, 0.5);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+.slide-title-main {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: 2px;
+}
+
+.slide-desc-main {
+  font-size: 0.82rem;
+  color: rgba(200, 220, 255, 0.72);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 420px;
+}
+
+.slide-visual {
+  margin: 8px 0 4px;
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.area-chart, .radar-chart, .distribution-chart, .heatmap-chart {
+  filter: drop-shadow(0 0 12px rgba(74, 158, 255, 0.2));
+}
+
+.chart-line, .dist-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawLine 2s ease-out forwards;
+}
+
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+.chart-dot, .radar-dot, .dist-dots circle {
+  animation: dotAppear 0.6s ease-out both;
+}
+
+@keyframes dotAppear {
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.radar-area {
+  animation: radarAppear 1s ease-out forwards;
+  transform-origin: center;
+}
+
+@keyframes radarAppear {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.heat-cell {
+  transition: fill 0.3s ease;
+  animation: heatFade 0.8s ease-out both;
+}
+
+@keyframes heatFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.visual-legend {
+  font-size: 0.62rem;
+  color: rgba(150, 180, 220, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.slide-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 26px;
+  border: none;
+  border-radius: 24px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 6px;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.3);
+}
+
+.slide-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(74, 158, 255, 0.45);
+}
+
+.slide-content-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+  min-width: 220px;
+}
+
+.data-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.data-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(10, 20, 50, 0.55);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  min-width: 200px;
   transition: all 0.3s ease;
 }
 
-.indicator.active {
-  width: 18px;
-  border-radius: 3px;
-  background: rgba(74, 158, 255, 0.7);
+.data-card:hover {
+  background: rgba(10, 20, 50, 0.8);
+  transform: translateX(-4px);
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.2);
+}
+
+.card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card-data {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: 'Courier New', 'SF Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+.card-label {
+  font-size: 0.62rem;
+  color: rgba(150, 180, 220, 0.55);
+  letter-spacing: 0.5px;
+}
+
+.slide-decorative-element {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.8;
+}
+
+.deco-number {
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1;
+  font-family: 'Courier New', monospace;
+  letter-spacing: -2px;
+}
+
+.deco-line-vertical {
+  width: 1px;
+  height: 28px;
+}
+
+.deco-total {
+  font-size: 0.7rem;
+  color: rgba(150, 180, 220, 0.4);
+  font-family: 'Courier New', monospace;
+}
+
+.slide-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  z-index: 3;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 0 2px 2px 0;
+}
+
+.progress-fill.active {
+  animation: progressFill 5s linear forwards;
+}
+
+@keyframes progressFill {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(10, 20, 50, 0.75);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  color: rgba(200, 220, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.carousel-nav:hover {
+  background: rgba(74, 158, 255, 0.35);
+  border-color: rgba(74, 158, 255, 0.7);
+  box-shadow: 0 0 24px rgba(74, 158, 255, 0.5);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nav-prev {
+  left: 14px;
+}
+
+.nav-next {
+  right: 14px;
+}
+
+.carousel-indicator-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.indicator-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 6px 6px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.indicator-item:hover {
+  background: rgba(74, 158, 255, 0.06);
+}
+
+.indicator-bar {
+  width: 100%;
+  height: 2px;
+  background: rgba(74, 158, 255, 0.15);
+  border-radius: 2px;
+  transition: all 0.4s ease;
+}
+
+.indicator-item.active .indicator-bar {
+  box-shadow: 0 0 12px var(--accent, rgba(74, 158, 255, 0.5));
+  height: 3px;
+}
+
+.indicator-title {
+  font-size: 0.6rem;
+  color: rgba(150, 180, 220, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.indicator-item.active .indicator-title {
+  color: var(--accent, rgba(74, 158, 255, 0.9));
+  font-weight: 600;
 }
 
 .resume-avatar-section {

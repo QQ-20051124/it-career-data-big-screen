@@ -1,0 +1,46 @@
+{
+  "users": [
+    {
+      "id": "1785588717380",
+      "username": "testuser123",
+      "email": "test@example.com",
+      "salt": "93d904fd9549698e122d684478eec41a",
+      "hash": "e9eec4f3912c31a9edf6a60dc95ed0043f789c33a685790aca357b20c7709a14e218c654de9438a0940765a5e75013131376168f50052c516550b3f2016e1fd2",
+      "createdAt": "2026-08-01T12:51:57.380Z",
+      "loginCount": 2,
+      "lastLoginAt": "2026-08-01T13:07:55.314Z",
+      "passwordUpdatedAt": "2026-08-01T13:07:55.237Z"
+    },
+    {
+      "id": "1785589219749",
+      "username": "apitest_user",
+      "email": "",
+      "salt": "2f7263939490cc854303f4c21cdbdd96",
+      "hash": "95d1589f95d07dab9e230628c0e28db48a3ac89b7fee8ab45d79d0b763648ba7a750aba860f06e8ce88be869f935be556983e43c4a11d90383b28b888199be76",
+      "createdAt": "2026-08-01T13:00:19.749Z",
+      "loginCount": 1,
+      "lastLoginAt": "2026-08-01T13:00:19.837Z"
+    },
+    {
+      "id": "1785589281817",
+      "username": "3024575887@qq.com",
+      "email": "3024575887@qq.com",
+      "salt": "64d9810ce5cd0bd64b6dc94bffcc32b1",
+      "hash": "92c2b721480c8513ac74c78bc642a9543f1168a0dd3d9a268f631a1a8b120494313a54bc02bc7b346c04256ea2e93c7b71389036d456360e0df29c343c357300",
+      "createdAt": "2026-08-01T13:01:21.817Z",
+      "loginCount": 3,
+      "lastLoginAt": "2026-08-01T13:11:02.761Z"
+    },
+    {
+      "id": "1785589424269",
+      "username": "麦舒晴",
+      "email": "",
+      "salt": "272a4059615d502e77736b32fc98fbc6",
+      "hash": "ab776e0753312ecc907bca138baa65b9f93f6bb968419f9e0af69b986be62188276098bc0318fc8d404178b07260e2a3de5257fa81b60d0969389a7242483b88",
+      "createdAt": "2026-08-01T13:03:44.269Z",
+      "loginCount": 1,
+      "lastLoginAt": "2026-08-01T13:03:49.478Z",
+      "passwordUpdatedAt": "2026-08-01T13:10:46.842Z"
+    }
+  ]
+}
