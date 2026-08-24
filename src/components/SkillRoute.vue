@@ -402,6 +402,8 @@ const goBack = () => {
 }
 
 let progressTimer = null
+let animFrame = null
+
 onMounted(() => {
   drawBackground()
   progressTimer = setInterval(() => {
@@ -418,78 +420,210 @@ onMounted(() => {
   if (saved) {
     selectedPosition.value = saved
   }
-
-  window.addEventListener('resize', handleResize)
 })
-
-const handleResize = () => {
-  const canvas = bgCanvas.value
-  if (canvas) {
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-  }
-}
 
 const drawBackground = () => {
   const canvas = bgCanvas.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-
-  const particles = []
-  const particleCount = 60
-  for (let i = 0; i < particleCount; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 2 + 0.5,
-      speedX: (Math.random() - 0.5) * 0.4,
-      speedY: (Math.random() - 0.5) * 0.4,
-      opacity: Math.random() * 0.4 + 0.15
-    })
+  const resize = () => {
+    canvas.width = window.innerWidth * window.devicePixelRatio
+    canvas.height = window.innerHeight * window.devicePixelRatio
+    canvas.style.width = window.innerWidth + 'px'
+    canvas.style.height = window.innerHeight + 'px'
+    ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
   }
+  resize()
 
-  const animate = () => {
-    ctx.fillStyle = 'rgba(10, 15, 25, 0.15)'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+  const W = () => window.innerWidth
+  const H = () => window.innerHeight
+  const TAU = Math.PI * 2
 
-    particles.forEach(p => {
-      p.x += p.speedX
-      p.y += p.speedY
-      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1
-      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1
+  // ===== 粒子星团（霓虹发光尘埃） =====
+  const neon = [
+    { r: 0,   g: 212, b: 255 },
+    { r: 255, g: 61,  b: 166 },
+    { r: 120, g: 80,  b: 255 },
+    { r: 0,   g: 255, b: 170 },
+  ]
+  const dust = Array.from({ length: 85 }, () => {
+    const c = neon[(Math.random() * neon.length) | 0]
+    return {
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.6 + 0.4,
+      vx: (Math.random() - 0.5) * 0.00012,
+      vy: (Math.random() - 0.5) * 0.00012,
+      tw: Math.random() * TAU,
+      tws: 0.005 + Math.random() * 0.012,
+      al: 0.25 + Math.random() * 0.55,
+      c,
+    }
+  })
 
+  // ===== 脉冲能量光圈（3 个缓慢扩散） =====
+  const rings = [0.2, 0.55, 0.9].map((phase, i) => ({
+    cx: 0.18 + i * 0.32,
+    cy: 0.22 + (i % 2) * 0.56,
+    phase,
+    speed: 0.00045 + i * 0.0001,
+    baseR: 120 + i * 60,
+    c: neon[i % neon.length],
+  }))
+
+  // ===== 数据流扫描线（垂直下落的细微光带） =====
+  const dataLines = Array.from({ length: 6 }, (_, i) => ({
+    x: 0.12 + i * 0.14 + (Math.random() - 0.5) * 0.04,
+    y: Math.random(),
+    speed: 0.00035 + Math.random() * 0.0004,
+    len: 0.22 + Math.random() * 0.18,
+    strength: 0.35 + Math.random() * 0.45,
+    c: neon[(i * 2) % neon.length],
+  }))
+
+  let t = 0
+  let stop = false
+
+  const draw = () => {
+    if (stop) return
+    t += 1
+    const w = W()
+    const h = H()
+
+    ctx.fillStyle = 'rgba(4, 8, 24, 0.09)'
+    ctx.fillRect(0, 0, w, h)
+
+    // 暗角
+    const vign = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.25, w / 2, h / 2, Math.max(w, h) * 0.8)
+    vign.addColorStop(0, 'rgba(0,0,0,0)')
+    vign.addColorStop(1, 'rgba(0,0,0,0.55)')
+    ctx.fillStyle = vign
+    ctx.fillRect(0, 0, w, h)
+
+    // 脉冲能量环
+    rings.forEach((R) => {
+      R.phase = (R.phase + R.speed) % 1
+      const life = R.phase
+      const radius = R.baseR + life * Math.max(w, h) * 0.9
+      const alpha = (1 - life) * 0.28
+      const { c } = R
+      const grad = ctx.createRadialGradient(R.cx * w, R.cy * h, Math.max(0, radius - 80), R.cx * w, R.cy * h, radius)
+      grad.addColorStop(0, `rgba(${c.r},${c.g},${c.b},0)`)
+      grad.addColorStop(0.85, `rgba(${c.r},${c.g},${c.b},${alpha * 0.55})`)
+      grad.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`)
+      ctx.strokeStyle = grad
+      ctx.lineWidth = 3
       ctx.beginPath()
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(74, 158, 255, ${p.opacity})`
+      ctx.arc(R.cx * w, R.cy * h, radius, 0, TAU)
+      ctx.stroke()
+      const pulse = 0.5 + 0.5 * Math.sin(t * 0.02 + R.phase * TAU)
+      const coreR = 80 + pulse * 50
+      const core = ctx.createRadialGradient(R.cx * w, R.cy * h, 0, R.cx * w, R.cy * h, coreR)
+      core.addColorStop(0, `rgba(${c.r},${c.g},${c.b},${0.12 * (0.6 + pulse * 0.4)})`)
+      core.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`)
+      ctx.fillStyle = core
+      ctx.beginPath()
+      ctx.arc(R.cx * w, R.cy * h, coreR, 0, TAU)
       ctx.fill()
     })
 
-    particles.forEach((p1, i) => {
-      particles.slice(i + 1).forEach(p2 => {
-        const dx = p1.x - p2.x
-        const dy = p1.y - p2.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 150) {
-          ctx.beginPath()
-          ctx.moveTo(p1.x, p1.y)
-          ctx.lineTo(p2.x, p2.y)
-          ctx.strokeStyle = `rgba(74, 158, 255, ${0.12 * (1 - dist / 150)})`
-          ctx.lineWidth = 0.5
-          ctx.stroke()
-        }
-      })
+    // 数据流（垂直下落条纹）
+    dataLines.forEach((L) => {
+      L.y += L.speed
+      if (L.y - L.len > 1) L.y = -L.len
+      const y0 = (L.y - L.len) * h
+      const y1 = L.y * h
+      const g = ctx.createLinearGradient(L.x * w, y0, L.x * w, y1)
+      g.addColorStop(0, `rgba(${L.c.r},${L.c.g},${L.c.b},0)`)
+      g.addColorStop(0.5, `rgba(${L.c.r},${L.c.g},${L.c.b},${L.strength * 0.22})`)
+      g.addColorStop(1, `rgba(${L.c.r},${L.c.g},${L.c.b},0)`)
+      ctx.strokeStyle = g
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(L.x * w, y0)
+      ctx.lineTo(L.x * w, y1)
+      ctx.stroke()
     })
 
-    requestAnimationFrame(animate)
+    // 霓虹尘埃（邻近连线）
+    dust.forEach((d) => {
+      d.x += d.vx
+      d.y += d.vy
+      if (d.x < 0) d.x += 1
+      if (d.x > 1) d.x -= 1
+      if (d.y < 0) d.y += 1
+      if (d.y > 1) d.y -= 1
+      d.tw += d.tws
+    })
+    for (let i = 0; i < dust.length; i++) {
+      const a = dust[i]
+      const ax = a.x * w
+      const ay = a.y * h
+      for (let j = i + 1; j < dust.length; j++) {
+        const b = dust[j]
+        const dx = ax - b.x * w
+        const dy = ay - b.y * h
+        const d2 = dx * dx + dy * dy
+        if (d2 < 110 * 110) {
+          const o = (1 - Math.sqrt(d2) / 110) * 0.12
+          ctx.strokeStyle = `rgba(${(a.c.r + b.c.r) >> 1},${(a.c.g + b.c.g) >> 1},${(a.c.b + b.c.b) >> 1},${o})`
+          ctx.lineWidth = 0.6
+          ctx.beginPath()
+          ctx.moveTo(ax, ay)
+          ctx.lineTo(b.x * w, b.y * h)
+          ctx.stroke()
+        }
+      }
+    }
+    dust.forEach((d) => {
+      const glow = 0.5 + 0.5 * Math.sin(d.tw)
+      const al = d.al * (0.55 + 0.45 * glow)
+      const x = d.x * w
+      const y = d.y * h
+      const { c } = d
+      const gr = ctx.createRadialGradient(x, y, 0, x, y, d.r * 10)
+      gr.addColorStop(0, `rgba(${c.r},${c.g},${c.b},${al})`)
+      gr.addColorStop(0.5, `rgba(${c.r},${c.g},${c.b},${al * 0.2})`)
+      gr.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`)
+      ctx.fillStyle = gr
+      ctx.beginPath()
+      ctx.arc(x, y, d.r * 10, 0, TAU)
+      ctx.fill()
+      ctx.fillStyle = `rgba(${Math.min(255, c.r + 40)},${Math.min(255, c.g + 40)},${Math.min(255, c.b + 40)},${Math.min(1, al + 0.25)})`
+      ctx.beginPath()
+      ctx.arc(x, y, d.r, 0, TAU)
+      ctx.fill()
+    })
+
+    // 顶部水平扫描线
+    const scan = ((t * 0.25) % (h + 200)) - 100
+    const scanG = ctx.createLinearGradient(0, scan - 60, 0, scan + 60)
+    scanG.addColorStop(0, 'rgba(0,212,255,0)')
+    scanG.addColorStop(0.5, 'rgba(0,212,255,0.06)')
+    scanG.addColorStop(1, 'rgba(0,212,255,0)')
+    ctx.fillStyle = scanG
+    ctx.fillRect(0, scan - 60, w, 120)
+    ctx.strokeStyle = 'rgba(0,212,255,0.18)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(0, scan)
+    ctx.lineTo(w, scan)
+    ctx.stroke()
+
+    animFrame = requestAnimationFrame(draw)
   }
-  animate()
+  draw()
+
+  window.addEventListener('resize', resize, { passive: true })
+  onUnmounted(() => {
+    stop = true
+    if (animFrame) cancelAnimationFrame(animFrame)
+    window.removeEventListener('resize', resize)
+  })
 }
 
 onUnmounted(() => {
   if (progressTimer) clearInterval(progressTimer)
-  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -498,9 +632,30 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0f19 0%, #111b2e 50%, #0d1525 100%);
+  background:
+    radial-gradient(ellipse at 15% 15%, rgba(0, 212, 255, 0.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 85%, rgba(255, 61, 166, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(0, 255, 163, 0.04) 0%, transparent 55%),
+    linear-gradient(160deg, #03061a 0%, #050a22 35%, #080d2a 65%, #05081e 100%);
   overflow: hidden;
-  color: #fff;
+  color: var(--color-text, #fff);
+}
+
+.skill-route-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 1;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.7) 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.7) 30%, transparent 70%);
 }
 
 .bg-canvas {
@@ -853,55 +1008,84 @@ onUnmounted(() => {
 }
 
 .timeline-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 10px 4px 20px;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+.timeline-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timeline-container::-webkit-scrollbar-track {
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 3px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.4), rgba(255, 61, 166, 0.3));
+  border-radius: 3px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.6), rgba(255, 61, 166, 0.5));
 }
 
 .stage-card {
   position: relative;
-  padding: 20px;
-  background: rgba(30, 45, 70, 0.5);
-  border: 1px solid rgba(74, 158, 255, 0.1);
-  border-radius: 12px;
-  margin-bottom: 10px;
-  transition: all 0.3s;
+  flex: 1 1 180px !important;
+  min-width: 180px;
+  max-width: 250px;
+  padding: 16px 14px;
+  background: linear-gradient(180deg, rgba(10, 16, 40, 0.85) 0%, rgba(8, 14, 32, 0.75) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stage-card:hover {
+  border-color: rgba(0, 212, 255, 0.5);
+  transform: translateY(-4px);
+  box-shadow:
+    0 15px 40px rgba(0, 212, 255, 0.12),
+    0 0 0 1px rgba(0, 212, 255, 0.15);
 }
 
 .stage-card.stage-active {
-  border-color: rgba(74, 158, 255, 0.4);
-  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
 }
 
 .stage-card.stage-done {
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .stage-connector {
-  position: absolute;
-  left: 42px;
-  top: -10px;
-  height: 20px;
-  z-index: -1;
+  display: none;
 }
 
 .connector-line {
-  width: 3px;
-  height: 100%;
-  border-radius: 2px;
+  display: none;
 }
 
 .stage-header {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .stage-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -912,32 +1096,42 @@ onUnmounted(() => {
 
 .stage-meta {
   flex: 1;
+  width: 100%;
 }
 
 .stage-name {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-family: var(--font-display, inherit);
+  font-size: 1rem;
+  font-weight: 700;
   margin: 0 0 4px;
-  color: #fff;
+  color: var(--color-text, #fff);
+  letter-spacing: 0.5px;
 }
 
 .stage-desc {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.78rem;
+  color: var(--color-text-dim, rgba(255,255,255,0.55));
   margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .stage-badge {
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 16px;
-  font-size: 0.75rem;
+  font-family: var(--font-display, inherit);
+  font-size: 0.72rem;
   font-weight: 600;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .stage-body {
-  padding-left: 60px;
-  margin-bottom: 14px;
+  padding-left: 0;
+  margin-bottom: 0;
 }
 
 .skills-list {
@@ -947,21 +1141,24 @@ onUnmounted(() => {
 }
 
 .skill-block {
-  background: rgba(10, 15, 25, 0.5);
-  border: 1px solid rgba(74, 158, 255, 0.08);
+  flex: none;
+  min-width: 0;
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.12);
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s;
 }
 
 .skill-block:hover {
-  border-color: rgba(74, 158, 255, 0.2);
+  border-color: rgba(0, 212, 255, 0.3);
 }
 
 .skill-item {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
   padding: 8px 12px;
   font-size: 0.82rem;
   cursor: pointer;
@@ -1456,6 +1653,18 @@ onUnmounted(() => {
   .main-layout {
     grid-template-columns: 220px 1fr;
   }
+  .timeline-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px;
+    overflow-x: auto;
+  }
+  .stage-card {
+    flex: 1 1 170px !important;
+    min-width: 170px;
+    max-width: 230px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -1468,6 +1677,19 @@ onUnmounted(() => {
   }
   .route-stats {
     width: 100%;
+  }
+  .timeline-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 8px 2px 16px;
+  }
+  .stage-card {
+    flex: 0 0 180px !important;
+    min-width: 180px;
+    max-width: 230px;
   }
 }
 </style>

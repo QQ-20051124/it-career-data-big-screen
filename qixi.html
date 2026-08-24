@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>七夕 · 3D爱心</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{
+    width:100%;height:100%;overflow:hidden;cursor:none;
+    background:radial-gradient(ellipse at 50% 44%,#230921 0%,#0f0412 55%,#040206 100%);
+    font-family:sans-serif;color:#fff;
+  }
+  #bg{position:fixed;inset:0;z-index:1}
+  #three{position:fixed;inset:0;z-index:2}
+  .cursor{
+    position:fixed;width:22px;height:22px;pointer-events:none;z-index:50;
+    transform:translate(-50%,-50%);mix-blend-mode:screen;
+    transition:transform .15s;
+  }
+  .cursor::before{
+    content:"♥";position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;color:#ffb3c6;
+    text-shadow:0 0 10px #ff6f9c;
+  }
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<canvas id="three"></canvas>
+<div class="cursor" id="cursor"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============================================================
+   3D 爱心 v5 —— 移植你截图中的 Python 心跳算法：
+   1) heart_function(t) 心形参数方程
+   2) scatter_inside(x, y, beta) = 对数分布散点（围绕(x,y)附近）
+   3) shrink() 按距离向心收缩（让点中心松、表面密）
+   4) curve(p) = 2 sin(4p) / (2p)  → 平滑心跳节奏曲线
+   5) 三层粒子：轮廓点 _points + 边缘扩散 + 中心扩散
+   6) 每帧 ratio + halo_radius 随 curve 改变 → 真实心跳节律
+   ============================================================ */
+const bgCanvas = document.getElementById('bg');
+const threeCanvas = document.getElementById('three');
+const cursor = document.getElementById('cursor');
+let W = innerWidth, H = innerHeight;
+
+/* ---------- 背景星空 + 偶发流星 ---------- */
+const bctx = bgCanvas.getContext('2d');
+let stars = [], meteors = [];
+function rebuildStars(){
+  stars = [];
+  const n = Math.floor((W*H)/3800);
+  for(let i=0;i<n;i++){
+    stars.push({
+      x: Math.random()*W, y: Math.random()*H,
+      r: Math.random()*1.2 + 0.22,
+      tw: Math.random()*Math.PI*2,
+      sp: 0.35 + Math.random()*1.3,
+      c: Math.random()<0.22 ? {r:255,g:179,b:198} :
+         Math.random()<0.45 ? {r:255,g:210,b:180} : {r:255,g:244,b:224}
+    });
+  }
+}
+function drawBackground(t){
+  bctx.clearRect(0,0,W,H);
+  let g = bctx.createRadialGradient(W*0.3,H*0.44,0,W*0.3,H*0.44,W*0.55);
+  g.addColorStop(0,'rgba(255,111,156,0.17)');
+  g.addColorStop(1,'rgba(255,111,156,0)');
+  bctx.fillStyle=g; bctx.fillRect(0,0,W,H);
+  g = bctx.createRadialGradient(W*0.75,H*0.62,0,W*0.75,H*0.62,W*0.55);
+  g.addColorStop(0,'rgba(255,190,150,0.09)');
+  g.addColorStop(1,'rgba(255,190,150,0)');
+  bctx.fillStyle=g; bctx.fillRect(0,0,W,H);
+
+  stars.forEach(s=>{
+    const tw = 0.36 + 0.64*Math.sin(t*s.sp + s.tw);
+    const grad = bctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*4.6);
+    grad.addColorStop(0,`rgba(${s.c.r},${s.c.g},${s.c.b},${0.84*tw})`);
+    grad.addColorStop(0.3,`rgba(${s.c.r},${s.c.g},${s.c.b},${0.22*tw})`);
+    grad.addColorStop(1,`rgba(${s.c.r},${s.c.g},${s.c.b},0)`);
+    bctx.fillStyle = grad;
+    bctx.beginPath(); bctx.arc(s.x,s.y,s.r*4.6,0,Math.PI*2); bctx.fill();
+  });
+
+  if(Math.random() < 0.006 && meteors.length < 3){
+    meteors.push({
+      x: Math.random()*W*0.6 + W*0.2, y: Math.random()*H*0.35,
+      vx: 3.5 + Math.random()*2, vy: 1.2 + Math.random()*0.9,
+      life: 1, decay: 0.008 + Math.random()*0.006,
+      c: Math.random()<0.5 ? '255,200,170' : '255,170,190'
+    });
+  }
+  for(let i=meteors.length-1;i>=0;i--){
+    const m = meteors[i];
+    m.x += m.vx; m.y += m.vy; m.life -= m.decay;
+    if(m.life<=0){ meteors.splice(i,1); continue; }
+    const len = 130;
+    const tx = m.x - (m.vx/Math.hypot(m.vx,m.vy))*len;
+    const ty = m.y - (m.vy/Math.hypot(m.vx,m.vy))*len;
+    const grd = bctx.createLinearGradient(m.x,m.y,tx,ty);
+    grd.addColorStop(0,`rgba(${m.c},${m.life})`);
+    grd.addColorStop(1,`rgba(${m.c},0)`);
+    bctx.strokeStyle = grd; bctx.lineWidth = 1.5;
+    bctx.beginPath(); bctx.moveTo(m.x,m.y); bctx.lineTo(tx,ty); bctx.stroke();
+    bctx.fillStyle = `rgba(255,255,255,${m.life})`;
+    bctx.beginPath(); bctx.arc(m.x,m.y,1.5,0,Math.PI*2); bctx.fill();
+  }
+}
+
+/* ============================================================
+   Three.js
+   ============================================================ */
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, W/H, 0.1, 100);
+camera.position.set(0, 0, 4.6);
+const renderer = new THREE.WebGLRenderer({canvas: threeCanvas, alpha:true, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.setSize(W, H);
+
+/* ---------- 调色板：玫粉/粉/浅粉/桃/暖奶（不过曝） ---------- */
+const PALETTE = {
+  deepRose: [0.97, 0.36, 0.55],   // 深玫粉（轮廓加强）
+  rose:     [1.00, 0.46, 0.65],   // 玫粉（光晕外围）
+  pink:     [1.00, 0.57, 0.73],   // 粉（边缘扩散）
+  softPink: [1.00, 0.70, 0.82],   // 浅粉（中层）
+  peach:    [1.00, 0.80, 0.66],   // 桃（中心扩散偏）
+  cream:    [1.00, 0.90, 0.82],   // 暖奶（核心亮点）
+};
+
+/* ============================================================
+   ↓↓↓ 严格对应 Python 代码的算法 ↓↓↓
+   ============================================================ */
+const HEART_SHRINK = 11;   // HEART_SIDE_LENGTH
+const HEART_CX = 0;
+const HEART_CY = 0;
+
+// 对应 def heart_function(t, shrink_ratio)
+function heart_function(t){
+  const x = 16 * Math.pow(Math.sin(t), 3);
+  const y = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
+  return {
+    x: x * HEART_SHRINK + HEART_CX,
+    y: y * HEART_SHRINK + HEART_CY
+  };
+}
+
+// 对应 def scatter_inside(x, y, beta=0.15)
+function scatter_inside(x, y, beta=0.15){
+  const ratio_x = -beta * Math.log(Math.random());
+  const ratio_y = -beta * Math.log(Math.random());
+  const dx = ratio_x * (x - HEART_CX);
+  const dy = ratio_y * (y - HEART_CY);
+  return { x: x - dx, y: y - dy };
+}
+
+// 对应 def shrink(x, y, ratio)
+function shrink(x, y, ratio){
+  const force = -1 / Math.pow(
+    (x - HEART_CX)**2 + (y - HEART_CY)**2,
+    0.52
+  );
+  const dx = ratio * force * (x - HEART_CX);
+  const dy = ratio * force * (y - HEART_CY);
+  return { x: x - dx, y: y - dy };
+}
+
+// 对应 def curve(p)  → 平滑心跳节律曲线
+function curve(p){
+  return (2 * Math.sin(4 * p)) / (2 * Math.PI);
+}
+
+/* ============================================================
+   ↓↓↓ 生成爱心全部三层粒子 ↓↓↓
+   ============================================================ */
+const HEART_SCALE_WORLD = 0.019;   // 上面是 888 画布坐标 → 世界坐标缩小
+
+function buildHeartPoints(){
+  // ===== 1) 原始轮廓点 self._points（build(2000)） =====
+  const _points = [];
+  for(let i=0;i<2000;i++){
+    const t = Math.random() * Math.PI * 2;
+    const p = heart_function(t);
+    _points.push(p);
+  }
+
+  // ===== 2) 边缘扩散点 self._edge_diffusion_points =====
+  const _edge_diffusion = [];
+  for(const p of _points){
+    // 每轮廓点附近散 2~3 个（Python for _ in range(3)）
+    for(let k=0;k<3;k++){
+      _edge_diffusion.push(scatter_inside(p.x, p.y, 0.05));
+    }
+  }
+
+  // ===== 3) 中心扩散点 self._center_diffusion_points (range 4000) =====
+  const _center_diffusion = [];
+  const _point_list = Array.from(_points);
+  for(let i=0;i<4000;i++){
+    const p = _point_list[Math.floor(Math.random()*_point_list.length)];
+    _center_diffusion.push(scatter_inside(p.x, p.y, 0.17));
+  }
+
+  // ===== 把 4 类粒子合并 + 分配类型、大小、shrink 参考 =====
+  const all = [];
+  const pushP = (p, type, baseSize) => {
+    all.push({ x:p.x, y:p.y, type, baseSize });
+  };
+  for(const p of _points) pushP(p, 'outline', 1.25);        // 轮廓
+  for(const p of _edge_diffusion) pushP(p, 'edge', 0.95);   // 边缘扩散
+  for(const p of _center_diffusion) pushP(p, 'center', 0.78); // 中心扩散
+
+  // 额外加光晕 halo 点（对应 heart_halo_point）：1800 个，更外圈更散
+  for(let i=0;i<1800;i++){
+    const t = Math.random() * Math.PI * 2;
+    const p = heart_function(t);
+    // 先 shrink，再加随机抖动
+    const shr = shrink(p.x, p.y, 0.001);
+    const jx = (Math.random() - 0.5) * 28;
+    const jy = (Math.random() - 0.5) * 28;
+    pushP({ x: shr.x + jx, y: shr.y + jy }, 'halo',
+          Math.random()<0.15 ? 1.7 : (Math.random()<0.5 ? 1.15 : 0.82));
+  }
+
+  return all;
+}
+
+const heartRaw = buildHeartPoints();
+const HEART_PARTICLE_COUNT = heartRaw.length;   // ~ 13800
+
+/* ---------- 构造 Three.js BufferAttribute ---------- */
+const positions = new Float32Array(HEART_PARTICLE_COUNT*3);
+const aBaseXY   = new Float32Array(HEART_PARTICLE_COUNT*2); // 画布坐标系下的 (x,y)
+const aType     = new Float32Array(HEART_PARTICLE_COUNT); // 0 halo,1 outline,2 edge,3 center
+const aSize     = new Float32Array(HEART_PARTICLE_COUNT);
+const aPhase    = new Float32Array(HEART_PARTICLE_COUNT);
+const aColor    = new Float32Array(HEART_PARTICLE_COUNT*3);
+const aJitter   = new Float32Array(HEART_PARTICLE_COUNT*2); // _calc_position 里的随机抖动量
+
+// 起点：大球壳
+for(let i=0;i<HEART_PARTICLE_COUNT;i++){
+  const theta = Math.random()*Math.PI*2;
+  const phi = Math.acos(2*Math.random()-1);
+  const rr = 2.6 + Math.random()*3.6;
+  positions[i*3]   = rr * Math.sin(phi)*Math.cos(theta);
+  positions[i*3+1] = rr * Math.sin(phi)*Math.sin(theta);
+  positions[i*3+2] = rr * Math.cos(phi);
+}
+
+for(let i=0;i<HEART_PARTICLE_COUNT;i++){
+  const raw = heartRaw[i];
+  aBaseXY[i*2]   = raw.x;  // 画布坐标 x
+  aBaseXY[i*2+1] = raw.y;  // 画布坐标 y
+
+  // type → 颜色 & 编码
+  let c, typeCode;
+  if(raw.type === 'outline'){
+    typeCode = 1;
+    // 轮廓 → 深玫粉 / 玫粉 交替
+    c = Math.random()<0.55 ? PALETTE.deepRose : PALETTE.rose;
+  } else if(raw.type === 'edge'){
+    typeCode = 2;
+    c = Math.random()<0.5 ? PALETTE.rose : PALETTE.pink;
+  } else if(raw.type === 'center'){
+    typeCode = 3;
+    const r = Math.random();
+    c = r<0.25 ? PALETTE.cream : (r<0.62 ? PALETTE.softPink : PALETTE.peach);
+  } else { // halo
+    typeCode = 0;
+    c = Math.random()<0.5 ? PALETTE.rose : PALETTE.pink;
+  }
+  aType[i] = typeCode;
+  aColor[i*3]=c[0]; aColor[i*3+1]=c[1]; aColor[i*3+2]=c[2];
+
+  aSize[i]  = raw.baseSize;
+  aPhase[i] = Math.random()*Math.PI*2;
+
+  // _calc_position 的 random.randint(-1,1) 抖动 → 换成 [-1.2, 1.2] 连续值，画布坐标系
+  aJitter[i*2]   = (Math.random()-0.5)*2.4;
+  aJitter[i*2+1] = (Math.random()-0.5)*2.4;
+}
+
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+geo.setAttribute('aBaseXY',  new THREE.BufferAttribute(aBaseXY, 2));
+geo.setAttribute('aType',    new THREE.BufferAttribute(aType, 1));
+geo.setAttribute('aSize',    new THREE.BufferAttribute(aSize, 1));
+geo.setAttribute('aPhase',   new THREE.BufferAttribute(aPhase, 1));
+geo.setAttribute('aColor',   new THREE.BufferAttribute(aColor, 3));
+geo.setAttribute('aJitter',  new THREE.BufferAttribute(aJitter, 2));
+
+/* ---------- 着色器：在顶点着色器里每帧重算 _calc_position ---------- */
+const mat = new THREE.ShaderMaterial({
+  uniforms:{
+    uTime:{value:0},
+    uProgress:{value:0},       // 汇聚进度
+    uRatio:{value:0.0},        // 10 * curve(...)
+    uHaloScale:{value:1.0}     // halo_radius / 默认半径
+  },
+  vertexShader:`
+    attribute vec2 aBaseXY;
+    attribute float aType;
+    attribute float aSize;
+    attribute float aPhase;
+    attribute vec3 aColor;
+    attribute vec2 aJitter;
+    uniform float uTime;
+    uniform float uProgress;
+    uniform float uRatio;
+    uniform float uHaloScale;
+    varying vec3 vColor;
+    varying float vGlow;
+
+    // 画布 → 世界坐标（888 画布 → 屏幕中心 512x512 世界）
+    const float CANVAS_W = 888.0;
+    const float TO_WORLD = 0.0072;      // 匹配视觉尺寸
+    const float CX = 444.0;
+    const float CY = 250.0;              // 画布中心 (HEART_CENTER_X=444, HEART_CENTER_Y=250)
+
+    // 对应 shrink(x,y, ratio): force = -1 / (d^2)^0.52, dx = ratio*force*(x-CX)
+    vec2 shrink2(in vec2 p, in float ratio){
+      float d2 = (p.x - CX)*(p.x - CX) + (p.y - CY)*(p.y - CY);
+      float force = -1.0 / pow(d2, 0.52);
+      float dx = ratio * force * (p.x - CX);
+      float dy = ratio * force * (p.y - CY);
+      return vec2(p.x - dx, p.y - dy);
+    }
+
+    void main(){
+      // 1. 基础画布坐标
+      vec2 p = aBaseXY;
+
+      // 2. shrink：对 outline/edge/center 用 0.001 系数（像 Python 的 _calc_position 传 ratio<0）
+      //    halo 粒子额外缩一下 + halo 按 uHaloScale 放大
+      if(aType > 0.5){
+        float force = -1.0 / pow(
+          (p.x-CX)*(p.x-CX) + (p.y-CY)*(p.y-CY),
+          0.52
+        );
+        float ratio = uRatio * 0.00016 + 0.00002;
+        float dx = ratio * force * (p.x - CX);
+        float dy = ratio * force * (p.y - CY);
+        p = vec2(p.x - dx, p.y - dy);
+      }
+
+      // 3. 再按 ratio 实时整体缩放 + 抖动（对应 _calc_position 里 (x - CX)*ratio + randint）
+      float ratioK = uRatio;
+      vec2 scaled = vec2(
+        (p.x - CX) * (1.0 + ratioK*0.045) + CX + aJitter.x * (1.0 + 0.5*ratioK),
+        (p.y - CY) * (1.0 + ratioK*0.045) + CY + aJitter.y * (1.0 + 0.5*ratioK)
+      );
+
+      // 4. halo 粒子按 uHaloScale 放大（绕画布中心）
+      if(aType < 0.5){
+        float hs = uHaloScale;
+        scaled = vec2(
+          (scaled.x - CX) * hs + CX,
+          (scaled.y - CY) * hs + CY
+        );
+      }
+
+      // 5. 画布 → 世界（y 翻转：画布 y 向下 → 世界 y 向上）
+      vec3 world = vec3(
+        (scaled.x - CX) * TO_WORLD,
+       -(scaled.y - CY) * TO_WORLD,
+        0.0
+      );
+
+      // 6. 立体厚度（3D）：按离中心距离 + 随机层
+      float rN = clamp(length(world.xy) / 1.5, 0.0, 1.0);
+      float thick = 0.42 * pow(1.0 - rN*rN, 0.55);
+      world.z = (fract(sin(aPhase*12.9898)*43758.5453) - 0.5) * 2.0 * thick;
+
+      // 7. 粒子微呼吸
+      world.xy += vec2(
+        sin(uTime*2.1 + aPhase) * 0.012 * (1.0 - rN),
+        cos(uTime*1.9 + aPhase*1.4) * 0.012 * (1.0 - rN)
+      );
+
+      // 8. 汇聚过程（mix 大球起点 → 心形目标）
+      float t = uProgress;
+      t = t*t*(3.0 - 2.0*t);
+      vec3 start = position;
+      float orbit = (1.0 - t) * 0.24;
+      start.x += sin(uTime*1.3 + aPhase) * orbit;
+      start.y += cos(uTime*1.15 + aPhase*1.6) * orbit;
+      start.z += sin(uTime*1.0 + aPhase*2.0) * orbit;
+
+      vec3 pos = mix(start, world, t);
+
+      vGlow = 0.40 + 0.60 * sin(uTime*2.1 + aPhase*2.7);
+      if(aType < 0.5) vGlow *= 0.9;   // halo 略暗
+      if(aType > 2.5) vGlow *= 1.08;  // 中心略亮
+      vColor = aColor;
+
+      vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+      float szMul = aType < 0.5 ? 0.88 :
+                    aType > 2.5 ? 1.08 : 1.0;
+      gl_PointSize = aSize * 62.0 * (1.0 / -mv.z) * (0.58 + vGlow*0.62) * szMul;
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader:`
+    varying vec3 vColor;
+    varying float vGlow;
+    void main(){
+      vec2 uv = gl_PointCoord - 0.5;
+      float d = length(uv);
+      if(d > 0.5) discard;
+      float inner = pow(1.0 - d/0.5, 2.2);
+      float mid   = pow(1.0 - d/0.5, 1.1) * 0.30;
+      float outer = pow(1.0 - d/0.5, 0.45) * 0.10;
+      vec3 c = vColor * (0.40 + vGlow*0.58);
+      vec3 bright = c + vec3(0.06, 0.03, 0.04) * inner * 0.38;
+      float alpha = (inner + mid + outer) * 0.82;
+      gl_FragColor = vec4(bright, alpha);
+    }
+  `,
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending
+});
+const heartMesh = new THREE.Points(geo, mat);
+scene.add(heartMesh);
+
+/* ============================================================
+   表面飘出微粒子
+   ============================================================ */
+const DRIFT_COUNT = 400;
+const driftG = new THREE.BufferGeometry();
+const driftPos = new Float32Array(DRIFT_COUNT*3);
+const driftCol = new Float32Array(DRIFT_COUNT*3);
+const driftVel = new Float32Array(DRIFT_COUNT*3);
+const driftLife = new Float32Array(DRIFT_COUNT);
+const driftMax  = new Float32Array(DRIFT_COUNT);
+for(let i=0;i<DRIFT_COUNT;i++){
+  driftLife[i] = Math.random();
+  driftMax[i]  = 2.5 + Math.random()*3.5;
+  const c = Math.random()<0.35 ? PALETTE.cream :
+            Math.random()<0.6  ? PALETTE.softPink : PALETTE.pink;
+  driftCol[i*3]=c[0]; driftCol[i*3+1]=c[1]; driftCol[i*3+2]=c[2];
+}
+driftG.setAttribute('position', new THREE.BufferAttribute(driftPos,3));
+driftG.setAttribute('aColor',  new THREE.BufferAttribute(driftCol,3));
+driftG.setAttribute('aLife',   new THREE.BufferAttribute(driftLife,1));
+const driftM = new THREE.ShaderMaterial({
+  uniforms:{uTime:{value:0}},
+  vertexShader:`
+    attribute vec3 aColor; attribute float aLife;
+    varying vec3 vColor; varying float vLife;
+    void main(){
+      vLife = aLife; vColor = aColor;
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      gl_PointSize = (0.8 + aLife*0.8) * 28.0 * (1.0 / -mv.z);
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader:`
+    varying vec3 vColor; varying float vLife;
+    void main(){
+      vec2 uv = gl_PointCoord - 0.5;
+      float d = length(uv);
+      if(d>0.5) discard;
+      float halo = pow(1.0 - d/0.5, 2.0) * vLife;
+      gl_FragColor = vec4(vColor * (0.45 + vLife*0.55), halo*0.75);
+    }
+  `,
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending
+});
+const driftMesh = new THREE.Points(driftG, driftM);
+scene.add(driftMesh);
+
+function spawnDrift(i){
+  // 在心形表面随机取点：用 heart_function → 世界坐标
+  const t = Math.random()*Math.PI*2;
+  const p = heart_function(t);
+  // 画布→世界（与着色器保持一致）
+  const TO_WORLD = 0.0072;
+  const CX = 444.0, CY = 250.0;
+  let wx = (p.x - CX) * TO_WORLD;
+  let wy = -(p.y - CY) * TO_WORLD;
+  let wz = 0;
+  // 法向近似
+  const nrm = Math.max(0.01, Math.sqrt(wx*wx + wy*wy));
+  const nx = wx/nrm, ny = wy/nrm;
+  const out = 0.04 + Math.random()*0.06;
+  driftPos[i*3]   = wx + nx*out;
+  driftPos[i*3+1] = wy + ny*out;
+  driftPos[i*3+2] = wz + (Math.random()-0.5)*0.03;
+  driftVel[i*3]   = nx*0.004 + (Math.random()-0.5)*0.003;
+  driftVel[i*3+1] = ny*0.004 + (Math.random()-0.5)*0.003;
+  driftVel[i*3+2] = (Math.random()-0.5)*0.003;
+  driftLife[i] = 1.0;
+  driftMax[i]  = 2.5 + Math.random()*4.0;
+}
+
+/* ============================================================
+   底部星海（22000 粒子）
+   ============================================================ */
+const SEA_COUNT = 22000;
+const seaG = new THREE.BufferGeometry();
+const seaPos = new Float32Array(SEA_COUNT*3);
+const seaCol = new Float32Array(SEA_COUNT*3);
+const seaSz = new Float32Array(SEA_COUNT);
+const seaPh = new Float32Array(SEA_COUNT);
+const seaVy = new Float32Array(SEA_COUNT);
+const PALETTE_ARR = [
+  PALETTE.deepRose, PALETTE.rose, PALETTE.pink,
+  PALETTE.softPink, PALETTE.peach, PALETTE.cream
+];
+for(let i=0;i<SEA_COUNT;i++){
+  seaPos[i*3]   = (Math.random()-0.5) * 14;
+  seaPos[i*3+1] = -5 + Math.random() * 4.2;
+  seaPos[i*3+2] = -1.5 - Math.random() * 4.5;
+  const c = PALETTE_ARR[Math.floor(Math.random()*PALETTE_ARR.length)];
+  const fog = Math.min(1, (-seaPos[i*3+2] - 1.5) / 5.0);
+  seaCol[i*3]   = c[0]*(1-fog*0.55) + fog*0.15;
+  seaCol[i*3+1] = c[1]*(1-fog*0.55) + fog*0.08;
+  seaCol[i*3+2] = c[2]*(1-fog*0.55) + fog*0.25;
+  const r = Math.random();
+  seaSz[i] = r<0.05 ? 1.35+Math.random()*0.55 :
+             r<0.3  ? 0.75+Math.random()*0.35 :
+                      0.42+Math.random()*0.28;
+  seaPh[i] = Math.random()*Math.PI*2;
+  seaVy[i] = 0.0005 + Math.random()*0.0012;
+}
+seaG.setAttribute('position', new THREE.BufferAttribute(seaPos,3));
+seaG.setAttribute('aColor',  new THREE.BufferAttribute(seaCol,3));
+seaG.setAttribute('aSize',   new THREE.BufferAttribute(seaSz,1));
+seaG.setAttribute('aPhase',  new THREE.BufferAttribute(seaPh,1));
+seaG.setAttribute('aVy',     new THREE.BufferAttribute(seaVy,1));
+const seaM = new THREE.ShaderMaterial({
+  uniforms:{ uTime:{value:0} },
+  vertexShader:`
+    attribute vec3 aColor; attribute float aSize;
+    attribute float aPhase; attribute float aVy;
+    uniform float uTime;
+    varying vec3 vColor; varying float vGlow;
+    void main(){
+      vec3 p = position;
+      vGlow = 0.4 + 0.6*sin(uTime*1.2 + aPhase);
+      vColor = aColor;
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_PointSize = aSize * 44.0 * (1.0 / -mv.z) * (0.55 + vGlow*0.6);
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader:`
+    varying vec3 vColor; varying float vGlow;
+    void main(){
+      vec2 uv = gl_PointCoord - 0.5;
+      float d = length(uv);
+      if(d>0.5) discard;
+      float inner = pow(1.0 - d/0.5, 2.2);
+      float mid   = pow(1.0 - d/0.5, 1.0) * 0.22;
+      float outer = pow(1.0 - d/0.5, 0.45) * 0.08;
+      vec3 c = vColor * (0.35 + vGlow*0.55);
+      float alpha = (inner + mid + outer) * 0.82;
+      gl_FragColor = vec4(c, alpha);
+    }
+  `,
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending
+});
+scene.add(new THREE.Points(seaG, seaM));
+
+/* ============================================================
+   鼠标交互
+   ============================================================ */
+let mx = 0, my = 0;
+addEventListener('mousemove', e=>{
+  mx = (e.clientX/W - 0.5) * 2;
+  my = -(e.clientY/H - 0.5) * 2;
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+addEventListener('mousedown', ()=>cursor.style.transform='translate(-50%,-50%) scale(1.55)');
+addEventListener('mouseup',   ()=>cursor.style.transform='translate(-50%,-50%) scale(1)');
+
+/* ============================================================
+   主循环：心跳节奏 curve() 驱动 ratio 和 halo_radius
+   ============================================================ */
+const FORM_DURATION = 3.6;
+const startTime = performance.now();
+let camX = 0, camY = 0;
+
+function tick(){
+  const now = performance.now();
+  const elapsed = (now - startTime) / 1000;
+
+  const progress = Math.min(1, elapsed / FORM_DURATION);
+  mat.uniforms.uProgress.value = progress;
+  mat.uniforms.uTime.value = elapsed;
+
+  // ======== Python 代码的心跳节律：curve(frame) =========
+  // generate_frame = 20 → 每 20 帧一周期 → 约 1.3Hz
+  // ratio = 10 * curve( generate_frame / 10 * pi )
+  // halo_radius = 3000 + 4000 * abs(curve(...))  → 转成缩放系数
+  const frame = elapsed * 15;  // 60fps / 4 ≈ 15 f/s，心跳 ~1.1Hz（更真实）
+  const periodUnit = (frame / 20) * 2 * Math.PI;  // 对应 generate_frame/10*pi
+  const cv = curve(periodUnit);
+  const ratio = 10 * cv;
+  const halo_factor = 1.0 + Math.abs(cv) * 0.18; // halo_radius 变化转成倍率
+  mat.uniforms.uRatio.value = ratio;
+  mat.uniforms.uHaloScale.value = halo_factor;
+
+  // 整体旋转
+  heartMesh.rotation.y = elapsed * 0.16;
+  heartMesh.rotation.x = Math.sin(elapsed*0.11)*0.10;
+  heartMesh.rotation.z = Math.sin(elapsed*0.07)*0.03;
+
+  // 飘出微粒子
+  const driftAttrs = driftMesh.geometry.attributes;
+  for(let i=0;i<DRIFT_COUNT;i++){
+    driftLife[i] -= 1/(60*driftMax[i]);
+    if(driftLife[i] <= 0){
+      spawnDrift(i);
+    } else {
+      driftPos[i*3]   += driftVel[i*3]   * (1 + driftLife[i]*1.5);
+      driftPos[i*3+1] += driftVel[i*3+1] * (1 + driftLife[i]*1.5) + 0.0012;
+      driftPos[i*3+2] += driftVel[i*3+2] * (1 + driftLife[i]*1.5);
+    }
+  }
+  driftAttrs.position.needsUpdate = true;
+  driftAttrs.aLife.needsUpdate = true;
+  driftMesh.rotation.copy(heartMesh.rotation);
+  driftMesh.scale.setScalar(1 + ratio*0.002);
+
+  // 星海：缓慢上升 + 回绕
+  const seaAttrs = seaG.attributes;
+  for(let i=0;i<SEA_COUNT;i++){
+    seaPos[i*3+1] += seaVy[i];
+    if(seaPos[i*3+1] > -0.6){
+      seaPos[i*3]   = (Math.random()-0.5) * 14;
+      seaPos[i*3+1] = -5.0 - Math.random()*0.4;
+    }
+    seaPos[i*3] += Math.sin(elapsed*0.5 + seaPh[i]) * 0.0008;
+  }
+  seaAttrs.position.needsUpdate = true;
+  seaM.uniforms.uTime.value = elapsed;
+
+  camX += (mx*0.42 - camX)*0.05;
+  camY += (my*0.34 - camY)*0.05;
+  camera.position.x = camX;
+  camera.position.y = camY;
+  camera.lookAt(0,0,0);
+
+  drawBackground(elapsed);
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+
+/* ---------- Resize ---------- */
+function resize(){
+  W = innerWidth; H = innerHeight;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  bgCanvas.width = W*dpr; bgCanvas.height = H*dpr;
+  bgCanvas.style.width = W+'px'; bgCanvas.style.height = H+'px';
+  bctx.setTransform(dpr,0,0,dpr,0,0);
+  threeCanvas.style.width = W+'px'; threeCanvas.style.height = H+'px';
+  renderer.setSize(W, H);
+  camera.aspect = W/H;
+  camera.updateProjectionMatrix();
+  rebuildStars();
+}
+resize();
+addEventListener('resize', resize);
+rebuildStars();
+tick();
+</script>
+</body>
+</html>

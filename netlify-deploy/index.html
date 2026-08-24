@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>七夕快乐 · 宝宝</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Long+Cang&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0a0612;
+    --bg-1:#1a0a2a;
+    --bg-2:#2a0f3a;
+    --rose:#ff6f9c;
+    --rose-soft:#ffb3c6;
+    --peach:#ffd4b0;
+    --cream:#fff4e0;
+    --cyan:#7fe9ff;
+    --warm:#ffae8f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#000;cursor:none}
+  body{
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(255,111,156,.18), transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(127,233,255,.12), transparent 50%),
+      radial-gradient(ellipse at center, var(--bg-2) 0%, var(--bg-1) 40%, var(--bg-0) 100%);
+    font-family:'ZCOOL KuaiLe',serif;
+  }
+  canvas{position:fixed;inset:0;display:block}
+  #stage{z-index:1}
+  #fx{z-index:2;pointer-events:none}
+
+  /* 自定义光标 */
+  .cursor{
+    position:fixed;width:10px;height:10px;border-radius:50%;
+    background:radial-gradient(circle, #fff, var(--rose) 70%, transparent);
+    pointer-events:none;z-index:50;transform:translate(-50%,-50%);
+    mix-blend-mode:screen;box-shadow:0 0 16px var(--rose);
+    transition:transform .15s;
+  }
+  .cursor::after{
+    content:"";position:absolute;inset:-8px;border-radius:50%;
+    border:1px solid rgba(255,179,198,.5);
+    animation:ringPulse 2s infinite;
+  }
+  @keyframes ringPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.8);opacity:0}}
+
+  /* UI 层 */
+  .ui{position:fixed;inset:0;z-index:10;pointer-events:none;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+    padding-bottom:48px;
+  }
+  .hint{
+    font-family:'Long Cang',cursive;
+    font-size:18px;letter-spacing:.3em;color:rgba(255,244,224,.65);
+    opacity:0;animation:fadeUp 2s 4s forwards;
+  }
+  .replay{
+    pointer-events:auto;margin-top:18px;
+    padding:10px 28px;border-radius:30px;
+    background:rgba(255,111,156,.12);
+    border:1px solid rgba(255,179,198,.5);
+    color:var(--cream);font-family:'ZCOOL KuaiLe',serif;
+    font-size:14px;letter-spacing:.2em;cursor:pointer;
+    backdrop-filter:blur(8px);
+    opacity:0;animation:fadeUp 1s 8s forwards;
+    transition:all .3s;
+  }
+  .replay:hover{background:rgba(255,111,156,.25);transform:translateY(-2px)}
+
+  .topbar{
+    position:fixed;top:24px;left:0;right:0;z-index:10;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:0 32px;font-size:11px;letter-spacing:.4em;
+    color:rgba(255,244,224,.45);font-family:'ZCOOL KuaiLe',serif;
+  }
+  .topbar .left b{font-family:'Ma Shan Zheng',cursive;color:var(--rose-soft);
+    font-weight:normal;font-size:18px;letter-spacing:.1em;margin-left:8px}
+  .topbar .right{text-align:right}
+  .topbar .dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--rose);box-shadow:0 0 10px var(--rose);margin-right:6px;
+    vertical-align:middle;animation:blink 1.8s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+  /* 阶段进度条 */
+  .progress{
+    position:fixed;bottom:0;left:0;right:0;height:2px;z-index:15;
+    background:rgba(255,255,255,.05);
+  }
+  .progress::after{
+    content:"";position:absolute;left:0;top:0;height:100%;
+    background:linear-gradient(90deg, var(--rose), var(--peach), var(--cyan));
+    box-shadow:0 0 12px var(--rose);
+    width:0%;transition:width .3s linear;
+  }
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+
+  @media (max-width:640px){
+    .topbar{padding:0 16px;font-size:9px}
+    .hint{font-size:14px;padding:0 16px;text-align:center}
+  }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<canvas id="fx"></canvas>
+<div class="cursor" id="cursor"></div>
+
+<div class="topbar">
+  <div class="left">QIXI · 2026<b>七夕</b></div>
+  <div class="right"><span class="dot"></span>FOR · 宝宝</div>
+</div>
+
+<div class="ui">
+  <div class="hint">愿与你 · 岁岁年年 · 不见不散</div>
+  <button class="replay" id="replay">重新播放</button>
+</div>
+
+<div class="progress" id="progress"></div>
+
+<script>
+/* ============================================================
+   粒子变形动画：散点 → 爱心 → 宝宝 → 七夕快乐 → 烟花收尾
+   ============================================================ */
+const stage = document.getElementById('stage');
+const fx    = document.getElementById('fx');
+const ctx   = stage.getContext('2d');
+const fctx  = fx.getContext('2d');
+const cursor= document.getElementById('cursor');
+const progress = document.getElementById('progress');
+const replayBtn = document.getElementById('replay');
+
+let W, H, DPR;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  [stage, fx].forEach(c=>{
+    c.width = W * DPR; c.height = H * DPR;
+    c.style.width = W+'px'; c.style.height = H+'px';
+  });
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  fctx.setTransform(DPR,0,0,DPR,0,0);
+}
+resize(); addEventListener('resize', ()=>{ resize(); rebuildTargets(); });
+
+/* ---------- 颜色调色板（避开金黄/紫/珊瑚红，用玫粉+暖白+桃+青） ---------- */
+const PALETTE = [
+  {r:255,g:111,b:156},   // 玫粉
+  {r:255,g:179,b:198},   // 浅玫粉
+  {r:255,g:212,b:176},   // 桃
+  {r:255,g:244,b:224},   // 暖白
+  {r:127,g:233,b:255},   // 青（少量点缀）
+];
+function pickColor(){ return PALETTE[Math.floor(Math.random()*PALETTE.length)]; }
+function rgba(c,a){return `rgba(${c.r},${c.g},${c.b},${a})`;}
+
+/* ---------- 目标采样：把形状画到离屏 canvas 取像素 ---------- */
+const off = document.createElement('canvas');
+const octx = off.getContext('2d');
+
+function sampleShape(drawFn, step=4){
+  // 离屏画布按屏幕尺寸
+  const w = W, h = H;
+  off.width = w; off.height = h;
+  octx.clearRect(0,0,w,h);
+  octx.fillStyle = '#fff';
+  drawFn(octx, w, h);
+  const data = octx.getImageData(0,0,w,h).data;
+  const pts = [];
+  for(let y=0;y<h;y+=step){
+    for(let x=0;x<w;x+=step){
+      if(data[(y*w+x)*4+3] > 128){
+        // 加微小抖动避免过于整齐
+        pts.push({x: x + (Math.random()-0.5)*step*0.7,
+                  y: y + (Math.random()-0.5)*step*0.7});
+      }
+    }
+  }
+  return pts;
+}
+
+/* 心形：参数方程 */
+function heartPoints(cx, cy, scale, count){
+  const pts = [];
+  for(let i=0;i<count;i++){
+    const t = (i/count) * Math.PI * 2;
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t));
+    // 加点厚度
+    const offset = (Math.random()-0.5)*2;
+    pts.push({
+      x: cx + x*scale + offset,
+      y: cy + y*scale + offset
+    });
+  }
+  return pts;
+}
+
+/* 画"宝宝" */
+function drawBaobao(c, w, h){
+  c.save();
+  c.font = `bold ${Math.min(w*0.22, h*0.42)}px "Ma Shan Zheng", serif`;
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.fillText('宝宝', w/2, h/2);
+  c.restore();
+}
+
+/* 画"七夕快乐" */
+function drawQixi(c, w, h){
+  c.save();
+  // 横排：七夕快乐
+  const fs = Math.min(w*0.12, h*0.28);
+  c.font = `bold ${fs}px "Ma Shan Zheng", serif`;
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.fillText('七夕快乐', w/2, h/2);
+  c.restore();
+}
+
+/* ---------- 粒子 ---------- */
+class Particle{
+  constructor(){
+    this.x = Math.random()*W;
+    this.y = Math.random()*H;
+    this.vx = 0; this.vy = 0;
+    this.tx = this.x; this.ty = this.y;
+    this.color = pickColor();
+    this.size = 1.2 + Math.random()*1.6;
+    this.phase = Math.random()*Math.PI*2;
+    this.life = 1;
+  }
+  setTarget(tx, ty){
+    this.tx = tx; this.ty = ty;
+  }
+  update(t, easeFactor, jitter){
+    const dx = this.tx - this.x;
+    const dy = this.ty - this.y;
+    this.vx += dx * easeFactor;
+    this.vy += dy * easeFactor;
+    this.vx *= 0.86; this.vy *= 0.86;
+    // 微抖动让粒子"呼吸"
+    this.x += this.vx + Math.cos(t*1.5 + this.phase)*jitter;
+    this.y += this.vy + Math.sin(t*1.5 + this.phase)*jitter;
+  }
+  draw(ctx, t){
+    const tw = 0.6 + 0.4*Math.sin(t*2 + this.phase);
+    const s = this.size * (0.8 + tw*0.6);
+    // 光晕
+    ctx.beginPath();
+    const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, s*4);
+    g.addColorStop(0, rgba(this.color, 0.95*tw));
+    g.addColorStop(0.4, rgba(this.color, 0.4*tw));
+    g.addColorStop(1, rgba(this.color, 0));
+    ctx.fillStyle = g;
+    ctx.arc(this.x, this.y, s*4, 0, Math.PI*2);
+    ctx.fill();
+    // 核心点
+    ctx.beginPath();
+    ctx.fillStyle = rgba({r:255,g:255,b:255}, 0.9*tw);
+    ctx.arc(this.x, this.y, s*0.5, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+/* ---------- 创建粒子 ---------- */
+const PARTICLE_COUNT = Math.min(2800, Math.floor((W*H)/650));
+let particles = [];
+function initParticles(){
+  particles = [];
+  for(let i=0;i<PARTICLE_COUNT;i++) particles.push(new Particle());
+}
+initParticles();
+
+/* ---------- 阶段目标 ---------- */
+let targets = { heart:[], baobao:[], qixi:[] };
+function rebuildTargets(){
+  targets.heart = heartPoints(W/2, H/2, Math.min(W,H)*0.022, PARTICLE_COUNT);
+  targets.baobao = sampleShape(drawBaobao, 4);
+  targets.qixi   = sampleShape(drawQixi, 4);
+  // 补齐数量到粒子数
+  while(targets.heart.length < PARTICLE_COUNT) targets.heart.push(...targets.heart.slice(0, PARTICLE_COUNT - targets.heart.length));
+  while(targets.baobao.length < PARTICLE_COUNT){
+    const need = PARTICLE_COUNT - targets.baobao.length;
+    targets.baobao.push(...targets.baobao.slice(0, need));
+  }
+  while(targets.qixi.length < PARTICLE_COUNT){
+    const need = PARTICLE_COUNT - targets.qixi.length;
+    targets.qixi.push(...targets.qixi.slice(0, need));
+  }
+  // 打乱
+  shuffle(targets.heart); shuffle(targets.baobao); shuffle(targets.qixi);
+}
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+}
+rebuildTargets();
+
+/* ---------- 阶段时序 ---------- */
+const PHASES = [
+  { name:'scatter', start:0,    end:1.5, ease:0.02, jitter:0.3 },
+  { name:'heart',   start:1.5,  end:5.5, ease:0.045,jitter:0.25 },
+  { name:'baobao',  start:5.5,  end:9.5, ease:0.05, jitter:0.18 },
+  { name:'qixi',    start:9.5, end:14,  ease:0.05, jitter:0.18 },
+  { name:'firework',start:14,  end:18,  ease:0.005,jitter:0.8 },
+];
+const TOTAL = 18;
+
+function applyPhase(name){
+  let arr;
+  if(name==='heart') arr = targets.heart;
+  else if(name==='baobao') arr = targets.baobao;
+  else if(name==='qixi') arr = targets.qixi;
+  else if(name==='firework'){
+    // 烟花：随机爆开
+    particles.forEach((p,i)=>{
+      const cx = W*0.3 + Math.random()*W*0.4;
+      const cy = H*0.3 + Math.random()*H*0.4;
+      const ang = Math.random()*Math.PI*2;
+      const r = Math.random()*Math.min(W,H)*0.3;
+      p.setTarget(cx + Math.cos(ang)*r, cy + Math.sin(ang)*r);
+    });
+    return;
+  } else {
+    // scatter
+    particles.forEach(p=>{
+      p.setTarget(Math.random()*W, Math.random()*H);
+    });
+    return;
+  }
+  particles.forEach((p,i)=>{
+    if(i<arr.length) p.setTarget(arr[i].x, arr[i].y);
+    else p.setTarget(Math.random()*W, Math.random()*H);
+  });
+}
+
+let startTime = performance.now();
+let lastPhase = '';
+function tick(){
+  const now = performance.now();
+  const elapsed = (now - startTime)/1000;
+  let phase = PHASES[PHASES.length-1];
+  for(const p of PHASES){
+    if(elapsed >= p.start && elapsed < p.end){ phase = p; break; }
+  }
+  if(phase.name !== lastPhase){
+    applyPhase(phase.name);
+    lastPhase = phase.name;
+  }
+  const t = now/1000;
+  // 拖尾清屏
+  ctx.fillStyle = 'rgba(10,6,18,0.18)';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.globalCompositeOperation = 'lighter';
+  particles.forEach(p=>{
+    p.update(t, phase.ease, phase.jitter);
+    p.draw(ctx, t);
+  });
+  ctx.globalCompositeOperation = 'source-over';
+
+  // 烟花阶段额外效果
+  if(phase.name==='firework') spawnFireworks();
+
+  // 进度
+  const prog = Math.min(1, elapsed/TOTAL);
+  progress.style.setProperty('--p', (prog*100)+'%');
+  // 用伪元素 width
+  progress.querySelector(':scope') ?? null;
+
+  if(elapsed < TOTAL + 4){
+    requestAnimationFrame(tick);
+  } else {
+    // 循环
+    requestAnimationFrame(tick);
+  }
+}
+// 进度条更新（直接修改 ::after width）
+const progAfter = document.createElement('style');
+document.head.appendChild(progAfter);
+function updateProgressCSS(pct){
+  progAfter.textContent = `.progress::after{width:${pct}%;}`;
+}
+setInterval(()=>{
+  const now = performance.now();
+  const elapsed = (now - startTime)/1000;
+  const prog = Math.min(1, elapsed/TOTAL);
+  updateProgressCSS(prog*100);
+}, 200);
+
+tick();
+
+/* ---------- 烟花 ---------- */
+const fireworks = [];
+function spawnFireworks(){
+  if(Math.random()<0.04 && fireworks.length<6){
+    const cx = W*0.15 + Math.random()*W*0.7;
+    const cy = H*0.15 + Math.random()*H*0.5;
+    const color = pickColor();
+    const n = 40 + Math.floor(Math.random()*30);
+    for(let i=0;i<n;i++){
+      const ang = (i/n)*Math.PI*2 + Math.random()*0.1;
+      const sp = 2 + Math.random()*4;
+      fireworks.push({
+        x:cx, y:cy,
+        vx: Math.cos(ang)*sp, vy: Math.sin(ang)*sp,
+        life:1, decay: 0.012+Math.random()*0.01,
+        color, size:1.5+Math.random()*1.5
+      });
+    }
+  }
+  for(let i=fireworks.length-1;i>=0;i--){
+    const f = fireworks[i];
+    f.x += f.vx; f.y += f.vy;
+    f.vy += 0.05; // 重力
+    f.vx *= 0.99; f.vy *= 0.99;
+    f.life -= f.decay;
+    if(f.life<=0){ fireworks.splice(i,1); continue; }
+    fctx.beginPath();
+    const g = fctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.size*4);
+    g.addColorStop(0, rgba(f.color, f.life));
+    g.addColorStop(1, rgba(f.color, 0));
+    fctx.fillStyle = g;
+    fctx.arc(f.x,f.y,f.size*4,0,Math.PI*2);
+    fctx.fill();
+  }
+  // 衰减清屏
+  fctx.fillStyle = 'rgba(0,0,0,0.18)';
+  fctx.globalCompositeOperation = 'destination-out';
+  fctx.fillRect(0,0,W,H);
+  fctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- 鼠标交互：粒子被吸引 ---------- */
+let mx = -9999, my = -9999;
+addEventListener('mousemove', e=>{
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx+'px';
+  cursor.style.top  = my+'px';
+  // 轻微吸引附近粒子
+  particles.forEach(p=>{
+    const dx = mx - p.x, dy = my - p.y;
+    const d2 = dx*dx + dy*dy;
+    if(d2 < 8000){
+      const f = 0.04;
+      p.vx -= dx*f*0.01;
+      p.vy -= dy*f*0.01;
+    }
+  });
+});
+addEventListener('mousedown', ()=>{
+  cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+});
+addEventListener('mouseup', ()=>{
+  cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+  // 点击时触发小烟花
+  const cx = mx, cy = my;
+  const color = pickColor();
+  for(let i=0;i<30;i++){
+    const ang = Math.random()*Math.PI*2;
+    const sp = 1 + Math.random()*3;
+    fireworks.push({
+      x:cx, y:cy,
+      vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp,
+      life:1, decay:0.02, color, size:1.5
+    });
+  }
+});
+
+/* ---------- 重播 ---------- */
+replayBtn.addEventListener('click', ()=>{
+  startTime = performance.now();
+  lastPhase = '';
+  fireworks.length = 0;
+  // 重新散开
+  particles.forEach(p=>{
+    p.x = Math.random()*W; p.y = Math.random()*H;
+    p.vx = 0; p.vy = 0;
+  });
+});
+
+/* 字体加载完成后重建目标（保证字形采样正确） */
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(()=>{ rebuildTargets(); });
+}
+</script>
+</body>
+</html>

@@ -99,14 +99,70 @@
         <div v-else-if="currentNav === 'skill-route'" class="view-section">
           <div class="content-header">
             <h2>行业技能路线</h2>
-            <p class="content-desc">查看IT行业各岗位技能成长路径</p>
+            <p class="content-desc">{{ selectedPosition ? '当前岗位：' + selectedPositionLabel + ' · 系统生成的阶梯式学习路径' : '查看IT行业各岗位技能成长路径' }}</p>
           </div>
-          <div class="route-placeholder">
+
+          <!-- 未选择岗位：显示引导 -->
+          <div v-if="!selectedPosition" class="route-placeholder">
             <div class="placeholder-icon">🚀</div>
             <h3>技能路线规划</h3>
             <p>选择目标岗位后，系统将为你生成完整的技能成长路线图</p>
             <button class="action-btn primary" @click="currentNav = 'resource-lib'">前往选择岗位</button>
           </div>
+
+          <!-- 已选择岗位：显示技能路线 -->
+          <template v-else>
+            <div class="route-header">
+              <div class="route-title-area">
+                <h2>🎓 {{ selectedPositionLabel }} · 学习路线图</h2>
+                <p class="route-desc">基于岗位 JD 技能清单，系统自动生成五阶段阶梯式学习路径</p>
+              </div>
+              <div class="route-stats">
+                <div class="stat-item">
+                  <span class="stat-value">{{ routeStages.length }}</span>
+                  <span class="stat-label">学习阶段</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ totalRouteSkills }}</span>
+                  <span class="stat-label">技能点</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value">20</span>
+                  <span class="stat-label">周计划</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-container">
+              <div v-for="(stage, idx) in routeStages" :key="stage.id || idx" class="stage-card">
+                <div class="stage-header">
+                  <div class="stage-icon" :style="{ background: stage.color + '20', borderColor: stage.color }">
+                    <span>{{ stage.icon }}</span>
+                  </div>
+                  <div class="stage-meta">
+                    <h3 class="stage-name">{{ stage.name }}</h3>
+                    <p class="stage-desc">{{ stage.desc }}</p>
+                  </div>
+                  <div class="stage-badge" :style="{ background: stage.color + '20', color: stage.color }">
+                    {{ stage.weeks }}
+                  </div>
+                </div>
+                <div class="stage-body">
+                  <div class="skills-list">
+                    <div v-for="(skill, sIdx) in stage.skills" :key="sIdx" class="skill-block" :class="'level-' + skill.level">
+                      <div class="skill-item">
+                        <div class="skill-info">
+                          <span class="skill-name">{{ skill.name }}</span>
+                          <span v-if="skill.category" class="skill-category">{{ skill.category }}</span>
+                        </div>
+                        <span class="skill-level" :class="'level-' + skill.level">{{ levelLabelCN[skill.level] || skill.level }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- 我的学习计划视图 -->
@@ -588,6 +644,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { findMatchingResources, typeLabels } from '@/data/resources.js'
+import { generateLearningRoute } from '@/data/positionSkills.js'
 import { useGuestMode } from '@/composables/useGuestMode'
 import { authFetch, getAuthHeaders } from '@/utils/auth'
 import { processLocalAIResponse } from '@/utils/localAIFallback.js'
@@ -2546,6 +2603,18 @@ const selectedPositionLabel = computed(() => {
   return '未选择'
 })
 
+const routeStages = computed(() => {
+  if (!selectedPosition.value) return []
+  return generateLearningRoute(selectedPosition.value)
+})
+
+const totalRouteSkills = computed(() => {
+  if (!routeStages.value.length) return 0
+  return routeStages.value.reduce((sum, s) => sum + (s.skills?.length || 0), 0)
+})
+
+const levelLabelCN = { must: '必备', prefer: '优先', bonus: '加分' }
+
 const goBack = () => {
   router.push('/dashboard')
 }
@@ -2573,100 +2642,218 @@ const drawBackground = () => {
   const canvas = bgCanvas.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-
-  const particles = []
-  const particleCount = 60
-  const colors = [
-    { r: 74, g: 158, b: 255 },   // 蓝色
-    { r: 0, g: 212, b: 170 },    // 青色
-    { r: 147, g: 112, b: 219 },  // 紫色
-    { r: 255, g: 107, b: 157 }   // 粉色
-  ]
-
-  for (let i = 0; i < particleCount; i++) {
-    const color = colors[Math.floor(Math.random() * colors.length)]
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 2 + 1,
-      speedX: (Math.random() - 0.5) * 0.3,
-      speedY: (Math.random() - 0.5) * 0.3,
-      opacity: Math.random() * 0.6 + 0.2,
-      color: color,
-      phase: Math.random() * Math.PI * 2
-    })
+  const resize = () => {
+    canvas.width = window.innerWidth * window.devicePixelRatio
+    canvas.height = window.innerHeight * window.devicePixelRatio
+    canvas.style.width = window.innerWidth + 'px'
+    canvas.style.height = window.innerHeight + 'px'
+    ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
   }
+  resize()
 
-  const animate = () => {
-    ctx.fillStyle = 'rgba(10, 15, 25, 0.05)'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+  const W = () => window.innerWidth
+  const H = () => window.innerHeight
+  const TAU = Math.PI * 2
 
-    particles.forEach(p => {
-      p.x += p.speedX
-      p.y += p.speedY
-      p.phase += 0.02
-      
-      if (p.x < -50) p.x = canvas.width + 50
-      if (p.x > canvas.width + 50) p.x = -50
-      if (p.y < -50) p.y = canvas.height + 50
-      if (p.y > canvas.height + 50) p.y = -50
+  // ===== 粒子星团（霓虹发光尘埃） =====
+  const neon = [
+    { r: 0,   g: 212, b: 255 }, // 青色 #00d4ff
+    { r: 255, g: 61,  b: 166 }, // 品红 #ff3da6
+    { r: 120, g: 80,  b: 255 }, // 靛紫 #7850ff
+    { r: 0,   g: 255, b: 170 }, // 翠绿 #00ffaa
+  ]
+  const dust = Array.from({ length: 85 }, () => {
+    const c = neon[(Math.random() * neon.length) | 0]
+    return {
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.6 + 0.4,
+      vx: (Math.random() - 0.5) * 0.00012,
+      vy: (Math.random() - 0.5) * 0.00012,
+      tw: Math.random() * TAU,
+      tws: 0.005 + Math.random() * 0.012,
+      al: 0.25 + Math.random() * 0.55,
+      c,
+    }
+  })
 
-      const glow = Math.sin(p.phase) * 0.3 + 0.7
-      const opacity = p.opacity * glow
-      
-      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4)
-      gradient.addColorStop(0, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${opacity})`)
-      gradient.addColorStop(0.5, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${opacity * 0.3})`)
-      gradient.addColorStop(1, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0)`)
-      
+  // ===== 脉冲能量光圈（3 个缓慢扩散） =====
+  const rings = [0.2, 0.55, 0.9].map((phase, i) => ({
+    cx: 0.18 + i * 0.32,
+    cy: 0.22 + (i % 2) * 0.56,
+    phase,
+    speed: 0.00045 + i * 0.0001,
+    baseR: 120 + i * 60,
+    c: neon[i % neon.length],
+  }))
+
+  // ===== 数据流扫描线（垂直下落的细微光带） =====
+  const dataLines = Array.from({ length: 6 }, (_, i) => ({
+    x: 0.12 + i * 0.14 + (Math.random() - 0.5) * 0.04,
+    y: Math.random(),
+    speed: 0.00035 + Math.random() * 0.0004,
+    len: 0.22 + Math.random() * 0.18,
+    strength: 0.35 + Math.random() * 0.45,
+    c: neon[(i * 2) % neon.length],
+  }))
+
+  let t = 0
+  let stop = false
+  animFrame = null
+
+  const draw = () => {
+    if (stop) return
+    t += 1
+    const w = W()
+    const h = H()
+
+    // 微弱拖尾（制造平滑的运动残影）
+    ctx.fillStyle = 'rgba(4, 8, 24, 0.09)'
+    ctx.fillRect(0, 0, w, h)
+
+    // === 1. 背景暗角（四角压暗，中心更透） ===
+    const vign = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.25, w / 2, h / 2, Math.max(w, h) * 0.8)
+    vign.addColorStop(0, 'rgba(0,0,0,0)')
+    vign.addColorStop(1, 'rgba(0,0,0,0.55)')
+    ctx.fillStyle = vign
+    ctx.fillRect(0, 0, w, h)
+
+    // === 2. 脉冲能量环 ===
+    rings.forEach((R) => {
+      R.phase = (R.phase + R.speed) % 1
+      const life = R.phase // 0→1
+      const radius = R.baseR + life * Math.max(w, h) * 0.9
+      const alpha = (1 - life) * 0.28
+      const { c } = R
+
+      const grad = ctx.createRadialGradient(R.cx * w, R.cy * h, Math.max(0, radius - 80), R.cx * w, R.cy * h, radius)
+      grad.addColorStop(0, `rgba(${c.r},${c.g},${c.b},0)`)
+      grad.addColorStop(0.85, `rgba(${c.r},${c.g},${c.b},${alpha * 0.55})`)
+      grad.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`)
+      ctx.strokeStyle = grad
+      ctx.lineWidth = 3
       ctx.beginPath()
-      ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2)
-      ctx.fillStyle = gradient
-      ctx.fill()
+      ctx.arc(R.cx * w, R.cy * h, radius, 0, TAU)
+      ctx.stroke()
 
+      // 核心光点
+      const pulse = 0.5 + 0.5 * Math.sin(t * 0.02 + R.phase * TAU)
+      const coreR = 80 + pulse * 50
+      const core = ctx.createRadialGradient(R.cx * w, R.cy * h, 0, R.cx * w, R.cy * h, coreR)
+      core.addColorStop(0, `rgba(${c.r},${c.g},${c.b},${0.12 * (0.6 + pulse * 0.4)})`)
+      core.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`)
+      ctx.fillStyle = core
       ctx.beginPath()
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${opacity})`
+      ctx.arc(R.cx * w, R.cy * h, coreR, 0, TAU)
       ctx.fill()
     })
 
-    particles.forEach((p1, i) => {
-      particles.slice(i + 1).forEach(p2 => {
-        const dx = p1.x - p2.x
-        const dy = p1.y - p2.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 150) {
-          const lineOpacity = 0.1 * (1 - dist / 150)
-          ctx.beginPath()
-          ctx.moveTo(p1.x, p1.y)
-          ctx.lineTo(p2.x, p2.y)
-          
-          const gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y)
-          gradient.addColorStop(0, `rgba(${p1.color.r}, ${p1.color.g}, ${p1.color.b}, ${lineOpacity})`)
-          gradient.addColorStop(1, `rgba(${p2.color.r}, ${p2.color.g}, ${p2.color.b}, ${lineOpacity})`)
-          
-          ctx.strokeStyle = gradient
+    // === 3. 数据流（垂直下落条纹） ===
+    dataLines.forEach((L) => {
+      L.y += L.speed
+      if (L.y - L.len > 1) L.y = -L.len
+      const y0 = (L.y - L.len) * h
+      const y1 = L.y * h
+      const g = ctx.createLinearGradient(L.x * w, y0, L.x * w, y1)
+      g.addColorStop(0, `rgba(${L.c.r},${L.c.g},${L.c.b},0)`)
+      g.addColorStop(0.5, `rgba(${L.c.r},${L.c.g},${L.c.b},${L.strength * 0.22})`)
+      g.addColorStop(1, `rgba(${L.c.r},${L.c.g},${L.c.b},0)`)
+      ctx.strokeStyle = g
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(L.x * w, y0)
+      ctx.lineTo(L.x * w, y1)
+      ctx.stroke()
+    })
+
+    // === 4. 霓虹尘埃（带呼吸辉光 + 邻近连线） ===
+    dust.forEach((d) => {
+      d.x += d.vx
+      d.y += d.vy
+      if (d.x < 0) d.x += 1
+      if (d.x > 1) d.x -= 1
+      if (d.y < 0) d.y += 1
+      if (d.y > 1) d.y -= 1
+      d.tw += d.tws
+    })
+
+    for (let i = 0; i < dust.length; i++) {
+      const a = dust[i]
+      const ax = a.x * w
+      const ay = a.y * h
+      for (let j = i + 1; j < dust.length; j++) {
+        const b = dust[j]
+        const dx = ax - b.x * w
+        const dy = ay - b.y * h
+        const d2 = dx * dx + dy * dy
+        if (d2 < 110 * 110) {
+          const o = (1 - Math.sqrt(d2) / 110) * 0.12
+          ctx.strokeStyle = `rgba(${(a.c.r + b.c.r) >> 1},${(a.c.g + b.c.g) >> 1},${(a.c.b + b.c.b) >> 1},${o})`
           ctx.lineWidth = 0.6
+          ctx.beginPath()
+          ctx.moveTo(ax, ay)
+          ctx.lineTo(b.x * w, b.y * h)
           ctx.stroke()
         }
-      })
+      }
+    }
+
+    dust.forEach((d) => {
+      const glow = 0.5 + 0.5 * Math.sin(d.tw)
+      const al = d.al * (0.55 + 0.45 * glow)
+      const x = d.x * w
+      const y = d.y * h
+      const { c } = d
+
+      // 外层辉光
+      const gr = ctx.createRadialGradient(x, y, 0, x, y, d.r * 10)
+      gr.addColorStop(0, `rgba(${c.r},${c.g},${c.b},${al})`)
+      gr.addColorStop(0.5, `rgba(${c.r},${c.g},${c.b},${al * 0.2})`)
+      gr.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`)
+      ctx.fillStyle = gr
+      ctx.beginPath()
+      ctx.arc(x, y, d.r * 10, 0, TAU)
+      ctx.fill()
+
+      // 核心亮点
+      ctx.fillStyle = `rgba(${Math.min(255, c.r + 40)},${Math.min(255, c.g + 40)},${Math.min(255, c.b + 40)},${Math.min(1, al + 0.25)})`
+      ctx.beginPath()
+      ctx.arc(x, y, d.r, 0, TAU)
+      ctx.fill()
     })
 
-    requestAnimationFrame(animate)
+    // === 5. 顶部水平扫描线（每隔一段时间飘过一次） ===
+    const scan = ((t * 0.25) % (h + 200)) - 100
+    const scanG = ctx.createLinearGradient(0, scan - 60, 0, scan + 60)
+    scanG.addColorStop(0, 'rgba(0,212,255,0)')
+    scanG.addColorStop(0.5, 'rgba(0,212,255,0.06)')
+    scanG.addColorStop(1, 'rgba(0,212,255,0)')
+    ctx.fillStyle = scanG
+    ctx.fillRect(0, scan - 60, w, 120)
+    ctx.strokeStyle = 'rgba(0,212,255,0.18)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(0, scan)
+    ctx.lineTo(w, scan)
+    ctx.stroke()
+
+    animFrame = requestAnimationFrame(draw)
   }
-  animate()
+  draw()
+
+  window.addEventListener('resize', resize, { passive: true })
+  const origUnmounted = onUnmounted
+  onUnmounted(() => {
+    stop = true
+    if (animFrame) cancelAnimationFrame(animFrame)
+    window.removeEventListener('resize', resize)
+  })
 }
 
 let animFrame = null
 
 onMounted(async () => {
   initAIHistory()
-  // 游客模式：页面加载/刷新时重置权限状态
-  // refreshAuthState 会重新生成 guestSessionId（后端计数自动清零）并重置前端计数
-  // 符合需求第5条："刷新页面、重新打开对话面板，对话次数重置为0"
-  // 符合需求第9条："游客会话无持久化，刷新页面后所有临时计数重置"
   if (isGuestMode.value) {
     refreshAuthState()
   }
@@ -2676,13 +2863,6 @@ onMounted(async () => {
     await fetchResources(saved)
   }
   drawBackground()
-  window.addEventListener('resize', () => {
-    const canvas = bgCanvas.value
-    if (canvas) {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-  })
 })
 
 onUnmounted(() => {
@@ -2696,12 +2876,12 @@ onUnmounted(() => {
   width: 100%;
   min-height: 100vh;
   background: 
-    radial-gradient(ellipse at 20% 20%, rgba(74, 158, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(147, 112, 219, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(0, 212, 170, 0.05) 0%, transparent 60%),
-    linear-gradient(135deg, #0a0f19 0%, #0f1726 50%, #0d1525 100%);
+    radial-gradient(ellipse at 15% 15%, rgba(0, 212, 255, 0.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 85%, rgba(255, 61, 166, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(0, 255, 163, 0.04) 0%, transparent 55%),
+    linear-gradient(160deg, #03061a 0%, #050a22 35%, #080d2a 65%, #05081e 100%);
   overflow: hidden;
-  color: #fff;
+  color: var(--color-text);
 }
 
 .planning-page::before {
@@ -2711,17 +2891,41 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    radial-gradient(circle at 15% 85%, rgba(74, 158, 255, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 15%, rgba(147, 112, 219, 0.08) 0%, transparent 40%);
+  background-image: 
+    linear-gradient(rgba(0, 212, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
   pointer-events: none;
   z-index: 1;
-  animation: bgGlow 8s ease-in-out infinite alternate;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.7) 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.7) 30%, transparent 70%);
 }
 
-@keyframes bgGlow {
-  0% { opacity: 0.6; }
-  100% { opacity: 1; }
+.planning-page::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 80% 20%, rgba(255, 61, 166, 0.06) 0%, transparent 35%),
+    radial-gradient(circle at 60% 60%, rgba(0, 255, 163, 0.03) 0%, transparent 25%);
+  pointer-events: none;
+  z-index: 1;
+  animation: nebulaShift 12s ease-in-out infinite alternate;
+}
+
+@keyframes nebulaShift {
+  0% { opacity: 0.5; transform: translate(0, 0); }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; transform: translate(15px, -10px); }
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
 .bg-canvas {
@@ -2740,78 +2944,99 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 30px;
-  background: rgba(17, 27, 46, 0.6);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(74, 158, 255, 0.15);
+  padding: 16px 32px;
+  background: linear-gradient(180deg, rgba(5, 8, 26, 0.85) 0%, rgba(5, 8, 26, 0.6) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow: 0 2px 30px rgba(0, 212, 255, 0.08);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 18px;
 }
 
 .back-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: rgba(74, 158, 255, 0.1);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-  border-radius: 20px;
-  color: #4a9eff;
+  gap: 8px;
+  padding: 9px 18px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.12), rgba(0, 212, 255, 0.04));
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  border-radius: 24px;
+  color: var(--color-cyan);
   cursor: pointer;
-  font-size: 0.85rem;
-  transition: all 0.3s;
+  font-size: 0.82rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .back-btn:hover {
-  background: rgba(74, 158, 255, 0.2);
-  border-color: rgba(74, 158, 255, 0.5);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(255, 61, 166, 0.1));
+  border-color: rgba(0, 212, 255, 0.6);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+  transform: translateX(-2px);
 }
 
 .page-title {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #fff;
-  margin: 0;
-  background: linear-gradient(90deg, #4a9eff, #00d4aa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: transparent;
+  background: linear-gradient(90deg, #00d4ff 0%, #ff3da6 50%, #00ffa3 100%);
   background-clip: text;
+  -webkit-background-clip: text;
+  margin: 0;
+  text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
 }
 
 .page-subtitle {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.78rem;
+  color: var(--color-text-dim);
+  font-family: var(--font-body);
+  letter-spacing: 0.3px;
 }
 
 .header-nav {
   display: flex;
-  gap: 25px;
+  gap: 6px;
 }
 
 .nav-item {
-  padding: 8px 16px;
-  color: rgba(255, 255, 255, 0.7);
+  padding: 9px 18px;
+  color: var(--color-text-dim);
   cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.3s;
-  font-size: 0.9rem;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.85rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  position: relative;
 }
 
-.nav-item:hover,
+.nav-item:hover {
+  color: var(--color-cyan);
+  background: rgba(0, 212, 255, 0.08);
+}
+
 .nav-item.active {
-  background: rgba(74, 158, 255, 0.15);
-  color: #4a9eff;
+  color: var(--color-cyan);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(255, 61, 166, 0.08));
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
 }
 
 .main-layout {
   position: relative;
   z-index: 5;
   display: grid;
-  grid-template-columns: 200px 1fr 280px;
+  grid-template-columns: 220px 1fr 280px;
   gap: 20px;
   padding: 25px;
   max-width: 1600px;
@@ -2820,81 +3045,143 @@ onUnmounted(() => {
 }
 
 .main-layout.ai-mode {
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 220px 1fr;
   max-width: none;
   width: 100%;
 }
 
 .main-layout.no-ai-sidebar {
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 220px 1fr;
 }
 
 .sidebar {
-  background: rgba(17, 27, 46, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(74, 158, 255, 0.15);
-  border-radius: 12px;
-  padding: 18px;
+  background: linear-gradient(180deg, rgba(10, 16, 40, 0.8) 0%, rgba(8, 12, 32, 0.7) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 16px;
+  padding: 20px 16px;
   height: fit-content;
+  box-shadow: 
+    0 0 30px rgba(0, 212, 255, 0.05),
+    inset 0 1px 0 rgba(0, 212, 255, 0.1);
+  position: relative;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), transparent);
+  border-radius: 50%;
 }
 
 .sidebar-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .section-label {
-  font-size: 0.7rem;
-  color: rgba(74, 158, 255, 0.6);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  color: rgba(0, 212, 255, 0.7);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 0 10px 10px;
-  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
-  margin-bottom: 10px;
+  letter-spacing: 2px;
+  padding: 0 10px 12px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+  margin-bottom: 12px;
 }
 
-.nav-item {
+.sidebar .nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 11px 14px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.86rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--color-text-dim);
+  position: relative;
+  border-left: 2px solid transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.nav-item:hover {
-  background: rgba(74, 158, 255, 0.1);
-  color: #fff;
+.sidebar .nav-item .nav-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.nav-item.active {
-  background: linear-gradient(90deg, rgba(74, 158, 255, 0.2), rgba(74, 158, 255, 0.05));
-  color: #4a9eff;
-  border-left: 3px solid #4a9eff;
+.sidebar .nav-item:hover {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.1), transparent);
+  color: var(--color-text);
+  border-left-color: rgba(0, 212, 255, 0.5);
+  transform: translateX(2px);
+}
+
+.sidebar .nav-item.active {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), rgba(255, 61, 166, 0.05));
+  color: var(--color-cyan);
+  border-left: 2px solid var(--color-cyan);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1), inset 0 0 20px rgba(0, 212, 255, 0.05);
 }
 
 .nav-icon {
   display: flex;
   align-items: center;
   color: currentColor;
+  font-size: 1rem;
 }
 
 .content-area {
-  background: rgba(17, 27, 46, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(74, 158, 255, 0.15);
-  border-radius: 12px;
-  padding: 25px;
+  background: linear-gradient(180deg, rgba(10, 16, 40, 0.8) 0%, rgba(8, 12, 32, 0.7) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 16px;
+  padding: 28px;
   min-height: calc(100vh - 140px);
   min-width: 0;
+  box-shadow: 
+    0 0 40px rgba(0, 212, 255, 0.06),
+    inset 0 1px 0 rgba(0, 212, 255, 0.08);
+  position: relative;
+}
+
+.content-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.6), rgba(255, 61, 166, 0.4), transparent);
+}
+
+.content-area::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid rgba(0, 212, 255, 0.08);
+  border-radius: 12px;
+  pointer-events: none;
 }
 
 .content-header {
-  margin-bottom: 25px;
+  margin-bottom: 28px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -2907,16 +3194,19 @@ onUnmounted(() => {
 }
 
 .content-header h2 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #fff;
-  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 8px;
+  letter-spacing: 1px;
 }
 
 .content-desc {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-text-dim);
   margin: 0;
+  font-family: var(--font-body);
 }
 
 .ai-header-actions {
@@ -2927,29 +3217,32 @@ onUnmounted(() => {
 }
 
 .ai-memory-hint {
-  font-size: 0.8rem;
-  color: rgba(74, 158, 255, 0.8);
-  background: rgba(74, 158, 255, 0.1);
-  padding: 4px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(74, 158, 255, 0.2);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  color: var(--color-cyan);
+  background: rgba(0, 212, 255, 0.1);
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  letter-spacing: 0.5px;
 }
 
 .ai-clear-btn {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 82, 82, 0.1);
-  padding: 4px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 82, 82, 0.2);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  color: rgba(255, 107, 107, 0.9);
+  background: rgba(255, 107, 107, 0.1);
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 107, 107, 0.25);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .ai-clear-btn:hover {
   color: #fff;
-  background: rgba(255, 82, 82, 0.2);
-  border-color: rgba(255, 82, 82, 0.4);
+  background: rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.5);
 }
 
 .ai-offline-banner {
@@ -2958,10 +3251,10 @@ onUnmounted(() => {
   gap: 10px;
   padding: 10px 16px;
   margin: 12px 0;
-  background: linear-gradient(90deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
-  border: 1px solid rgba(251, 191, 36, 0.3);
-  border-radius: 10px;
-  color: #fbbf24;
+  background: linear-gradient(90deg, rgba(255, 181, 71, 0.12), rgba(255, 181, 71, 0.05));
+  border: 1px solid rgba(255, 181, 71, 0.35);
+  border-radius: 12px;
+  color: var(--color-amber);
   font-size: 0.85rem;
   animation: fadeInDown 0.3s ease-out;
 }
@@ -2991,39 +3284,54 @@ onUnmounted(() => {
 }
 
 @keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .job-selector {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 16px 20px;
-  background: linear-gradient(135deg, rgba(74, 158, 255, 0.1), rgba(0, 212, 170, 0.05));
-  border: 1px solid rgba(74, 158, 255, 0.2);
-  border-radius: 10px;
-  margin-bottom: 20px;
+  gap: 16px;
+  padding: 18px 22px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(255, 61, 166, 0.04));
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 14px;
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.job-selector::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.05), transparent);
+  animation: shimmer 4s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 .selector-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  color: #fff;
-  font-weight: 500;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
 .label-icon {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
 }
 
 .selector-wrapper {
@@ -3034,59 +3342,73 @@ onUnmounted(() => {
 
 .position-select {
   width: 100%;
-  padding: 10px 38px 10px 14px;
-  background: rgba(10, 15, 25, 0.8);
-  border: 1px solid rgba(74, 158, 255, 0.3);
-  border-radius: 8px;
-  color: #fff;
+  padding: 11px 40px 11px 16px;
+  background: rgba(5, 8, 26, 0.9);
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  border-radius: 10px;
+  color: var(--color-text);
   font-size: 0.88rem;
+  font-family: var(--font-body);
   outline: none;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  transition: border-color 0.3s;
+  transition: all 0.3s;
 }
 
 .position-select:focus {
-  border-color: rgba(74, 158, 255, 0.6);
-  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.15);
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2), 0 0 20px rgba(0, 212, 255, 0.1);
 }
 
 .position-select option,
 .position-select optgroup {
-  background: #0d1525;
-  color: #fff;
+  background: #05081a;
+  color: var(--color-text);
 }
 
 .select-arrow {
   position: absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(74, 158, 255, 0.6);
-  font-size: 0.7rem;
+  color: rgba(0, 212, 255, 0.7);
+  font-size: 0.75rem;
   pointer-events: none;
 }
 
 .top-section,
 .bottom-section {
-  margin-bottom: 25px;
+  margin-bottom: 28px;
 }
 
 .section-block-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+  position: relative;
+}
+
+.section-block-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-cyan), var(--color-magenta));
+  border-radius: 2px;
 }
 
 .section-block-title {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.05rem;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
   font-weight: 600;
   color: #fff;
 }
@@ -3367,8 +3689,8 @@ onUnmounted(() => {
 .resource-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
 .resource-cards-grid {
@@ -3381,12 +3703,13 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 24px;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, rgba(15, 25, 45, 0.8), rgba(20, 35, 60, 0.6));
-  border: 1px solid rgba(74, 158, 255, 0.2);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
+  margin-bottom: 28px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, rgba(10, 16, 40, 0.8), rgba(8, 14, 35, 0.7));
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 14px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .pagination-info {
@@ -3396,9 +3719,10 @@ onUnmounted(() => {
 }
 
 .pagination-current {
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, #4a9eff, #00d4aa);
+  background: linear-gradient(135deg, var(--color-cyan), var(--color-magenta));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -3412,7 +3736,7 @@ onUnmounted(() => {
 
 .pagination-total-pages {
   font-size: 18px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-dim);
   font-weight: 500;
 }
 
@@ -3436,20 +3760,20 @@ onUnmounted(() => {
   justify-content: center;
   width: 38px;
   height: 38px;
-  background: linear-gradient(135deg, rgba(74, 158, 255, 0.12), rgba(0, 212, 170, 0.08));
-  border: 1px solid rgba(74, 158, 255, 0.25);
-  color: rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(255, 61, 166, 0.05));
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  color: var(--color-text);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s ease;
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(74, 158, 255, 0.35), rgba(0, 212, 170, 0.2));
-  border-color: rgba(74, 158, 255, 0.6);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(255, 61, 166, 0.15));
+  border-color: var(--color-cyan);
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(74, 158, 255, 0.25);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.25);
 }
 
 .pagination-btn:active:not(:disabled) {
@@ -3478,10 +3802,11 @@ onUnmounted(() => {
   height: 36px;
   padding: 0 10px;
   border-radius: 8px;
-  background: rgba(74, 158, 255, 0.08);
-  border: 1px solid rgba(74, 158, 255, 0.15);
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.15);
   color: rgba(255, 255, 255, 0.65);
   cursor: pointer;
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
@@ -3561,18 +3886,31 @@ onUnmounted(() => {
 }
 
 .resource-card {
-  background: linear-gradient(145deg, rgba(30, 45, 70, 0.8), rgba(20, 30, 50, 0.8));
-  border: 1px solid rgba(74, 158, 255, 0.15);
-  border-radius: 12px;
-  padding: 18px;
-  transition: all 0.3s;
+  background: linear-gradient(145deg, rgba(12, 20, 45, 0.85), rgba(8, 14, 32, 0.85));
+  border: 1px solid rgba(0, 212, 255, 0.18);
+  border-radius: 14px;
+  padding: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.resource-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .resource-card.featured {
-  border-color: rgba(0, 212, 170, 0.4);
-  box-shadow: 0 0 20px rgba(0, 212, 170, 0.1);
+  border-color: rgba(0, 255, 163, 0.35);
+  box-shadow: 0 0 25px rgba(0, 255, 163, 0.08), inset 0 1px 0 rgba(0, 255, 163, 0.1);
 }
 
 .resource-card.featured::before {
@@ -3582,13 +3920,21 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #00d4aa, #4a9eff);
+  background: linear-gradient(90deg, var(--color-green), var(--color-cyan));
+  opacity: 1;
 }
 
 .resource-card:hover {
-  border-color: rgba(74, 158, 255, 0.4);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(74, 158, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 
+    0 15px 40px rgba(0, 212, 255, 0.12),
+    0 0 0 1px rgba(0, 212, 255, 0.1),
+    inset 0 1px 0 rgba(0, 212, 255, 0.1);
+}
+
+.resource-card:hover::before {
+  opacity: 1;
 }
 
 .card-action-btn {
@@ -3597,24 +3943,26 @@ onUnmounted(() => {
   justify-content: center;
   gap: 6px;
   width: 100%;
-  margin-top: 14px;
-  padding: 10px 18px;
-  background: linear-gradient(90deg, rgba(74, 158, 255, 0.15), rgba(0, 212, 170, 0.15));
-  border: 1px solid rgba(74, 158, 255, 0.4);
-  border-radius: 20px;
-  color: #4a9eff;
-  font-size: 0.85rem;
+  margin-top: 16px;
+  padding: 11px 18px;
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.15), rgba(255, 61, 166, 0.1));
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 22px;
+  color: var(--color-cyan);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
   font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-action-btn:hover {
-  background: linear-gradient(90deg, rgba(74, 158, 255, 0.3), rgba(0, 212, 170, 0.3));
-  border-color: rgba(74, 158, 255, 0.7);
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.35), rgba(255, 61, 166, 0.2));
+  border-color: var(--color-cyan);
   color: #fff;
   transform: scale(1.02);
-  box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+  box-shadow: 0 6px 25px rgba(0, 212, 255, 0.3);
 }
 
 .card-header {
@@ -3635,12 +3983,14 @@ onUnmounted(() => {
   align-items: center;
   gap: 3px;
   padding: 3px 8px;
-  background: linear-gradient(90deg, rgba(255, 140, 66, 0.2), rgba(255, 99, 99, 0.2));
-  border: 1px solid rgba(255, 140, 66, 0.4);
+  background: linear-gradient(90deg, rgba(255, 181, 71, 0.2), rgba(255, 107, 107, 0.15));
+  border: 1px solid rgba(255, 181, 71, 0.4);
   border-radius: 10px;
+  font-family: var(--font-display);
   font-size: 0.65rem;
-  color: #ff8c42;
+  color: var(--color-amber);
   font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 .push-icon {
@@ -3648,56 +3998,65 @@ onUnmounted(() => {
 }
 
 .card-type {
-  padding: 3px 8px;
-  background: rgba(74, 158, 255, 0.12);
+  padding: 3px 9px;
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 8px;
+  font-family: var(--font-display);
   font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-cyan);
+  letter-spacing: 0.3px;
 }
 
 .card-rating {
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
   color: #ffd700;
 }
 
 .rating-star {
   font-size: 0.85rem;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
 }
 
 .card-title {
+  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-text);
   margin: 0 0 8px;
+  letter-spacing: 0.3px;
+  line-height: 1.35;
 }
 
 .card-desc {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0 0 10px;
-  line-height: 1.5;
+  font-size: 0.78rem;
+  color: var(--color-text-dim);
+  margin: 0 0 12px;
+  line-height: 1.55;
 }
 
 .card-meta-row {
   display: flex;
   flex-wrap: nowrap;
   gap: 12px;
-  margin-bottom: 10px;
-  padding: 8px 12px;
-  background: rgba(74, 158, 255, 0.08);
-  border-radius: 8px;
-  border-left: 2px solid rgba(74, 158, 255, 0.3);
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  background: rgba(0, 212, 255, 0.06);
+  border-radius: 10px;
+  border-left: 3px solid rgba(0, 212, 255, 0.4);
   align-items: center;
 }
 
 .meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.72rem;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.75);
   flex: 1 1 auto;
   min-width: 0;
@@ -3711,6 +4070,7 @@ onUnmounted(() => {
 
 .meta-icon {
   font-size: 0.8rem;
+  filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.4));
 }
 
 .card-footer {
@@ -3718,9 +4078,9 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
-  padding-top: 10px;
-  border-top: 1px solid rgba(74, 158, 255, 0.1);
+  color: var(--color-text-dim);
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 212, 255, 0.1);
   flex-wrap: wrap;
 }
 
@@ -3728,29 +4088,32 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
-  border-radius: 10px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-family: var(--font-display);
   font-size: 0.7rem;
   font-weight: 500;
+  letter-spacing: 0.3px;
   flex-shrink: 0;
 }
 
 .relevance-badge.level-high {
-  background: rgba(0, 212, 170, 0.2);
-  color: #00d4aa;
-  border: 1px solid rgba(0, 212, 170, 0.4);
+  background: rgba(0, 255, 163, 0.15);
+  color: var(--color-green);
+  border: 1px solid rgba(0, 255, 163, 0.35);
+  box-shadow: 0 0 10px rgba(0, 255, 163, 0.1);
 }
 
 .relevance-badge.level-medium {
-  background: rgba(255, 180, 71, 0.2);
-  color: #ffb447;
-  border: 1px solid rgba(255, 180, 71, 0.4);
+  background: rgba(255, 181, 71, 0.15);
+  color: var(--color-amber);
+  border: 1px solid rgba(255, 181, 71, 0.35);
 }
 
 .relevance-badge.level-low {
-  background: rgba(255, 99, 132, 0.2);
-  color: #ff6384;
-  border: 1px solid rgba(255, 99, 132, 0.4);
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.35);
 }
 
 .relevance-icon {
@@ -4257,6 +4620,230 @@ onUnmounted(() => {
   font-size: 0.95rem;
   margin: 0 0 25px;
 }
+
+/* 技能路线 - 已选岗位视图 */
+.route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.route-title-area h2 {
+  color: #fff;
+  font-size: 1.4rem;
+  margin: 0 0 8px;
+}
+
+.route-desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.route-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.route-stats .stat-item {
+  text-align: center;
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.25);
+  border-radius: 12px;
+  padding: 12px 20px;
+  min-width: 90px;
+}
+
+.route-stats .stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4a9eff;
+}
+
+.route-stats .stat-label {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.timeline-container {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 10px 4px 20px;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+.timeline-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timeline-container::-webkit-scrollbar-track {
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 3px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.4), rgba(255, 61, 166, 0.3));
+  border-radius: 3px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.6), rgba(255, 61, 166, 0.5));
+}
+
+.stage-card {
+  flex: 1 1 180px !important;
+  min-width: 180px;
+  max-width: 250px;
+  background: linear-gradient(180deg, rgba(10, 16, 40, 0.85) 0%, rgba(8, 14, 32, 0.75) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 14px;
+  padding: 16px 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.stage-card:hover {
+  border-color: rgba(0, 212, 255, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 
+    0 15px 40px rgba(0, 212, 255, 0.12),
+    0 0 0 1px rgba(0, 212, 255, 0.15);
+}
+
+.stage-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stage-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  border: 2px solid;
+  flex-shrink: 0;
+}
+
+.stage-meta {
+  flex: 1;
+  width: 100%;
+}
+
+.stage-name {
+  font-family: var(--font-display);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  letter-spacing: 0.5px;
+}
+
+.stage-desc {
+  color: var(--color-text-dim);
+  font-size: 0.78rem;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stage-badge {
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skill-block {
+  flex: none;
+  min-width: 0;
+}
+
+.skill-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  width: 100%;
+}
+
+.skill-name {
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.skill-category {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.skill-level {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.skill-level.level-must {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+}
+
+.skill-level.level-prefer {
+  background: rgba(0, 212, 255, 0.2);
+  color: var(--color-cyan);
+}
+
+.skill-level.level-bonus {
+  background: rgba(0, 255, 163, 0.2);
+  color: var(--color-green);
+}
+
+.stage-card.level-must { border-top: 3px solid #ff6b6b; }
+.stage-card.level-prefer { border-top: 3px solid var(--color-cyan); }
+.stage-card.level-bonus { border-top: 3px solid var(--color-green); }
 
 /* 学习计划 */
 .plan-list {
@@ -4768,6 +5355,18 @@ onUnmounted(() => {
   .pagination-total-count {
     display: none;
   }
+  .timeline-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px;
+    overflow-x: auto;
+  }
+  .stage-card {
+    flex: 1 1 170px !important;
+    min-width: 170px;
+    max-width: 230px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -4814,6 +5413,19 @@ onUnmounted(() => {
   }
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .timeline-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 8px 2px 16px;
+  }
+  .stage-card {
+    flex: 0 0 180px !important;
+    min-width: 180px;
+    max-width: 230px;
   }
 }
 
