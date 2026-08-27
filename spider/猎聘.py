@@ -41,9 +41,10 @@ def _log_risk_if_any(dp, html: str, site: str, stage: str):
         risk_flags.append(f"HTML内容过短: {len(html)}字节（正常页面通常>20KB）")
     if html:
         html_lower = html.lower()
-        for kw in ['验证码', '验证', 'captcha', '安全验证', '访问受限', '访问过于频繁',
+        for kw in ['验证码', 'captcha', '安全验证', '访问受限', '访问过于频繁',
                    '"code":403', '"code":429', 'status: 403', 'status: 429',
                    '403 forbidden', '429 too many', '"status": false', '"success":false']:
+            # 注意：不匹配单独的"验证"二字，因为正常页面也常有"验证"字样
             if kw in html_lower or kw in html:
                 risk_flags.append(f"页面命中风控关键词: {kw}")
                 break
@@ -54,16 +55,18 @@ def _log_risk_if_any(dp, html: str, site: str, stage: str):
     return False
 
 
-def _drain_listen_queue(dp, timeout_per_item: float = 0.4):
+def _drain_listen_queue(dp, timeout_per_item: float = 0.4, max_drain: int = 50):
     """
     清空 DrissionPage listen 队列（翻页缓存清理）
     原理：循环非阻塞地取出所有已到达但未消费的 API 响应，直到队列为空。
     避免下一页拿到「上一页遗留的旧 searchfront4c 响应」造成数据错乱。
     """
     drained = 0
-    while True:
+    while drained < max_drain:
         try:
-            dp.listen.wait(timeout=timeout_per_item)
+            resp = dp.listen.wait(timeout=timeout_per_item)
+            if resp is None:
+                break
             drained += 1
         except Exception:
             break
@@ -182,7 +185,7 @@ def _has_next_page(dp):
     return False
 
 
-def crawl_liepin(keyword=KEYWORD, dp=None, max_pages=None):
+def crawl_liepin(keyword=KEYWORD, dp=None, max_pages=None, progress_callback=None):
     """
     猎聘网：URL分页（currentPage参数），全国无地域限制全量采集
     使用登录态Chrome profile，自动持续翻页直到无下一页
@@ -193,6 +196,7 @@ def crawl_liepin(keyword=KEYWORD, dp=None, max_pages=None):
             若传入 dp：函数内部不创建也不销毁浏览器实例，生命周期由调用方管理。
             若为 None：函数内部自行 create_logged_in_browser，finally 自动 quit。
         max_pages: 最大翻页数（测试用），None表示不限制
+        progress_callback: 进度回调函数，参数为 (page_num, page_count, total_count)
     """
     jobs = []
     raw_count = 0
@@ -210,25 +214,15 @@ def crawl_liepin(keyword=KEYWORD, dp=None, max_pages=None):
         # 启动API监听（必须在导航前启动）
         dp.listen.start('com.liepin.searchfront4c.pc-search-job')
 
-        # 先访问猎聘首页（使用登录态）
-        print("[PAGE] 猎聘 访问首页（登录态）...")
-        try:
-            dp.get("https://www.liepin.com/", timeout=30)
-        except Exception as e:
-            print(f"[WARN] 猎聘首页加载超时: {e}，继续尝试搜索页")
-        time.sleep(3)
-        _close_popups(dp)
-        time.sleep(1)
+        # 跳过首页（首页太重容易卡死），直接用搜索页建立会话
+        print("[PAGE] 猎聘 直接进入搜索页（跳过首页）...")
 
         while consecutive_empty < EMPTY_PAGE_THRESHOLD:
             # 测试模式：达到最大页数则停止
             if max_pages and page_num > max_pages:
                 print(f"[TEST] 猎聘 已达测试最大页数 {max_pages}，停止翻页")
                 break
-            # 检查是否有下一页
-            if page_num > 1 and not _has_next_page(dp):
-                print(f"[END] 猎聘 第{page_num}页后无下一页按钮，判定采集结束")
-                break
+            # 不再检查按钮，直接URL翻页，靠连续空页判断结束
 
             # 【关键】翻页前先清空 listen 队列，避免取到上一页遗留的旧API响应造成串页
             _drain_listen_queue(dp, timeout_per_item=0.3)
@@ -292,6 +286,11 @@ def crawl_liepin(keyword=KEYWORD, dp=None, max_pages=None):
                         raw_count += 1
 
             print(f"[OK] 猎聘 第 {page_num} 页已采集 → 累计原始: {raw_count} 条")
+            if progress_callback:
+                try:
+                    progress_callback(page_num, page_raw_count, raw_count)
+                except Exception:
+                    pass
             crawler_utils.random_delay(2.0, 5.0)
             page_num += 1
 

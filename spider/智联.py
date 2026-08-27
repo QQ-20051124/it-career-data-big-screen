@@ -47,9 +47,11 @@ def _log_risk_if_any(dp, html: str, site: str, stage: str):
 
     if html:
         html_lower = html.lower()
-        for kw in ['验证码', '验证', 'captcha', '安全验证', '访问受限', '访问过于频繁',
+        for kw in ['安全验证', '访问受限', '访问过于频繁',
                    '"code":403', '"code":429', 'status: 403', 'status: 429',
-                   '403 forbidden', '429 too many', 'risk']:
+                   '403 forbidden', '429 too many']:
+            # 注意：不匹配"验证码""验证""captcha"——正常页面HTML里也有这些词，不是真风控
+            # 只匹配真正的拦截状态码和明确的限制提示
             if kw in html_lower or kw in html:
                 risk_flags.append(f"页面命中风控关键词: {kw}")
                 break
@@ -74,6 +76,11 @@ JOB_LIST_SELECTORS = [
     ".iteminfo",
     "[class*='joblist'] [class*='item']",
     "div[data-positionid]",
+    ".positionlist__list .positionlist__item",
+    "[class*='positionlist'] [class*='item']",
+    ".jobinfo",
+    "[class*='jobinfo__name']",
+    ".c-chat-job__title",
 ]
 
 # 岗位卡片内部字段选择器
@@ -165,9 +172,15 @@ def _parse_jobs_from_html(html, city_default=""):
     if not cards:
         cards = soup.find_all("div", class_="job-card-box")
     if not cards:
+        # 新版智联：positionlist 结构
+        cards = soup.find_all("div", class_="positionlist__item")
+    if not cards:
+        # 兜底：找所有含 jobinfo 的 div
         for tag in soup.find_all("div"):
             class_name = " ".join(tag.get("class", []))
             if "joblist" in class_name and "item" in class_name:
+                cards.append(tag)
+            elif "jobinfo" in class_name and "name" in class_name:
                 cards.append(tag)
 
     for card in cards:
@@ -311,7 +324,7 @@ def _parse_jobs_from_html(html, city_default=""):
     return jobs
 
 
-def crawl_zhaopin(keyword=KEYWORD, dp=None, max_pages=None):
+def crawl_zhaopin(keyword=KEYWORD, dp=None, max_pages=None, progress_callback=None):
     """
     智联招聘：全国无地域限制全量采集
     使用登录态Chrome profile，自动持续翻页直到无下一页
@@ -322,6 +335,7 @@ def crawl_zhaopin(keyword=KEYWORD, dp=None, max_pages=None):
             若传入 dp：函数内部不创建也不销毁浏览器实例，生命周期由调用方管理。
             若为 None：函数内部自行 create_logged_in_browser，finally 自动 quit（单文件运行兼容）。
         max_pages: 最大翻页数（测试用），None表示不限制
+        progress_callback: 进度回调函数，参数为 (page_num, page_count, total_count)
     """
     jobs = []
     raw_count = 0
@@ -336,7 +350,7 @@ def crawl_zhaopin(keyword=KEYWORD, dp=None, max_pages=None):
     if _owns_browser:
         dp = crawler_utils.create_logged_in_browser(use_user_profile=True)
     try:
-        # 访问智联首页（使用登录态）
+        # 访问智联首页（使用登录态）——保留原始流程，先建立会话
         print("[PAGE] 智联 访问首页（登录态）...")
         try:
             dp.get("https://www.zhaopin.com/", timeout=30)
@@ -358,6 +372,18 @@ def crawl_zhaopin(keyword=KEYWORD, dp=None, max_pages=None):
         # 找到岗位列表选择器
         used_selector = _wait_for_job_list(dp, JOB_LIST_SELECTORS, timeout=15)
         if not used_selector:
+            # 调试：打印页面信息帮助定位选择器
+            try:
+                cur_url = dp.url or ""
+                html = dp.html or ""
+                print(f"[DEBUG] 智联 页面URL: {cur_url[:120]}")
+                print(f"[DEBUG] 智联 HTML长度: {len(html)}")
+                # 找出页面中含 job/item/position/card 的 class
+                import re as _re
+                classes = set(_re.findall(r'class="([^"]*(?:job|item|position|card|list)[^"]*)"', html, _re.IGNORECASE))
+                print(f"[DEBUG] 智联 页面相关class: {list(classes)[:15]}")
+            except Exception as e:
+                print(f"[DEBUG] 智联 调试输出失败: {e}")
             print("[WARN] 智联 未找到岗位列表，尝试刷新...")
             dp.refresh()
             time.sleep(5)
@@ -429,22 +455,23 @@ def crawl_zhaopin(keyword=KEYWORD, dp=None, max_pages=None):
                 raw_count += page_raw_count
 
             print(f"[OK] 智联 第 {page_num} 页已采集 → 累计原始: {raw_count} 条")
-            crawler_utils.random_delay(2.0, 5.0)
+            if progress_callback:
+                try:
+                    progress_callback(page_num, page_raw_count, raw_count)
+                except Exception:
+                    pass
+            crawler_utils.random_delay(2.0, 4.0)
 
-            # 翻页：点击下一页（带disabled检查）
-            next_btn = _find_next_button(dp)
-            if next_btn is None:
-                print("[END] 智联 没有下一页按钮，结束")
-                break
-
+            # 翻页：URL直接跳转（不依赖按钮，更可靠）
+            page_num += 1
+            next_url = f"https://sou.zhaopin.com/?kw={quote(keyword)}&p={page_num}"
+            print(f"[PAGE] 智联 URL翻页 → 第 {page_num} 页")
             try:
-                next_btn.click()
-                page_num += 1
-                print(f"[CLICK] 智联 点击下一页 → 第 {page_num} 页")
+                dp.get(next_url, timeout=30)
                 time.sleep(4)
                 _scroll_load_more(dp, rounds=2)
             except Exception as e:
-                print(f"[WARN] 智联 点击下一页失败: {e}，结束")
+                print(f"[WARN] 智联 URL翻页失败: {e}，结束")
                 break
 
     except Exception as e:

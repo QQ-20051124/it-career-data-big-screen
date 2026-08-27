@@ -2,6 +2,11 @@ const USERS_KEY = 'system_users'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MIN_PASSWORD_LENGTH = 6
 
+// 预计算的管理员密码hash (admin123 + salt)
+// 使用 SHA-256(password + salt) 算法
+const ADMIN_SALT = '369871187a90f041'
+const ADMIN_HASH = '1435a9393c4a42539ae4e68c3acda4a76b42c5266ca32e9cefe6aeef3273dbb7'
+
 function generateSalt() {
   const array = new Uint8Array(8)
   crypto.getRandomValues(array)
@@ -30,24 +35,27 @@ function saveUsers(users) {
 
 export function initDefaultAdmin() {
   const users = getUsers()
-  if (users.length === 0 || !users.find(u => u.role === 'admin')) {
-    const salt = generateSalt()
-    hashPassword('admin123', salt).then(hash => {
-      const admin = {
-        id: 'admin_' + Date.now(),
-        email: 'admin@jzd.com',
-        passwordHash: hash,
-        salt,
-        role: 'admin',
-        name: '系统管理员',
-        createdAt: Date.now(),
-        lastLoginAt: null,
-        status: 'active'
-      }
-      users.push(admin)
-      saveUsers(users)
-    })
+  
+  // 移除所有旧的管理员用户（无论hash是否正确）
+  const filteredUsers = users.filter(u => u.role !== 'admin' && u.id !== 'admin_default')
+  
+  // 确保没有其他用户使用 admin@jzd.com 邮箱
+  const finalUsers = filteredUsers.filter(u => u.email !== 'admin@jzd.com')
+  
+  // 创建新的管理员
+  const admin = {
+    id: 'admin_default',
+    email: 'admin@jzd.com',
+    passwordHash: ADMIN_HASH,
+    salt: ADMIN_SALT,
+    role: 'admin',
+    name: '系统管理员',
+    createdAt: Date.now(),
+    lastLoginAt: null,
+    status: 'active'
   }
+  finalUsers.push(admin)
+  saveUsers(finalUsers)
 }
 
 export function validateEmailFormat(email) {
@@ -124,6 +132,14 @@ export function isAdmin(userId) {
   return user && user.role === 'admin'
 }
 
+export function isCurrentUserAdmin() {
+  const authInfo = JSON.parse(localStorage.getItem('auth_info') || 'null')
+  if (!authInfo) return false
+  const users = getUsers()
+  const user = users.find(u => u.id === authInfo.userId)
+  return user && user.role === 'admin'
+}
+
 export function getUserList(adminId) {
   if (!isAdmin(adminId)) return []
   const users = getUsers()
@@ -170,6 +186,23 @@ export async function resetUserPassword(adminId, userId, newPassword) {
   user.passwordHash = hash
   user.salt = salt
   saveUsers(users)
+}
+
+export async function resetPasswordByEmail(email, newPassword) {
+  if (!email) throw new Error('请输入邮箱地址')
+  if (!validateEmailFormat(email)) throw new Error('邮箱格式不正确')
+  if (!newPassword || newPassword.length < MIN_PASSWORD_LENGTH) {
+    throw new Error(`密码长度不能少于${MIN_PASSWORD_LENGTH}位`)
+  }
+  const users = getUsers()
+  const idx = users.findIndex(u => u.email === email)
+  if (idx === -1) throw new Error('该邮箱未注册')
+  const salt = generateSalt()
+  const hash = await hashPassword(newPassword, salt)
+  users[idx].passwordHash = hash
+  users[idx].salt = salt
+  saveUsers(users)
+  return { success: true }
 }
 
 export function updateUserProfile(userId, updates) {

@@ -225,7 +225,7 @@ router.post('/merge-crawler', async (req, res) => {
     
     const DATA_DIR = path.join(__dirname, '../data')
     const JSON_PATH = path.join(DATA_DIR, 'all_cleaned_jobs.json')
-    const CRAWLER_DIR = path.join(__dirname, '../../job_crawler')
+    const CRAWLER_DIR = path.join(__dirname, '../../spider')
 
     let existingData = []
     if (fs.existsSync(JSON_PATH)) {

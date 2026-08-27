@@ -101,7 +101,8 @@ LOGIN_CHECK_CONFIG = {
             'css:[class*="userName"]',
         ],
         # 未登录标识：HTML包含这些关键词 → 未登录
-        "not_login_keywords": ["扫码登录", "登录/注册", "立即登录", "请先登录"],
+        "not_login_keywords": [],
+        "not_login_header_keywords": ["登录/注册", "立即登录", "扫码登录"],
     },
     "猎聘": {
         "homepage": "https://www.liepin.com/",
@@ -112,7 +113,8 @@ LOGIN_CHECK_CONFIG = {
             'css:[class*="userName"]',
             'css:[class*="avatar"] img',
         ],
-        "not_login_keywords": ["扫码登录", "登录/注册", "立即登录", "快速登录", "请先登录"],
+        "not_login_keywords": [],
+        "not_login_header_keywords": ["登录/注册", "立即登录", "快速登录", "扫码登录"],
     },
     "前程无忧": {
         "homepage": "https://we.51job.com/pc/search?keyword=计算机&searchType=2",
@@ -123,19 +125,22 @@ LOGIN_CHECK_CONFIG = {
             'css:[class*="userName"]',
             'css:[class*="header-user"]',
         ],
-        "not_login_keywords": ["扫码登录", "登录/注册", "立即登录", "请先登录", "立即注册"],
+        "not_login_keywords": [],
+        "not_login_header_keywords": ["登录/注册", "立即登录", "扫码登录"],
     },
 }
 
 
-def check_site_login(dp, site_name):
+def check_site_login(dp, site_name, _allow_unknown=True):
     """
-    检测指定招聘网站是否已登录
-    访问首页，检查是否存在已登录标识元素（头像、个人中心等）
-
-    Returns:
-        True = 已登录，可直接采集
-        False = 未登录，需要扫码
+    检测指定招聘网站是否已登录。
+    【核心策略】不确定时默认乐观放行=True，不卡用户！
+    判断优先级：
+    1. Cookie 有登录态 token → 已登录
+    2. 页面文本含"退出登录/个人中心" → 已登录
+    3. DOM 有头像/用户名元素 → 已登录
+    4. header 区域有"登录/注册"按钮 → 未登录
+    5. 其他 → 乐观放行=True
     """
     config = LOGIN_CHECK_CONFIG.get(site_name)
     if not config:
@@ -147,35 +152,91 @@ def check_site_login(dp, site_name):
 
     try:
         dp.get(homepage, timeout=30)
-        time.sleep(3)
+        time.sleep(4)
     except Exception as e:
-        print(f"[LOGIN] {site_name} 首页加载失败: {e}，视为未登录")
-        return False
+        print(f"[LOGIN] {site_name} 首页加载失败: {e} → 乐观放行")
+        return True
 
-    # 检查已登录标识元素
+    # 证据1：Cookie 登录态（最可靠）
+    try:
+        cookies = dp.cookies()
+        cookie_names = set()
+        if isinstance(cookies, list):
+            for ck in cookies:
+                if isinstance(ck, dict):
+                    n = ck.get("name") or ck.get("Name")
+                    if n:
+                        cookie_names.add(str(n).lower())
+        # 各站点的登录 cookie 名
+        site_cookie_map = {
+            "智联": ["zp_token", "at", "userid", "user_id", "zp_self_token"],
+            "猎聘": ["__tlog_u_id", "userid", "u_id", "accesstoken", "_gc_id"],
+            "前程无忧": ["guid", "userid", "username", "_uid"],
+        }
+        for want in site_cookie_map.get(site_name, []):
+            for have in cookie_names:
+                if want in have:
+                    print(f"[LOGIN] {site_name} 已登录（Cookie命中: {want}）")
+                    return True
+    except Exception:
+        pass
+
+    # 证据2：强关键词（退出登录/个人中心等，只有登录后才出现）
+    try:
+        full_text = ""
+        try:
+            full_text = dp("tag:body").text or ""
+        except Exception:
+            try:
+                full_text = dp.html or ""
+            except Exception:
+                full_text = ""
+        strong_kw_map = {
+            "智联": ["退出登录", "退出账号", "安全退出", "我的智联", "个人中心"],
+            "猎聘": ["退出登录", "退出账号", "我的猎聘", "个人中心", "我的简历"],
+            "前程无忧": ["退出登录", "注销", "安全退出", "我的简历", "个人中心"],
+        }
+        for kw in strong_kw_map.get(site_name, []):
+            if kw in full_text:
+                print(f"[LOGIN] {site_name} 已登录（文本命中: {kw}）")
+                return True
+    except Exception:
+        pass
+
+    # 证据3：已登录 DOM 元素
     for selector in config["logged_in_selectors"]:
         try:
-            el = dp.ele(selector, timeout=1.5)
+            el = dp.ele(selector, timeout=2)
             if el:
-                print(f"[LOGIN] {site_name} ✅已登录（检测到用户元素: {selector}）")
+                print(f"[LOGIN] {site_name} 已登录（检测到元素: {selector}）")
                 return True
         except Exception:
             continue
 
-    # 检查未登录关键词
+    # 证据4：仅 header 区域的未登录按钮（不再全 HTML 扫）
     try:
-        html = dp.html
+        header_el = None
+        try:
+            header_el = dp.ele("tag:header", timeout=1) or dp.ele("tag:nav", timeout=1)
+        except Exception:
+            pass
+        if header_el is not None:
+            header_html = header_el.html or ""
+            header_txt = header_el.text or ""
+            for kw in config.get("not_login_header_keywords", []):
+                if kw in header_html or kw in header_txt:
+                    print(f"[LOGIN] {site_name} 未登录（header区域检测到: {kw}）")
+                    return False
     except Exception:
-        html = ""
+        pass
 
-    for kw in config["not_login_keywords"]:
-        if kw in html:
-            print(f"[LOGIN] {site_name} ❌未登录（检测到关键词: {kw}）")
-            return False
-
-    # 无法确定时，默认按未登录处理（更安全）
-    print(f"[LOGIN] {site_name} 登录状态不确定，按未登录处理")
-    return False
+    # 不确定 → 乐观放行！
+    if _allow_unknown:
+        print(f"[LOGIN] {site_name} 状态不确定 → 默认按已登录放行")
+        return True
+    else:
+        print(f"[LOGIN] {site_name} 状态不确定（严格模式按未登录）")
+        return False
 
 
 def wait_for_login_confirmation(site_name):

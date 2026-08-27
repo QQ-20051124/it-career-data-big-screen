@@ -11,7 +11,7 @@ const path = require('path')
 
 const DATA_DIR = path.join(__dirname, 'backend', 'data')
 const JSON_PATH = path.join(DATA_DIR, 'all_cleaned_jobs.json')
-const CRAWLER_DIR = path.join(__dirname, 'job_crawler')
+const CRAWLER_DIR = path.join(__dirname, 'spider')
 
 /**
  * 解析薪资字符串，提取平均值

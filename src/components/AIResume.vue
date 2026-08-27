@@ -966,6 +966,11 @@
         </div>
       </div>
       
+      <!-- PDF导出时，只会抓取resume-export-area里的内容 -->
+      <div class="resume-export-area">
+      <div class="resume-export-header">
+        <h1>个人简历</h1>
+      </div>
       <div class="resume-content">
         <div class="resume-main">
           <div class="section">
@@ -1073,6 +1078,7 @@
           </div>
         </div>
       </div>
+      </div>
     </div>
   </div>
 
@@ -1152,7 +1158,7 @@ const goBack = () => {
   router.push('/dashboard')
 }
 
-const currentStep = ref(3)
+const currentStep = ref(0)
 const activeAiTab = ref(0)
 const targetJob = ref(null)
 
@@ -2309,7 +2315,7 @@ const handleExportClickOutside = (e) => {
 const exportPdfResume = async () => {
   showExportDropdown.value = false
   try {
-    const element = document.querySelector('.resume-content')
+    const element = document.querySelector('.resume-export-area')
     if (!element) {
       alert('未找到简历内容')
       return
@@ -2324,7 +2330,7 @@ const exportPdfResume = async () => {
         useCORS: true,
         allowTaint: true,
         logging: false,
-        backgroundColor: '#f8f9fa'
+        backgroundColor: '#ffffff'
       },
       jsPDF: {
         unit: 'mm',
@@ -4037,6 +4043,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  margin-bottom: 8px;
 }
 
 .execute-btn {
@@ -4755,7 +4762,7 @@ onUnmounted(() => {
 .match-dashboard {
   display: flex;
   gap: 24px;
-  margin: 0;
+  margin: 24px 0 0 0;
   padding: 20px 22px;
   background: linear-gradient(135deg, rgba(10, 20, 50, 0.6), rgba(15, 30, 65, 0.5));
   border-radius: 12px;
@@ -6097,6 +6104,21 @@ onUnmounted(() => {
 .resume-content {
   padding: 28px 32px;
   background: #f8f9fa;
+}
+
+.resume-export-header {
+  background: #fff;
+  padding: 28px 32px 16px;
+  border-bottom: 3px solid #2c3e50;
+}
+
+.resume-export-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  letter-spacing: 4px;
+  text-align: left;
 }
 
 .resume-main {

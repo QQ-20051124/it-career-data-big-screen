@@ -41,6 +41,16 @@
       "loginCount": 1,
       "lastLoginAt": "2026-08-01T13:03:49.478Z",
       "passwordUpdatedAt": "2026-08-01T13:10:46.842Z"
+    },
+    {
+      "id": "1785590000001",
+      "username": "admin",
+      "email": "admin@qq.com",
+      "salt": "ac186a6998f1bbe055522471cfbfea5f",
+      "hash": "7514a9c16fb6f05d9b53a19aa6725a482a09c3e00d167cd903b4c7ac4cfb4296d1e826abfc2cd0493ca0e131ba409936ae012d254fded05c06cc9981f0e4fbec",
+      "createdAt": "2026-08-26T10:00:00.000Z",
+      "loginCount": 0,
+      "lastLoginAt": null
     }
   ]
 }

@@ -780,6 +780,18 @@
               >
                 <div class="slide-bg-mesh"></div>
                 <div class="slide-bg-grid"></div>
+                <div class="slide-media-layer">
+                  <video v-if="carouselMedia[index]?.type === 'video'"
+                    :src="carouselMedia[index].src"
+                    :poster="carouselMedia[index].poster"
+                    autoplay muted loop playsinline
+                    class="slide-media-video"></video>
+                  <img v-else-if="carouselMedia[index]?.type === 'image'"
+                    :src="carouselMedia[index].src"
+                    class="slide-media-img" />
+                  <div class="slide-media-darkener"></div>
+                <div v-if="carouselMedia[index]?.type === 'video'" class="slide-media-watermark-cover"></div>
+                </div>
                 <div class="slide-bg-particles">
                   <span v-for="n in 20" :key="'p'+n" class="particle" :style="getParticleStyle(n)"></span>
                 </div>
@@ -1294,6 +1306,14 @@
         </div>
       </div>
     </div>
+  <!-- 招聘数据采集监控面板 - 仅管理员可见（放在页面最底部） -->
+    <div class="crawler-monitor-wrapper">
+    <div class="crawler-monitor-toggle" id="cm-toggle" title="展开/收起爬虫监控">
+      <span>📡 爬虫监控</span>
+      <span class="cm-toggle-icon">▲</span>
+    </div>
+    <div id="crawler-monitor-root" class="crawler-monitor-inner cm-collapsed"></div>
+    </div>
   </div>
 </template>
 
@@ -1301,6 +1321,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { logout as authLogout, getAuthInfo } from '@/utils/auth'
+import { isCurrentUserAdmin } from '@/utils/userStore'
 import { useGuestMode } from '@/composables/useGuestMode'
 import { generateAvatar, generateGuestName, getRandomAvatar } from '@/utils/avatar'
 
@@ -1308,6 +1329,15 @@ import carouselImg1 from '@/assets/carousel/slide1-jobs.jpg'
 import carouselImg2 from '@/assets/carousel/slide2-skills.jpg'
 import carouselImg3 from '@/assets/carousel/slide3-salary.jpg'
 import carouselImg4 from '@/assets/carousel/slide4-cities.jpg'
+import carouselVid2 from '@/assets/carousel/slide2-skills-video.mp4'
+import carouselVid4 from '@/assets/carousel/slide4-cities-video.mp4'
+
+const carouselMedia = {
+  0: { type: 'image', src: carouselImg1 },
+  1: { type: 'video', src: carouselVid2, poster: carouselImg2 },
+  2: { type: 'image', src: carouselImg3 },
+  3: { type: 'video', src: carouselVid4, poster: carouselImg4 },
+}
 
 const carouselImages = {
   jobs: carouselImg1,
@@ -1464,11 +1494,15 @@ const getParticleStyle = (n) => {
 
 const getHeatColor = (row, col, accent) => {
   const intensity = ((row * 14 + col) * 7 + 30) % 100
-  if (intensity < 20) return 'rgba(' + accent + 'Rgb,0.08)'.replace(accent + 'Rgb', '100,120,180')
-  if (intensity < 40) return 'rgba(74,158,255,0.18)'
-  if (intensity < 60) return 'rgba(74,158,255,0.32)'
-  if (intensity < 80) return 'rgba(74,158,255,0.5)'
-  return 'rgba(74,158,255,0.7)'
+  const hex = accent.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  if (intensity < 20) return 'rgba(' + r + ',' + g + ',' + b + ',0.12)'
+  if (intensity < 40) return 'rgba(' + r + ',' + g + ',' + b + ',0.28)'
+  if (intensity < 60) return 'rgba(' + r + ',' + g + ',' + b + ',0.45)'
+  if (intensity < 80) return 'rgba(' + r + ',' + g + ',' + b + ',0.62)'
+  return 'rgba(' + r + ',' + g + ',' + b + ',0.82)'
 }
 
 const nextSlide = () => {
@@ -1539,8 +1573,14 @@ const userInfo = reactive({
   loginDays: 4
 })
 
+const isAdmin = computed(() => {
+  return userInfo.role === 'admin' || userInfo.role === '管理员' || isCurrentUserAdmin()
+})
+
 const loadUserInfo = () => {
   const authData = getAuthInfo()
+  console.log('[DEBUG Dashboard] auth_info:', authData)
+  
   if (authData) {
     // 登录用户
     if (authData.name || authData.username) {
@@ -1548,7 +1588,16 @@ const loadUserInfo = () => {
       userAvatar.value = generateAvatar(userInfo.name)
       resumeAvatar.value = generateAvatar(userInfo.name)
     }
-    if (authData.role) userInfo.role = authData.role
+    // 直接从 auth_info 判断管理员 - 多条件兜底
+    if (authData.role === 'admin' || authData.role === '管理员' || authData.email === 'admin@jzd.com') {
+      userInfo.role = '管理员'
+    } else if (authData.role === 'user' || authData.role === '普通用户') {
+      userInfo.role = '普通用户'
+    } else if (authData.role) {
+      userInfo.role = authData.role
+    }
+    
+    console.log('[DEBUG Dashboard] userInfo.role after load:', userInfo.role)
     if (authData.loginType) {
       const typeMap = { wechat: '微信登录', qq: 'QQ登录', email: '邮箱登录', guest: '游客登录', account: '账号登录' }
       userInfo.loginType = typeMap[authData.loginType] || authData.loginType
@@ -2201,22 +2250,319 @@ onMounted(async () => {
   // 使用新的loadUserInfo函数加载用户资料
   loadUserInfo()
   
-  // 兼容旧版本
+  // 兼容旧版本 - 只在角色不是管理员时才用旧数据覆盖，防止管理员身份被覆盖
   const savedName = localStorage.getItem('userName')
   if (savedName && userInfo.name === '访客用户') userInfo.name = savedName
   const savedRole = localStorage.getItem('userRole')
-  if (savedRole) userInfo.role = savedRole
+  if (savedRole && userInfo.role !== '管理员' && userInfo.role !== 'admin') {
+    userInfo.role = savedRole
+  }
   const savedLoginType = localStorage.getItem('userLoginType')
   if (savedLoginType && userInfo.loginType === '游客登录') userInfo.loginType = savedLoginType
   
   refreshProfileData()
   
   startAutoPlay()
+
+  // 爬虫监控面板
+  nextTick(() => {
+    CM.mount()
+  })
 })
 
 onUnmounted(() => {
   if (slideInterval) clearInterval(slideInterval)
+  CM.unmount()
 })
+
+
+// ===== 爬虫监控面板（原生 DOM 渲染，避免独立组件文件创建失败） =====
+const CM = {
+  state: { running:false, crawler:{ sites:{} }, login:{sites:{}}, data_summary:{}, recent_logs:[], schedule:{}, winTask:null },
+  schedTab: 'win',
+  timer: null,
+  el: null,
+  collapsed: true,
+  mount() {
+    this.el = document.getElementById('crawler-monitor-root');
+    if (!this.el) return;
+    this.toggleEl = document.getElementById('cm-toggle');
+    if (this.toggleEl) {
+      this.toggleEl.addEventListener('click', () => this.toggle());
+    }
+    this.fetch();
+    this.fetchWinTask();
+    this.timer = setInterval(() => this.fetch(), 3000);
+  },
+  toggle() {
+    this.collapsed = !this.collapsed;
+    if (this.collapsed) {
+      this.el.classList.add('cm-collapsed');
+      this.toggleEl.classList.remove('cm-expanded');
+    } else {
+      this.el.classList.remove('cm-collapsed');
+      this.toggleEl.classList.add('cm-expanded');
+      this.render();
+    }
+  },
+  unmount() { if (this.timer) clearInterval(this.timer); this.timer = null; },
+  async fetch() {
+    try {
+      const r = await fetch('/api/crawler/status');
+      if (r.ok) {
+        const d = await r.json();
+        if (d.success) {
+          this.state.running = !!d.data.running;
+          this.state.crawler = d.data.crawler || {};
+          this.state.login = d.data.login || {};
+          this.state.data_summary = d.data.data_summary || {};
+          this.state.recent_logs = d.data.recent_logs || [];
+          this.state.schedule = d.data.schedule || { enabled:false, cron_expression:'0 2 * * *', time_description:'每天 02:00' };
+          this.render();
+        }
+      }
+    } catch(e) {}
+  },
+  async start() {
+    const btn = document.getElementById('cm-start-btn');
+    if (btn) btn.disabled = true;
+    try {
+      const r = await fetch('/api/crawler/start', { method:'POST' });
+      const d = await r.json();
+      alert(d.message || (d.success ? '三网站采集已启动' : '启动失败'));
+      if (d.success) setTimeout(()=>this.fetch(), 1500);
+    } catch(e) { alert('启动失败: ' + e.message); }
+    finally { if (btn) btn.disabled = false; }
+  },
+  async login() {
+    try {
+      const r = await fetch('/api/crawler/login', { method:'POST' });
+      const d = await r.json();
+      alert(d.message || (d.success ? '登录管理器已启动' : '启动失败'));
+      if (d.success) setTimeout(()=>this.fetch(), 1500);
+    } catch(e) { alert('启动失败: ' + e.message); }
+  },
+  async reload() {
+    try {
+      await refreshData();
+      setTimeout(()=>this.fetch(), 400);
+    } catch(e) { alert('刷新失败: ' + e.message); }
+  },
+  async toggleSchedule() {
+    const cur = this.state.schedule || {};
+    const enabled = !cur.enabled;
+    try {
+      const r = await fetch('/api/crawler/schedule', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ enabled })
+      });
+      const d = await r.json();
+      if (d.success) { this.state.schedule = d.data; this.render(); alert((enabled?'已开启':'已关闭')+' 定时爬取'); }
+      else alert(d.message || '操作失败');
+    } catch(e) { alert('操作失败: ' + e.message); }
+  },
+  async saveSchedule() {
+    const hourSel = document.getElementById('cm-sched-hour');
+    const minSel = document.getElementById('cm-sched-min');
+    if (!hourSel || !minSel) return;
+    const hour = String(hourSel.value).padStart(2,'0');
+    const min = String(minSel.value).padStart(2,'0');
+    const cron = `${min} ${hour} * * *`;
+    const desc = `每天 ${hour}:${min}`;
+    try {
+      const r = await fetch('/api/crawler/schedule', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ cron_expression: cron, time_description: desc })
+      });
+      const d = await r.json();
+      if (d.success) { this.state.schedule = d.data; this.render(); alert('定时时间已保存：' + desc); }
+      else alert(d.message || '保存失败');
+    } catch(e) { alert('保存失败: ' + e.message); }
+  },
+  async runNowSchedule() {
+    try {
+      const r = await fetch('/api/crawler/schedule/run-now', { method:'POST' });
+      const d = await r.json();
+      alert(d.message || (d.success ? '已立即触发爬取' : '触发失败'));
+      if (d.success) setTimeout(()=>this.fetch(), 1500);
+    } catch(e) { alert('触发失败: ' + e.message); }
+  },
+  async fetchWinTask() {
+    try {
+      const r = await fetch('/api/crawler/windows-task');
+      if (r.ok) { const d = await r.json(); if (d.success) { this.state.winTask = d.data; this.render(); } }
+    } catch(e) {}
+  },
+  async runNowWinTask() {
+    try {
+      const r = await fetch('/api/crawler/windows-task/run-now', { method:'POST' });
+      const d = await r.json();
+      alert(d.message || (d.success ? '已通过Windows任务立即触发' : '触发失败'));
+      setTimeout(()=>this.fetch(), 1500);
+    } catch(e) { alert('触发失败: ' + e.message); }
+  },
+  switchSchedTab(tab) {
+    this.schedTab = tab;
+    if (tab === 'win') this.fetchWinTask();
+    this.render();
+  },
+  statusText(s) { return ({pending:'等待中',running:'采集中',success:'完成',failed:'失败',skipped:'跳过'})[s] || s || '等待中'; },
+  render() {
+    if (!this.el) return;
+    if (this.collapsed) return;
+    const s = this.state;
+    const c = s.crawler || {};
+    const sites = c.sites || {};
+    const bySource = (s.data_summary && s.data_summary.by_source) ? s.data_summary.by_source : {};
+    const finalCount = (s.crawler && s.crawler.final_count) || (s.data_summary && s.data_summary.total) || 0;
+    
+    // 保存滚动位置
+    const scrollY = window.scrollY;
+    const siteCards = Object.entries(sites).map(([name, st]) => {
+      const loggedIn = s.login && s.login.sites && s.login.sites[name];
+      return '<div class=\"cm-card cm-' + (st.status||'pending') + '\">' +
+        '<div class=\"cm-head\"><span class=\"cm-name\">' + name + '</span><span class=\"cm-badge cmb-' + (st.status||'pending') + '\">' + this.statusText(st.status) + '</span></div>' +
+        '<div class=\"cm-metrics\">' +
+          '<div><div class=\"cm-v\">' + (st.raw_count||0) + '</div><div class=\"cm-l\">采集</div></div>' +
+          '<div><div class=\"cm-v\">' + (st.pages||0) + '</div><div class=\"cm-l\">页数</div></div>' +
+          (st.cities_total > 0 ? '<div><div class=\"cm-v\">' + (st.cities_done||0) + '/' + st.cities_total + '</div><div class=\"cm-l\">城市</div></div>' : '') +
+        '</div>' +
+        '<div class=\"cm-msg\">' + (st.message||'') + '</div>' +
+        '<div class=\"cm-login ' + (loggedIn?'ok':'') + '\">登录态: ' + (loggedIn?'✓ 已登录':'未登录') + '</div>' +
+      '</div>';
+    }).join('');
+    const bySourceCards = Object.entries(bySource).map(([k,v]) =>
+      '<div class=\"cm-s-stat\"><span class=\"cm-s-v\">' + v + '</span><span class=\"cm-s-l\">' + k + '</span></div>'
+    ).join('');
+    const logs = (s.recent_logs && s.recent_logs.length)
+      ? s.recent_logs.slice(-40).map(l => '<div class=\"cm-log\">' + l.replace(/[<>&]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[ch])) + '</div>').join('')
+      : '<div class=\"cm-log cm-empty\">暂无日志。可先点击【🔐 统一登录】完成三网站登录，之后再【▶️ 启动采集】；下次登录只需进行一次，登录信息会保存在本地。</div>';
+    this.el.innerHTML = '<div class=\"cm-wrap\">' +
+      '<div class=\"cm-topbar\">' +
+        '<div class=\"cm-title\">📡 招聘数据采集监控 · 三网站实时爬取状态</div>' +
+        '<div class=\"cm-topright\">' +
+          '<span class=\"cm-dot ' + (s.running?'active':'') + '\"></span>' +
+          '<span class=\"cm-txt\">' + (s.running?'运行中':'待机') + '</span>' +
+          (c.current_step ? '<span class=\"cm-step\">当前: ' + c.current_step + '</span>' : '') +
+          (s.data_summary && s.data_summary.last_update ? '<span class=\"cm-time\">· 更新: ' + s.data_summary.last_update + '</span>' : '') +
+          '<button class=\"cm-btn cm-mini\" title=\"刷新\" id=\"cm-refresh-btn\">⟳</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class=\"cm-body\">' +
+        '<div class=\"cm-sites\">' + siteCards + '</div>' +
+        '<div class=\"cm-center\">' +
+          '<div class=\"cm-progress\">' +
+            '<div class=\"cm-ph\"><span>总进度</span><span class=\"cm-pct\">' + (c.progress||0) + '%</span></div>' +
+            '<div class=\"cm-pb-bg\"><div class=\"cm-pb-fill\" style=\"width:' + (c.progress||0) + '%\"></div></div>' +
+            '<div class=\"cm-pm\">' +
+              '<span>原始抓取: <b>' + (c.total_raw_count||0) + '</b></span>' +
+              '<span>入库岗位: <b>' + finalCount + '</b></span>' +
+              (c.start_time ? '<span>开始: ' + c.start_time + '</span>':'') +
+              (c.end_time ? '<span>结束: ' + c.end_time + '</span>':'') +
+            '</div>' +
+          '</div>' +
+          '<div class=\"cm-actions\">' +
+            '<button class=\"cm-btn cm-login\" id=\"cm-login-btn\" ' + (s.running?'disabled':'') + '>🔐 统一登录（一次登三站）</button>' +
+            '<button class=\"cm-btn cm-start\" id=\"cm-start-btn\" ' + (s.running?'disabled':'') + '>▶️ ' + (s.running?'采集中…':'启动采集（三网站）') + '</button>' +
+            '<button class=\"cm-btn cm-reload\" id=\"cm-reload-btn\">🔄 刷新岗位数据</button>' +
+          '</div>' +
+          '<div class=\"cm-stats\"><div class=\"cm-stats-title\">当前数据概览</div><div class=\"cm-stats-body\">' +
+            '<div class=\"cm-s-stat\"><span class=\"cm-s-v cm-total\">' + (s.data_summary.total || 0) + '</span><span class=\"cm-s-l\">总岗位</span></div>' +
+            bySourceCards +
+          '</div></div>' +
+          '<div class=\"cm-stats cm-schedule-box\">' +
+            '<div class=\"cm-stats-title\">⏰ 每日定时自动爬取（开机即生效，无需开后端）</div>' +
+            '<div class=\"cm-sched-tabs\">' +
+              '<span class=\"cm-sched-tab ' + ((this.schedTab||'win')==='win'?'active':'') + '\" id=\"cm-tab-win\">🪟 Windows任务（推荐）</span>' +
+              '<span class=\"cm-sched-tab ' + ((this.schedTab||'win')==='node'?'active':'') + '\" id=\"cm-tab-node\">🔌 Node调度器</span>' +
+            '</div>' +
+            '<div class=\"cm-sched-body\">' +
+              ((this.schedTab||'win') === 'win' ? this.renderWinTab() : this.renderNodeTab()) +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class=\"cm-logs-wrap\">' +
+          '<div class=\"cm-logs-head\"><span>采集实时日志</span><span class=\"cm-logs-tip\">' + (s.running?'每 3 秒自动刷新':'') + '</span></div>' +
+          '<div class=\"cm-logs-body\" id=\"cm-logs-body\">' + logs + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    const r1 = document.getElementById('cm-refresh-btn'); if (r1) r1.onclick = () => this.fetch();
+    const r2 = document.getElementById('cm-start-btn'); if (r2) r2.onclick = () => this.start();
+    const r3 = document.getElementById('cm-login-btn'); if (r3) r3.onclick = () => this.login();
+    const r4 = document.getElementById('cm-reload-btn'); if (r4) r4.onclick = () => this.reload();
+    const r5 = document.getElementById('cm-sched-toggle'); if (r5) r5.onchange = () => this.toggleSchedule();
+    const r6 = document.getElementById('cm-sched-save'); if (r6) r6.onclick = () => this.saveSchedule();
+    const r7 = document.getElementById('cm-sched-run'); if (r7) r7.onclick = () => this.runNowSchedule();
+    const r8 = document.getElementById('cm-tab-win'); if (r8) r8.onclick = () => this.switchSchedTab('win');
+    const r9 = document.getElementById('cm-tab-node'); if (r9) r9.onclick = () => this.switchSchedTab('node');
+    const r10 = document.getElementById('cm-win-run'); if (r10) r10.onclick = () => this.runNowWinTask();
+    const r11 = document.getElementById('cm-win-refresh'); if (r11) r11.onclick = () => this.fetchWinTask();
+    const lb = document.getElementById('cm-logs-body'); if (lb) lb.scrollTop = lb.scrollHeight;
+    
+    // 恢复页面滚动位置，避免自动上划
+    window.scrollTo(0, scrollY);
+    
+    const r12 = document.getElementById('cm-sched-hist-body');
+    if (r12) r12.scrollTop = r12.scrollHeight;
+  },
+  renderWinTab() {
+    const w = this.state.winTask || {};
+    const taskExists = !!w.exists;
+    return '<div class=\"cm-wintip\" style=\"margin-bottom:6px;\">' +
+      (taskExists ? '✅ Windows系统计划任务已注册，<b>每天到点自动执行，不用开后端/不用开网页</b>，关机也会在你下次开机并登录后执行错过的任务。'
+                 : '⚠️ 未检测到系统计划任务。请<b>双击下方"注册脚本"</b>，<b style=\"color:#f59e0b\">右键 → 以管理员身份运行</b>来注册，每天02:00自动爬取。') +
+      '</div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">任务名</span><span class=\"cm-sched-value\">' + (taskExists ? (w.taskName||'') : '未注册') + '</span></div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">下次运行</span><span class=\"cm-sched-value\" style=\"color:' + (taskExists?'#22c55e':'#f87171') + ';\">' + (w.nextRun || (taskExists?'未知':'—')) + '</span></div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">上次运行</span><span class=\"cm-sched-value\">' + (w.lastRun && w.lastRun !== 'N/A' ? w.lastRun : '无') + '</span></div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">状态</span><span class=\"cm-sched-value\">' + (w.status || '') + (w.lastResult && w.lastResult !== '0' && w.lastResult !== 'N/A' ? ' <span style=\"color:#f87171;\">(上次退出码:'+w.lastResult+')</span>' : '') + '</span></div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">快捷操作</span>' +
+        '<button class=\"cm-btn cm-mini cm-sched-run\" id=\"cm-win-run\" style=\"margin-right:6px;\" ' + ((this.state.running || !taskExists)?'disabled':'') + '>⚡ 立即运行</button>' +
+        '<button class=\"cm-btn cm-mini\" id=\"cm-win-refresh\" title=\"刷新\">⟳</button>' +
+      '</div>' +
+      '<div class=\"cm-sched-hist\">' +
+        '<div class=\"cm-sched-hist-head\">系统脚本（双击运行）</div>' +
+        '<div class=\"cm-h-item\"><span class=\"cm-h-time\" style=\"color:#6aa9ff;cursor:pointer;\">注册定时任务.bat</span><span class=\"cm-h-st\">右键→管理员运行</span></div>' +
+        '<div class=\"cm-h-item\"><span class=\"cm-h-time\" style=\"color:#6aa9ff;cursor:pointer;\">取消定时任务.bat</span><span class=\"cm-h-st\">右键→管理员运行</span></div>' +
+        '<div class=\"cm-h-item\"><span class=\"cm-h-time\" style=\"color:#6aa9ff;cursor:pointer;\">auto_crawl_daily.bat</span><span class=\"cm-h-st\">手动立即执行</span></div>' +
+      '</div>';
+  },
+  renderNodeTab() {
+    const s = this.state;
+    const schedule = s.schedule || {};
+    const cron = schedule.cron_expression || '0 2 * * *';
+    const p = (cron.trim().split(/\s+/).length >= 5) ? cron.trim().split(/\s+/) : ['0','2','*','*','*'];
+    const curHour = parseInt(p[1], 10);
+    const curMin = parseInt(p[0], 10);
+    const hours = Array.from({length:24}, (_,i)=>i);
+    const mins = [0,15,30,45];
+    const hourOptions = hours.map(h => '<option value=\"'+h+'\"'+(h===curHour?' selected':'')+'>'+String(h).padStart(2,'0')+'</option>').join('');
+    const minOptions = mins.map(m => '<option value=\"'+m+'\"'+(m===curMin?' selected':'')+'>'+String(m).padStart(2,'0')+'</option>').join('');
+    const historyHtml = (schedule.history && schedule.history.length)
+      ? schedule.history.map(h => '<div class=\"cm-h-item\"><span class=\"cm-h-time\">'+h.time+'</span><span class=\"cm-h-type\">'+(h.type==='scheduled'?'定时触发':'手动')+'</span><span class=\"cm-h-st\">'+h.status+'</span></div>').join('')
+      : '<div class=\"cm-h-empty\">暂无执行记录</div>';
+    return '<div class=\"cm-wintip\" style=\"margin-bottom:6px;\">⚠️ 此模式<b>要求后端（node server.js）一直运行</b>，关机/重启后端服务就失效。推荐用 Windows任务。</div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">开关</span><label class=\"cm-switch\" title=\"开启后每天到点自动执行\"><input type=\"checkbox\" id=\"cm-sched-toggle\" ' + (schedule.enabled?'checked':'') + '><span class=\"cm-slider\"></span></label><span style=\"margin-left:8px;color:' + (schedule.enabled?'#22c55e':'#8ea0bf') + ';\">'+(schedule.enabled?'已开启':'已关闭')+'</span></div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">执行时间</span>' +
+        '<select class=\"cm-sched-sel\" id=\"cm-sched-hour\">' + hourOptions + '</select><span class=\"cm-sched-colon\">:</span>' +
+        '<select class=\"cm-sched-sel\" id=\"cm-sched-min\">' + minOptions + '</select>' +
+        '<button class=\"cm-btn cm-mini cm-sched-save\" id=\"cm-sched-save\">保存</button>' +
+      '</div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">下一次</span><span class=\"cm-sched-value\">' + (schedule.next_run_time || (schedule.enabled?'计算中…':'未开启')) + '</span></div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">上次执行</span><span class=\"cm-sched-value\">' + (schedule.last_run_time || '无') + '</span></div>' +
+      '<div class=\"cm-sched-row\"><span class=\"cm-sched-label\">快捷操作</span>' +
+        '<button class=\"cm-btn cm-mini cm-sched-run\" id=\"cm-sched-run\" ' + (s.running?'disabled':'') + '>⚡ 立即执行一次</button>' +
+      '</div>' +
+      '<div class=\"cm-sched-hist\">' +
+        '<div class=\"cm-sched-hist-head\">最近执行记录</div>' +
+        '<div class=\"cm-sched-hist-body\">' + historyHtml + '</div>' +
+      '</div>';
+  }
+};
+
 </script>
 
 <style scoped>
@@ -3365,6 +3711,45 @@ onUnmounted(() => {
   mask-image: radial-gradient(ellipse 90% 80% at 30% 50%, black 30%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 90% 80% at 30% 50%, black 30%, transparent 100%);
   z-index: 0;
+}
+
+.slide-media-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.slide-media-video {
+  position: absolute;
+  top: 42%;
+  left: 42%;
+  width: 150%;
+  height: 150%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  filter: brightness(1.15) saturate(1.2) contrast(1.1);
+}
+
+.slide-media-img {
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  width: 130%;
+  height: 130%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  filter: brightness(1.05) saturate(1.25) contrast(1.05);
+}
+
+.slide-media-darkener {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(8, 12, 32, 0.12) 0%,
+    rgba(8, 12, 32, 0.05) 40%,
+    rgba(8, 12, 32, 0.12) 100%);
+  pointer-events: none;
 }
 
 .slide-bg-particles {
@@ -6742,4 +7127,282 @@ onUnmounted(() => {
 .edit-modal-body::-webkit-scrollbar-thumb:hover {
   background: rgba(74, 158, 255, 0.5);
 }
+
+
+.crawler-monitor-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(74,158,255,0.15), rgba(99,102,241,0.1));
+  border: 1px solid rgba(74,158,255,0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  color: #cfe0ff;
+  font-weight: 600;
+  font-size: 14px;
+  user-select: none;
+  transition: all .2s;
+}
+.crawler-monitor-toggle:hover {
+  background: linear-gradient(135deg, rgba(74,158,255,0.25), rgba(99,102,241,0.15));
+  border-color: rgba(74,158,255,0.5);
+}
+.cm-toggle-icon {
+  font-size: 10px;
+  transition: transform .3s;
+}
+.crawler-monitor-toggle.cm-expanded .cm-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.crawler-monitor-wrapper { width: 100%; transition: max-height .4s ease, opacity .3s ease, margin .3s ease; overflow: hidden; }
+.crawler-monitor-wrapper.cm-collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.cm-wrap { background: linear-gradient(135deg, rgba(20,30,55,0.55) 0%, rgba(18,24,45,0.5) 100%); border: 1px solid rgba(74,158,255,0.18); border-radius: 18px; backdrop-filter: blur(10px); overflow: hidden; max-height: 480px; display: flex; flex-direction: column; }
+.cm-topbar { padding: 14px 22px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(74,158,255,0.12); background: linear-gradient(90deg, rgba(74,158,255,0.08), transparent); }
+.cm-title { font-weight: 700; font-size: 15px; color: #e8f0ff; letter-spacing: 0.3px; }
+.cm-topright { display: flex; gap: 10px; align-items: center; color: #b5c2d9; font-size: 12px; }
+.cm-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(150,160,180,0.5); transition: all .3s; }
+.cm-dot.active { background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: cmdot 1.4s infinite; }
+@keyframes cmdot { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
+.cm-step { opacity: .7; } .cm-time { opacity: .55; margin-left: 4px; }
+.cm-body { display: grid; grid-template-columns: minmax(420px, 1.1fr) minmax(380px, 1fr) minmax(340px, 0.9fr); gap: 16px; padding: 18px 22px 22px; overflow-y: auto; flex: 1; }
+.cm-sites { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.cm-card { background: rgba(15,22,42,0.6); border: 1px solid rgba(74,158,255,0.15); border-radius: 14px; padding: 14px; transition: all .25s; display: flex; flex-direction: column; gap: 8px; }
+.cm-card:hover { border-color: rgba(74,158,255,0.42); transform: translateY(-2px); }
+.cm-card.cm-running { border-color: rgba(74,158,255,0.55); background: rgba(30,60,120,0.35); box-shadow: 0 0 24px rgba(74,158,255,0.1) inset; }
+.cm-card.cm-success { border-color: rgba(34,197,94,0.55); background: rgba(20,70,40,0.25); }
+.cm-card.cm-failed { border-color: rgba(239,68,68,0.55); background: rgba(90,30,30,0.3); }
+.cm-head { display: flex; justify-content: space-between; align-items: center; }
+.cm-name { font-weight: 700; font-size: 15px; color: #e8f0ff; }
+.cm-badge { font-size: 11px; padding: 2px 9px; border-radius: 99px; }
+.cm-badge.cmb-pending { background: rgba(150,160,180,0.1); color: #9aa6bb; }
+.cm-badge.cmb-running { background: linear-gradient(135deg, rgba(74,158,255,0.3), rgba(99,102,241,0.3)); color: #d5e5ff; }
+.cm-badge.cmb-success { background: rgba(34,197,94,0.2); color: #86efac; }
+.cm-badge.cmb-failed { background: rgba(239,68,68,0.2); color: #fca5a5; }
+.cm-metrics { display: flex; gap: 10px; margin-top: 4px; }
+.cm-metrics > div { display: flex; flex-direction: column; align-items: center; flex: 1; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 5px 4px; }
+.cm-v { font-size: 16px; font-weight: 700; color: #cfe0ff; font-family: Consolas, monospace; }
+.cm-l { font-size: 10px; color: #8ea0bf; opacity: .8; }
+.cm-msg { font-size: 12px; color: #b5c2d9; opacity: .85; min-height: 18px; line-height: 1.5; }
+.cm-login { font-size: 11px; margin-top: auto; padding-top: 6px; color: #fca5a5; border-top: 1px dashed rgba(150,160,180,0.1); }
+.cm-login.ok { color: #86efac; }
+.cm-center { display:flex; flex-direction: column; gap: 14px; }
+.cm-progress { background: rgba(15,22,42,0.6); border: 1px solid rgba(74,158,255,0.15); border-radius: 14px; padding: 14px 16px; }
+.cm-ph { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: #cfe0ff; }
+.cm-pct { font-weight: 700; color: #6aa9ff; font-family: monospace; }
+.cm-pb-bg { width: 100%; height: 10px; background: rgba(74,158,255,0.08); border-radius: 99px; overflow: hidden; border: 1px solid rgba(74,158,255,0.15); }
+.cm-pb-fill { height: 100%; background: linear-gradient(90deg, #4a9eff, #6366f1 50%, #06b6d4); border-radius: 99px; transition: width .6s ease; box-shadow: 0 0 12px rgba(74,158,255,0.4); }
+.cm-pm { display: flex; justify-content: space-between; font-size: 11px; color: #8ea0bf; margin-top: 10px; gap: 8px; flex-wrap: wrap; }
+.cm-pm b { color: #e8f0ff; font-weight: 600; }
+.cm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cm-btn { padding: 11px 10px; border-radius: 10px; border: 1px solid; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; color: #fff; }
+.cm-btn:disabled { opacity: .45; cursor: not-allowed; }
+.cm-btn:not(:disabled):hover { transform: translateY(-1px); filter: brightness(1.1); }
+.cm-btn.cm-login { background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(74,158,255,0.18)); border-color: rgba(99,102,241,0.5); color: #c7d2fe; }
+.cm-btn.cm-start { background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(6,182,212,0.2)); border-color: rgba(34,197,94,0.55); color: #bbf7d0; }
+.cm-btn.cm-reload { grid-column: 1 / -1; background: rgba(74,158,255,0.1); border-color: rgba(74,158,255,0.3); color: #cfe0ff; }
+.cm-btn.cm-mini { width: 28px; height: 28px; padding: 0; border-radius: 8px; background: rgba(74,158,255,0.1); border: 1px solid rgba(74,158,255,0.25); color: #cfe0ff; font-size: 14px; grid-column: unset; }
+.cm-stats { background: rgba(15,22,42,0.6); border: 1px solid rgba(74,158,255,0.15); border-radius: 14px; padding: 12px 14px; }
+.cm-stats-title { font-size: 12px; color: #8ea0bf; margin-bottom: 10px; letter-spacing: .5px; display: flex; justify-content: space-between; align-items: center; }
+.cm-stats-body { display: flex; gap: 12px; flex-wrap: wrap; }
+.cm-schedule-box { border-color: rgba(99,102,241,0.3); background: linear-gradient(135deg, rgba(63,70,160,0.18), rgba(15,22,42,0.6)); }
+.cm-sched-body { display: flex; flex-direction: column; gap: 8px; }
+.cm-sched-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #c8d6ee; }
+.cm-sched-label { min-width: 60px; color: #8ea0bf; }
+.cm-sched-value { color: #e0eaff; font-weight: 600; }
+.cm-sched-sel { background: rgba(20,30,55,0.8); color: #e0eaff; border: 1px solid rgba(74,158,255,0.3); border-radius: 8px; padding: 3px 6px; font-size: 12px; outline: none; cursor: pointer; }
+.cm-sched-sel:focus { border-color: #6aa9ff; }
+.cm-sched-colon { color: #8ea0bf; font-weight: 700; }
+.cm-sched-save { background: linear-gradient(135deg,#4a9eff,#6366f1); color: #fff; border: none; padding: 3px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+.cm-sched-save:hover { filter: brightness(1.15); }
+.cm-sched-run { background: linear-gradient(135deg,#f59e0b,#ef4444); color: #fff; border: none; padding: 3px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+.cm-sched-run:disabled { opacity: 0.5; cursor: not-allowed; }
+.cm-sched-hist { margin-top: 6px; border-top: 1px dashed rgba(74,158,255,0.15); padding-top: 8px; }
+.cm-sched-hist-head { font-size: 11px; color: #8ea0bf; margin-bottom: 6px; }
+.cm-sched-hist-body { max-height: 80px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.cm-h-item { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 4px; background: rgba(255,255,255,0.02); border-radius: 4px; }
+.cm-h-time { color: #aac2ea; }
+.cm-h-type { color: #6aa9ff; }
+.cm-h-st { color: #00d4aa; }
+.cm-h-empty { font-size: 11px; color: #667; text-align: center; padding: 8px; }
+
+.cm-sched-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+.cm-sched-tab {
+  padding: 4px 10px; font-size: 12px; cursor: pointer;
+  border-radius: 8px; background: rgba(255,255,255,0.04);
+  color: #8ea0bf; border: 1px solid transparent;
+  transition: all .15s;
+}
+.cm-sched-tab:hover { color: #cfe0ff; background: rgba(74,158,255,0.08); }
+.cm-sched-tab.active {
+  background: linear-gradient(135deg, rgba(74,158,255,0.18), rgba(99,102,241,0.14));
+  color: #cfe0ff;
+  border-color: rgba(74,158,255,0.4);
+  font-weight: 600;
+}
+.cm-wintip { font-size: 12px; color: #c8d6ee; padding: 8px 10px; background: rgba(74,158,255,0.08); border-radius: 8px; border: 1px dashed rgba(74,158,255,0.22); line-height: 1.6; }
+
+/* Toggle Switch */
+.cm-switch { position: relative; display: inline-block; width: 38px; height: 20px; margin: 0; }
+.cm-switch input { opacity: 0; width: 0; height: 0; }
+.cm-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2b3655; transition: .2s; border-radius: 20px; border: 1px solid rgba(74,158,255,0.2); }
+.cm-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: #7d8db0; transition: .2s; border-radius: 50%; }
+.cm-switch input:checked + .cm-slider { background: linear-gradient(135deg,#4a9eff,#6366f1); border-color: #6aa9ff; }
+.cm-switch input:checked + .cm-slider:before { transform: translateX(18px); background-color: #fff; }
+.cm-s-stat { display: flex; flex-direction: column; align-items: center; min-width: 62px; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 10px; }
+.cm-s-v { font-size: 17px; font-weight: 800; background: linear-gradient(135deg,#fff,#6aa9ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: Consolas, monospace; }
+.cm-s-v.cm-total { background: linear-gradient(135deg,#fff,#22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cm-s-l { font-size: 10px; color: #8ea0bf; margin-top: 2px; }
+.cm-logs-wrap { display: flex; flex-direction: column; background: rgba(15,22,42,0.6); border: 1px solid rgba(74,158,255,0.15); border-radius: 14px; padding: 12px 14px; min-height: 230px; }
+.cm-logs-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: #cfe0ff; font-size: 13px; }
+.cm-logs-tip { font-size: 11px; color: #6aa9ff; opacity: .8; }
+.cm-logs-body { flex: 1; overflow-y: auto; background: rgba(8,14,28,0.55); border-radius: 10px; padding: 10px 12px; border: 1px solid rgba(0,0,0,0.2); font-family: Consolas, monospace; font-size: 11.5px; line-height: 1.6; color: #aec4e8; max-height: 220px; }
+.cm-log { word-break: break-all; white-space: pre-wrap; }
+.cm-log.cm-empty { opacity: .55; font-size: 11px; line-height: 1.8; }
+@media (max-width: 1480px) { .cm-body { grid-template-columns: 1fr 1fr; } .cm-logs-wrap { grid-column: 1 / -1; } }
+@media (max-width: 1100px) { .cm-body { grid-template-columns: 1fr; } .cm-sites { grid-template-columns: repeat(3, 1fr); } }
+
+</style>
+
+<!-- 爬虫监控全局样式（因为内容通过 innerHTML 动态生成，必须用非 scoped 样式） -->
+<style>
+.crawler-monitor-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(74,158,255,0.15), rgba(99,102,241,0.1));
+  border: 1px solid rgba(74,158,255,0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  color: #cfe0ff;
+  font-weight: 600;
+  font-size: 14px;
+  user-select: none;
+  transition: all .2s;
+}
+.crawler-monitor-toggle:hover {
+  background: linear-gradient(135deg, rgba(74,158,255,0.25), rgba(99,102,241,0.15));
+  border-color: rgba(74,158,255,0.5);
+}
+.cm-toggle-icon {
+  font-size: 10px;
+  transition: transform .3s;
+}
+.crawler-monitor-toggle.cm-expanded .cm-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.crawler-monitor-wrapper { width: 100%; transition: max-height .4s ease, opacity .3s ease, margin .3s ease; overflow: hidden; }
+.crawler-monitor-wrapper.cm-collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.cm-inner { transition: all .4s ease; }
+.cm-inner.cm-collapsed { display: none; }
+.cm-wrap { background: linear-gradient(135deg, rgba(20,30,55,0.75) 0%, rgba(18,24,45,0.7) 100%); border: 1px solid rgba(74,158,255,0.25); border-radius: 18px; backdrop-filter: blur(10px); overflow: hidden; max-height: 580px; display: flex; flex-direction: column; }
+.cm-topbar { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(74,158,255,0.15); background: linear-gradient(90deg, rgba(74,158,255,0.1), transparent); }
+.cm-title { font-weight: 700; font-size: 17px; color: #ffffff; letter-spacing: 0.3px; }
+.cm-topright { display: flex; gap: 10px; align-items: center; color: #c8d6ee; font-size: 13px; }
+.cm-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(150,160,180,0.5); transition: all .3s; }
+.cm-dot.active { background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: cmdot 1.4s infinite; }
+@keyframes cmdot { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
+.cm-step { opacity: .85; } .cm-time { opacity: .7; margin-left: 4px; }
+.cm-body { display: grid; grid-template-columns: minmax(420px, 1.1fr) minmax(380px, 1fr) minmax(340px, 0.9fr); gap: 16px; padding: 18px 22px 22px; overflow-y: auto; flex: 1; }
+.cm-sites { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.cm-card { background: rgba(15,22,42,0.75); border: 1px solid rgba(74,158,255,0.18); border-radius: 14px; padding: 14px; transition: all .25s; display: flex; flex-direction: column; gap: 8px; }
+.cm-card:hover { border-color: rgba(74,158,255,0.5); transform: translateY(-2px); }
+.cm-card.cm-running { border-color: rgba(74,158,255,0.6); background: rgba(30,60,120,0.45); box-shadow: 0 0 24px rgba(74,158,255,0.12) inset; }
+.cm-card.cm-success { border-color: rgba(34,197,94,0.6); background: rgba(20,70,40,0.35); }
+.cm-card.cm-failed { border-color: rgba(239,68,68,0.6); background: rgba(90,30,30,0.35); }
+.cm-head { display: flex; justify-content: space-between; align-items: center; }
+.cm-name { font-weight: 700; font-size: 16px; color: #ffffff; }
+.cm-badge { font-size: 12px; padding: 3px 10px; border-radius: 99px; }
+.cm-badge.cmb-pending { background: rgba(150,160,180,0.15); color: #b5c2d9; }
+.cm-badge.cmb-running { background: linear-gradient(135deg, rgba(74,158,255,0.35), rgba(99,102,241,0.35)); color: #e0eaff; }
+.cm-badge.cmb-success { background: rgba(34,197,94,0.25); color: #a7f3d0; }
+.cm-badge.cmb-failed { background: rgba(239,68,68,0.25); color: #fecaca; }
+.cm-metrics { display: flex; gap: 10px; margin-top: 4px; }
+.cm-metrics > div { display: flex; flex-direction: column; align-items: center; flex: 1; background: rgba(255,255,255,0.04); border-radius: 8px; padding: 6px 4px; }
+.cm-v { font-size: 18px; font-weight: 700; color: #e8f0ff; font-family: Consolas, monospace; }
+.cm-l { font-size: 12px; color: #aec4e8; opacity: .9; }
+.cm-msg { font-size: 13px; color: #d5e5ff; min-height: 20px; line-height: 1.6; }
+.cm-login { font-size: 12px; margin-top: auto; padding-top: 6px; color: #fca5a5; border-top: 1px dashed rgba(150,160,180,0.15); }
+.cm-login.ok { color: #86efac; }
+.cm-center { display:flex; flex-direction: column; gap: 14px; }
+.cm-progress { background: rgba(15,22,42,0.6); border: 1px solid rgba(74,158,255,0.15); border-radius: 14px; padding: 14px 16px; }
+.cm-ph { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: #cfe0ff; }
+.cm-pct { font-weight: 700; color: #6aa9ff; font-family: monospace; }
+.cm-pb-bg { width: 100%; height: 10px; background: rgba(74,158,255,0.08); border-radius: 99px; overflow: hidden; border: 1px solid rgba(74,158,255,0.15); }
+.cm-pb-fill { height: 100%; background: linear-gradient(90deg, #4a9eff, #6366f1 50%, #06b6d4); border-radius: 99px; transition: width .6s ease; box-shadow: 0 0 12px rgba(74,158,255,0.4); }
+.cm-pm { display: flex; justify-content: space-between; font-size: 11px; color: #8ea0bf; margin-top: 10px; gap: 8px; flex-wrap: wrap; }
+.cm-pm b { color: #e8f0ff; font-weight: 600; }
+.cm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cm-btn { padding: 11px 10px; border-radius: 10px; border: 1px solid; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; color: #fff; }
+.cm-btn:disabled { opacity: .45; cursor: not-allowed; }
+.cm-btn:not(:disabled):hover { transform: translateY(-1px); filter: brightness(1.1); }
+.cm-btn.cm-login { background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(74,158,255,0.18)); border-color: rgba(99,102,241,0.5); color: #c7d2fe; }
+.cm-btn.cm-start { background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(6,182,212,0.2)); border-color: rgba(34,197,94,0.55); color: #bbf7d0; }
+.cm-btn.cm-reload { grid-column: 1 / -1; background: rgba(74,158,255,0.1); border-color: rgba(74,158,255,0.3); color: #cfe0ff; }
+.cm-btn.cm-mini { width: 28px; height: 28px; padding: 0; border-radius: 8px; background: rgba(74,158,255,0.1); border: 1px solid rgba(74,158,255,0.25); color: #cfe0ff; font-size: 14px; grid-column: unset; }
+.cm-stats { background: rgba(15,22,42,0.6); border: 1px solid rgba(74,158,255,0.15); border-radius: 14px; padding: 12px 14px; }
+.cm-stats-title { font-size: 12px; color: #8ea0bf; margin-bottom: 10px; letter-spacing: .5px; display: flex; justify-content: space-between; align-items: center; }
+.cm-stats-body { display: flex; gap: 12px; flex-wrap: wrap; }
+.cm-schedule-box { border-color: rgba(99,102,241,0.3); background: linear-gradient(135deg, rgba(63,70,160,0.18), rgba(15,22,42,0.6)); }
+.cm-sched-body { display: flex; flex-direction: column; gap: 8px; }
+.cm-sched-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #c8d6ee; }
+.cm-sched-label { min-width: 60px; color: #8ea0bf; }
+.cm-sched-value { color: #e0eaff; font-weight: 600; }
+.cm-sched-sel { background: rgba(20,30,55,0.8); color: #e0eaff; border: 1px solid rgba(74,158,255,0.3); border-radius: 8px; padding: 3px 6px; font-size: 12px; outline: none; cursor: pointer; }
+.cm-sched-sel:focus { border-color: #6aa9ff; }
+.cm-sched-colon { color: #8ea0bf; font-weight: 700; }
+.cm-sched-save { background: linear-gradient(135deg,#4a9eff,#6366f1); color: #fff; border: none; padding: 3px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+.cm-sched-save:hover { filter: brightness(1.15); }
+.cm-sched-run { background: linear-gradient(135deg,#f59e0b,#ef4444); color: #fff; border: none; padding: 3px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+.cm-sched-run:disabled { opacity: 0.5; cursor: not-allowed; }
+.cm-sched-hist { margin-top: 6px; border-top: 1px dashed rgba(74,158,255,0.15); padding-top: 8px; }
+.cm-sched-hist-head { font-size: 11px; color: #8ea0bf; margin-bottom: 6px; }
+.cm-sched-hist-body { max-height: 80px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.cm-h-item { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 4px; background: rgba(255,255,255,0.02); border-radius: 4px; }
+.cm-h-time { color: #aac2ea; }
+.cm-h-type { color: #6aa9ff; }
+.cm-h-st { color: #00d4aa; }
+.cm-h-empty { font-size: 11px; color: #667; text-align: center; padding: 8px; }
+.cm-sched-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+.cm-sched-tab { padding: 4px 10px; font-size: 12px; cursor: pointer; border-radius: 8px; background: rgba(255,255,255,0.04); color: #8ea0bf; border: 1px solid transparent; transition: all .15s; }
+.cm-sched-tab:hover { color: #cfe0ff; background: rgba(74,158,255,0.08); }
+.cm-sched-tab.active { background: linear-gradient(135deg, rgba(74,158,255,0.18), rgba(99,102,241,0.14)); color: #cfe0ff; border-color: rgba(74,158,255,0.4); font-weight: 600; }
+.cm-wintip { font-size: 12px; color: #c8d6ee; padding: 8px 10px; background: rgba(74,158,255,0.08); border-radius: 8px; border: 1px dashed rgba(74,158,255,0.22); line-height: 1.6; }
+.cm-switch { position: relative; display: inline-block; width: 38px; height: 20px; margin: 0; }
+.cm-switch input { opacity: 0; width: 0; height: 0; }
+.cm-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2b3655; transition: .2s; border-radius: 20px; border: 1px solid rgba(74,158,255,0.2); }
+.cm-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: #7d8db0; transition: .2s; border-radius: 50%; }
+.cm-switch input:checked + .cm-slider { background: linear-gradient(135deg,#4a9eff,#6366f1); border-color: #6aa9ff; }
+.cm-switch input:checked + .cm-slider:before { transform: translateX(18px); background-color: #fff; }
+.cm-s-stat { display: flex; flex-direction: column; align-items: center; min-width: 62px; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 10px; }
+.cm-s-v { font-size: 17px; font-weight: 800; background: linear-gradient(135deg,#fff,#6aa9ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: Consolas, monospace; }
+.cm-s-v.cm-total { background: linear-gradient(135deg,#fff,#22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cm-s-l { font-size: 10px; color: #8ea0bf; margin-top: 2px; }
+.cm-logs-wrap { display: flex; flex-direction: column; background: rgba(15,22,42,0.75); border: 1px solid rgba(74,158,255,0.18); border-radius: 14px; padding: 14px 16px; min-height: 250px; }
+.cm-logs-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #ffffff; font-size: 14px; font-weight: 600; }
+.cm-logs-tip { font-size: 12px; color: #6aa9ff; opacity: .85; }
+.cm-logs-body { flex: 1; overflow-y: auto; background: rgba(8,14,28,0.8); border-radius: 10px; padding: 12px 14px; border: 1px solid rgba(0,0,0,0.3); font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.7; color: #c8d6ee; max-height: 260px; }
+.cm-log { word-break: break-all; white-space: pre-wrap; margin-bottom: 1px; }
+.cm-log.cm-empty { opacity: .7; font-size: 12px; line-height: 1.8; }
 </style>

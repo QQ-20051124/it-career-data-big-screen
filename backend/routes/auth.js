@@ -85,14 +85,14 @@ router.post('/login', (req, res) => {
     }
 
     const data = loadUsers()
-    const user = data.users.find(u => u.username === username)
+    const user = data.users.find(u => u.username === username || u.email === username)
 
     if (!user) {
-      return res.status(401).json({ success: false, message: '用户名或密码错误' })
+      return res.status(401).json({ success: false, message: '账号或密码错误' })
     }
 
     if (!verifyPassword(password, user.salt, user.hash)) {
-      return res.status(401).json({ success: false, message: '用户名或密码错误' })
+      return res.status(401).json({ success: false, message: '账号或密码错误' })
     }
 
     user.loginCount = (user.loginCount || 0) + 1

@@ -47,9 +47,10 @@ def _log_risk_if_any(dp, html: str, site: str, stage: str):
         risk_flags.append(f"HTML内容过短: {len(html)}字节（正常页面通常>50KB）")
     if html:
         html_lower = html.lower()
-        for kw in ['验证码', '验证', 'captcha', '安全验证', '访问受限', '访问过于频繁',
+        for kw in ['验证码', 'captcha', '安全验证', '访问受限', '访问过于频繁',
                    '"code":403', '"code":429', "'code': 403", "'code': 429",
                    '403 forbidden', '429 too many', 'riskcontrol', '"status":"fail"',
+            # 注意：不匹配单独的"验证"二字，因为正常页面也常有"验证"字样
                    '"success":false', 'request too fast']:
             if kw in html_lower or kw in html:
                 risk_flags.append(f"页面命中风控关键词: {kw}")
@@ -66,7 +67,7 @@ KEYWORD = "计算机"
 EMPTY_PAGE_THRESHOLD = 3  # 连续3页0条新岗位才判定采集结束
 MAX_RETRY = 3  # 单站点最多重试次数
 PAGE_LOAD_WAIT = 4  # 页面加载等待时间（秒，优化：由5→4，首页额外+3）
-PAGE_RENDER_WAIT = 2  # 翻页后渲染等待时间（秒，优化：由3→2，滚动+额外补偿已兜底）
+PAGE_RENDER_WAIT = 4  # 翻页后渲染等待时间（秒）
 
 
 def _extract_all_cities(dp):
@@ -494,36 +495,53 @@ def crawl_one_city_html(dp, keyword, city_name, city_code):
     
     # 后续翻页循环
     while consecutive_empty < EMPTY_PAGE_THRESHOLD:
-        # 检查是否有下一页
-        html = dp.html
-        if not _has_next_page(html):
-            print(f"[END] 前程无忧 [{city_name}] 第 {page_num} 页后无下一页按钮，结束该城市采集")
-            break
-        
         # 当前页是否已是最后一页
-        current_page = _get_current_page_number(html)
-        if current_page and total_pages and current_page >= total_pages:
-            print(f"[END] 前程无忧 [{city_name}] 已到达最后一页（第{current_page}页）")
+        if total_pages and page_num >= total_pages:
+            print(f"[END] 前程无忧 [{city_name}] 已到达最后一页（第{page_num}页）")
             break
 
-        # 点击下一页
-        page_changed = _click_next_page(dp)
-        
+        page_num += 1
+        print(f"[PAGE] 前程无忧 [{city_name}] 翻页 → 第 {page_num} 页")
+
+        # 方式1: 用JS点击下一页按钮
+        page_changed = False
+        try:
+            result = dp.run_js('''
+            (function() {
+                var pagers = document.querySelectorAll('.el-pager li.number');
+                for (var i = 0; i < pagers.length; i++) {
+                    if (pagers[i].textContent.trim() === '{page_num}') {
+                        pagers[i].click();
+                        return {success: true, method: 'click_number'};
+                    }
+                }
+                var nextBtn = document.querySelector('.btn-next');
+                if (nextBtn && nextBtn.getAttribute('disabled') === null) {
+                    nextBtn.click();
+                    return {success: true, method: 'click_next'};
+                }
+                return {success: false};
+            })();
+            '''.format(page_num=page_num))
+            page_changed = result and result.get('success', False)
+        except Exception:
+            pass
+
+        # 方式2: JS翻页失败则用URL跳转
         if not page_changed:
-            # 尝试点击具体页码
-            next_page_num = page_num + 1
-            page_changed = _click_page_number(dp, next_page_num)
-            if not page_changed:
-                print(f"[WARN] 前程无忧 [{city_name}] 点击翻页失败")
+            try:
+                dp.get(f'https://we.51job.com/pc/search?jobArea={city_code}&keyword={keyword}&searchType=2&page={page_num}', timeout=60)
+                page_changed = True
+            except Exception as e:
+                print(f"[WARN] 前程无忧 [{city_name}] 翻页失败: {str(e)[:80]}")
                 consecutive_empty += 1
                 if consecutive_empty >= EMPTY_PAGE_THRESHOLD:
                     break
                 continue
-        
+
         # 等待页面渲染
         _wait_for_page_load(dp, PAGE_RENDER_WAIT)
-        page_num += 1
-        
+
         # 获取当前页数据 + 风控判定
         html = dp.html
         try:

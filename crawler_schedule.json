@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "cron_expression": "0 2 * * *",
+  "time_description": "?? 02:00",
+  "last_run_time": null,
+  "next_run_time": "2026/8/26 02:00:00",
+  "history": []
+}

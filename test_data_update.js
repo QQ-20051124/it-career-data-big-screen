@@ -32,7 +32,7 @@ const testCrawlerData = [
 
 // 保存为测试 CSV 文件
 const today = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-const csvDir = path.join(__dirname, 'job_crawler')
+const csvDir = path.join(__dirname, 'spider')
 const csvFileName = `全国IT岗位_${today}_test.csv`
 const csvPath = path.join(csvDir, csvFileName)
 const headers = ['数据来源', '关键词', '岗位名称', '薪资', '城市', '经验要求', '学历要求', '公司名称']

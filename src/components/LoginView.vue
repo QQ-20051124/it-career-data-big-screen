@@ -221,9 +221,9 @@
                     </svg>
                   </div>
                   <input 
-                    type="email" 
+                    type="text" 
                     v-model="form.username" 
-                    placeholder="请输入邮箱" 
+                    placeholder="请输入用户名或邮箱" 
                     @input="validateUsername"
                   />
                   <div class="input-status-icon">
@@ -513,6 +513,90 @@
         </div>
       </div>
     </Teleport>
+    <!-- 忘记密码弹窗 -->
+    <Teleport to="body">
+      <div v-if="showForgotPassword" class="email-modal-overlay" @click.self="closeForgotPassword">
+        <div class="email-modal">
+          <button class="modal-close" @click="closeForgotPassword">×</button>
+          <h3>找回密码</h3>
+          <p class="modal-desc">通过邮箱验证重置密码</p>
+
+          <!-- 步骤1：输入邮箱 -->
+          <div v-if="forgotStep === 1" class="email-form">
+            <div class="form-group">
+              <label>注册邮箱</label>
+              <input
+                type="email"
+                v-model="forgotForm.email"
+                placeholder="请输入注册时的邮箱地址"
+                @input="forgotError = ''"
+              />
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" @click="closeForgotPassword">取消</button>
+              <button type="button" class="btn-submit" @click="sendForgotCode">发送验证码</button>
+            </div>
+            <div v-if="forgotError" class="form-error">{{ forgotError }}</div>
+            <div v-if="forgotSuccess" class="form-error" style="color:#00d4aa">{{ forgotSuccess }}</div>
+          </div>
+
+          <!-- 步骤2：验证码验证 -->
+          <div v-if="forgotStep === 2" class="email-form">
+            <div class="form-group">
+              <label>验证码</label>
+              <input
+                type="text"
+                v-model="forgotForm.code"
+                placeholder="请输入6位验证码"
+                maxlength="6"
+                @input="forgotError = ''"
+              />
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" @click="forgotStep = 1">上一步</button>
+              <button type="button" class="btn-submit" @click="verifyForgotCode">验证</button>
+            </div>
+            <div v-if="forgotError" class="form-error">{{ forgotError }}</div>
+            <div v-if="forgotSuccess" class="form-error" style="color:#00d4aa">{{ forgotSuccess }}</div>
+          </div>
+
+          <!-- 步骤3：重置密码 -->
+          <div v-if="forgotStep === 3" class="email-form">
+            <div class="form-group">
+              <label>新密码</label>
+              <input
+                type="password"
+                v-model="forgotForm.newPassword"
+                placeholder="至少6位字符"
+                @input="forgotError = ''"
+              />
+            </div>
+            <div class="form-group">
+              <label>确认新密码</label>
+              <input
+                type="password"
+                v-model="forgotForm.confirmPassword"
+                placeholder="再次输入新密码"
+                @input="forgotError = ''"
+              />
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" @click="forgotStep = 2">上一步</button>
+              <button type="button" class="btn-submit" :disabled="forgotForm.loading" @click="submitForgotPassword">
+                {{ forgotForm.loading ? '提交中...' : '重置密码' }}
+              </button>
+            </div>
+            <div v-if="forgotError" class="form-error">{{ forgotError }}</div>
+          </div>
+
+          <!-- 步骤4：完成 -->
+          <div v-if="forgotStep === 4" class="email-form" style="text-align:center;padding:20px 0">
+            <div style="font-size:48px;margin-bottom:12px">✅</div>
+            <p style="color:#00d4aa;font-size:16px;margin-bottom:8px">{{ forgotSuccess }}</p>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -521,7 +605,7 @@ import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { loginWithEmail, loginAsGuest, registerWithEmail } from '@/utils/auth'
-import { validateEmailFormat } from '@/utils/userStore'
+import { validateEmailFormat, resetPasswordByEmail } from '@/utils/userStore'
 import { useGuestMode } from '@/composables/useGuestMode'
 
 const { refreshAuthState } = useGuestMode()
@@ -573,19 +657,28 @@ const clearValidation = () => {
   codeError.value = ''
 }
 
-// 验证邮箱
+// 验证用户名或邮箱
 const validateUsername = () => {
-  const email = form.username.trim()
-  if (!email) {
+  const input = form.username.trim()
+  if (!input) {
     usernameStatus.value = ''
     usernameError.value = ''
     return false
   }
   
-  if (!validateEmailFormat(email)) {
-    usernameStatus.value = 'error'
-    usernameError.value = '请输入有效的邮箱地址'
-    return false
+  // 如果包含@符号，按邮箱格式验证；否则按用户名验证（至少2位）
+  if (input.includes('@')) {
+    if (!validateEmailFormat(input)) {
+      usernameStatus.value = 'error'
+      usernameError.value = '请输入有效的邮箱地址'
+      return false
+    }
+  } else {
+    if (input.length < 2) {
+      usernameStatus.value = 'error'
+      usernameError.value = '用户名至少2个字符'
+      return false
+    }
   }
   
   usernameStatus.value = 'success'
@@ -795,6 +888,18 @@ const registerError = ref('')
 const showAuthModal = ref(false)
 const authLoading = ref(false)
 
+const showForgotPassword = ref(false)
+const forgotForm = reactive({
+  email: '',
+  code: '',
+  newPassword: '',
+  confirmPassword: '',
+  loading: false
+})
+const forgotError = ref('')
+const forgotSuccess = ref('')
+const forgotStep = ref(1) // 1=输入邮箱, 2=验证身份, 3=重置密码, 4=完成
+
 let bgAnimationId = null
 let globeAnimationId = null
 let mouseX = 0
@@ -887,7 +992,7 @@ const handleLogin = async () => {
     if (loginMethod.value === 'password') {
       if (!form.username) {
         usernameStatus.value = 'error'
-        usernameError.value = '请输入邮箱地址'
+        usernameError.value = '请输入用户名或邮箱'
       }
       if (!form.password) {
         passwordStatus.value = 'error'
@@ -958,7 +1063,7 @@ const handleEmailLogin = () => {
   emailError.value = ''
   emailForm.email = ''
   emailForm.password = ''
-  showEmailModal.value = true
+  showAuthModal.value = true
 }
 
 const handleAuthorize = async () => {
@@ -1022,6 +1127,71 @@ const toggleRegister = () => {
     registerForm.confirmPassword = ''
     showRegister.value = true
   }
+}
+
+const openForgotPassword = () => {
+  forgotForm.email = ''
+  forgotForm.code = ''
+  forgotForm.newPassword = ''
+  forgotForm.confirmPassword = ''
+  forgotForm.loading = false
+  forgotError.value = ''
+  forgotSuccess.value = ''
+  forgotStep.value = 1
+  showForgotPassword.value = true
+}
+
+const sendForgotCode = async () => {
+  if (!forgotForm.email || !validateEmailFormat(forgotForm.email)) {
+    forgotError.value = '请输入有效的邮箱地址'
+    return
+  }
+  forgotError.value = ''
+  const code = generateOtp()
+  saveOtp(forgotForm.email, code)
+  forgotForm.code = code
+  forgotSuccess.value = `验证码已发送至 ${forgotForm.email}：${code}（5分钟内有效）`
+  forgotStep.value = 2
+}
+
+const verifyForgotCode = () => {
+  const result = verifyOtp(forgotForm.email, forgotForm.code)
+  if (!result.valid) {
+    forgotError.value = result.message
+    return
+  }
+  forgotError.value = ''
+  forgotStep.value = 3
+}
+
+const submitForgotPassword = async () => {
+  if (forgotForm.newPassword.length < 6) {
+    forgotError.value = '密码长度至少6位'
+    return
+  }
+  if (forgotForm.newPassword !== forgotForm.confirmPassword) {
+    forgotError.value = '两次输入的密码不一致'
+    return
+  }
+  forgotError.value = ''
+  forgotForm.loading = true
+  try {
+    await resetPasswordByEmail(forgotForm.email, forgotForm.newPassword)
+    clearOtp(forgotForm.email)
+    forgotStep.value = 4
+    forgotSuccess.value = '密码重置成功！即将跳转至登录页面...'
+    setTimeout(() => {
+      showForgotPassword.value = false
+    }, 2000)
+  } catch (e) {
+    forgotError.value = e.message || '重置失败，请重试'
+  } finally {
+    forgotForm.loading = false
+  }
+}
+
+const closeForgotPassword = () => {
+  showForgotPassword.value = false
 }
 
 const submitRegister = async () => {
@@ -1350,13 +1520,131 @@ const initGlobe = () => {
   canvas.style.width = '100%'
   canvas.style.height = '100%'
   canvas.style.display = 'block'
+  canvas.style.background = 'transparent'
   container.appendChild(canvas)
 
   const ctx = canvas.getContext('2d')
+  ctx.imageSmoothingEnabled = true
   let width = 0, height = 0
-  const particles = []
-  const rings = []
-  const shards = []
+
+  const stars = []
+  const orbiters = []
+  const flows = []
+
+  for (let i = 0; i < 80; i++) {
+    stars.push({
+      x: Math.random() * 2 - 1,
+      y: Math.random() * 2 - 1,
+      size: 0.3 + Math.random() * 0.9,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.25 + Math.random() * 0.8
+    })
+  }
+
+  const N_SURFACE = 1400
+  const surfaceParticles = []
+  const fibPhi = Math.PI * (3 - Math.sqrt(5))
+  for (let i = 0; i < N_SURFACE; i++) {
+    const y = 1 - (i / (N_SURFACE - 1)) * 2
+    const r = Math.sqrt(1 - y * y)
+    const theta = fibPhi * i
+    surfaceParticles.push({
+      sx: Math.cos(theta) * r,
+      sy: y,
+      sz: Math.sin(theta) * r
+    })
+  }
+
+  const N_INNER = 1100
+  const innerParticles = []
+  const innerPalette = [
+    'rgba(0, 220, 255,',
+    'rgba(180, 100, 255,',
+    'rgba(255, 200, 50,',
+    'rgba(100, 255, 180,',
+    'rgba(255, 120, 180,'
+  ]
+  for (let i = 0; i < N_INNER; i++) {
+    let ix, iy, iz
+    do {
+      ix = Math.random() * 2 - 1
+      iy = Math.random() * 2 - 1
+      iz = Math.random() * 2 - 1
+    } while (ix * ix + iy * iy + iz * iz > 1)
+    const pi = Math.floor(Math.random() * innerPalette.length)
+    innerParticles.push({
+      sx: ix, sy: iy, sz: iz,
+      color: innerPalette[pi],
+      size: 0.4 + Math.random() * 1.0
+    })
+  }
+
+  const featureIndices = new Set()
+  const featureStep = Math.floor(N_SURFACE / 16)
+  const featureNodes = []
+  for (let i = 0; i < 16; i++) {
+    const idx = i * featureStep + Math.floor(featureStep / 2)
+    if (idx < N_SURFACE) {
+      featureIndices.add(idx)
+      featureNodes.push({ ...surfaceParticles[idx], idx })
+    }
+  }
+
+  const N_NEIGHBORS = 5
+  const neighborIndices = []
+  for (let i = 0; i < N_SURFACE; i++) {
+    const dists = []
+    for (let j = 0; j < N_SURFACE; j++) {
+      if (i === j) continue
+      const dx = surfaceParticles[i].sx - surfaceParticles[j].sx
+      const dy = surfaceParticles[i].sy - surfaceParticles[j].sy
+      const dz = surfaceParticles[i].sz - surfaceParticles[j].sz
+      dists.push({ idx: j, d: dx * dx + dy * dy + dz * dz })
+    }
+    dists.sort((a, b) => a.d - b.d)
+    neighborIndices.push(dists.slice(0, N_NEIGHBORS).map(n => n.idx))
+  }
+
+  for (let i = 0; i < 70; i++) {
+    orbiters.push({
+      orbitR: 1.15 + Math.random() * 0.55,
+      angle: Math.random() * Math.PI * 2,
+      speed: 0.002 + Math.random() * 0.006,
+      tilt: (Math.random() - 0.5) * 0.3,
+      size: 1.5 + Math.random() * 2.5,
+      brightness: 0.3 + Math.random() * 0.6,
+      twinkle: Math.random() * Math.PI * 2,
+      twinkleSpeed: 0.5 + Math.random() * 1.5,
+      tail: Math.random() < 0.18
+    })
+  }
+
+  for (let i = 0; i < 40; i++) {
+    orbiters.push({
+      orbitR: 1.2 + Math.random() * 0.5,
+      angle: Math.random() * Math.PI * 2,
+      speed: 0.0015 + Math.random() * 0.005,
+      tilt: Math.PI / 2 + (Math.random() - 0.5) * 0.3,
+      size: 1.5 + Math.random() * 2.2,
+      brightness: 0.25 + Math.random() * 0.55,
+      twinkle: Math.random() * Math.PI * 2,
+      twinkleSpeed: 0.5 + Math.random() * 1.5,
+      tail: Math.random() < 0.15
+    })
+  }
+
+  const N_PULSES = 12
+  for (let i = 0; i < N_PULSES; i++) {
+    flows.push({
+      active: false,
+      pIdx: 0,
+      nIdx: 0,
+      progress: 0,
+      speed: 0.005 + Math.random() * 0.008,
+      cooldown: Math.random() * 3,
+      size: 3 + Math.random() * 2
+    })
+  }
 
   const resize = () => {
     const rect = container.getBoundingClientRect()
@@ -1374,224 +1662,285 @@ const initGlobe = () => {
 
   const cx = () => width / 2
   const cy = () => height / 2
-  const baseR = () => Math.min(width, height) * 0.28
-
-  for (let i = 0; i < 50; i++) {
-    particles.push({
-      angle: Math.random() * Math.PI * 2,
-      dist: baseR() * (1.0 + Math.random() * 1.2),
-      speed: 0.001 + Math.random() * 0.0025,
-      size: 0.5 + Math.random() * 2.5,
-      alpha: 0.2 + Math.random() * 0.6,
-      hue: 30 + Math.random() * 20,
-      drift: Math.random() * 0.5
-    })
-  }
-
-  for (let i = 0; i < 3; i++) {
-    rings.push({
-      radius: baseR() * (0.9 + i * 0.25),
-      width: 1 + Math.random() * 1.5,
-      alpha: 0.15 + Math.random() * 0.15,
-      rotSpeed: (Math.random() - 0.5) * 0.003,
-      phase: Math.random() * Math.PI * 2,
-      segments: 6 + Math.floor(Math.random() * 8)
-    })
-  }
-
-  for (let i = 0; i < 12; i++) {
-    const angle = (i / 12) * Math.PI * 2 + Math.random() * 0.3
-    const r = baseR() * (0.55 + Math.random() * 0.2)
-    shards.push({
-      x: Math.cos(angle) * r,
-      y: Math.sin(angle) * r,
-      size: 3 + Math.random() * 6,
-      angle: angle,
-      speed: 0.2 + Math.random() * 0.4,
-      alpha: 0.4 + Math.random() * 0.3,
-      rotSpeed: (Math.random() - 0.5) * 0.02
-    })
-  }
+  const getR = () => Math.min(width, height) * 0.38
 
   let globalTime = 0
 
-  const drawCrystal = (t) => {
-    const centerX = cx()
-    const centerY = cy()
-    const R = baseR()
+  const render = (t) => {
+    const R = getR()
 
+    ctx.clearRect(0, 0, width, height)
     ctx.save()
-    ctx.translate(centerX, centerY)
+    ctx.translate(cx(), cy())
 
-    // outer glow
-    const glowGrad = ctx.createRadialGradient(0, 0, R * 0.2, 0, 0, R * 2.0)
-    glowGrad.addColorStop(0, 'rgba(255, 200, 80, 0.12)')
-    glowGrad.addColorStop(0.4, 'rgba(255, 170, 50, 0.06)')
-    glowGrad.addColorStop(1, 'rgba(255, 140, 30, 0)')
-    ctx.fillStyle = glowGrad
-    ctx.fillRect(-width, -height, width * 2, height * 2)
-
-    // core glow
-    const coreGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 1.1)
-    coreGlow.addColorStop(0, 'rgba(255, 230, 150, 0.35)')
-    coreGlow.addColorStop(0.3, 'rgba(255, 190, 90, 0.2)')
-    coreGlow.addColorStop(0.7, 'rgba(200, 130, 40, 0.08)')
-    coreGlow.addColorStop(1, 'rgba(180, 100, 20, 0)')
-    ctx.fillStyle = coreGlow
-    ctx.fillRect(-width, -height, width * 2, height * 2)
-
-    // rotating outer rings
-    rings.forEach((ring, idx) => {
-      const r = ring.radius * (1 + 0.03 * Math.sin(t * 0.5 + ring.phase))
-      ctx.save()
-      ctx.rotate(t * ring.rotSpeed + ring.phase)
+    stars.forEach(s => {
+      const tw = 0.25 + 0.75 * Math.sin(t * s.speed + s.phase)
       ctx.beginPath()
-      const seg = ring.segments
-      for (let i = 0; i <= seg; i++) {
-        const a = (i / seg) * Math.PI * 2
-        const wobble = 1 + 0.08 * Math.sin(a * 3 + t * 0.3 + idx)
-        const px = Math.cos(a) * r * wobble
-        const py = Math.sin(a) * r * wobble
-        if (i === 0) ctx.moveTo(px, py)
-        else ctx.lineTo(px, py)
-      }
-      ctx.strokeStyle = `hsla(${35 + idx * 5}, 80%, 70%, ${ring.alpha})`
-      ctx.lineWidth = ring.width
-      ctx.stroke()
-      ctx.restore()
+      ctx.arc(s.x * R * 3, s.y * R * 3, s.size, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(200, 215, 255, ${tw * 0.4})`
+      ctx.fill()
     })
 
-    // crystal body - octagon facets
-    const crystalR = R * 0.55
-    ctx.save()
-    const tiltX = Math.sin(t * 0.3) * 0.3
-    const tiltY = Math.cos(t * 0.25) * 0.3
-    ctx.rotate(tiltX + t * 0.15)
-
-    // main crystal fill
+    const atmos = ctx.createRadialGradient(0, 0, R * 0.3, 0, 0, R * 1.5)
+    atmos.addColorStop(0, 'rgba(140, 180, 255, 0.12)')
+    atmos.addColorStop(0.4, 'rgba(100, 150, 230, 0.06)')
+    atmos.addColorStop(0.7, 'rgba(80, 120, 200, 0.02)')
+    atmos.addColorStop(1, 'rgba(30, 50, 100, 0)')
+    ctx.fillStyle = atmos
     ctx.beginPath()
-    const facets = 8
-    for (let i = 0; i <= facets; i++) {
-      const a = (i / facets) * Math.PI * 2 - Math.PI / 2
-      const r = crystalR * (0.85 + 0.15 * Math.sin(a * 2 + t))
-      const px = Math.cos(a) * r
-      const py = Math.sin(a) * r
-      if (i === 0) ctx.moveTo(px, py)
-      else ctx.lineTo(px, py)
-    }
-    ctx.closePath()
-
-    const crystalGrad = ctx.createLinearGradient(-crystalR, -crystalR, crystalR, crystalR)
-    crystalGrad.addColorStop(0, 'rgba(255, 220, 140, 0.9)')
-    crystalGrad.addColorStop(0.35, 'rgba(230, 170, 80, 0.85)')
-    crystalGrad.addColorStop(0.65, 'rgba(200, 130, 40, 0.8)')
-    crystalGrad.addColorStop(1, 'rgba(160, 90, 20, 0.75)')
-    ctx.fillStyle = crystalGrad
+    ctx.arc(0, 0, R * 1.5, 0, Math.PI * 2)
     ctx.fill()
 
-    // crystal facet lines
-    ctx.strokeStyle = 'rgba(255, 230, 170, 0.5)'
-    ctx.lineWidth = 1.2
-    for (let i = 0; i < facets; i++) {
-      const a = (i / facets) * Math.PI * 2 - Math.PI / 2
-      const r = crystalR * (0.85 + 0.15 * Math.sin(a * 2 + t))
-      const px = Math.cos(a) * r
-      const py = Math.sin(a) * r
-      ctx.beginPath()
-      ctx.moveTo(0, 0)
-      ctx.lineTo(px, py)
-      ctx.stroke()
+    const cosY = Math.cos(t * 0.1)
+    const sinY = Math.sin(t * 0.1)
+    const cosX = Math.cos(t * 0.05)
+    const sinX = Math.sin(t * 0.05)
+
+    const projSurface = new Array(N_SURFACE)
+    for (let i = 0; i < N_SURFACE; i++) {
+      const p = surfaceParticles[i]
+      const x1 = p.sx * cosY + p.sz * sinY
+      const z1 = -p.sx * sinY + p.sz * cosY
+      const y1 = p.sy * cosX - z1 * sinX
+      const z2 = p.sy * sinX + z1 * cosX
+      const scale = 0.85 + z2 * 0.15
+      projSurface[i] = { x: x1 * R * scale, y: y1 * R * scale, z: z2, scale }
     }
 
-    // crystal outer edge glow
-    ctx.beginPath()
-    for (let i = 0; i <= facets; i++) {
-      const a = (i / facets) * Math.PI * 2 - Math.PI / 2
-      const r = crystalR * (0.85 + 0.15 * Math.sin(a * 2 + t))
-      const px = Math.cos(a) * r
-      const py = Math.sin(a) * r
-      if (i === 0) ctx.moveTo(px, py)
-      else ctx.lineTo(px, py)
+    const projInner = new Array(N_INNER)
+    for (let i = 0; i < N_INNER; i++) {
+      const p = innerParticles[i]
+      const x1 = p.sx * cosY + p.sz * sinY
+      const z1 = -p.sx * sinY + p.sz * cosY
+      const y1 = p.sy * cosX - z1 * sinX
+      const z2 = p.sy * sinX + z1 * cosX
+      const scale = 0.5 + z2 * 0.5
+      projInner[i] = { x: x1 * R * scale, y: y1 * R * scale, z: z2, scale }
     }
-    ctx.closePath()
-    ctx.strokeStyle = 'rgba(255, 240, 180, 0.8)'
-    ctx.lineWidth = 2
-    ctx.shadowColor = 'rgba(255, 200, 100, 0.6)'
-    ctx.shadowBlur = 20
-    ctx.stroke()
-    ctx.shadowBlur = 0
 
-    ctx.restore()
+    projInner.forEach((p, i) => {
+      if (p.z < -0.3) return
+      const depthFactor = 0.3 + p.z * 0.7
+      const ip = innerParticles[i]
+      const size = ip.size * p.scale
+      const alpha = depthFactor * 0.8
 
-    // inner bright core
-    const coreR = crystalR * 0.25
-    const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreR * 2)
-    coreGrad.addColorStop(0, 'rgba(255, 255, 240, 1)')
-    coreGrad.addColorStop(0.4, 'rgba(255, 230, 170, 0.8)')
-    coreGrad.addColorStop(1, 'rgba(255, 200, 100, 0)')
-    ctx.fillStyle = coreGrad
-    ctx.beginPath()
-    ctx.arc(0, 0, coreR * 2, 0, Math.PI * 2)
-    ctx.fill()
-
-    // orbiting shards (small geometric pieces)
-    shards.forEach((shard, i) => {
-      const angle = shard.angle + t * shard.speed
-      const x = shard.x * Math.cos(angle) - shard.y * Math.sin(angle)
-      const y = shard.x * Math.sin(angle) + shard.y * Math.cos(angle)
-      const sz = shard.size * (0.8 + 0.2 * Math.sin(t * 2 + i))
-      
-      ctx.save()
-      ctx.translate(x, y)
-      ctx.rotate(angle * 2 + t * shard.rotSpeed)
-      ctx.globalAlpha = shard.alpha
-      
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 3)
+      g.addColorStop(0, ip.color + (alpha * 0.5) + ')')
+      g.addColorStop(0.5, ip.color + (alpha * 0.15) + ')')
+      g.addColorStop(1, ip.color + '0)')
+      ctx.fillStyle = g
       ctx.beginPath()
-      ctx.moveTo(0, -sz)
-      ctx.lineTo(sz * 0.6, 0)
-      ctx.lineTo(0, sz)
-      ctx.lineTo(-sz * 0.6, 0)
-      ctx.closePath()
-      
-      const shardGrad = ctx.createLinearGradient(-sz, -sz, sz, sz)
-      shardGrad.addColorStop(0, 'rgba(255, 220, 140, 0.9)')
-      shardGrad.addColorStop(1, 'rgba(220, 150, 50, 0.6)')
-      ctx.fillStyle = shardGrad
+      ctx.arc(p.x, p.y, size * 3, 0, Math.PI * 2)
       ctx.fill()
-      ctx.strokeStyle = 'rgba(255, 240, 180, 0.7)'
+
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, size * 0.7, 0, Math.PI * 2)
+      ctx.fillStyle = ip.color + alpha + ')'
+      ctx.fill()
+    })
+
+    ctx.lineWidth = 0.4
+    for (let i = 0; i < N_SURFACE; i++) {
+      const a = projSurface[i]
+      if (a.z < -0.2) continue
+      const neighbors = neighborIndices[i]
+      for (let n = 0; n < neighbors.length; n++) {
+        const j = neighbors[n]
+        if (j <= i) continue
+        const b = projSurface[j]
+        if (b.z < -0.2) continue
+        const avgZ = (a.z + b.z) * 0.5
+        const depthFactor = 0.2 + avgZ * 0.8
+        const alpha = 0.2 * Math.max(0, depthFactor)
+
+        ctx.beginPath()
+        ctx.moveTo(a.x, a.y)
+        ctx.lineTo(b.x, b.y)
+        ctx.strokeStyle = `rgba(140, 180, 230, ${alpha})`
+        ctx.stroke()
+      }
+    }
+
+    projSurface.forEach((p, i) => {
+      if (p.z < -0.2) return
+      if (featureIndices.has(i)) return
+      const depthFactor = 0.3 + p.z * 0.7
+      const size = (1.4 + Math.sin(i * 2.3) * 0.3 + Math.cos(i * 1.7) * 0.2) * p.scale
+      const pulse = 0.7 + 0.3 * Math.sin(t * 1.0 + i * 0.3)
+      const brightness = depthFactor * pulse
+
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 3)
+      g.addColorStop(0, `rgba(220, 235, 255, ${brightness * 0.5})`)
+      g.addColorStop(0.5, `rgba(150, 185, 235, ${brightness * 0.15})`)
+      g.addColorStop(1, 'rgba(100, 140, 220, 0)')
+      ctx.fillStyle = g
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, size * 3, 0, Math.PI * 2)
+      ctx.fill()
+
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, size * 0.7, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(250, 252, 255, ${brightness})`
+      ctx.fill()
+    })
+
+    featureNodes.forEach(fn => {
+      const p = projSurface[fn.idx]
+      if (p.z < -0.2) return
+      const depthFactor = 0.3 + p.z * 0.7
+      const pulse = 0.5 + 0.5 * Math.sin(t * 2.5 + fn.sx * 2 + fn.sz * 3)
+      const size = 2.8 * p.scale
+      const brightness = depthFactor * pulse
+
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size * 6)
+      g.addColorStop(0, `rgba(180, 215, 255, ${brightness * 0.8})`)
+      g.addColorStop(0.4, `rgba(120, 170, 230, ${brightness * 0.3})`)
+      g.addColorStop(1, 'rgba(80, 130, 200, 0)')
+      ctx.fillStyle = g
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, size * 6, 0, Math.PI * 2)
+      ctx.fill()
+
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, size * 0.9, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(240, 248, 255, ${brightness})`
+      ctx.fill()
+
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, size * 2.0, 0, Math.PI * 2)
+      ctx.strokeStyle = `rgba(180, 220, 255, ${brightness * 0.35})`
       ctx.lineWidth = 0.8
       ctx.stroke()
-      ctx.globalAlpha = 1
-      ctx.restore()
     })
 
-    // floating particles
-    particles.forEach((p) => {
-      p.angle += p.speed
-      p.dist += Math.sin(t + p.drift) * 0.3
-      const px = Math.cos(p.angle) * p.dist
-      const py = Math.sin(p.angle) * p.dist
-      
-      const twinkle = 0.5 + 0.5 * Math.sin(t * 2 + p.drift * 5)
-      const alpha = p.alpha * twinkle
-      
+    flows.forEach(f => {
+      if (!f.active) {
+        f.cooldown -= 0.016
+        if (f.cooldown <= 0) {
+          f.pIdx = Math.floor(Math.random() * N_SURFACE)
+          f.nIdx = Math.floor(Math.random() * N_NEIGHBORS)
+          const ni = neighborIndices[f.pIdx]
+          if (ni && ni[f.nIdx] !== undefined) {
+            const p1 = projSurface[f.pIdx]
+            const p2 = projSurface[ni[f.nIdx]]
+            if ((p1.z + p2.z) * 0.5 > -0.1) {
+              f.active = true
+              f.progress = 0
+              f.cooldown = 2 + Math.random() * 4
+            } else {
+              f.cooldown = 0.5
+            }
+          } else {
+            f.cooldown = 0.5
+          }
+        }
+      } else {
+        f.progress += f.speed
+        if (f.progress >= 1) {
+          f.active = false
+        } else {
+          const ni = neighborIndices[f.pIdx]
+          if (ni && ni[f.nIdx] !== undefined) {
+            const p1 = projSurface[f.pIdx]
+            const p2 = projSurface[ni[f.nIdx]]
+            if (p1 && p2) {
+              const fx = p1.x + (p2.x - p1.x) * f.progress
+              const fy = p1.y + (p2.y - p1.y) * f.progress
+
+              const g = ctx.createRadialGradient(fx, fy, 0, fx, fy, 8)
+              g.addColorStop(0, 'rgba(255, 255, 255, 0.9)')
+              g.addColorStop(0.3, 'rgba(180, 220, 255, 0.6)')
+              g.addColorStop(1, 'rgba(100, 160, 240, 0)')
+              ctx.fillStyle = g
+              ctx.beginPath()
+              ctx.arc(fx, fy, 8, 0, Math.PI * 2)
+              ctx.fill()
+
+              ctx.beginPath()
+              ctx.arc(fx, fy, 2.5, 0, Math.PI * 2)
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
+              ctx.fill()
+            }
+          }
+        }
+      }
+    })
+
+    orbiters.forEach(o => {
+      o.angle += o.speed
+      const orbitR = R * o.orbitR
+      const px = Math.cos(o.angle) * orbitR
+      const py = Math.sin(o.angle) * orbitR * 0.92
+      const ry = px * Math.sin(o.tilt) + py * Math.cos(o.tilt)
+      const rx = px * Math.cos(o.tilt) - py * Math.sin(o.tilt)
+
+      const ox = rx * cosY - ry * sinY
+      const oy = rx * sinY + ry * cosY
+      const finalX = ox * cosX - oy * sinX
+      const finalY = ox * sinX + oy * cosX
+
+      const twinkle = 0.4 + 0.6 * Math.sin(t * o.twinkleSpeed + o.twinkle)
+      const b = o.brightness * twinkle
+
+      if (o.tail) {
+        const tailAngle = o.angle - 0.04
+        const tx = Math.cos(tailAngle) * orbitR * Math.cos(o.tilt) - Math.sin(tailAngle) * orbitR * 0.92 * Math.sin(o.tilt)
+        const ty = Math.cos(tailAngle) * orbitR * Math.sin(o.tilt) + Math.sin(tailAngle) * orbitR * 0.92 * Math.cos(o.tilt)
+        const tx2 = tx * cosY - ty * sinY
+        const ty2 = tx * sinY + ty * cosY
+        const tfx = tx2 * cosX - ty2 * sinX
+        const tfy = tx2 * sinX + ty2 * cosX
+
+        const grad = ctx.createLinearGradient(finalX, finalY, tfx, tfy)
+        grad.addColorStop(0, `rgba(200, 220, 255, ${b * 0.8})`)
+        grad.addColorStop(1, 'rgba(120, 160, 240, 0)')
+        ctx.strokeStyle = grad
+        ctx.lineWidth = o.size * 1.2
+        ctx.beginPath()
+        ctx.moveTo(finalX, finalY)
+        ctx.lineTo(tfx, tfy)
+        ctx.stroke()
+      }
+
+      const g = ctx.createRadialGradient(finalX, finalY, 0, finalX, finalY, o.size * 4)
+      g.addColorStop(0, `rgba(200, 225, 255, ${b * 0.7})`)
+      g.addColorStop(0.4, `rgba(140, 180, 235, ${b * 0.25})`)
+      g.addColorStop(1, 'rgba(100, 140, 220, 0)')
+      ctx.fillStyle = g
       ctx.beginPath()
-      const pGrad = ctx.createRadialGradient(px, py, 0, px, py, p.size * 3)
-      pGrad.addColorStop(0, `hsla(${p.hue}, 90%, 75%, ${alpha})`)
-      pGrad.addColorStop(0.5, `hsla(${p.hue}, 80%, 60%, ${alpha * 0.4})`)
-      pGrad.addColorStop(1, `hsla(${p.hue}, 70%, 50%, 0)`)
-      ctx.fillStyle = pGrad
-      ctx.arc(px, py, p.size * 3, 0, Math.PI * 2)
+      ctx.arc(finalX, finalY, o.size * 4, 0, Math.PI * 2)
+      ctx.fill()
+
+      ctx.beginPath()
+      ctx.arc(finalX, finalY, o.size * 0.7, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(245, 248, 255, ${b})`
       ctx.fill()
     })
+
+    {
+      const ringR = R * 1.28
+      ctx.strokeStyle = 'rgba(140, 175, 225, 0.06)'
+      ctx.lineWidth = 0.8
+      ctx.beginPath()
+      ctx.ellipse(0, 0, ringR, ringR * 0.92, -0.15, 0, Math.PI * 2)
+      ctx.stroke()
+    }
+    {
+      const ringR = R * 1.48
+      ctx.strokeStyle = 'rgba(140, 175, 225, 0.04)'
+      ctx.lineWidth = 0.6
+      ctx.beginPath()
+      ctx.ellipse(0, 0, ringR, ringR * 0.93, 0.1, 0, Math.PI * 2)
+      ctx.stroke()
+    }
 
     ctx.restore()
   }
 
   const animate = () => {
     globalTime += 0.016
-    ctx.clearRect(0, 0, width, height)
-    drawCrystal(globalTime)
+    render(globalTime)
     globeAnimationId = requestAnimationFrame(animate)
   }
 
@@ -2120,42 +2469,20 @@ onUnmounted(() => {
 }
 
 .globe-container {
-  width: 420px;
-  height: 420px;
+  width: 500px;
+  height: 500px;
   margin: 0 0 30px;
   position: relative;
   overflow: visible;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
-.globe-container::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 183, 77, 0.10) 0%, rgba(255, 138, 0, 0.05) 40%, transparent 70%);
-  animation: globeGlow 4s ease-in-out infinite;
-  pointer-events: none;
-  z-index: -1;
-}
-
+.globe-container::before,
 .globe-container::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 241, 118, 0.15) 0%, transparent 60%);
-  filter: blur(10px);
-  animation: globeInnerGlow 3s ease-in-out infinite;
-  pointer-events: none;
-  z-index: -1;
+  display: none;
 }
 
 @keyframes globeGlow {
