@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="talent-page">
     <div class="bg-deep-space">
       <canvas ref="bgCanvas" class="bg-starfield"></canvas>
@@ -230,7 +230,7 @@
                 <div ref="eduDonutRef" class="chart-box edu-donut-box" style="min-width:300px;min-height:300px;"></div>
                 <div class="edu-donut-center">
                   <div class="edu-center-unit">岗位数</div>
-                  <div class="edu-center-num">{{ eduTotalCount.toLocaleString() }}</div>
+                  <div class="edu-center-num">{{ totalJobs.toLocaleString() }}</div>
                 </div>
               </div>
               <div class="edu-legend-list">
@@ -549,7 +549,7 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-let jobData = []
+const jobData = ref([])
 const dataTrigger = ref(0)
 
 const router = useRouter()
@@ -677,7 +677,7 @@ const policyTabs = [
 
 const validData = computed(() => {
   dataTrigger.value
-  return jobData.filter(item => !isNaN(item.salary_avg) && item.salary_avg > 0 && item.salary_avg < 200000)
+  return jobData.value.filter(item => !isNaN(item.salary_avg) && item.salary_avg > 0 && item.salary_avg < 200000)
 })
 
 const filteredData = computed(() => {
@@ -716,7 +716,7 @@ const degreeStats = computed(() => {
   }, {})
   const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 5)
   const total = sorted.reduce((s, [, v]) => s + v, 0)
-  const colors = ['#00f0ff', '#7c3aed', '#fbbf24', '#34d399', '#94a3b8']
+  const colors = ['#00f0ff', '#7c3aed', '#fbbf24', '#34d399', '#f472b6']
   return sorted.map(([name, count], i) => ({
     name, count,
     percentage: total > 0 ? Math.round((count / total) * 100) : 0,
@@ -1458,7 +1458,7 @@ const initEduDonut = () => {
     return acc
   }, {})
   const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 5)
-  const colors = ['#00f0ff', '#7c3aed', '#fbbf24', '#34d399', '#94a3b8']
+  const colors = ['#00f0ff', '#7c3aed', '#fbbf24', '#34d399', '#f472b6']
   const total = sorted.reduce((s, [, v]) => s + v, 0)
   
   eduDonutInstance.setOption({
@@ -2018,6 +2018,24 @@ const initPopupSalaryEdu = async () => {
   })
 }
 
+let autoRefreshTimer = null
+
+const refreshData = async () => {
+  try {
+    const response = await fetch('/api/jobs/raw', { cache: 'no-store', headers: { 'Pragma': 'no-cache' } })
+    if (response.ok) {
+      const payload = await response.json()
+      const list = (payload && payload.success && Array.isArray(payload.data)) ? payload.data : []
+      if (list.length !== jobData.value.length) {
+        jobData.value = list
+        dataTrigger.value++
+      }
+    }
+  } catch (err) {
+    // 静默失败，下次再试
+  }
+}
+
 onMounted(async () => {
   isComponentMounted = true
   fetchDataInfo()
@@ -2026,7 +2044,7 @@ onMounted(async () => {
     if (response.ok) {
       const payload = await response.json()
       const list = (payload && payload.success && Array.isArray(payload.data)) ? payload.data : []
-      jobData = Array.isArray(list) ? list : []
+      jobData.value = Array.isArray(list) ? list : []
       dataTrigger.value++
     }
   } catch (err) {
@@ -2038,6 +2056,9 @@ onMounted(async () => {
   initBackground(); loadPolicyData(); updateCityBars()
   initMiniCharts()
   window.addEventListener('resize', handleResize)
+
+  // 每5分钟自动刷新数据
+  autoRefreshTimer = setInterval(refreshData, 5 * 60 * 1000)
 })
 
 watch(activePopupCard, async (card) => {
@@ -2077,6 +2098,7 @@ watch(activePolicyTab, () => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer)
   salaryInstance?.dispose(); cityInstance?.dispose()
   salarySparkInstance?.dispose(); cityRingInstance?.dispose()
   eduDonutInstance?.dispose(); skillChartInstance?.dispose()
