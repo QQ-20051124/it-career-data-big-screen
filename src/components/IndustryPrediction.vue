@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="industry-prediction-page" ref="pageRef" @mousemove="handleMouseMove">
     <canvas ref="bgCanvas" class="bg-canvas"></canvas>
     
@@ -21,7 +21,7 @@
             </div>
             <div class="logo-text">
               <h1>AI行业分析智能体</h1>
-              <p>基于27,411条真实数据的智能分析平台</p>
+              <p>基于{{ jobData.length.toLocaleString() }}条真实数据的智能分析平台</p>
             </div>
           </div>
           
@@ -473,6 +473,7 @@
                   <span class="typing-dot"></span>
                   <span class="typing-dot"></span>
                 </span>
+                <span v-else-if="msg.role === 'ai'" v-html="renderMarkdown(msg.text)"></span>
                 <span v-else>{{ msg.text }}</span>
               </div>
             </div>
@@ -502,8 +503,19 @@
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import { useRouter } from 'vue-router'
-let jobData = []
+const jobData = ref([])
 const dataTrigger = ref(0)
+
+// 轻量 Markdown → HTML 转换
+function renderMarkdown(text) {
+  if (!text) return ''
+  let html = text
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/\n/g, '<br>')
+    .replace(/•/g, '·')
+    .replace(/◦/g, '·')
+  return html
+}
 
 const router = useRouter()
 
@@ -530,7 +542,7 @@ const chatInput = ref('')
 const messages = ref([
   {
     role: 'ai',
-    text: '您好！我是AI行业分析智能体。基于27,411条真实岗位爬虫数据，我可以帮您分析：\n\n• 各技术岗位的需求量和薪资趋势\n• 不同城市的岗位分布\n• 技术栈学习建议和课程优化\n\n请输入您的问题，或使用上方搜索功能！',
+    text: `您好！我是AI行业分析智能体。基于${jobData.value.length.toLocaleString()}条真实岗位爬虫数据，我可以帮您分析：\n\n• 各技术岗位的需求量和薪资趋势\n• 不同城市的岗位分布\n• 技术栈学习建议和课程优化\n\n请输入您的问题，或使用上方搜索功能！`,
     isTyping: false
   }
 ])
@@ -567,7 +579,7 @@ const toggleCollect = (jobId) => {
 }
 
 const dataStats = ref({
-  totalJobs: jobData.length,
+  totalJobs: 0,
   analyzedCount: 0,
   accuracy: 98.5
 })
@@ -634,7 +646,7 @@ const handleSearch = () => {
 
 const filteredData = computed(() => {
   dataTrigger.value
-  let data = [...jobData]
+  let data = [...jobData.value]
   
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
@@ -788,7 +800,7 @@ const stats = computed(() => {
   const avgSalary = salaries.length ? Math.round(sum(salaries) / salaries.length / 1000) : 0
   const cities = new Set(data.map(j => j.city).filter(Boolean)).size
   
-  const totalJobs = jobData.length
+  const totalJobs = jobData.value.length
   const matchJobs = data.length
   const matchRate = totalJobs > 0 ? (matchJobs / totalJobs * 100).toFixed(1) : 0
   
@@ -1580,7 +1592,7 @@ const generateAIResponse = (query) => {
   const { techMatches, cityMatches } = parseQuery(query)
   const intent = analyzeIntent(query)
   
-  let data = [...jobData]
+  let data = [...jobData.value]
   if (techMatches.length > 0 || cityMatches.length > 0) {
     data = data.filter(job => {
       const techMatch = techMatches.some(tag => job.job_name && job.job_name.includes(tag))
@@ -1646,7 +1658,7 @@ const generateAIResponse = (query) => {
     return `未找到与「${query}」相关的岗位信息，请尝试其他关键词。\n\n💡 您可以尝试搜索：\n  • 技术方向：AI、算法、Java、前端、数据分析\n  • 城市：北京、上海、深圳、杭州\n  • 问题：薪资待遇、发展前景、学习路径`
   }
   
-  let text = `基于27,411条真实岗位数据，我为您分析「${query}」的相关信息：\n\n`
+  let text = `基于${jobData.value.length.toLocaleString()}条真实岗位数据，我为您分析「${query}」的相关信息：\n\n`
   
   if (intent === 'salary') {
     text += `💰 **薪资分析**：\n`
@@ -2048,7 +2060,8 @@ onMounted(async () => {
   try {
     const response = await fetch('/data/all_cleaned_jobs.json')
     if (response.ok) {
-      jobData = await response.json()
+      jobData.value = await response.json()
+      dataStats.value.totalJobs = jobData.value.length
       dataTrigger.value++
     }
   } catch (err) {
