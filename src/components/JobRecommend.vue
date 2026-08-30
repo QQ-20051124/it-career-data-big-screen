@@ -52,7 +52,7 @@
         </div>
 
         <div class="job-cards">
-          <div class="job-card" v-for="(job, index) in paginatedJobs" :key="index">
+          <div class="job-card" :class="{ 'job-card-placeholder': job.isPlaceholder }" v-for="(job, index) in paginatedJobs" :key="index">
             <div class="job-card-glow"></div>
             <div class="job-header">
               <div class="job-title">{{ job.title }}</div>
@@ -295,7 +295,7 @@ const originalJobList = ref([])
 const jobList = ref([])
 const appliedJobs = ref([])
 const currentPage = ref(1)
-const pageSize = 10
+const pageSize = 12
 const favorites = ref([])
 const filtering = ref(false)
 
@@ -364,7 +364,7 @@ const loadRealData = async () => {
     const rawData = await response.json()
     const transformed = rawData.map(transformJobData)
     originalJobList.value = transformed
-    jobList.value = transformed.slice(0, 50)
+    jobList.value = transformed
   } catch (err) {
     console.error('加载真实数据失败:', err)
     loadMockData()
@@ -484,7 +484,7 @@ const applyFilters = () => {
   }
   
   if (selectedOptions.value.length === 0 && activeCategory.value === 0 && !searchKeyword.value.trim()) {
-    filtered = filtered.slice(0, 50)
+    // 展示全部数据，不再截断
   }
   
   jobList.value = filtered.length > 0 ? filtered : []
@@ -603,7 +603,16 @@ const visiblePages = computed(() => {
 const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   const end = start + pageSize
-  return jobList.value.slice(start, end)
+  const pageJobs = jobList.value.slice(start, end)
+  // 最后一页不足 pageSize 时，补占位卡片让网格对齐
+  const placeholders = []
+  const remaining = pageSize - pageJobs.length
+  if (remaining > 0) {
+    for (let i = 0; i < remaining; i++) {
+      placeholders.push({ isPlaceholder: true })
+    }
+  }
+  return [...pageJobs, ...placeholders]
 })
 
 const handleApplyFilter = async () => {
@@ -978,6 +987,10 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
+}
+
+.job-card-placeholder {
+  visibility: hidden;
 }
 
 .job-card {

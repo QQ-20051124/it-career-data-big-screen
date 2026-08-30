@@ -1,7 +1,7 @@
 {
-  "task_id": "crawl_20260826_130420_90a151",
-  "start_time": "2026-08-26 13:04:20",
-  "end_time": "2026-08-26 16:11:48",
+  "task_id": "crawl_20260830_143846_00f86f",
+  "start_time": "2026-08-30 14:38:46",
+  "end_time": "2026-08-30 17:08:57",
   "status": "completed",
   "progress": 100,
   "current_step": "全部完成",
@@ -14,21 +14,21 @@
     },
     "猎聘": {
       "status": "completed",
-      "raw_count": 8088,
+      "raw_count": 8056,
       "pages": 29,
-      "message": "采集完成，8088条"
+      "message": "采集完成，8056条"
     },
     "前程无忧": {
       "status": "completed",
-      "raw_count": 960,
-      "pages": 80,
-      "message": "采集完成，960条",
+      "raw_count": 1420,
+      "pages": 136,
+      "message": "采集完成，1420条",
       "cities_total": 10,
       "cities_done": 10
     }
   },
-  "total_raw_count": 10048,
-  "final_count": 62214,
+  "total_raw_count": 10476,
+  "final_count": 63656,
   "error": null,
-  "duration": "3h7m27s"
+  "duration": "2h30m10s"
 }

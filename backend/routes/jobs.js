@@ -1,6 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const jobService = require('../services/jobService')
+const path = require('path')
+const fs = require('fs')
+const DATA_FILE = path.join(__dirname, '../data/all_cleaned_jobs.json')
 
 router.get('/search', (req, res) => {
   try {
@@ -180,12 +183,46 @@ router.get('/statistics/trends', (req, res) => {
   }
 })
 
-router.get('/data-info', (req, res) => {
+router.get('/raw', async (req, res) => {
   try {
+    // 每次都从磁盘读最新爬虫写入的文件，保证刷新就是最新数据
+    if (!fs.existsSync(DATA_FILE)) {
+      return res.status(404).json({ success: false, message: '数据文件不存在' })
+    }
+    const stat = fs.statSync(DATA_FILE)
+    const raw = await fs.promises.readFile(DATA_FILE, 'utf-8')
+    const parsed = JSON.parse(raw)
+    // 顺便把后端内存缓存也同步一下，让 /search /data-info 同源最新
+    try { await jobService.reloadData() } catch (_) {}
+    res.set({
+      'Content-Type': 'application/json; charset=utf-8',
+      'Last-Modified': stat.mtime.toUTCString(),
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+    })
+    res.json({
+      success: true,
+      data: parsed,
+      meta: {
+        count: parsed.length,
+        lastUpdated: stat.mtime.toISOString(),
+        source: 'backend/data/all_cleaned_jobs.json (crawler output)'
+      }
+    })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+})
+
+router.get('/data-info', async (req, res) => {
+  try {
+    // 先确保后端内存缓存是磁盘最新的（爬虫写了文件就会在这里被同步进内存）
+    let refreshed = null
+    try { refreshed = await jobService.reloadData() } catch (_) {}
     const info = jobService.getDataInfo()
     res.json({
       success: true,
-      data: info
+      data: info,
+      _refreshed: refreshed
     })
   } catch (error) {
     res.status(500).json({

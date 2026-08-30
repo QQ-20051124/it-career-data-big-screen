@@ -353,9 +353,12 @@ const extractName = (text) => {
   const patterns = [
     /我是([^\s，。！？,.!?]{1,8})/,
     /我叫([^\s，。！？,.!?]{1,8})/,
-    /我名字(?:是|叫|为)([^\s，。！？,.!?]{1,8})/,
-    /我的名字(?:是|叫|为)([^\s，。！？,.!?]{1,8})/,
+    /我名字(?:是|叫|为)?([^\s，。！？,.!?]{1,8})/,
+    /我的名字(?:是|叫|为)?([^\s，。！？,.!?]{1,8})/,
     /我是叫([^\s，。！？,.!?]{1,8})/,
+    /你可以叫我([^\s，。！？,.!?]{1,8})/,
+    /叫我([^\s，。！？,.!?]{1,8})就行/,
+    /叫我([^\s，。！？,.!?]{1,8})/
   ]
   for (const p of patterns) {
     const m = text.match(p)
@@ -1033,6 +1036,10 @@ const sendMessage = async (text, module = '', files = []) => {
 
     const lastIdx = messages.value.length - 1
     if (response.data.success) {
+      // 后端识别到用户名时同步保存
+      if (response.data.data && response.data.data.extractedName && !userName.value) {
+        userName.value = response.data.data.extractedName
+      }
       simulateTyping(response.data.data.reply || `${getPersonalizedPrefix()}我已收到你的问题，正在为你分析...`, lastIdx)
     } else {
       simulateTyping(`${getPersonalizedPrefix()}抱歉，我暂时无法回答你的问题，请稍后再试。`, lastIdx)

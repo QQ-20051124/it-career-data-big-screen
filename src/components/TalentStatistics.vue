@@ -26,8 +26,8 @@
             </h1>
             <div class="meta-row">
               <span class="meta-item"><span class="meta-dot online"></span> 实时在线</span>
-              <span class="meta-item">{{ totalJobs.toLocaleString() }} 个岗位</span>
-              <span class="meta-item">{{ policyUpdateTime || '今日' }} 更新</span>
+              <span class="meta-item">{{ displayTotalJobs.toLocaleString() }} 个岗位</span>
+              <span class="meta-item">{{ jobUpdateTime }} 更新</span>
             </div>
           </div>
         </div>
@@ -63,7 +63,7 @@
                   TOTAL ACTIVE ROLES
                 </div>
                 <div class="hero-value-wrap">
-                  <div class="hero-value neon-text">{{ totalJobs.toLocaleString() }}</div>
+                  <div class="hero-value neon-text">{{ displayTotalJobs.toLocaleString() }}</div>
                   <div class="hero-value-glow"></div>
                 </div>
                 <div class="hero-label">在招岗位总数 · 实时更新</div>
@@ -71,7 +71,7 @@
               <div class="hero-data-stream">
                 <div class="stream-header-row">
                   <span class="stream-title">薪资区间分布</span>
-                  <span class="stream-total">共 {{ totalJobs.toLocaleString() }} 个岗位</span>
+                  <span class="stream-total">共 {{ displayTotalJobs.toLocaleString() }} 个岗位</span>
                 </div>
                 <div class="stream-labels">
                   <span v-for="range in salaryRanges" :key="range.label" class="stream-label" :style="{ color: range.color }">{{ range.label }}</span>
@@ -153,7 +153,7 @@
                 <div class="top-skills-header">
                   <span class="top-skills-label">热门技能 TOP5</span>
                 </div>
-                <div class="top-skill-item" v-for="(skill, i) in topSkills.slice(0, 5)" :key="i">
+                <div class="top-skill-item" :class="`top-skill-rank-${i+1}`" v-for="(skill, i) in topSkills.slice(0, 5)" :key="i">
                   <span class="skill-rank" :class="'rank-' + (i + 1)">{{ i + 1 }}</span>
                   <span class="skill-name">{{ skill.name }}</span>
                   <div class="skill-bar">
@@ -215,56 +215,6 @@
           <div class="card-hint" v-if="pinnedCard !== 'salary'">悬浮查看详情 · 点击固定</div>
         </div>
 
-        <!-- 数据卡：城市分布 -->
-        <div class="bento-card data-card neon-purple"
-          :class="{ 'card-pinned': pinnedCard === 'city' }"
-          @mouseenter="handleCardHover('city')"
-          @mouseleave="handleCardLeave"
-          @click.stop="handleCardClick('city')"
-        >
-          <div class="neon-border"></div>
-          <div class="card-top">
-            <span class="card-num">03</span>
-            <span class="card-label">城市岗位分布</span>
-          </div>
-          <div class="card-value-row">
-            <div class="card-value neon-purple-text">{{ cityCount }} 个城市</div>
-            <div class="trend-indicator up">
-              <span class="trend-value" style="color:#c084fc">TOP: {{ topCityName }}</span>
-            </div>
-          </div>
-          <div class="city-rank-bars">
-            <div class="city-rank-item" v-for="(c, i) in topCityList" :key="i">
-              <span class="city-rank-num" :class="'rank-' + (i + 1)">{{ i + 1 }}</span>
-              <div class="city-rank-content">
-                <div class="city-rank-header">
-                  <span class="city-rank-name">{{ c.name }}</span>
-                  <span class="city-rank-pct" style="color:{{ ['#00f0ff','#7c3aed','#fbbf24','#34d399'][i] }}">{{ c.percent }}%</span>
-                </div>
-                <div class="city-rank-bar">
-                  <div class="city-rank-fill" :style="{ width: c.percent + '%', background: `linear-gradient(90deg, ${['#00f0ff','#7c3aed','#fbbf24','#34d399'][i]}88, ${['#00f0ff','#7c3aed','#fbbf24','#34d399'][i]})` }"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="city-mini-stats">
-            <div class="city-stat-item">
-              <span class="city-stat-val">{{ topCityPercent }}%</span>
-              <span class="city-stat-label">{{ topCityName }}占比</span>
-            </div>
-            <div class="city-stat-divider"></div>
-            <div class="city-stat-item">
-              <span class="city-stat-val">{{ topCityList.length }}</span>
-              <span class="city-stat-label">重点城市</span>
-            </div>
-          </div>
-          <div class="card-insight">
-            <span class="insight-icon">📍</span>
-            <span>{{ topCityName }} 岗位最集中，占比 {{ topCityPercent }}%</span>
-          </div>
-          <div class="card-hint" v-if="pinnedCard !== 'city'">悬浮查看详情 · 点击固定</div>
-        </div>
-
         <!-- 学历分布 -->
         <div class="bento-card info-card edu-card">
           <div class="neon-border"></div>
@@ -274,14 +224,34 @@
               <div class="card-sub">各学历层次岗位占比</div>
             </div>
           </div>
-          <div class="edu-content">
-            <div ref="eduDonutRef" class="chart-box edu-donut-box" style="min-width:280px;min-height:230px;"></div>
-            <div class="edu-legend-list">
-              <div class="edu-legend-item" v-for="(edu, i) in eduDistribution" :key="edu.name">
-                <span class="edu-legend-dot" :style="{ background: edu.color }"></span>
-                <span class="edu-legend-name">{{ edu.name }}</span>
-                <div class="edu-legend-bar"><div class="edu-legend-fill" :style="{ width: edu.percent + '%', background: edu.color }"></div></div>
-                <span class="edu-legend-pct">{{ edu.percent }}%</span>
+                    <div class="edu-content">
+            <div class="edu-top-row">
+              <div class="edu-donut-wrap">
+                <div ref="eduDonutRef" class="chart-box edu-donut-box" style="min-width:300px;min-height:300px;"></div>
+                <div class="edu-donut-center">
+                  <div class="edu-center-unit">岗位数</div>
+                  <div class="edu-center-num">{{ eduTotalCount.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="edu-legend-list">
+                <div class="edu-legend-item" v-for="(edu, i) in eduDistribution" :key="edu.name">
+                  <span class="edu-legend-dot" :style="{ background: edu.color }"></span>
+                  <span class="edu-legend-name">{{ edu.name }}</span>
+                  <div class="edu-legend-bar"><div class="edu-legend-fill" :style="{ width: edu.percent + '%', background: edu.color }"></div></div>
+                  <span class="edu-legend-pct">{{ edu.percent }}%</span>
+                </div>
+              </div>
+            </div>
+            <div class="edu-insight-bar">
+              <div class="edu-insight-chip" v-for="(item, idx) in [
+                { label: '本科及以上', color: '#22d3ee', value: eduDistribution.filter(x => ['本科','硕士','博士','统招本科'].includes(x.name)).reduce((s,x)=>s+x.percent,0) + '%' },
+                { label: '硕博占比',   color: '#a78bfa', value: eduDistribution.filter(x => ['硕士','博士'].includes(x.name)).reduce((s,x)=>s+x.percent,0) + '%' },
+                { label: '大专及以下', color: '#fb923c', value: eduDistribution.filter(x => ['大专','不限'].includes(x.name)).reduce((s,x)=>s+x.percent,0) + '%' },
+                { label: '统招本科',   color: '#34d399', value: (((eduDistribution.find(x => x.name === '统招本科') || {}).percent || 0)) + '%' }
+              ]" :key="idx">
+                <span class="chip-dot" :style="{background:item.color,boxShadow:'0 0 8px '+item.color+'88'}"></span>
+                <span class="chip-label">{{ item.label }}</span>
+                <span class="chip-value" :style="{color:item.color,textShadow:'0 0 6px '+item.color+'66'}">{{ item.value }}</span>
               </div>
             </div>
           </div>
@@ -320,7 +290,7 @@
               <div class="card-sub">热门城市 IT 岗位数量排名</div>
             </div>
           </div>
-          <div ref="cityChart" class="chart-box" style="min-height:260px;"></div>
+          <div ref="cityChart" class="chart-box" style="min-height:300px;"></div>
         </div>
 
         <!-- 技能需求 -->
@@ -333,12 +303,12 @@
             </div>
           </div>
           <div class="skill-content">
-            <div ref="skillChartRef" class="chart-box skill-chart-box" style="min-width:280px;min-height:230px;"></div>
+            <div ref="skillChartRef" class="chart-box skill-chart-box" style="min-width:280px;min-height:270px;"></div>
             <div class="skill-frequency-list">
               <div class="skill-freq-item" v-for="(skill, i) in topSkills.slice(0, 6)" :key="skill.name">
                 <span class="skill-freq-name">{{ skill.name }}</span>
-                <div class="skill-freq-bar"><div class="skill-freq-fill" :style="{ width: skill.percent + '%', background: `linear-gradient(90deg, ${['#00f0ff','#7c3aed','#fbbf24','#34d399','#f472b6','#60a5fa'][i]})` }"></div></div>
-                <span class="skill-freq-pct" :style="{ color: ['#00f0ff','#7c3aed','#fbbf24','#34d399','#f472b6','#60a5fa'][i] }">{{ skill.percent }}%</span>
+                <div class="skill-freq-bar"><div class="skill-freq-fill" :style="{ width: skill.percent + '%' }"></div></div>
+                <span class="skill-freq-pct">{{ skill.percent }}%</span>
               </div>
             </div>
           </div>
@@ -439,12 +409,12 @@
             <template v-if="activePopupCard === 'hero'">
               <div class="popup-header">
                 <h3 class="popup-title">岗位全国分布图</h3>
-                <p class="popup-sub">{{ totalJobs.toLocaleString() }} 个岗位 · 覆盖 {{ cityCount }} 个城市 · 平均薪资 ¥{{ avgSalary.toLocaleString() }}</p>
+                <p class="popup-sub">{{ displayTotalJobs.toLocaleString() }} 个岗位 · 覆盖 {{ cityCount }} 个城市 · 平均薪资 ¥{{ avgSalary.toLocaleString() }}</p>
               </div>
               <div ref="popupMapRef" class="popup-map-chart"></div>
               <div class="popup-stats-row">
                 <div class="popup-stat">
-                  <div class="popup-stat-val cyan">{{ totalJobs.toLocaleString() }}</div>
+                  <div class="popup-stat-val cyan">{{ displayTotalJobs.toLocaleString() }}</div>
                   <div class="popup-stat-label">在招岗位</div>
                 </div>
                 <div class="popup-stat">
@@ -604,6 +574,36 @@ const pinnedCard = ref(null)
 
 const policyDatabase = ref([])
 const policyUpdateTime = ref('')
+
+// 实时数据摘要（与 Dashboard 使用同一数据源 /api/jobs/data-info）
+const dataInfo = ref({ totalCount: 0, lastUpdated: null })
+const fetchDataInfo = async () => {
+  try {
+    const resp = await fetch('/api/jobs/data-info')
+    if (resp.ok) {
+      const r = await resp.json()
+      if (r && r.success) {
+        dataInfo.value = {
+          totalCount: Number(r.data.totalCount) || 0,
+          lastUpdated: r.data.lastUpdated || null,
+        }
+      }
+    }
+  } catch (_) { /* 保持静默，API 不可用时退回本地数据 */ }
+}
+const displayTotalJobs = computed(() => (dataInfo.value.totalCount > 0 ? dataInfo.value.totalCount : totalJobs.value))
+const jobUpdateTime = computed(() => {
+  const iso = dataInfo.value.lastUpdated
+  if (!iso) return policyUpdateTime.value || '今日'
+  try {
+    const d = new Date(iso)
+    if (isNaN(d.getTime())) return policyUpdateTime.value || '今日'
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  } catch (_) {
+    return policyUpdateTime.value || '今日'
+  }
+})
 
 let salaryInstance = null
 let cityInstance = null
@@ -785,6 +785,10 @@ const eduDistribution = computed(() => {
       percent: Math.round((count / total) * 100),
       color: colors[i]
     }))
+})
+
+const eduTotalCount = computed(() => {
+  return eduDistribution.value.reduce((s, x) => s + x.count, 0)
 })
 
 const dataCompleteRate = computed(() => {
@@ -1134,117 +1138,311 @@ const initCityChart = () => {
   }
   if (cityInstance) cityInstance.dispose()
   cityInstance = echarts.init(el)
-  const dist = filteredData.value.reduce((acc, item) => { 
-    const c = (item.city || '').split('-')[0].split('·')[0].trim()
+  const dist = filteredData.value.reduce((acc, item) => {
+    const c = (item.city || '').split('-')[0].split('\u00b7')[0].trim()
     if (c) acc[c] = (acc[c] || 0) + 1
-    return acc 
+    return acc
   }, {})
   const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 6)
-  const names = sorted.map(([n]) => n)
-  const values = sorted.map(([, v]) => v)
-  const maxVal = Math.max(...values)
-  
+  const namesReversed = sorted.map(([n]) => n).reverse()
+  const valuesReversed = sorted.map(([, v]) => v).reverse()
+  const percentsReversed = valuesReversed.map(v => Math.round(v / totalJobs.value * 1000) / 10)
+  const maxVal = Math.max(...valuesReversed)
+  const N = sorted.length
+  const rankIdx = (revI) => (N - 1 - revI)
+
+  // Six bold, saturated, distinct gradients (avoid ugly/muddy combos)
+  const cityPalettes = [
+    // #1: Cyber cyan → electric violet → hot pink
+    ['#06b6d4', '#6366f1', '#ec4899'],
+    // #2: Royal indigo → deep purple → rose
+    ['#4f46e5', '#7e22ce', '#f43f5e'],
+    // #3: Tiger orange → vermilion → crimson
+    ['#f97316', '#ea580c', '#dc2626'],
+    // #4: Deep teal → mint cyan → sky
+    ['#0d9488', '#14b8a6', '#0ea5e9'],
+    // #5: Sapphire → royal blue → violet
+    ['#1d4ed8', '#3b82f6', '#8b5cf6'],
+    // #6: Sun gold → bright amber → red-orange
+    ['#f59e0b', '#f97316', '#ef4444']
+  ]
+  const palettes = cityPalettes.slice(0, N)
+
   cityInstance.setOption({
     backgroundColor: 'transparent',
-    tooltip: { 
-      trigger: 'axis', 
-      backgroundColor: 'rgba(5, 8, 20, 0.95)', 
-      borderColor: 'rgba(124,58,237,0.3)', 
-      borderWidth: 1, 
-      padding: [10, 14], 
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(5, 8, 20, 0.96)',
+      borderColor: 'rgba(34,211,238,0.3)',
+      borderWidth: 1,
+      padding: [10, 14],
       textStyle: { color: '#e2e8f0', fontSize: 11 },
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(34,211,238,0.04)' } },
       formatter: (params) => {
-        const p = params[0]
-        return `<div style="font-size:12px;font-weight:600;color:#00f0ff">${p.name}</div>
-                <div style="font-size:11px;color:rgba(200,210,230,0.7)">岗位数: <span style="color:#f472b6;font-weight:700">${p.value}</span></div>`
+        const p = params.find(x => x.seriesName === 'main') || params[0]
+        const rank = N - namesReversed.indexOf(p.name)
+        const pct = percentsReversed[namesReversed.indexOf(p.name)]
+        const c = palettes[rank - 1][0]
+        return `<div style="font-size:12px;font-weight:800;color:${c}">TOP ${rank} · ${p.name}</div>
+                <div style="font-size:11px;color:rgba(200,210,230,0.75);margin-top:5px;line-height:1.5">
+                  岗位数: <span style="color:#fff;font-weight:800;font-family:'JetBrains Mono',monospace">${p.value}</span> 个<br/>
+                  占比: <span style="color:#f472b6;font-weight:800">${pct}%</span>
+                </div>`
       }
     },
-    grid: { left: '8%', right: '10%', bottom: '15%', top: '12%', containLabel: true },
+    grid: { left: '25%', right: '16%', bottom: '8%', top: '8%', containLabel: false },
     xAxis: {
-      type: 'category',
-      data: names,
-      axisLine: { lineStyle: { color: 'rgba(0,240,255,0.15)' } },
-      axisLabel: { 
-        color: 'rgba(220,230,240,0.9)', 
-        fontSize: 12, 
-        fontWeight: 600,
-        interval: 0,
-        rotate: 0
-      },
-      axisTick: { show: false }
-    },
-    yAxis: {
       type: 'value',
+      show: true,
+      max: maxVal * 1.22,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: 'rgba(200,210,230,0.35)', fontSize: 10 },
-      splitLine: { lineStyle: { color: 'rgba(0,240,255,0.04)', type: 'dashed' } }
+      axisLabel: {
+        color: 'rgba(200,210,230,0.4)',
+        fontSize: 10,
+        fontFamily: 'JetBrains Mono, monospace',
+        formatter: (v) => (v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v)
+      },
+      splitLine: { lineStyle: { color: 'rgba(100,140,200,0.07)', type: 'dashed' } }
+    },
+    yAxis: {
+      type: 'category',
+      data: namesReversed,
+      inverse: false,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: {
+        color: 'rgba(226,232,240,0.92)',
+        fontSize: 12,
+        fontWeight: 700,
+        inside: false,
+        margin: 16,
+        backgroundColor: 'rgba(5,8,20,0.45)',
+        padding: [4, 12, 4, 12],
+        borderRadius: [0, 10, 10, 0],
+        borderWidth: 1,
+        borderColor: 'rgba(34,211,238,0.18)',
+        formatter: (value, i) => `{r${N - i}|TOP ${N - i}}{name|${value}}`,
+        rich: {
+          rank: {
+            color: '#0a0e1a',
+            fontWeight: 900,
+            fontSize: 9,
+            fontFamily: 'JetBrains Mono, monospace',
+            padding: [2, 7],
+            borderRadius: 5,
+            backgroundColor: '#22d3ee',
+            shadowBlur: 8,
+            shadowColor: 'rgba(34,211,238,0.55)',
+            align: 'center',
+            width: 44,
+            height: 16
+          },
+          r1: { color:'#7a2700', fontWeight:900, fontSize:9, fontFamily:'JetBrains Mono', padding:[2,7], borderRadius:5, backgroundColor:'#fbbf24', shadowBlur:8, shadowColor:'rgba(251,191,36,0.6)', align:'center', width:44, height:16 },
+          r2: { color:'#1e1b4b', fontWeight:900, fontSize:9, fontFamily:'JetBrains Mono', padding:[2,7], borderRadius:5, backgroundColor:'#a78bfa', shadowBlur:8, shadowColor:'rgba(167,139,250,0.6)', align:'center', width:44, height:16 },
+          r3: { color:'#7a2600', fontWeight:900, fontSize:9, fontFamily:'JetBrains Mono', padding:[2,7], borderRadius:5, backgroundColor:'#fb923c', shadowBlur:8, shadowColor:'rgba(251,146,60,0.6)', align:'center', width:44, height:16 },
+          r4: { color:'#052e36', fontWeight:900, fontSize:9, fontFamily:'JetBrains Mono', padding:[2,7], borderRadius:5, backgroundColor:'#22d3ee', shadowBlur:8, shadowColor:'rgba(34,211,238,0.6)', align:'center', width:44, height:16 },
+          r5: { color:'#022c22', fontWeight:900, fontSize:9, fontFamily:'JetBrains Mono', padding:[2,7], borderRadius:5, backgroundColor:'#34d399', shadowBlur:8, shadowColor:'rgba(52,211,153,0.6)', align:'center', width:44, height:16 },
+          r6: { color:'#2a1153', fontWeight:900, fontSize:9, fontFamily:'JetBrains Mono', padding:[2,7], borderRadius:5, backgroundColor:'#f472b6', shadowBlur:8, shadowColor:'rgba(244,114,182,0.6)', align:'center', width:44, height:16 },
+          name: {
+            color: 'rgba(226,232,240,0.92)',
+            fontSize: 12,
+            fontWeight: 800,
+            padding: [0, 0, 0, 8]
+          }
+        }
+      }
     },
     series: [
+      // ===== LAYER 1: Rainbow arch outer track (per-row subtle gradient) =====
       {
+        name: 'archTrack',
         type: 'bar',
-        data: values.map(v => maxVal),
-        barWidth: 3,
+        data: valuesReversed.map((_, i) => ({
+          value: maxVal * 1.15,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: palettes[rankIdx(i)][0] + '0a' },
+              { offset: 0.6, color: palettes[rankIdx(i)][1] + '12' },
+              { offset: 1, color: palettes[rankIdx(i)][2] + '05' }
+            ]),
+            borderRadius: [14, 14, 14, 14]
+          }
+        })),
+        barWidth: 24,
         barGap: '-100%',
-        itemStyle: { 
-          color: 'rgba(100,140,200,0.06)', 
-          borderRadius: [3, 3, 0, 0] 
-        },
         silent: true,
         z: 1
       },
+      // ===== LAYER 2: Inner solid base track with neon inner border =====
       {
+        name: 'innerTrack',
         type: 'bar',
-        data: values,
-        barWidth: 3,
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#00f0ff' },
-            { offset: 0.3, color: '#7c3aed' },
-            { offset: 1, color: 'rgba(124,58,237,0.1)' }
-          ]),
-          borderRadius: [3, 3, 0, 0],
-          shadowColor: 'rgba(0,240,255,0.3)',
-          shadowBlur: 8
-        },
+        data: valuesReversed.map((_, i) => ({
+          value: maxVal,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: 'rgba(100,140,200,0.10)' },
+              { offset: 1, color: 'rgba(100,140,200,0.02)' }
+            ]),
+            borderRadius: [10, 10, 10, 10]
+          }
+        })),
+        barWidth: 16,
+        barGap: '-100%',
+        silent: true,
         z: 2
       },
+      // ===== LAYER 3 (merged): MAIN DATA BULLET — bold gradient pill with rainbow stem =====
       {
+        name: 'main',
+        type: 'bar',
+        data: valuesReversed.map((v, i) => ({
+          value: v,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: palettes[rankIdx(i)][0] + 'e0' },
+              { offset: 0.35, color: palettes[rankIdx(i)][0] },
+              { offset: 0.72, color: palettes[rankIdx(i)][1] },
+              { offset: 1, color: palettes[rankIdx(i)][2] }
+            ]),
+            borderRadius: [0, 12, 12, 0],
+            shadowBlur: 22,
+            shadowColor: palettes[rankIdx(i)][0] + '88',
+            shadowOffsetX: 3
+          }
+        })),
+        barWidth: 11,
+        barGap: '-100%',
+        z: 5,
+        label: { show: false },
+        animationDuration: 1300,
+        animationDelay: (idx) => (N - 1 - idx) * 120,
+        animationEasing: 'cubicOut'
+      },
+      // ===== LAYER 5: Rainbow trail halo behind bullet (longer, fading out) =====
+      {
+        name: 'trail',
+        type: 'bar',
+        data: valuesReversed.map((v, i) => ({
+          value: v,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: 'transparent' },
+              { offset: 0.55, color: palettes[rankIdx(i)][0] + '00' },
+              { offset: 0.82, color: palettes[rankIdx(i)][1] + '22' },
+              { offset: 1, color: palettes[rankIdx(i)][2] + '55' }
+            ]),
+            borderRadius: [0, 18, 18, 0]
+          }
+        })),
+        barWidth: 22,
+        barGap: '-100%',
+        silent: true,
+        z: 4
+      },
+      // ===== LAYER 6: Glowing orb endpoint with rank number inside =====
+      {
+        name: 'orb',
         type: 'scatter',
-        data: values.map((v, i) => [i, v]),
-        symbolSize: (val) => Math.max(18, (val[1] / maxVal) * 28 + 10),
-        itemStyle: {
-          color: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
-            { offset: 0, color: '#fff' },
-            { offset: 0.3, color: '#f472b6' },
-            { offset: 0.7, color: '#7c3aed' },
-            { offset: 1, color: 'rgba(124,58,237,0.2)' }
-          ]),
-          borderColor: '#00f0ff',
-          borderWidth: 2,
-          shadowColor: 'rgba(124,58,237,0.6)',
-          shadowBlur: 16
-        },
-        z: 3,
+        coordinateSystem: 'cartesian2d',
+        data: valuesReversed.map((v, i) => ({
+          value: [v, i],
+          symbolSize: 26,
+          itemStyle: {
+            color: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+              { offset: 0, color: '#ffffff' },
+              { offset: 0.18, color: palettes[rankIdx(i)][0] },
+              { offset: 0.55, color: palettes[rankIdx(i)][1] },
+              { offset: 1, color: palettes[rankIdx(i)][2] + '33' }
+            ]),
+            borderColor: palettes[rankIdx(i)][0],
+            borderWidth: 2.2,
+            shadowBlur: 24,
+            shadowColor: palettes[rankIdx(i)][0] + 'cc'
+          },
+          label: {
+            show: true,
+            formatter: () => (N - i),
+            position: 'inside',
+            color: '#0a0e1a',
+            fontSize: 11,
+            fontWeight: 900,
+            fontFamily: 'JetBrains Mono, monospace',
+            textBorderColor: 'transparent',
+            textBorderWidth: 0
+          }
+        })),
+        z: 7,
+        tooltip: { show: false }
+      },
+      // ===== LAYER 7: Outer aura glow behind each orb =====
+      {
+        name: 'aura',
+        type: 'scatter',
+        coordinateSystem: 'cartesian2d',
+        silent: true,
+        data: valuesReversed.map((v, i) => ({
+          value: [v, i],
+          symbolSize: 52,
+          itemStyle: {
+            color: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+              { offset: 0, color: palettes[rankIdx(i)][0] + '22' },
+              { offset: 0.6, color: palettes[rankIdx(i)][1] + '0a' },
+              { offset: 1, color: 'transparent' }
+            ]),
+            borderWidth: 0
+          }
+        })),
+        z: 6,
+        tooltip: { show: false }
+      },
+      // ===== LAYER 8: Floating value + percent badge to the right =====
+      {
+        name: 'valueBadge',
+        type: 'scatter',
+        coordinateSystem: 'cartesian2d',
+        symbolSize: 0,
+        silent: true,
+        data: valuesReversed.map((v, i) => ([v + maxVal * 0.06, i])),
         label: {
           show: true,
-          position: 'top',
-          formatter: (params) => params.value[1],
-          color: '#00f0ff',
-          fontSize: 11,
-          fontWeight: 700,
-          fontFamily: 'JetBrains Mono, monospace',
-          textShadowColor: 'rgba(0,240,255,0.5)',
-          textShadowBlur: 4
-        }
+          position: 'right',
+          formatter: (p) => {
+            const i = p.value[1]
+            const val = p.value[0] - maxVal * 0.06
+            const pct = percentsReversed[i]
+            const c = palettes[rankIdx(i)][0]
+            return `{v|${val}}{sep| · }{p|${pct}%}`
+          },
+          rich: {
+            v: {
+              color: '#22d3ee',
+              fontSize: 14,
+              fontWeight: 900,
+              fontFamily: 'JetBrains Mono, monospace',
+              textShadowColor: 'rgba(34,211,238,0.55)',
+              textShadowBlur: 10,
+              padding: [0, 2]
+            },
+            sep: { color: 'rgba(100,140,200,0.25)', fontSize: 11, padding: [0, 2] },
+            p: {
+              color: '#f472b6',
+              fontSize: 11,
+              fontWeight: 800,
+              fontFamily: 'JetBrains Mono, monospace',
+              backgroundColor: 'rgba(244,114,182,0.09)',
+              borderRadius: 5,
+              padding: [2, 6]
+            }
+          }
+        },
+        z: 8,
+        tooltip: { show: false }
       }
-    ],
-    animationDuration: 1200,
-    animationDelay: (idx) => idx * 100,
-    animationEasing: 'elasticOut'
+    ]
   })
 }
-
 const initEduDonut = () => {
   if (!eduDonutRef.value) return
   const el = eduDonutRef.value
@@ -1271,53 +1469,24 @@ const initEduDonut = () => {
       borderColor: 'rgba(0,240,255,0.3)', 
       borderWidth: 1, 
       padding: [10, 14], 
-      textStyle: { color: '#e2e8f0', fontSize: 11 },
+      textStyle: { color: '#e2e8f0', fontSize: 13 },
       formatter: (params) => {
         const pct = Math.round((params.value / total) * 100)
-        return `<div style="font-size:12px;font-weight:600;color:#00f0ff">${params.name}</div>
-                <div style="font-size:11px;color:rgba(200,210,230,0.7)">岗位数: <span style="color:${params.color};font-weight:700">${params.value}</span> (${pct}%)</div>`
+        return `<div style="font-size:14px;font-weight:600;color:#00f0ff">${params.name}</div>
+                <div style="font-size:12px;color:rgba(200,210,230,0.7)">岗位数: <span style="color:${params.color};font-weight:700">${params.value}</span> (${pct}%)</div>`
       }
     },
     legend: {
       show: false
     },
-    graphic: [
-      {
-        type: 'text',
-        left: '50%',
-        top: '38%',
-        style: {
-          text: total.toLocaleString(),
-          fill: '#00f0ff',
-          fontSize: 28,
-          fontWeight: 700,
-          fontFamily: 'JetBrains Mono, monospace',
-          textAlign: 'center'
-        },
-        originX: 'center',
-        originY: 'center'
-      },
-      {
-        type: 'text',
-        left: '50%',
-        top: '58%',
-        style: {
-          text: '总岗位数',
-          fill: 'rgba(200,210,230,0.6)',
-          fontSize: 12,
-          textAlign: 'center'
-        },
-        originX: 'center',
-        originY: 'center'
-      }
-    ],
+    graphic: [],
     series: [{
       type: 'pie',
-      radius: ['40%', '72%'],
+      radius: ['52%', '94%'],
       center: ['50%', '50%'],
       avoidLabelOverlap: false,
       itemStyle: {
-        borderRadius: 6,
+        borderRadius: 8,
         borderColor: 'rgba(5, 8, 20, 0.9)',
         borderWidth: 2
       },
@@ -1368,106 +1537,99 @@ const renderSkillChart = () => {
   if (!skillChartInstance) return
   const skills = ['Java', 'Python', 'JavaScript', 'Vue', 'React', 'MySQL', 'Redis', 'Docker']
   const dist = {}
-  skills.forEach(s => dist[s] = 0)
+  skills.forEach(s => (dist[s] = 0))
   filteredData.value.forEach(item => {
-    const desc = (item.job_desc || '').toLowerCase() + ' ' + (item.job_name || '').toLowerCase()
+    const desc = ((item.job_desc || '') + ' ' + (item.job_name || '')).toLowerCase()
     skills.forEach(s => { if (desc.includes(s.toLowerCase())) dist[s]++ })
   })
-  const entries = Object.entries(dist).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 8)
-  const maxVal = entries.length ? entries[0][1] : 1
-  const names = entries.map(([n]) => n)
-  const values = entries.map(([, v]) => v)
+  const entries = Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 8)
+  if (!entries.length) return
+  const names = entries.map(([n]) => n).reverse()
+  const values = entries.map(([, v]) => v).reverse()
   const total = values.reduce((s, v) => s + v, 0) || 1
-  
+
+  // 统一的单色渐变（青紫配色），所有条用同一个，不再一根一色
+  const barGradient = new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+    { offset: 0, color: '#00f0ff' },
+    { offset: 1, color: '#7c3aed' }
+  ])
+  const pctOf = (v) => Math.max(1, Math.round((v / total) * 100))
+
   skillChartInstance.setOption({
     backgroundColor: 'transparent',
-    tooltip: { 
-      trigger: 'item', 
-      backgroundColor: 'rgba(5, 8, 20, 0.95)', 
-      borderColor: 'rgba(0,240,255,0.3)', 
-      borderWidth: 1, 
-      padding: [10, 14], 
-      textStyle: { color: '#e2e8f0', fontSize: 11 },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(5, 8, 20, 0.96)',
+      borderColor: 'rgba(0, 240, 255, 0.25)',
+      borderWidth: 1,
+      padding: [10, 14],
+      textStyle: { color: '#e2e8f0', fontSize: 13 },
       formatter: (params) => {
-        const pct = Math.round((params.value / total) * 100)
-        return `<div style="font-size:12px;font-weight:600;color:#00f0ff">${params.name}</div>
-                <div style="font-size:11px;color:rgba(200,210,230,0.7)">出现次数: <span style="color:#f472b6;font-weight:700">${params.value}</span>
-                <span style="color:rgba(200,210,230,0.5)">(${pct}%)</span></div>`
+        const p = Array.isArray(params) ? params[0] : params
+        const v = Number(p.value) || 0
+        return `<div style="font-weight:700;color:#00f0ff;margin-bottom:4px">${p.name}</div>
+                <div style="display:flex;justify-content:space-between;gap:16px">
+                  <span style="color:#94a3b8">出现频次</span>
+                  <span style="font-family:'JetBrains Mono',monospace;color:#e2e8f0;font-weight:800">${v.toLocaleString()} 次</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;gap:16px;margin-top:2px">
+                  <span style="color:#94a3b8">占比</span>
+                  <span style="font-family:'JetBrains Mono',monospace;color:#7c3aed;font-weight:800">${pctOf(v)}%</span>
+                </div>`
       }
     },
-    polar: {
-      radius: ['18%', '85%'],
-      center: ['50%', '50%'],
-      axisName: { show: false },
-      splitLine: { show: false },
-      splitArea: { show: false },
-      axisLine: { show: false },
-      axisTick: { show: false }
+    grid: { left: 82, right: 90, top: 14, bottom: 14, containLabel: false },
+    xAxis: {
+      type: 'value',
+      show: false,
+      max: null
     },
-    angleAxis: {
+    yAxis: {
       type: 'category',
       data: names,
-      startAngle: 90,
-      min: 0,
-      max: names.length,
-      splitLine: { show: false },
+      inverse: false,
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: {
-        show: true,
-        color: 'rgba(220,230,240,0.85)',
-        fontSize: 11,
-        fontWeight: 600,
-        formatter: (value) => {
-          const idx = names.indexOf(value)
-          const pct = values[idx] ? Math.round((values[idx] / total) * 100) : 0
-          return `{name|${value}}\n{pct|${pct}%}`
-        },
-        rich: {
-          name: { color: 'rgba(220,230,240,0.9)', fontSize: 11, fontWeight: 600, lineHeight: 16 },
-          pct: { color: '#00f0ff', fontSize: 10, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', lineHeight: 12 }
-        }
+        color: '#e2e8f0',
+        fontSize: 14,
+        fontWeight: 700,
+        margin: 14
       }
-    },
-    radiusAxis: {
-      show: false,
-      min: 0,
-      max: maxVal * 1.2
     },
     series: [
       {
         type: 'bar',
-        coordinateSystem: 'polar',
-        data: values.map((v, i) => ({
-          value: v,
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-              { offset: 0, color: '#00f0ff' },
-              { offset: 0.5, color: '#7c3aed' },
-              { offset: 1, color: '#f472b6' }
-            ]),
-            borderRadius: [6, 6, 6, 6],
-            shadowColor: 'rgba(124,58,237,0.3)',
-            shadowBlur: 10
-          }
-        })),
-        barWidth: 22,
-        showBackground: true,
-        backgroundStyle: {
-          color: 'rgba(100,140,200,0.06)',
-          borderRadius: [6, 6, 6, 6]
+        data: values,
+        barWidth: 18,
+        barMaxWidth: 18,
+        itemStyle: {
+          color: barGradient,
+          borderRadius: [0, 9, 9, 0],
+          shadowBlur: 10,
+          shadowColor: 'rgba(0, 240, 255, 0.16)'
         },
         label: {
-          show: false
+          show: true,
+          position: 'right',
+          align: 'left',
+          distance: 12,
+          fontSize: 14,
+          fontWeight: 800,
+          fontFamily: "'JetBrains Mono', monospace",
+          color: '#f1f5f9',
+          formatter: (p) => {
+            const v = Number(p.value) || 0
+            return `${v.toLocaleString()}  ·  ${pctOf(v)}%`
+          }
         },
-        animationDuration: 1200,
-        animationDelay: (idx) => idx * 80,
-        animationEasing: 'elasticOut'
+        animationDuration: 1100,
+        animationEasing: 'cubicOut'
       }
     ]
-  })
+  }, true)
 }
-
 // Canvas背景 - 星空+粒子网络+流星
 const initBackground = () => {
   const canvas = bgCanvas.value
@@ -1858,10 +2020,13 @@ const initPopupSalaryEdu = async () => {
 
 onMounted(async () => {
   isComponentMounted = true
+  fetchDataInfo()
   try {
-    const response = await fetch('/data/all_cleaned_jobs.json')
+    const response = await fetch('/api/jobs/raw', { cache: 'no-store', headers: { 'Pragma': 'no-cache' } })
     if (response.ok) {
-      jobData = await response.json()
+      const payload = await response.json()
+      const list = (payload && payload.success && Array.isArray(payload.data)) ? payload.data : []
+      jobData = Array.isArray(list) ? list : []
       dataTrigger.value++
     }
   } catch (err) {
@@ -2533,54 +2698,99 @@ onUnmounted(() => {
   color: var(--cyan);
   font-family: var(--font-mono);
 }
-.top-skill-item {
+/* ===== 热门技能 TOP5（按参考图：胶囊子弹条 + 两端节点圆点 + 方形排名徽章）  .hero-top-skills 作用域，防止与政策页同名类冲突 ===== */
+.hero-top-skills .top-skill-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  gap: 10px;
+  font-size: 12px;
+  padding: 8px 4px;
+  border-bottom: 1px dashed rgba(100, 140, 200, 0.06);
+  position: relative;
 }
-.skill-rank {
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
+.hero-top-skills .skill-rank {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;              /* 方形徽章，接近参考图 */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   flex-shrink: 0;
-  background: rgba(100, 140, 200, 0.15);
-  color: var(--text-dim);
+  color: #fff;
+  position: relative;
 }
-.skill-rank.rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1000; }
-.skill-rank.rank-2 { background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff; }
-.skill-rank.rank-3 { background: linear-gradient(135deg, #00f0ff, #06b6d4); color: #003040; }
-.skill-name {
-  flex: 1;
-  font-weight: 600;
-  color: var(--text);
-  min-width: 0;
-}
-.skill-bar {
-  width: 40px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.skill-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #00f0ff, #7c3aed);
-  border-radius: 2px;
-  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.skill-pct {
-  font-size: 10px;
+.hero-top-skills .skill-rank::after { display: none; }
+/* 1~5 徽章颜色：1金 2紫 3橙 4/5深石板（完全按参考图配色） */
+.hero-top-skills .skill-rank.rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1000; }
+.hero-top-skills .skill-rank.rank-2 { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; }
+.hero-top-skills .skill-rank.rank-3 { background: linear-gradient(135deg, #fb923c, #ea580c); color: #fff; }
+.hero-top-skills .skill-rank.rank-4 { background: linear-gradient(135deg, #475569, #334155); color: #e2e8f0; }
+.hero-top-skills .skill-rank.rank-5 { background: linear-gradient(135deg, #475569, #334155); color: #e2e8f0; }
+.hero-top-skills .skill-name {
+  flex: 0 0 auto;
   font-weight: 700;
+  color: #e2e8f0;
+  min-width: 52px;
+  letter-spacing: 0.3px;
+}
+/* 轨道：可见溢出，让两端节点光晕不被裁掉 */
+.hero-top-skills .skill-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 999px;
+  overflow: visible;               /* 关键：允许节点光晕溢出轨道 */
+  border: none;
+  position: relative;
+}
+/* 填充条：青紫渐变 + 胶囊圆角 + 过渡动画 */
+.hero-top-skills .skill-bar-fill {
+  position: relative;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(90deg, #00f0ff 0%, #7c3aed 100%);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+  min-width: 18px;                   /* 2% 这种极短进度也能装下两个圆点 */
+}
+/* 左端点 亮青色圆节点（带光晕） */
+.hero-top-skills .skill-bar-fill::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #7df9ff 0%, #00f0ff 60%, #06b6d4 100%);
+  box-shadow: 0 0 6px #00f0ff, 0 0 12px rgba(0, 240, 255, 0.5);
+}
+/* 右端点 紫色圆节点（带光晕） */
+.hero-top-skills .skill-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(1px, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #c4b5fd 0%, #8b5cf6 55%, #6d28d9 100%);
+  box-shadow: 0 0 6px #8b5cf6, 0 0 12px rgba(139, 92, 246, 0.55);
+}
+/* 百分比：统一亮青色，参考图 Java 45% Python 37% 都是青色 */
+.hero-top-skills .skill-pct {
+  font-size: 12px;
+  font-weight: 800;
   font-family: var(--font-mono);
-  color: var(--cyan);
-  min-width: 24px;
+  min-width: 32px;
   text-align: right;
+  color: #22d3ee;
+  letter-spacing: 0.3px;
+  text-shadow: 0 0 6px rgba(34, 211, 238, 0.25);
 }
 
 /* ===== Mini Charts (Larger) ===== */
@@ -2722,7 +2932,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   margin-top: 10px;
-  padding: 8px 12px;
+  padding: 4px 8px;
   background: linear-gradient(90deg, rgba(0, 240, 255, 0.04), rgba(124, 58, 237, 0.03));
   border-radius: 10px;
   border: 1px solid rgba(100, 140, 200, 0.08);
@@ -2751,33 +2961,141 @@ onUnmounted(() => {
 }
 
 /* ===== Education Content (Redesigned) ===== */
+/* ===== Education Content (Compact, redesigned to avoid empty bottom space) ===== */
+/* ===== Education Content (Compact — 消除底部大片空白：让内部内容均匀铺满卡片) ===== */
 .edu-content {
   display: flex;
-  gap: 20px;
-  align-items: stretch;
-  flex: 1;
-  padding-top: 8px;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+  padding-top: 4px;
+  min-height: 0;
+  justify-content: flex-start;
 }
+.edu-top-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.edu-insight-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid rgba(100, 140, 200, 0.14);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(34,211,238,0.06) 0%, rgba(167,139,250,0.04) 50%, rgba(244,114,182,0.04) 100%),
+    rgba(5, 10, 25, 0.55);
+  position: relative;
+  overflow: hidden;
+  margin-top: 0;
+  min-height: 0;
+}
+.edu-insight-bar::before { display: none; }
+.edu-insight-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(100, 140, 200, 0.08);
+  position: relative;
+  z-index: 1;
+  transition: all 0.25s ease;
+  justify-content: center;
+}
+.edu-insight-chip:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34,211,238,0.22);
+  background: rgba(0,240,255,0.03);
+}
+.chip-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.chip-label {
+  font-size: 12px;
+  color: rgba(200, 210, 230, 0.78);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chip-value {
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  margin-left: auto;
+  letter-spacing: 0.3px;
+}
+.edu-donut-wrap {
+  position: relative;
+  flex: 0 0 58%;
+  height: 300px;
+  min-height: 300px !important;
+  max-height: 300px;
+  min-width: 300px;
+}
+
 .edu-donut-box {
-  flex: 0 0 48%;
-  height: 230px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.edu-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.edu-center-unit {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  color: rgba(200, 210, 230, 0.68);
+  line-height: 1;
+}
+
+.edu-center-num {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: #22d3ee;
+  text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
 }
 .edu-legend-list {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  justify-content: center;
-  padding: 10px 4px;
+  justify-content: flex-start;
+  padding: 4px 0;
 }
 .edu-legend-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 12px;
-  padding: 8px 12px;
+  padding: 9px 12px;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(100, 140, 200, 0.06);
+  border: 1px solid rgba(100, 140, 200, 0.07);
   border-radius: 10px;
   transition: all 0.3s ease;
 }
@@ -2787,42 +3105,43 @@ onUnmounted(() => {
   transform: translateX(3px);
 }
 .edu-legend-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 8px currentColor;
+  box-shadow: 0 0 10px currentColor;
 }
 .edu-legend-name {
-  width: 68px;
+  width: 78px;
   color: var(--text);
-  font-weight: 600;
+  font-weight: 700;
   flex-shrink: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 12px;
+  font-size: 14px;
 }
 .edu-legend-bar {
   flex: 1;
-  height: 6px;
+  height: 8px;
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 .edu-legend-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 0 6px currentColor;
 }
 .edu-legend-pct {
-  width: 40px;
+  width: 46px;
   text-align: right;
-  font-weight: 700;
+  font-weight: 800;
   font-family: var(--font-mono);
   color: var(--cyan);
-  font-size: 13px;
+  font-size: 15px;
+  text-shadow: 0 0 6px rgba(34, 211, 238, 0.25);
 }
 
 /* ===== Skill Content (Redesigned) ===== */
@@ -2834,13 +3153,13 @@ onUnmounted(() => {
 }
 .skill-chart-box {
   flex: 0 0 55%;
-  height: 230px;
+  height: 270px;
 }
 .skill-frequency-list {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
   padding: 10px 4px;
 }
@@ -2849,7 +3168,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   font-size: 12px;
-  padding: 8px 12px;
+  padding: 8px 14px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(100, 140, 200, 0.06);
   border-radius: 10px;
@@ -2861,31 +3180,34 @@ onUnmounted(() => {
   transform: translateX(3px);
 }
 .skill-freq-name {
-  width: 64px;
+  width: 72px;
   color: var(--text);
   font-weight: 700;
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 .skill-freq-bar {
   flex: 1;
-  height: 7px;
+  height: 9px;
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
 }
 .skill-freq-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 5px;
   transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 6px currentColor;
+  background: linear-gradient(90deg, #00f0ff 0%, #7c3aed 100%);
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.2);
 }
 .skill-freq-pct {
-  width: 34px;
+  width: 40px;
   text-align: right;
-  font-weight: 700;
+  font-weight: 800;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 15px;
+  color: #22d3ee;
+  text-shadow: 0 0 6px rgba(34, 211, 238, 0.25);
 }
 
 .hero-spark-wrap {
@@ -2933,7 +3255,7 @@ onUnmounted(() => {
 
 /* ===== 数据卡 ===== */
 .data-card {
-  grid-column: span 3;
+  grid-column: span 6;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3045,8 +3367,9 @@ onUnmounted(() => {
 }
 .badge-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
 .chart-box { width: 100%; height: 260px; position: relative; }
-.edu-donut-box { height: 230px; }
-.skill-chart-box { height: 230px; }
+.edu-donut-box { height: 100%; }
+.edu-donut-wrap { height: 300px; min-height: 300px !important; max-height: 300px; }
+.skill-chart-box { height: 270px; }
 .chart-box::before {
   content: '';
   position: absolute;
@@ -3057,7 +3380,7 @@ onUnmounted(() => {
 }
 
 /* ===== 学历分布 ===== */
-.info-card { grid-column: span 6; display: flex; flex-direction: column; }
+.info-card { grid-column: span 6; display: flex; flex-direction: column; min-height: 0; }
 .skill-card { grid-column: span 6; }
 .edu-list { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
 .edu-row {
@@ -3095,7 +3418,9 @@ onUnmounted(() => {
 }
 
 /* ===== 排行榜 ===== */
-.rank-card { grid-column: span 6; }
+/* 学历卡和岗位排行卡在网格里并排等高，内部内容自动分布（避免学历卡底部空白） */
+.edu-card  { align-self: stretch; }
+.rank-card { grid-column: span 6; align-self: stretch; }
 .rank-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 4px; }
 .rank-row {
   display: flex;

@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const path = require('path')
 const { spawn } = require('child_process')
+const jobService = require('../services/jobService')
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../')
 const STATUS_FILE = path.join(PROJECT_ROOT, 'crawler_status.json')
@@ -9,7 +10,41 @@ const LOGIN_FILE = path.join(PROJECT_ROOT, 'login_status.json')
 const LOCK_FILE = path.join(PROJECT_ROOT, 'logs', 'crawler.run.lock')
 const DATA_FILE = path.join(PROJECT_ROOT, 'backend', 'data', 'all_cleaned_jobs.json')
 const SCHEDULE_FILE = path.join(PROJECT_ROOT, 'crawler_schedule.json')
+const ENV_FILE = path.join(PROJECT_ROOT, '.env')
 const fs = require('fs')
+
+// 解析爬虫用的 Python 可执行文件路径（支持 .env PYTHON_PATH 覆盖 / 环境变量 / 系统PATH / 本地 venv）
+function resolvePythonExecutable() {
+  // 1) 项目根 .env 的 PYTHON_PATH 优先级最高（支持用户自定义）
+  if (fs.existsSync(ENV_FILE)) {
+    try {
+      const raw = fs.readFileSync(ENV_FILE, 'utf-8')
+      const line = raw.split(/\r?\n/).map(l => l.trim()).find(l => /^PYTHON_PATH\s*=/.test(l))
+      if (line) {
+        const p = line.split('=')[1].replace(/^["']|["']$/g, '').trim()
+        if (p && fs.existsSync(p)) return p
+      }
+    } catch (_) {}
+  }
+  // 2) 进程环境变量 PYTHON_PATH
+  if (process.env.PYTHON_PATH && fs.existsSync(process.env.PYTHON_PATH)) return process.env.PYTHON_PATH
+  // 3) which('python') —— 系统PATH上的python
+  try {
+    const ext = process.env.PATHEXT || '.EXE;.CMD;.BAT;.COM'
+    const paths = (process.env.PATH || '').split(path.delimiter)
+    for (const dir of paths) {
+      for (const e of ext.split(';')) {
+        const c1 = path.join(dir, 'python' + e)
+        if (fs.existsSync(c1)) return c1
+        const c2 = path.join(dir, 'python3' + e)
+        if (fs.existsSync(c2)) return c2
+      }
+    }
+  } catch (_) {}
+  // 4) 退回项目本地 venv（若存在）
+  const fallback = path.join(PROJECT_ROOT, '.venv312', 'Scripts', 'python.exe')
+  return fallback
+}
 
 function readJsonSafe(file, defaultValue) {
   try {
@@ -63,15 +98,38 @@ function computeNextRun(expr) {
 function startCrawlerFromSchedule() {
   if (isRunning()) return
   try {
-    const python = path.join(PROJECT_ROOT, '.venv312', 'Scripts', 'python.exe')
+    const python = resolvePythonExecutable()
     const script = path.join(PROJECT_ROOT, 'spider', 'run_all.py')
     const logsDir = path.join(PROJECT_ROOT, 'logs')
     if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true })
     const outLog = fs.openSync(path.join(logsDir, 'crawler_stdout.log'), 'a')
     const errLog = fs.openSync(path.join(logsDir, 'crawler_stderr.log'), 'a')
+    console.log('[SCHEDULE] 启动爬虫子进程: python=' + python + ' script=' + script)
     const child = spawn(python, [script], {
-      cwd: PROJECT_ROOT, stdio: ['ignore', outLog, errLog],
-      detached: true, windowsHide: false,
+      cwd: PROJECT_ROOT,
+      stdio: ['pipe', outLog, errLog],
+      detached: true,
+      windowsHide: false,
+      env: Object.assign({}, process.env, { CRAWLER_SKIP_LOGIN_INPUT: '1' }),
+    })
+    const runStart = Date.now()
+    child.once('close', async (code) => {
+      try {
+        const reloadRes = await jobService.reloadData()
+        const duration = Math.round((Date.now() - runStart) / 1000)
+        if (scheduleState.history && scheduleState.history[0] && scheduleState.history[0].status === 'started') {
+          scheduleState.history[0].status = code === 0 ? 'success' : `failed (exit ${code})`
+          scheduleState.history[0].duration_seconds = duration
+          scheduleState.history[0].reloaded = reloadRes && reloadRes.success
+            ? `+${reloadRes.added} → 共 ${reloadRes.newCount} 条`
+            : null
+          scheduleState.history[0].finished_time = new Date().toLocaleString('zh-CN')
+          writeJsonSafe(SCHEDULE_FILE, scheduleState)
+        }
+        console.log(`[SCHEDULE] 爬虫完成 exit=${code}  reload=${JSON.stringify(reloadRes)}`)
+      } catch (err) {
+        console.error('[SCHEDULE] 爬虫结束后 reloadData 失败:', err.message)
+      }
     })
     child.unref()
     fs.closeSync(outLog); fs.closeSync(errLog)
@@ -79,7 +137,8 @@ function startCrawlerFromSchedule() {
     scheduleState.history.unshift({
       time: scheduleState.last_run_time,
       type: 'scheduled',
-      status: 'started'
+      status: 'started',
+      python_executable: python
     })
     if (scheduleState.history.length > 10) scheduleState.history.length = 10
     writeJsonSafe(SCHEDULE_FILE, scheduleState)
@@ -105,6 +164,31 @@ function installScheduleTick() {
       const fireKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}`
       if (scheduleState._lastFireKey !== fireKey) {
         scheduleState._lastFireKey = fireKey
+        startCrawlerFromSchedule()
+      }
+    }
+    // ===== 错过补爬：如果当前时间已超过今天计划时间，且今天还没成功跑过，则立即补爬一次 =====
+    if (!shouldFire && !p.everyMinute) {
+      const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`
+      const alreadyRanToday = (scheduleState.history || []).some(h => {
+        if (!h || !h.time) return false
+        try {
+          const d = new Date((h.time || '').replace(/\//g, '-').replace(/年|月/g, '-').replace(/日/g, '').trim().split(' ')[0] + 'T00:00:00')
+          return d.toDateString() === now.toDateString() && (h.status === 'started' || h.status === 'completed' || h.status === 'running')
+        } catch (_) { return false }
+      })
+      const pastSchedule = (now.getHours() > p.hour) || (now.getHours() === p.hour && now.getMinutes() > p.minute)
+      const catchUpKey = 'catchup_' + todayKey
+      if (pastSchedule && !alreadyRanToday && scheduleState._lastCatchUpKey !== catchUpKey) {
+        scheduleState._lastCatchUpKey = catchUpKey
+        scheduleState.history.unshift({
+          time: now.toLocaleString('zh-CN'),
+          type: 'catch-up',
+          status: 'started',
+          message: '检测到今日 定时（' + (scheduleState.time_description || scheduleState.cron_expression) + '） 未执行，自动补爬'
+        })
+        if (scheduleState.history.length > 10) scheduleState.history.length = 10
+        console.log('[SCHEDULE] 触发错过补爬 (今日计划时间已过但未执行)')
         startCrawlerFromSchedule()
       }
     }
@@ -284,26 +368,40 @@ router.get('/status', (req, res) => {
 router.post('/start', (req, res) => {
   try {
     if (isRunning()) return res.json({ success: false, message: '已有爬虫实例正在运行中，请等待结束' })
-    const python = path.join(PROJECT_ROOT, '.venv312', 'Scripts', 'python.exe')
+    const python = resolvePythonExecutable()
     const script = path.join(PROJECT_ROOT, 'spider', 'run_all.py')
     const logsDir = path.join(PROJECT_ROOT, 'logs')
     if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true })
     const outLog = fs.openSync(path.join(logsDir, 'crawler_stdout.log'), 'a')
     const errLog = fs.openSync(path.join(logsDir, 'crawler_stderr.log'), 'a')
+    console.log('[CRAWLER /start] 启动: python=' + python)
     const child = spawn(python, [script], {
-      cwd: PROJECT_ROOT, stdio: ['ignore', outLog, errLog],
-      detached: true, windowsHide: false,
+      cwd: PROJECT_ROOT,
+      stdio: ['pipe', outLog, errLog],
+      detached: true,
+      windowsHide: false,
+      env: Object.assign({}, process.env, { CRAWLER_SKIP_LOGIN_INPUT: '1' }),
+    })
+    const runStart = Date.now()
+    child.once('close', async (code) => {
+      try {
+        const reloadRes = await jobService.reloadData()
+        console.log(`[CRAWLER /start] 完成 exit=${code}  duration=${Math.round((Date.now()-runStart)/1000)}s reload=${JSON.stringify(reloadRes)}`)
+      } catch (err) {
+        console.error('[CRAWLER /start] 结束后 reloadData 失败:', err.message)
+      }
     })
     child.unref()
     fs.closeSync(outLog); fs.closeSync(errLog)
-    res.json({ success: true, pid: child.pid, message: '爬虫已启动，刷新接口查看进度' })
+    res.json({ success: true, pid: child.pid, python_executable: python, message: '爬虫已启动，完成后会自动刷新后端数据缓存' })
   } catch (error) { res.status(500).json({ success: false, message: error.message }) }
 })
 
 router.post('/login', (req, res) => {
   try {
-    const python = path.join(PROJECT_ROOT, '.venv312', 'Scripts', 'python.exe')
+    const python = resolvePythonExecutable()
     const script = path.join(PROJECT_ROOT, 'crawler_login_manager.py')
+    console.log('[CRAWLER /login] 启动: python=' + python)
     const child = spawn(python, [script], {
       cwd: PROJECT_ROOT, detached: true, stdio: 'inherit', shell: false,
     })

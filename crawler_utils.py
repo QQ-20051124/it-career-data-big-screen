@@ -241,19 +241,36 @@ def check_site_login(dp, site_name, _allow_unknown=True):
 
 def wait_for_login_confirmation(site_name):
     """
-    阻塞等待用户扫码登录完成
-    在控制台输出提示，等待用户按回车键继续
+    阻塞等待用户扫码登录完成：
+    - 交互式（有 stdin TTY / 允许人工回车）：等待用户按回车键继续
+    - 非交互式（定时任务 / stdin 被 ignore / 设置了 CRAWLER_SKIP_LOGIN_INPUT=1）：
+      跳过 input()，交给 check_site_login + 持久化 chrome_scraper_profile 自动判断，
+      避免定时任务永远卡在"按回车键"。
     """
+    import os, sys
+    skip_input = os.environ.get("CRAWLER_SKIP_LOGIN_INPUT", "0") == "1"
+    has_tty = False
+    try:
+        has_tty = sys.stdin is not None and hasattr(sys.stdin, "isatty") and sys.stdin.isatty()
+    except Exception:
+        has_tty = False
     print(f"\n{'='*60}")
     print(f"  【扫码登录提醒】{site_name}")
     print(f"  请在弹出的浏览器窗口中完成 {site_name} 扫码登录")
-    print(f"  登录成功后，在控制台按【回车键】继续执行爬虫...")
+    if has_tty and not skip_input:
+        print(f"  登录成功后，在控制台按【回车键】继续执行爬虫...")
+    else:
+        print(f"  非交互式运行（CRAWLER_SKIP_LOGIN_INPUT=1 或 stdin=ignore）：")
+        print(f"    将跳过按回车键，直接依赖 chrome_scraper_profile 的持久化登录态继续")
     print(f"  （登录信息将自动保存到 chrome_scraper_profile，下次无需重复扫码）")
     print(f"{'='*60}\n")
-    try:
-        input(">>> 登录完成后按回车键继续 <<<")
-    except EOFError:
-        pass
+    if has_tty and not skip_input:
+        try:
+            input(">>> 登录完成后按回车键继续 <<<")
+        except EOFError:
+            print(f"[LOGIN] {site_name} stdin 已关闭（EOF），跳过回车确认")
+    else:
+        print(">>> [非交互式] 跳过按回车键，直接继续 <<<")
     print(f"[LOGIN] {site_name} 用户已确认登录，继续执行爬虫")
 
 # ================== 关键词配置 ==================

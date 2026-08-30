@@ -1,8 +1,49 @@
 {
-  "enabled": false,
-  "cron_expression": "0 2 * * *",
-  "time_description": "?? 02:00",
-  "last_run_time": null,
-  "next_run_time": "2026/8/26 02:00:00",
-  "history": []
+  "enabled": true,
+  "cron_expression": "0 10 * * *",
+  "time_description": "每天 10:00",
+  "next_run_time": "2026/8/31 10:00:00",
+  "history": [
+    {
+      "time": "2026/8/30 14:38:32",
+      "type": "scheduled",
+      "status": "success",
+      "python_executable": "D:\\python\\python.exe",
+      "duration_seconds": 9025,
+      "reloaded": "+0 → 共 63656 条",
+      "finished_time": "2026/8/30 17:08:57"
+    },
+    {
+      "time": "2026/8/30 14:38:32",
+      "type": "catch-up",
+      "status": "started",
+      "message": "检测到今日 定时（每天 10:00） 未执行，自动补爬"
+    },
+    {
+      "time": "2026/8/29 10:13:11",
+      "type": "scheduled",
+      "status": "started",
+      "python_executable": "D:\\python\\python.exe"
+    },
+    {
+      "time": "2026/8/29 10:13:11",
+      "type": "catch-up",
+      "status": "started",
+      "message": "检测到今日 定时（每天 10:00） 未执行，自动补爬"
+    },
+    {
+      "time": "2026/8/28 18:51:34",
+      "type": "scheduled",
+      "status": "started",
+      "python_executable": "D:\\python\\python.exe"
+    },
+    {
+      "time": "2026/8/28 18:51:34",
+      "type": "catch-up",
+      "status": "started",
+      "message": "检测到今日 定时（每天 10:00） 未执行，自动补爬"
+    }
+  ],
+  "last_run_time": "2026/8/30 14:38:32",
+  "_lastCatchUpKey": "catchup_2026-7-30"
 }

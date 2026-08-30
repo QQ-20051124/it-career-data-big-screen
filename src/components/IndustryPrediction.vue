@@ -2102,8 +2102,9 @@ onUnmounted(() => {
 }
 
 .header-top {
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 20px;
   gap: 20px;
@@ -2131,10 +2132,9 @@ onUnmounted(() => {
 }
 
 .logo-section {
-  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 15px;
 }
 
@@ -2167,6 +2167,9 @@ onUnmounted(() => {
 }
 
 .search-bar {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   flex-shrink: 0;
   display: flex;
   gap: 10px;
@@ -2242,6 +2245,7 @@ onUnmounted(() => {
 .smart-tags {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 5px;

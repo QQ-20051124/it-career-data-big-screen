@@ -1,6 +1,7 @@
 const express = require('express')
 const multer = require('multer')
 const path = require('path')
+const jobService = require('../services/jobService')
 const router = express.Router()
 
 // 文件上传配置
@@ -8,6 +9,198 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }
 })
+
+// ============ 通用场景回复模板 ============
+const greetingReplies = [
+  (name) => name
+    ? `${name}，你好呀！😊 很高兴再次和你聊天～\n\n今天想了解什么呢？是职业规划、简历优化、岗位推荐还是行业数据？`
+    : '你好呀！😊 我是AI就业规划助手～\n\n我可以帮你解答学业规划、简历优化、人才数据、行业趋势、岗位推荐等问题。\n\n方便告诉我怎么称呼你吗？这样我能更亲切地和你聊天～',
+  (name) => name
+    ? `嗨，${name}！有什么可以帮你的吗？`
+    : '嗨！👋 我是你的AI就业助手～\n\n无论是学习路线、简历打磨，还是薪资行情、岗位匹配，都可以问我哦！\n\n对了，你叫什么名字呀？',
+  (name) => name
+    ? `${name}下午好～☀️ 今天想聊点什么？`
+    : '下午好～☀️ 我是AI就业规划小助手！\n\n告诉我你的问题，或者先告诉我你的名字也行～'
+]
+
+const nameExtractPatterns = [
+  /我是([^\s，。！？,.!?]{1,8})/,
+  /我叫([^\s，。！？,.!?]{1,8})/,
+  /我的名字(?:是|叫|为)?([^\s，。！？,.!?]{1,8})/,
+  /你可以叫我([^\s，。！？,.!?]{1,8})/,
+  /叫我([^\s，。！？,.!?]{1,8})就行/,
+  /叫我([^\s，。！？,.!?]{1,8})/
+]
+const nameBlacklist = new Set([
+  '吗', '呢', '啊', '吧', '呀', '哦', '嗯', '好', '是', '在', '想', '要', '会', '能',
+  '你好', '您好', 'hi', 'hello', '嗨', '哈喽', '什么', '怎么', '如何', '为什么',
+  '哪里', '哪个', '多少', '工作', '岗位', '简历', '面试', '薪资', '城市', '技能',
+  '项目', '规划', '推荐', '适合', '匹配', '找工作', '我想', '我要', '我在', '本人',
+  // —— 补齐常见业务/场景关键词，避免误判为取名 ——
+  '谢谢', '感谢', '多谢', '拜拜', '再见', '告辞',
+  '你是谁', '介绍', '自我介绍', '你叫什么', '功能', '前端', '后端', '算法',
+  '测试', '数据', '分析', '简历优化', '前端岗位', '前端开发', '后端开发',
+  'java', 'python', 'vue', 'react', '学历', '本科', '硕士', '专科',
+  '实习', '全职', '招聘', '求职', '投递', '公司', '行业', '趋势', '前景'
+])
+// 非取名语义的动作/关键词集合（当输入包含这些词时，跳过纯名字兜底）
+const nonNameHints = ['你好', '您好', 'hi', 'hello', '嗨', '哈喽', '谢谢', '感谢', '多谢',
+  '拜拜', '再见', '告辞', '辛苦', '你是谁', '你叫什么', '介绍', '功能', '能做什么',
+  '薪资', '工资', '薪酬', '待遇', '多少钱', '简历', '岗位', '工作', '招聘', '求职',
+  '面试', '笔试', '前端', '后端', '算法', '测试', '数据', 'java', 'python', 'vue',
+  'react', '项目', '学习', '规划', '推荐', '匹配', '城市', '学历', '本科', '硕士',
+  '行业', '趋势', '前景', '政策', '补贴', '统计', '数据', '多少']
+function extractUserName(text) {
+  const raw = text.trim()
+  for (const p of nameExtractPatterns) {
+    const m = raw.match(p)
+    if (m && m[1]) {
+      const n = m[1].trim()
+      if (n.length >= 1 && n.length <= 8 && !nameBlacklist.has(n.toLowerCase())) {
+        return n
+      }
+    }
+  }
+  // 纯名字兜底：必须满足——
+  //   长度 2-4 个纯中文字，或 2-8 个纯英文字母
+  //   不在 nameBlacklist 中
+  //   不包含任何非取名类关键词提示
+  const hasNonNameHint = nonNameHints.some(h => raw.toLowerCase().includes(h.toLowerCase()))
+  if (!hasNonNameHint) {
+    if (raw.length >= 2 && raw.length <= 4 && /^[\u4e00-\u9fa5]+$/.test(raw)) {
+      if (!nameBlacklist.has(raw.toLowerCase())) return raw
+    }
+    if (raw.length >= 2 && raw.length <= 8 && /^[a-zA-Z]+$/.test(raw)) {
+      if (!nameBlacklist.has(raw.toLowerCase())) return raw
+    }
+  }
+  return null
+}
+
+const identityReplies = [
+  (name) => name
+    ? `${name}，我是你的专属AI就业规划助手呀～😉\n\n我精通五大板块：\n📚 学业规划 | 💼 简历优化 | 📊 人才数据 | 🔮 行业预测 | 🎯 岗位推荐\n\n有什么问题尽管问我！`
+    : '我是AI就业规划助手，专注IT领域的求职与学习规划哦～😉\n\n我可以帮你：\n📚 制定学习路线与职业规划\n💼 优化简历与面试准备\n📊 分析薪资与岗位数据\n🔮 解读行业发展趋势\n🎯 智能匹配适合你的岗位\n\n先告诉我怎么称呼你吧～',
+  (name) => name
+    ? `我是${name}的AI小助手呀，职业规划和求职方面有什么想知道的吗？`
+    : '我是专注IT求职的AI助手，有职业规划、简历、岗位、薪资相关的问题都可以问我！'
+]
+
+const thanksReplies = [
+  (name) => name ? `${name}不客气～能帮到你我也很高兴！😊 还有其他问题随时问我哦～` : '不客气～😊 还有其他问题随时问我哦！',
+  (name) => name ? `${name}不用谢～求职路上我一直都在！` : '不用谢～求职路上我一直都在！加油💪',
+  (name) => name ? `嘿嘿，${name}满意就好～还有什么想聊的吗？` : '嘿嘿，满意就好～还有什么想聊的吗？'
+]
+
+const goodbyeReplies = [
+  (name) => name ? `${name}再见啦～👋 祝你求职顺利，offer多多！有需要随时回来找我哦～` : '再见啦～👋 祝你求职顺利，offer多多！下次见！',
+  (name) => name ? `${name}拜拜～记得常来看看呀！✨` : '拜拜～记得常来看看呀！✨ 加油！'
+]
+
+const clarifyReplies = [
+  (name, msg) => {
+    const prefix = name ? `${name}，` : ''
+    return `${prefix}我理解你可能想了解「${msg}」相关的内容，不过能说得再具体一点吗？\n\n比如可以告诉我：\n• 你关注哪个方向？（前端/后端/数据/AI/测试）\n• 你想了解薪资、岗位、城市，还是学习路线？\n• 你是应届生还是有工作经验？\n\n这样我就能给出更精准的回答啦～😊`
+  },
+  (name, msg) => {
+    const prefix = name ? `${name}，` : ''
+    return `${prefix}关于「${msg}」，我可以从多个角度为你分析～\n\n你可以补充一下：\n• 你的目标城市或公司类型？\n• 你目前的学历或技能情况？\n• 你更关心数据、建议还是具体操作步骤？`
+  }
+]
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+// 获取真实人才数据统计
+function getRealStats() {
+  try {
+    const info = jobService.getDataInfo()
+    const salary = jobService.getSalaryStatistics()
+    const cities = jobService.getCityStatistics()
+    // 热门岗位统计（按job_name关键词）
+    const jobNameMap = {}
+    const allJobs = require('../data/all_cleaned_jobs.json') // 兜底直读
+    const rawJobs = allJobs.length ? allJobs : []
+    rawJobs.forEach(job => {
+      const name = (job.job_name || '').toLowerCase()
+      if (name.includes('前端')) jobNameMap['前端开发'] = (jobNameMap['前端开发'] || 0) + 1
+      if (name.includes('java') || name.includes('后端')) jobNameMap['Java后端'] = (jobNameMap['Java后端'] || 0) + 1
+      if (name.includes('python') || name.includes('数据') || name.includes('分析')) jobNameMap['数据/分析'] = (jobNameMap['数据/分析'] || 0) + 1
+      if (name.includes('算法') || name.includes('ai') || name.includes('人工智能')) jobNameMap['AI算法'] = (jobNameMap['AI算法'] || 0) + 1
+      if (name.includes('测试')) jobNameMap['测试开发'] = (jobNameMap['测试开发'] || 0) + 1
+    })
+    const hotJobs = Object.entries(jobNameMap).sort((a,b) => b[1] - a[1]).slice(0, 5)
+    // 学历统计
+    const eduMap = {}
+    rawJobs.forEach(job => {
+      const e = job.education || '不限'
+      eduMap[e] = (eduMap[e] || 0) + 1
+    })
+    const topEdu = Object.entries(eduMap).sort((a,b) => b[1] - a[1]).slice(0, 3)
+    return {
+      totalCount: info.totalCount || 0,
+      lastUpdated: info.lastUpdated,
+      avgSalary: salary.avg || 0,
+      maxSalary: salary.max || 0,
+      medianSalary: salary.median || 0,
+      topCities: cities.slice(0, 6),
+      hotJobs,
+      topEdu
+    }
+  } catch (e) {
+    console.error('[aiAssistant] getRealStats error:', e.message)
+    return null
+  }
+}
+function formatNumber(n) {
+  if (!n) return '0'
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+// 在一组场景中找到加权得分最高的匹配（用于替代"第一个命中就返回"）
+function findBestScene(lowerMsg, scenes, moduleKey, attachScore = false) {
+  let best = null
+  let bestScore = 0
+  // 行动/意图词 —— 当输入包含这些词时，给对应模块额外加权
+  const moduleBoosts = {
+    resume:     { words: ['简历', '项目经历', '技能标签', '模板', '排版', '投递', '面试', '没有实习'], boost: 12 },
+    recommend:  { words: ['岗位', '推荐', '匹配', '适合', '找工作', '招聘', '求职', '投递', 'offer', '实习'], boost: 12 },
+    statistics: { words: ['薪资', '工资', '待遇', '多少钱', '薪酬', '热门', '缺人', '城市', '一线', '二线', '学历', '本科', '硕士', '统计', '数据'], boost: 8 },
+    prediction: { words: ['趋势', '前景', '未来', '行业', '预测', '风口', '寒冬', '裁员', '失业', '内卷', '就业难', '发展方向'], boost: 10 },
+    planning:   { words: ['大一', '大二', '大三', '大四', '学习', '规划', '路线', '转专业', '转行', '考研', '自学', '计划'], boost: 10 }
+  }
+  const boostCfg = moduleBoosts[moduleKey] || null
+  for (const scene of scenes) {
+    let score = 0
+    let matchedCount = 0
+    for (const rawKw of scene.keywords) {
+      const kw = rawKw.toLowerCase()
+      if (lowerMsg.includes(kw)) {
+        matchedCount++
+        // 精确长度加分：越长的关键词，说明匹配越精准
+        score += 5 + kw.length * 2
+        // 完全相等再加
+        if (lowerMsg === kw) score += 10
+      }
+    }
+    if (matchedCount === 0) continue
+    // 命中次数额外加分
+    score += matchedCount * 2
+    // 模块意图词加成（输入中含该模块特征词）
+    if (boostCfg) {
+      for (const w of boostCfg.words) {
+        if (lowerMsg.includes(w.toLowerCase())) score += boostCfg.boost / 2
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score
+      best = scene
+    }
+  }
+  if (best && attachScore) best._score = bestScore
+  return best
+}
 
 // ============ 精细化关键词知识库 ============
 // 每个场景包含：匹配关键词、权重、专属回复
@@ -69,6 +262,11 @@ const knowledgeBase = [
       {
         keywords: ['面试', '面试题', '八股文', '面试准备'],
         reply: '面试准备攻略：\n\n📌 **技术面试**：\n• 算法：LeetCode Hot 100 + 剑指Offer，重点掌握数组/链表/树/DP\n• 八股文：Java JVM/GC/并发、MySQL索引/事务、Redis数据类型/持久化\n• 项目深挖：能讲清每个技术选型原因和遇到的坑\n\n📌 **HR面试**：\n• 自我介绍（1-3分钟版本各准备一个）\n• 常见问题：为什么选我们公司/你的优缺点/职业规划\n• 反问环节：准备2-3个有深度的问题\n\n📌 **实战准备**：\n• 牛客/Pramp模拟面试\n• 面经复盘：记录每次面试的问题和不足\n\n💡 简历优化好了，面试通过率自然提升。进入「AI简历」优化你的简历吧！'
+      },
+      // —— 简历通用兜底：输入只含"简历"或"简历"+方向时，给出针对性引导 ——
+      {
+        keywords: ['简历', '简历优化', '优化简历', '写简历', '做简历', '改简历', '润色简历'],
+        reply: '关于简历优化，我可以为你提供全方位建议～\n\n📌 **如果你刚起步**：\n• 告诉我你的目标岗位（如前端/Java/数据分析），我会针对性给出简历重点\n• 也可以直接把简历内容粘贴给我，我帮你逐条优化\n\n📌 **核心优化方向**（任选告诉我）：\n1. 模板/排版设计\n2. 项目经验用STAR法则改写\n3. 技能标签分类与熟练度\n4. 没有实习/项目怎么包装\n5. 投递通过率提升技巧\n6. 面试准备建议\n\n💡 也可以直接进入「AI简历」页面，AI一键生成专业简历！'
       }
     ]
   },
@@ -155,32 +353,141 @@ const defaultReplies = {
 }
 
 // 根据消息内容和模块生成精准回复
-function generateReply(message, module, history = []) {
+function generateReply(message, module, history = [], context = {}) {
   const lowerMessage = message.toLowerCase()
+  const rawMessage = message.trim()
+  const userName = context.userName || null
+  const detectedName = extractUserName(rawMessage)
 
-  // 1. 如果指定了模块，先在该模块内匹配具体场景
+  // ========== 0. 取名/姓名识别（最高优先级，在其他逻辑前处理）==========
+  if (detectedName) {
+    const nameReplies = [
+      `${detectedName}，好名字！记住你啦～🎉\n\n我是你的AI就业规划助手，之后就叫你${detectedName}啦～有什么想聊的尽管问我！`,
+      `${detectedName}～很高兴认识你！😊\n\n你的名字我记下来了，接下来我可以帮你解答学业规划、简历优化、岗位推荐、薪资数据等各种问题哦～`,
+      `哇，${detectedName}！我记住你啦～✨\n\n${detectedName}是在找工作吗？还是想先了解学习路线或行业情况呢？`
+    ]
+    // 返回时附带解析出的名字，供前端保存
+    const result = { text: pickRandom(nameReplies), extractedName: detectedName }
+    return result
+  }
+
+  // ========== 1. 问候语（纯问候，不含其他关键词）==========
+  const greetingKWs = ['你好', '您好', 'hi', 'hello', '在吗', '在不在', '哈喽', 'hey', '嗨',
+    '早上好', '下午好', '晚上好', '中午好']
+  const hasGreeting = greetingKWs.some(kw => lowerMessage.includes(kw.toLowerCase()))
+  // 排除组合：问候 + 业务关键词（如"你好，请问前端薪资"）应走业务匹配
+  const businessHint = ['薪资', '工资', '简历', '岗位', '面试', '前端', '后端', 'java', 'python',
+    '学习', '规划', '推荐', '数据', '城市', '学历', '行业', '算法'].some(k => lowerMessage.includes(k))
+  if (hasGreeting && !businessHint) {
+    return { text: pickRandom(greetingReplies)(userName) }
+  }
+
+  // ========== 2. 身份查询（你是谁/你叫什么/介绍一下自己）==========
+  const identityKWs = ['你是谁', '你叫什么', '介绍一下你自己', '你是做什么的', '你是什么',
+    '自我介绍一下', '你能做什么', '你有什么功能', '你会什么']
+  if (identityKWs.some(kw => lowerMessage.includes(kw.toLowerCase()))) {
+    return { text: pickRandom(identityReplies)(userName) }
+  }
+
+  // ========== 3. 道谢 ==========
+  const thanksKWs = ['谢谢', '感谢', '多谢', 'thank', 'thanks', '谢谢啦', '谢谢你', '辛苦']
+  if (thanksKWs.some(kw => lowerMessage.includes(kw.toLowerCase()))) {
+    return { text: pickRandom(thanksReplies)(userName) }
+  }
+
+  // ========== 4. 再见 ==========
+  const goodbyeKWs = ['再见', '拜拜', 'bye', '先这样', '下次再说', '告辞', '没了', '没问题了']
+  if (goodbyeKWs.some(kw => lowerMessage.includes(kw.toLowerCase()))) {
+    return { text: pickRandom(goodbyeReplies)(userName) }
+  }
+
+  // ========== 5. 澄清追问（用户输入太短/纯疑问词）==========
+  const tooShort = rawMessage.length <= 2 && !businessHint
+  const pureQuestion = /^[什么怎么为什么如何哪哪些谁？?？,.，。\s]+$/.test(rawMessage)
+  if (tooShort || pureQuestion) {
+    const topic = rawMessage || '这个'
+    return { text: pickRandom(clarifyReplies)(userName, topic) }
+  }
+
+  // ========== 6. 如果指定了模块，先在该模块内用加权计分选最优场景匹配 ==========
   if (module && module !== 'general') {
     const moduleData = knowledgeBase.find(kb => kb.module === module)
     if (moduleData) {
-      // 遍历该模块的所有场景，找到关键词匹配的
-      for (const scene of moduleData.scenes) {
-        if (scene.keywords.some(kw => lowerMessage.includes(kw.toLowerCase()))) {
-          return scene.reply
-        }
+      const best = findBestScene(lowerMessage, moduleData.scenes, moduleData.module)
+      if (best) {
+        let reply = best.reply
+        if (moduleData.module === 'statistics') reply = injectRealStats(reply, lowerMessage)
+        return { text: reply }
       }
     }
   }
 
-  // 2. 如果模块内没匹配到，全局搜索所有场景
-  for (const moduleData of knowledgeBase) {
-    for (const scene of moduleData.scenes) {
-      if (scene.keywords.some(kw => lowerMessage.includes(kw.toLowerCase()))) {
-        return scene.reply
-      }
+  // ========== 7. 「数据/统计/总量」类强意图查询，优先返回真实爬虫数据（避免被普通全局"数据/分析"场景吞掉）==========
+  const hasStatsQuestion = (
+    // 疑问词 + 数据对象 的组合
+    (/(多少|几|总数|总量|统计|目前|现在|一共|累计|平均).{0,6}(岗位|条|数据|薪资|工资|薪酬|个|人|公司|城市)/.test(lowerMessage)) ||
+    (/(岗位|数据|薪资|工资).{0,6}(多少|条|总数|统计|平均)/.test(lowerMessage)) ||
+    // 独立高权重词
+    lowerMessage.includes('多少条') || lowerMessage.includes('岗位总数') ||
+    lowerMessage.includes('岗位数据') || lowerMessage.includes('最新数据') ||
+    lowerMessage.includes('实时数据') || lowerMessage === '数据' || lowerMessage === '统计'
+  )
+  if (hasStatsQuestion) {
+    const stats = getRealStats()
+    if (stats) {
+      const dateStr = stats.lastUpdated ? new Date(stats.lastUpdated).toLocaleDateString('zh-CN') : '近期'
+      const cityLine = stats.topCities && stats.topCities.length > 0
+        ? stats.topCities.map((c, i) => `${i + 1}. ${c.city}（${formatNumber(c.count)}条）`).join('\n')
+        : '数据加载中'
+      const hotJobLine = stats.hotJobs && stats.hotJobs.length > 0
+        ? stats.hotJobs.map(([name, cnt], i) => `${i + 1}. ${name}（约${formatNumber(cnt)}条）`).join('\n')
+        : '数据加载中'
+      const eduLine = stats.topEdu && stats.topEdu.length > 0
+        ? stats.topEdu.map(([e, c]) => `${e} ${formatNumber(c)}条`).join('、')
+        : ''
+      const name = userName ? `${userName}，` : ''
+      const lines = [
+        `${name}📊 根据我们的实时爬虫数据（更新于 ${dateStr}）：`,
+        '',
+        `📋 **总体规模**：`,
+        `• 累计爬取岗位：${formatNumber(stats.totalCount)} 条`,
+        `• 平均薪资：¥${formatNumber(stats.avgSalary)}/月（中位数 ¥${formatNumber(stats.medianSalary)}）`,
+        `• 最高薪资样本：¥${formatNumber(stats.maxSalary)}/月`,
+        eduLine ? `• 学历分布Top：${eduLine}` : '',
+        '',
+        `🔥 **热门岗位分布**：`,
+        hotJobLine,
+        '',
+        `🏙️ **需求城市TOP6**：`,
+        cityLine,
+        '',
+        `💡 进入「人才专项统计模块」可查看完整可视化大屏哦～`
+      ].filter(Boolean)
+      return { text: lines.join('\n') }
     }
   }
 
-  // 3. 检查历史对话，判断用户是否在追问
+  // ========== 8. 全局加权最优匹配（避免模块顺序导致"前端"先命中趋势而非岗位推荐）==========
+  {
+    let bestScore = -1
+    let best = null
+    let bestMod = null
+    for (const moduleData of knowledgeBase) {
+      const scene = findBestScene(lowerMessage, moduleData.scenes, moduleData.module, true)
+      if (scene && scene._score > bestScore) {
+        bestScore = scene._score
+        best = scene
+        bestMod = moduleData.module
+      }
+    }
+    if (best) {
+      let reply = best.reply
+      if (bestMod === 'statistics') reply = injectRealStats(reply, lowerMessage)
+      return { text: reply }
+    }
+  }
+
+  // ========== 9. 检查历史对话，判断用户是否在追问 ==========
   if (history && history.length >= 2) {
     const lastUserMsg = [...history].reverse().find(m => m.role === 'user')
     if (lastUserMsg) {
@@ -188,16 +495,70 @@ function generateReply(message, module, history = []) {
       for (const moduleData of knowledgeBase) {
         for (const scene of moduleData.scenes) {
           if (scene.keywords.some(kw => lastLower.includes(kw.toLowerCase()))) {
-            // 用户在追问相关话题，返回该模块默认回复
-            return defaultReplies[moduleData.module] || defaultReplies.general
+            let reply = defaultReplies[moduleData.module] || defaultReplies.general
+            if (moduleData.module === 'statistics') {
+              reply = injectRealStats(reply, lastLower)
+            }
+            return { text: reply }
           }
         }
       }
     }
   }
 
-  // 4. 返回模块默认回复
-  return defaultReplies[module] || defaultReplies.general
+  // ========== 10. 兜底：不回general大段介绍，改用澄清追问 ==========
+  const defaultText = defaultReplies[module] || defaultReplies.general
+  // 如果有识别到用户名，用个性化澄清；否则给简短引导
+  if (userName) {
+    return {
+      text: pickRandom(clarifyReplies)(userName, rawMessage.slice(0, 12) || '你的问题')
+    }
+  }
+  return { text: defaultText }
+}
+
+// 向人才统计类回复中注入真实数据（替换硬编码数字）
+function injectRealStats(reply, lowerMessage) {
+  const stats = getRealStats()
+  if (!stats) return reply
+  const dateStr = stats.lastUpdated ? new Date(stats.lastUpdated).toLocaleDateString('zh-CN') : '近期'
+
+  // 薪资类场景：替换平均薪资数据
+  if (lowerMessage.includes('薪资') || lowerMessage.includes('工资') || lowerMessage.includes('待遇') || lowerMessage.includes('薪酬') || lowerMessage.includes('多少钱')) {
+    const avgY = Math.round(stats.avgSalary / 10000 * 10) / 10
+    const insert = `\n\n📊 **实时爬虫数据参考（更新于${dateStr}，共${formatNumber(stats.totalCount)}条）**：\n• 全体岗位平均薪资：¥${formatNumber(stats.avgSalary)}/月（约${avgY}万/月）\n• 薪资中位数：¥${formatNumber(stats.medianSalary)}/月\n• 最高薪资样本：¥${formatNumber(stats.maxSalary)}/月\n`
+    return reply + insert
+  }
+
+  // 岗位/热门类场景
+  if (lowerMessage.includes('热门') || lowerMessage.includes('需求大') || lowerMessage.includes('缺人')) {
+    if (stats.hotJobs && stats.hotJobs.length > 0) {
+      const hotJobLine = stats.hotJobs.map(([name, cnt]) => `${name}（约${formatNumber(cnt)}条）`).join('、')
+      const insert = `\n\n📊 **实时数据（${dateStr}，共${formatNumber(stats.totalCount)}条岗位）**：\n• 当前热门方向：${hotJobLine}\n`
+      return reply + insert
+    }
+  }
+
+  // 城市类场景
+  if (lowerMessage.includes('城市') || lowerMessage.includes('去哪') || lowerMessage.includes('一线') || lowerMessage.includes('二线')) {
+    if (stats.topCities && stats.topCities.length > 0) {
+      const cityLine = stats.topCities.map((c, i) => `${i + 1}.${c.city}(${formatNumber(c.count)})`).join('  ')
+      const insert = `\n\n📊 **实时城市需求TOP（${dateStr}）**：${cityLine}\n`
+      return reply + insert
+    }
+  }
+
+  // 学历类场景
+  if (lowerMessage.includes('学历') || lowerMessage.includes('本科') || lowerMessage.includes('硕士') || lowerMessage.includes('专科')) {
+    if (stats.topEdu && stats.topEdu.length > 0) {
+      const total = stats.totalCount || 1
+      const eduLine = stats.topEdu.map(([e, c]) => `${e} ${formatNumber(c)}（${Math.round(c / total * 100)}%）`).join('、')
+      const insert = `\n\n📊 **实时学历分布（${dateStr}，共${formatNumber(stats.totalCount)}条）**：\n• ${eduLine}\n`
+      return reply + insert
+    }
+  }
+
+  return reply
 }
 
 // 文件类型分析
@@ -248,6 +609,16 @@ router.post('/chat', (req, res, next) => {
       history = req.body.history
     }
 
+    // 解析 context（前端传来的用户信息）
+    let context = {}
+    if (typeof req.body.context === 'string') {
+      try {
+        context = JSON.parse(req.body.context) || {}
+      } catch (e) { context = {} }
+    } else if (typeof req.body.context === 'object' && req.body.context) {
+      context = req.body.context
+    }
+
     const fileCount = parseInt(req.body.fileCount) || 0
     let fileNames = []
     if (typeof req.body.fileNames === 'string') {
@@ -268,7 +639,10 @@ router.post('/chat', (req, res, next) => {
     // 模拟AI思考延迟
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 800))
 
-    let reply = generateReply(message, module, history)
+    // generateReply 现在返回对象：{ text: string, extractedName?: string }
+    const replyResult = generateReply(message, module, history, context)
+    let replyText = typeof replyResult === 'string' ? replyResult : (replyResult.text || '')
+    const extractedName = replyResult.extractedName || null
 
     // 如果有文件，附加文件分析
     if (fileCount > 0 && fileNames.length > 0) {
@@ -292,16 +666,17 @@ router.post('/chat', (req, res, next) => {
         fileReply += `\n💡 我已收到您的文件。请告诉我您希望对这些文件进行什么分析或处理？`
       }
 
-      reply = reply + fileReply
+      replyText = replyText + fileReply
     }
 
     res.json({
       success: true,
       data: {
-        reply,
+        reply: replyText,
+        extractedName,
         module,
         timestamp: new Date().toISOString(),
-        typingDuration: reply.length * 30
+        typingDuration: replyText.length * 30
       }
     })
   } catch (error) {

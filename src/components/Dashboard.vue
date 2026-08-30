@@ -27,7 +27,9 @@
         <div class="data-status" @click="refreshData" :title="'点击刷新数据'">
           <span class="status-dot" :class="{ active: dataStatus.loading }"></span>
           <span class="status-text">
-            数据: {{ dataStatus.totalCount > 0 ? dataStatus.totalCount.toLocaleString() + ' 条' : '加载中' }}
+            <template v-if="dataStatus.loading">加载中</template>
+            <template v-else-if="dataStatus.totalCount > 0">{{ dataStatus.totalCount.toLocaleString() }} 条</template>
+            <template v-else>0 条</template>
           </span>
           <span class="status-refresh" :class="{ spinning: dataStatus.loading }">⟳</span>
         </div>
@@ -784,7 +786,9 @@
                   <video v-if="carouselMedia[index]?.type === 'video'"
                     :src="carouselMedia[index].src"
                     :poster="carouselMedia[index].poster"
-                    autoplay muted loop playsinline
+                    autoplay muted loop playsinline preload="none"
+                    @error="$event.target.style.display = 'none'"
+                    @loadeddata="$event.target.style.display = ''"
                     class="slide-media-video"></video>
                   <img v-else-if="carouselMedia[index]?.type === 'image'"
                     :src="carouselMedia[index].src"
@@ -1353,6 +1357,7 @@ const dataStatus = ref({ loading: false, lastUpdated: null, totalCount: 0, sourc
 const dataInfo = ref({ lastUpdated: null })
 
 const fetchDataInfo = async () => {
+  dataStatus.value.loading = true
   try {
     const resp = await fetch('/api/jobs/data-info')
     if (resp.ok) {
@@ -1364,10 +1369,26 @@ const fetchDataInfo = async () => {
           totalCount: result.data.totalCount,
           sources: result.data.dataSources
         }
+        return
       }
     }
+    // 接口返回失败或非 success：从 jobData 推断总数作为兜底
+    const fallback = jobData && jobData.length > 0 ? jobData.length : 0
+    dataStatus.value = {
+      loading: false,
+      lastUpdated: dataStatus.value.lastUpdated || null,
+      totalCount: fallback,
+      sources: dataStatus.value.sources || {}
+    }
   } catch (e) {
-    // API不可用时保持静默
+    // API不可用时兜底：已有 jobData 长度就用它，否则保持 0 但 loading 关闭
+    const fallback = jobData && jobData.length > 0 ? jobData.length : 0
+    dataStatus.value = {
+      loading: false,
+      lastUpdated: dataStatus.value.lastUpdated || null,
+      totalCount: fallback,
+      sources: dataStatus.value.sources || {}
+    }
   }
 }
 
@@ -2234,14 +2255,31 @@ const initBackground = () => {
 }
 
 onMounted(async () => {
-  try {
-    const response = await fetch('/data/all_cleaned_jobs.json')
-    if (response.ok) {
-      jobData = await response.json()
-      updateCarouselStats()
+  // 岗位数据加载：先试前端静态路径，失败再试后端 API
+  const loadJobData = async () => {
+    const paths = [
+      '/data/all_cleaned_jobs.json',
+      '/api/jobs/data',
+      '/backend/data/all_cleaned_jobs.json'
+    ]
+    for (const url of paths) {
+      try {
+        const res = await fetch(url)
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data) && data.length > 0) {
+            jobData = data
+            updateCarouselStats()
+            return true
+          }
+        }
+      } catch (_) { /* 继续试下一个 */ }
     }
-  } catch (err) {
-    console.warn('岗位数据加载失败:', err.message)
+    return false
+  }
+  const loaded = await loadJobData()
+  if (!loaded) {
+    console.warn('岗位数据加载失败：所有路径均未返回有效数组')
   }
 
   fetchDataInfo()
