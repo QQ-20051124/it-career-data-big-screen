@@ -128,5 +128,7 @@
   "likes": [],
   "collects": [],
   "applies": [],
-  "chats": []
+  "chats": [],
+  "groups": [],
+  "groupMessages": []
 }

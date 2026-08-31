@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="talent-page">
     <div class="bg-deep-space">
       <canvas ref="bgCanvas" class="bg-starfield"></canvas>
@@ -571,17 +571,21 @@ const popupSalaryEduRef = ref(null)
 
 const hoveredCard = ref(null)
 const pinnedCard = ref(null)
+const dismissedCard = ref(null)  // 用户手动关闭后，防止悬浮窗在鼠标未离开前重新弹出
 
 const policyDatabase = ref([])
 const policyUpdateTime = ref('')
 
 // 实时数据摘要（与 Dashboard 使用同一数据源 /api/jobs/data-info）
 const dataInfo = ref({ totalCount: 0, lastUpdated: null })
+let isTalentMounted = false
 const fetchDataInfo = async () => {
   try {
     const resp = await fetch('/api/jobs/data-info')
+    if (!isTalentMounted) return
     if (resp.ok) {
       const r = await resp.json()
+      if (!isTalentMounted) return
       if (r && r.success) {
         dataInfo.value = {
           totalCount: Number(r.data.totalCount) || 0,
@@ -589,7 +593,10 @@ const fetchDataInfo = async () => {
         }
       }
     }
-  } catch (_) { /* 保持静默，API 不可用时退回本地数据 */ }
+  } catch (e) {
+    if (!isTalentMounted) return
+    /* API 不可用时退回本地数据 */
+  }
 }
 const displayTotalJobs = computed(() => (dataInfo.value.totalCount > 0 ? dataInfo.value.totalCount : totalJobs.value))
 const jobUpdateTime = computed(() => {
@@ -622,12 +629,14 @@ let popupTimer = null
 const mouseOverPopup = ref(false)
 
 const handleCardHover = (card) => {
+  if (dismissedCard.value === card) return  // 用户刚关闭过，鼠标未离开前不再弹出
   if (!pinnedCard.value) {
     if (popupTimer) clearTimeout(popupTimer)
     hoveredCard.value = card
   }
 }
 const handleCardLeave = () => {
+  dismissedCard.value = null  // 鼠标离开卡片后重置，下次悬浮可正常弹出
   if (!pinnedCard.value) {
     if (popupTimer) clearTimeout(popupTimer)
     popupTimer = setTimeout(() => {
@@ -638,6 +647,7 @@ const handleCardLeave = () => {
   }
 }
 const handleCardClick = (card) => {
+  dismissedCard.value = null  // 点击固定（pin）时重置关闭标记
   if (popupTimer) clearTimeout(popupTimer)
   if (pinnedCard.value === card) {
     pinnedCard.value = null
@@ -647,6 +657,7 @@ const handleCardClick = (card) => {
   }
 }
 const closePopup = () => {
+  dismissedCard.value = activePopupCard.value  // 记录被关闭的卡片
   if (popupTimer) clearTimeout(popupTimer)
   pinnedCard.value = null
   hoveredCard.value = null
@@ -2020,36 +2031,49 @@ const initPopupSalaryEdu = async () => {
 
 let autoRefreshTimer = null
 
-const refreshData = async () => {
-  try {
-    const response = await fetch('/api/jobs/raw', { cache: 'no-store', headers: { 'Pragma': 'no-cache' } })
-    if (response.ok) {
-      const payload = await response.json()
-      const list = (payload && payload.success && Array.isArray(payload.data)) ? payload.data : []
-      if (list.length !== jobData.value.length) {
-        jobData.value = list
-        dataTrigger.value++
+// 岗位数据加载：多路径回退（与 Dashboard 保持一致）
+const loadJobDataList = async () => {
+  const paths = [
+    '/api/jobs/raw',                       // 后端 API（带包装 {success, data}）
+    '/data/all_cleaned_jobs.json',         // 后端静态托管（纯数组）/ 前端 public 目录
+  ]
+  for (const url of paths) {
+    try {
+      const res = await fetch(url, { cache: 'no-store', headers: { 'Pragma': 'no-cache' } })
+      if (!res.ok) continue
+      const payload = await res.json()
+      let list = []
+      if (Array.isArray(payload)) {
+        // 纯数组格式（如 /data/all_cleaned_jobs.json）
+        list = payload
+      } else if (payload && payload.success && Array.isArray(payload.data)) {
+        // API 包装格式（如 /api/jobs/raw）
+        list = payload.data
       }
-    }
-  } catch (err) {
-    // 静默失败，下次再试
+      if (Array.isArray(list) && list.length > 0) {
+        return list
+      }
+    } catch (_) { /* 继续试下一个路径 */ }
+  }
+  return []
+}
+
+const refreshData = async () => {
+  const list = await loadJobDataList()
+  if (list.length > 0 && list.length !== jobData.value.length) {
+    jobData.value = list
+    dataTrigger.value++
   }
 }
 
 onMounted(async () => {
   isComponentMounted = true
+  isTalentMounted = true
   fetchDataInfo()
-  try {
-    const response = await fetch('/api/jobs/raw', { cache: 'no-store', headers: { 'Pragma': 'no-cache' } })
-    if (response.ok) {
-      const payload = await response.json()
-      const list = (payload && payload.success && Array.isArray(payload.data)) ? payload.data : []
-      jobData.value = Array.isArray(list) ? list : []
-      dataTrigger.value++
-    }
-  } catch (err) {
-    console.warn('岗位数据加载失败:', err.message)
-  }
+  const list = await loadJobDataList()
+  jobData.value = list
+  if (list.length > 0) dataTrigger.value++
+  else console.warn('岗位数据加载失败：所有路径均未返回有效数据')
   nextTick(() => {
     initSalaryChart(); initCityChart(); initEduDonut(); initSkillChart()
   })
@@ -2097,6 +2121,7 @@ watch(activePolicyTab, () => {
 })
 
 onUnmounted(() => {
+  isTalentMounted = false
   window.removeEventListener('resize', handleResize)
   if (autoRefreshTimer) clearInterval(autoRefreshTimer)
   salaryInstance?.dispose(); cityInstance?.dispose()

@@ -15,7 +15,7 @@ function loadData() {
   } catch (e) {
     console.error('Failed to load community data:', e.message)
   }
-  return { posts: [], qas: [], likes: [], collects: [], applies: [], chats: [] }
+  return { posts: [], qas: [], likes: [], collects: [], applies: [], chats: [], groups: [], groupMessages: [] }
 }
 
 function saveData(data) {
@@ -278,6 +278,89 @@ router.get('/stats/:username', (req, res) => {
   })
 })
 
+// ==================== 群聊（用户自建小组） ====================
+
+// 列出所有小组（含官方 + 用户自建）
+router.get('/groups', (req, res) => {
+  const data = loadData()
+  if (!data.groups) data.groups = []
+  res.json({ success: true, data: data.groups })
+})
+
+// 创建小组
+router.post('/groups', requireUser, (req, res) => {
+  const data = loadData()
+  if (!data.groups) data.groups = []
+  const { name, desc, creator } = req.body
+  if (!name) return res.status(400).json({ success: false, message: '群名称必填' })
+  if (data.groups.find(g => g.name === name)) {
+    return res.status(409).json({ success: false, message: '已存在同名小组' })
+  }
+  const group = {
+    id: genId(),
+    name,
+    desc: desc || `${name}方向岗位讨论`,
+    members: 1,
+    posts: 0,
+    creator: creator || '匿名用户',
+    createdAt: new Date().toISOString(),
+    isUserCreated: true
+  }
+  data.groups.unshift(group)
+  saveData(data)
+  res.json({ success: true, data: group })
+})
+
+// 删除自己创建的小组
+router.delete('/groups/:name', requireUser, (req, res) => {
+  const data = loadData()
+  if (!data.groups) return res.json({ success: false, message: '小组不存在' })
+  const name = decodeURIComponent(req.params.name)
+  const idx = data.groups.findIndex(g => g.name === name)
+  if (idx === -1) return res.json({ success: false, message: '小组不存在' })
+  // 同时删掉该组所有消息
+  if (data.groupMessages) {
+    data.groupMessages = data.groupMessages.filter(m => m.groupName !== name)
+  }
+  data.groups.splice(idx, 1)
+  saveData(data)
+  res.json({ success: true })
+})
+
+// 取某个小组的所有消息
+router.get('/groups/:name/messages', (req, res) => {
+  const data = loadData()
+  if (!data.groupMessages) data.groupMessages = []
+  const name = decodeURIComponent(req.params.name)
+  const msgs = data.groupMessages
+    .filter(m => m.groupName === name)
+    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0))
+  res.json({ success: true, data: msgs })
+})
+
+// 往某个小组发一条消息
+router.post('/groups/:name/messages', requireUser, (req, res) => {
+  const data = loadData()
+  if (!data.groupMessages) data.groupMessages = []
+  const name = decodeURIComponent(req.params.name)
+  const group = (data.groups || []).find(g => g.name === name)
+  if (!group) return res.status(404).json({ success: false, message: '小组不存在' })
+
+  const { content, from, author, avatar } = req.body
+  const msg = {
+    id: 'gm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    groupName: name,
+    timestamp: Date.now(),
+    content: content || '',
+    from: from || author || '匿名',
+    author: author || from || '匿名',
+    avatar: avatar || ''
+  }
+  data.groupMessages.push(msg)
+  saveData(data)
+  res.json({ success: true, data: msg })
+})
+
 // ==================== 初始化 ====================
 
 router.post('/init', (req, res) => {
@@ -288,6 +371,8 @@ router.post('/init', (req, res) => {
   if (!data.collects) data.collects = []
   if (!data.applies) data.applies = []
   if (!data.chats) data.chats = []
+  if (!data.groups) data.groups = []
+  if (!data.groupMessages) data.groupMessages = []
   saveData(data)
   res.json({ success: true, message: '社区数据已初始化（无预设数据）' })
 })

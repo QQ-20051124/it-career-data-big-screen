@@ -1,18 +1,12 @@
 const { defineConfig } = require('@vue/cli-service')
+
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
   devServer: {
     port: 8080,
-    client: {
-      overlay: {
-        runtimeErrors: (error) => {
-          const msg = (error?.message || '').toString().toLowerCase()
-          if (msg.includes('script error') || msg.includes('err_aborted') || msg.includes('media')) return false
-          return true
-        }
-      }
-    },
+    hot: false,
+    liveReload: false,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

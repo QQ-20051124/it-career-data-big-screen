@@ -14,3 +14,19 @@ job_crawler/zhaopin_userdata/
 my-vue3/
 job_crawler/debug_html/
 job_crawler/*.csv
+
+# Chrome 爬虫配置（几百个缓存文件，绝不能进 git）
+chrome_scraper_profile/
+
+# 构建产物（Render 会重新 build）
+dist/
+
+# 运行时快照/数据
+snapshots/
+public/videos/
+
+# 系统文件
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

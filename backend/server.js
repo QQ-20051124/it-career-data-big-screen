@@ -68,8 +68,24 @@ if (fs.existsSync(distPath)) {
 
 const startServer = async () => {
   await jobService.initData()
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
+  app.listen(PORT, '0.0.0.0', () => {
+    const os = require('os')
+    const nets = os.networkInterfaces()
+    const lanIps = []
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          lanIps.push(net.address)
+        }
+      }
+    }
+    console.log(`\n============================================`)
+    console.log(`  IT 职业大数据大屏 已启动！`)
+    console.log(`  本机访问: http://localhost:${PORT}`)
+    for (const ip of lanIps) {
+      console.log(`  局域网访问: http://${ip}:${PORT}`)
+    }
+    console.log(`============================================\n`)
   })
 }
 
