@@ -783,10 +783,10 @@
                 <div class="slide-bg-mesh"></div>
                 <div class="slide-bg-grid"></div>
                 <div class="slide-media-layer">
-                  <video v-if="carouselMedia[index]?.type === 'video'"
-                    :src="carouselMedia[index].src"
+                  <video v-if="carouselMedia[index]?.type === 'video' && videoSrcMap[carouselMedia[index].src]"
+                    :ref="el => setVideoRef(el, index)"
                     :poster="carouselMedia[index].poster"
-                    autoplay muted loop playsinline preload="none"
+                    muted loop playsinline
                     @error="$event.target.style.display = 'none'"
                     @loadeddata="$event.target.style.display = ''"
                     class="slide-media-video"></video>
@@ -1322,19 +1322,50 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { logout as authLogout, getAuthInfo } from '@/utils/auth'
 import { isCurrentUserAdmin } from '@/utils/userStore'
 import { useGuestMode } from '@/composables/useGuestMode'
 import { generateAvatar, generateGuestName, getRandomAvatar } from '@/utils/avatar'
+import { playMp4ViaMse } from '@/utils/msePlayer'
 
 import carouselImg1 from '@/assets/carousel/slide1-jobs.jpg'
 import carouselImg2 from '@/assets/carousel/slide2-skills.jpg'
 import carouselImg3 from '@/assets/carousel/slide3-salary.jpg'
 import carouselImg4 from '@/assets/carousel/slide4-cities.jpg'
-import carouselVid2 from '@/assets/carousel/slide2-skills-video.mp4'
-import carouselVid4 from '@/assets/carousel/slide4-cities-video.mp4'
+
+// 视频放在 public/videos/ 下，避免 webpack contenthash 变化导致 ERR_ABORTED
+const carouselVid2 = '/videos/slide2-skills-video.mp4'
+const carouselVid4 = '/videos/slide4-cities-video.mp4'
+
+// ---- 视频 MSE 直喂数据播放（彻底消除轮播视频的 net::ERR_ABORTED）----
+// <video> 用网络/blob URL 播放时，Chrome 播放管线开始播放会内部迁移资源读取器，
+// 旧读取器被中止即在控制台记录 net::ERR_ABORTED（媒体元素固有行为，无法规避）。
+// MSE 由 JS 直接喂 demux 数据，绕开资源加载管线，从根源无此记录（YouTube 同架构）。
+// 失败时自动回退 blob URL 直接播放，保证功能不受影响。
+const videoDataCache = {}   // url -> { ab, blobUrl }（模块级缓存，跨组件挂载/卸载持久）
+const videoDataPending = {} // url -> Promise（防止重复下载）
+function loadVideoData (url) {
+  if (videoDataCache[url]) return Promise.resolve(videoDataCache[url])
+  if (videoDataPending[url]) return videoDataPending[url]
+  videoDataPending[url] = fetch(url)
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status)
+      return r.arrayBuffer()
+    })
+    .then(ab => {
+      const entry = { ab, blobUrl: URL.createObjectURL(new Blob([ab], { type: 'video/mp4' })) }
+      videoDataCache[url] = entry
+      return entry
+    })
+    .catch(() => {
+      // 下载失败（多为服务异常），标记 null 不再重试
+      videoDataCache[url] = null
+      return null
+    })
+  return videoDataPending[url]
+}
 
 const carouselMedia = {
   0: { type: 'image', src: carouselImg1 },
@@ -1355,13 +1386,16 @@ let jobData = []
 
 const dataStatus = ref({ loading: false, lastUpdated: null, totalCount: 0, sources: {} })
 const dataInfo = ref({ lastUpdated: null })
+let isDashboardMounted = false
 
 const fetchDataInfo = async () => {
   dataStatus.value.loading = true
   try {
     const resp = await fetch('/api/jobs/data-info')
+    if (!isDashboardMounted) return  // 组件已卸载，忽略响应
     if (resp.ok) {
       const result = await resp.json()
+      if (!isDashboardMounted) return
       if (result.success) {
         dataStatus.value = {
           loading: false,
@@ -1381,6 +1415,7 @@ const fetchDataInfo = async () => {
       sources: dataStatus.value.sources || {}
     }
   } catch (e) {
+    if (!isDashboardMounted) return
     // API不可用时兜底：已有 jobData 长度就用它，否则保持 0 但 loading 关闭
     const fallback = jobData && jobData.length > 0 ? jobData.length : 0
     dataStatus.value = {
@@ -1457,6 +1492,67 @@ const recordBrowseHistory = (type, title, pageName, url) => {
 const bgCanvas = ref(null)
 const currentSlide = ref(0)
 const leavingSlide = ref(-1)
+
+// 视频数据就绪标记（就绪后 video 才渲染）
+const videoSrcMap = reactive({})
+;[carouselVid2, carouselVid4].forEach(url => {
+  loadVideoData(url).then(entry => { if (entry) videoSrcMap[url] = entry })
+})
+
+// video 挂载后启动播放：优先 MSE 直喂（无 ERR_ABORTED），失败回退 blob URL
+const settledVideos = new WeakSet()
+const setVideoRef = (el, index) => {
+  if (!el) return
+  // 轮播每 5 秒重渲染会反复触发内联 ref，防止重复启动 MSE/回退流程
+  if (settledVideos.has(el)) return
+  const media = carouselMedia[index]
+  const entry = media && videoSrcMap[media.src]
+  if (!entry) return
+  settledVideos.add(el)
+  liveVideoEls.add(el)
+  // slice(0) 拷贝一份给 MSE 解析器，避免解析过程影响缓存数据
+  playMp4ViaMse(el, entry.ab.slice(0)).then(ok => {
+    if (!ok) {
+      // 元素已被卸载/释放（路由切换、页面刷新）时不再回退，
+      // 避免给已销毁的元素重新挂上会被中止的资源请求（blob ERR_ABORTED 来源）
+      if (!el.isConnected || el._videoTornDown) return
+      // MSE 不支持/失败：回退为 blob URL 直接播放
+      el.src = entry.blobUrl
+      const p = el.play()
+      if (p && p.catch) p.catch(() => { /* 自动播放被策略拦截时静默 */ })
+    }
+  })
+}
+
+// ---- 视频元素规范释放（消除 net::ERR_ABORTED blob: 报错） ----
+// Chrome 在销毁仍挂着活动资源读取器的 <video> 时（路由切换移除 DOM / 页面刷新），
+// 会为其 blob: src 记录一条 net::ERR_ABORTED。
+// 在元素从 DOM 移除前、页面隐藏前先 pause + 摘除 src + load() 复位媒体管线，
+// 使其不再持有进行中的资源加载，浏览器即无可中止的请求。
+const liveVideoEls = new Set()
+function teardownVideoEl (el) {
+  if (!el || el._videoTornDown) return
+  el._videoTornDown = true
+  try { el.pause() } catch (e) { /* 忽略 */ }
+  try {
+    el.removeAttribute('src')
+    el.load() // 触发媒体元素复位算法，干净分离 MediaSource / blob 资源
+  } catch (e) { /* 忽略 */ }
+  if (el._mseObjectUrl) {
+    try { URL.revokeObjectURL(el._mseObjectUrl) } catch (e) { /* 忽略 */ }
+    el._mseObjectUrl = null
+  }
+  liveVideoEls.delete(el)
+}
+// 页面刷新 / 关闭时 Vue 卸载钩子不会执行，用 pagehide 兜底（bfcache 恢复场景跳过）
+if (typeof window !== 'undefined' && !window.__dashVideoPagehideHooked) {
+  window.__dashVideoPagehideHooked = true
+  window.addEventListener('pagehide', (ev) => {
+    if (ev.persisted) return
+    liveVideoEls.forEach(teardownVideoEl)
+  })
+}
+
 const activeModule = ref('function')
 let slideInterval = null
 let bgAnimationId = null
@@ -2255,6 +2351,7 @@ const initBackground = () => {
 }
 
 onMounted(async () => {
+  isDashboardMounted = true
   // 岗位数据加载：先试前端静态路径，失败再试后端 API
   const loadJobData = async () => {
     const paths = [
@@ -2308,7 +2405,13 @@ onMounted(async () => {
   })
 })
 
+onBeforeUnmount(() => {
+  // DOM 移除前释放视频媒体管线，避免浏览器销毁活动资源读取器时报 net::ERR_ABORTED
+  Array.from(liveVideoEls).forEach(teardownVideoEl)
+})
+
 onUnmounted(() => {
+  isDashboardMounted = false
   if (slideInterval) clearInterval(slideInterval)
   CM.unmount()
 })

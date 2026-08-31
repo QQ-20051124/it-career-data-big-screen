@@ -245,9 +245,6 @@
                   <span v-for="skill in job.tags" :key="skill" class="skill">{{ skill }}</span>
                 </div>
                 <div class="job-actions">
-                  <button class="apply-btn" :class="{ applied: appliedJobIds.has(job.id) }" @click.stop="handleApply(job)">
-                    {{ appliedJobIds.has(job.id) ? '✓ 已投递' : '立即投递' }}
-                  </button>
                   <button class="collect-btn" :class="{ collected: job.collected }" @click.stop="toggleJobCollect(job)">
                     {{ job.collected ? '⭐' : '☆' }}
                   </button>
@@ -340,11 +337,18 @@
           <div v-if="activeTab === 'group'" class="tab-content">
             <div class="section-header">
               <span class="section-title">👨‍👩‍👧‍👦 {{ searchQuery ? `搜索 "${searchQuery}" 的结果` : '求职小组' }}</span>
+              <button class="create-group-btn" @click="showCreateGroupModal = true">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                创建群聊
+              </button>
             </div>
             <div class="group-grid">
               <div v-for="(group, index) in groupList" :key="index" class="group-card" @click="openDetail('group', group)">
                 <div class="group-icon">{{ group.name.charAt(0) }}</div>
-                <h3 class="group-name">{{ group.name }}</h3>
+                <h3 class="group-name">
+                  {{ group.name }}
+                  <span v-if="group.isUserCreated" class="user-group-badge">自建</span>
+                </h3>
                 <p class="group-desc">{{ group.desc }}</p>
                 <div class="group-stats">
                   <span>{{ group.members }}成员</span>
@@ -353,6 +357,7 @@
                 <div class="group-actions">
                   <button v-if="group.joined" class="join-btn chat-btn" @click.stop="openGroupChat(group)">💬 群聊</button>
                   <button class="join-btn" @click.stop="toggleJoin(group)">{{ group.joined ? '已加入' : '加入' }}</button>
+                  <button v-if="group.isUserCreated && group.creator === currentUser.name" class="join-btn delete-btn" @click.stop="handleDeleteGroup(group)">删除</button>
                 </div>
               </div>
             </div>
@@ -369,17 +374,18 @@
           </div>
 
           <div class="hot-topics">
-            <h4>热门话题</h4>
-            <div class="topic-list">
+            <h4>热门技术方向</h4>
+            <div class="topic-list" v-if="hotTopics.length > 0">
               <div v-for="(topic, index) in hotTopics" :key="index" class="topic-item" @click="openTopicDetail(topic)">
                 <span class="topic-rank">{{ index + 1 }}</span>
                 <span class="topic-name">{{ topic.name }}</span>
-                <span class="topic-trend">{{ topic.trend }}</span>
+                <span class="topic-posts">{{ topic.posts }}个岗位</span>
               </div>
             </div>
+            <div v-else class="topic-empty">暂无数据</div>
           </div>
 
-          <div class="recommend-users">
+          <div class="recommend-users" v-if="recommendUsers.length > 0">
             <h4>推荐关注</h4>
             <div class="user-list">
               <div v-for="(user, index) in recommendUsers" :key="index" class="user-item" @click="openUserProfile(user.name)">
@@ -394,7 +400,7 @@
             </div>
           </div>
 
-          <div class="weekly-rank">
+          <div class="weekly-rank" v-if="weeklyRank.length > 0">
             <h4>本周活跃榜 <span class="rank-rule-toggle" @click="showPointsRule = !showPointsRule">💡积分规则</span></h4>
             <div v-if="showPointsRule" class="points-rule">
               <div class="rule-title">积分计算方式</div>
@@ -523,9 +529,6 @@
             </ul>
           </div>
           <div class="job-detail-actions">
-            <button class="apply-btn-lg" :class="{ applied: appliedJobIds.has(detailData.id) }" @click="handleApply(detailData)">
-              {{ appliedJobIds.has(detailData.id) ? '✓ 已投递简历' : '立即投递简历' }}
-            </button>
             <button class="collect-btn-lg" :class="{ collected: detailData.collected }" @click="toggleJobCollect(detailData)">
               {{ detailData.collected ? '⭐已收藏' : '☆收藏岗位' }}
             </button>
@@ -644,7 +647,26 @@
             <span v-for="(tag, index) in publishForm.tags" :key="index" class="publish-tag">{{ tag }}<span @click="removeTag(index)">×</span></span>
           </div>
           <textarea v-model="publishForm.content" rows="8" placeholder="分享你的面试经验..." class="publish-textarea"></textarea>
-          <button class="publish-submit" @click="submitPublish">发布</button>
+          <button class="publish-submit" @click="submitPublish" :disabled="isSubmitting">
+            {{ isSubmitting ? '发布中...' : '发布' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 创建群聊弹窗 -->
+    <div v-if="showCreateGroupModal" class="create-group-modal" @click.self="showCreateGroupModal = false">
+      <div class="create-group-modal-content">
+        <button class="close-btn" @click="showCreateGroupModal = false">✕</button>
+        <h3>创建群聊</h3>
+        <div class="create-group-form">
+          <input v-model="createGroupForm.name" type="text" maxlength="12" placeholder="群名称（最多12字）" class="publish-input" />
+          <textarea v-model="createGroupForm.desc" rows="3" maxlength="60" placeholder="群简介（可选）" class="publish-textarea" />
+          <div v-if="createGroupErr" class="create-group-err">{{ createGroupErr }}</div>
+          <div class="create-group-actions">
+            <button class="cancel-btn" @click="showCreateGroupModal = false">取消</button>
+            <button class="submit-btn" @click="handleCreateGroup">创建</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1089,6 +1111,15 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { getAuthInfo } from '@/utils/auth'
 import { generateAvatar, generateGuestName, getRandomAvatar } from '@/utils/avatar'
+import {
+  fetchPosts, createPost, fetchQAs,
+  fetchCollects, toggleLikeApi, toggleCollectApi, fetchUserStats,
+  fetchGroups, createGroupApi, deleteGroupApi,
+  fetchGroupMessages, sendGroupMessageApi,
+  getUserGroups, createGroup, deleteGroup,
+  getGroupMessages, addGroupMessage,
+  saveChat, getChats, addChatMessage
+} from '@/utils/communityStore'
 let jobData = []
 const dataTrigger = ref(0)
 
@@ -1126,6 +1157,9 @@ const showGroupChat = ref(false)
 const groupChatTarget = ref(null)
 const groupChatMessages = ref([])
 const groupChatInput = ref('')
+const showCreateGroupModal = ref(false)
+const createGroupForm = ref({ name: '', desc: '' })
+const createGroupErr = ref('')
 const appliedJobs = ref([])
 const commentText = ref('')
 const newComment = ref('')
@@ -1178,7 +1212,6 @@ const loadPersistedState = () => {
     
     const joinedGroups = JSON.parse(localStorage.getItem(getUserScopedKey('jc_joinedGroups')) || '[]')
     joinedGroupIds.value = new Set(joinedGroups)
-    groupList.value.forEach(g => { g.joined = joinedGroupIds.value.has(g.name) })
     console.log('[加载持久化] 已加入小组:', joinedGroups.length, '条')
     
     const collectedPosts = JSON.parse(localStorage.getItem(getUserScopedKey('jc_collectedPosts')) || '[]')
@@ -1234,12 +1267,6 @@ const persistCollectedPosts = () => {
 const persistCollectedJobs = () => {
   const ids = realJobs.value.filter(j => j.collected).map(j => j.id)
   localStorage.setItem(getUserScopedKey('jc_collectedJobs'), JSON.stringify(ids))
-}
-const persistPublishedPosts = () => {
-  const allUserPosts = hotInterviews.value.filter(i => i.author === currentUser.value.name && i.isUserPublished)
-  localStorage.setItem(getUserScopedKey('jc_publishedPosts'), JSON.stringify(allUserPosts))
-  console.log('[持久化-发布] 已保存用户发布帖子:', allUserPosts.length, '篇')
-  console.log('[持久化-发布] localStorage键已更新')
 }
 
 const publishForm = ref({
@@ -1312,8 +1339,6 @@ const formatSalary = (salary) => {
   return actualSalary + ''
 }
 
-const companies = ['智联招聘', '前程无忧', 'BOSS直聘', '拉勾网', '猎聘网', '人才市场', '科技公司', '互联网企业', '软件公司', 'IT公司']
-
 const realJobs = computed(() => {
   dataTrigger.value
   if (!jobData || jobData.length === 0) return []
@@ -1353,7 +1378,7 @@ const stats = computed(() => ({
   interviews: hotInterviews.value.length.toLocaleString(),
   jobs: realJobs.value.length.toLocaleString(),
   questions: qaList.value.length.toLocaleString(),
-  online: onlineUsers.length.toLocaleString()
+  online: onlineUsers.value.length.toLocaleString()
 }))
 const hotKeywords = ['前端', '后端', '算法', 'Java', 'Vue', 'React', '校招', '秋招', '转行', '实习']
 
@@ -1361,361 +1386,79 @@ const goBack = () => { router.push('/dashboard') }
 
 const hotInterviews = ref([])
 
-const generateInterviewsFromJobs = () => {
-  if (!jobData || jobData.length === 0) return
-
-  const categories = {
-    '前端': { keywords: ['前端', 'web', 'h5', 'vue', 'react'], techStack: ['Vue3', 'React', 'TypeScript', 'Webpack', 'CSS3'], topics: ['响应式原理', '虚拟DOM', '组件通信', '前端工程化', '性能优化'] },
-    'Java': { keywords: ['java', '后端'], techStack: ['Spring Boot', 'MyBatis', 'Redis', 'MySQL', '微服务'], topics: ['JVM调优', '并发编程', 'Spring原理', '分布式锁', '消息队列'] },
-    'Python': { keywords: ['python'], techStack: ['Django', 'Flask', 'Pandas', 'NumPy', 'FastAPI'], topics: ['GIL机制', '异步编程', '数据处理', 'API设计', '爬虫框架'] },
-    '算法': { keywords: ['算法', '机器学习', '深度学习', 'ai', 'nlp', 'cv'], techStack: ['PyTorch', 'TensorFlow', 'Scikit-learn', 'NLP', '推荐系统'], topics: ['CNN/RNN', 'Transformer', '特征工程', '模型优化', '推荐算法'] },
-    '测试': { keywords: ['测试', 'qa', '自动化'], techStack: ['Selenium', 'Pytest', 'JMeter', 'Postman', 'CI/CD'], topics: ['自动化框架', '性能测试', '接口测试', '测试用例设计', '持续集成'] },
-    '运维': { keywords: ['运维', 'devops', 'docker', 'k8s'], techStack: ['Docker', 'Kubernetes', 'Jenkins', 'Prometheus', 'Shell'], topics: ['容器编排', 'CI/CD流水线', '监控告警', '故障排查', '自动化部署'] },
-    '网络': { keywords: ['网络', '工程师', 'tcp'], techStack: ['TCP/IP', '路由交换', 'VPN', '防火墙', 'Wireshark'], topics: ['网络协议', '路由配置', '安全防护', '故障诊断', '网络架构'] },
-    '硬件': { keywords: ['硬件', '维护', 'pc'], techStack: ['PC组装', '硬件诊断', '操作系统', '网络基础', '外设维护'], topics: ['硬件故障排查', '系统安装', '设备维护', '驱动调试', '性能优化'] }
-  }
-
-  const authors = [
-    { name: '前端小高手', expertise: '前端' },
-    { name: 'Java大神', expertise: 'Java' },
-    { name: '算法小白逆袭', expertise: '算法' },
-    { name: '求职达人', expertise: 'Java' },
-    { name: '测试达人', expertise: '测试' },
-    { name: '运维老兵', expertise: '运维' },
-    { name: 'Python学习者', expertise: 'Python' },
-    { name: '网络工程师', expertise: '网络' },
-    { name: '硬件维修师', expertise: '硬件' },
-    { name: '应届生小李', expertise: '前端' },
-    { name: '转行程序员', expertise: 'Java' },
-    { name: '技术达人', expertise: '算法' },
-    // 推荐关注用户也加入面经作者池，确保他们有面经内容
-    { name: '前端面试官老王', expertise: '前端' },
-    { name: '算法专家李教授', expertise: '算法' },
-    { name: '求职导师张老师', expertise: 'Python' },
-    { name: '字节跳动HR', expertise: 'Java' },
-    { name: '大厂HR小助手', expertise: '测试' }
-  ]
-
-  const commentAuthors = ['应届生小李', '转行程序员', '求职者小王', '前端面试官', 'HR小姐姐', '架构师', '技术总监', '测试主管', 'SRE工程师', '资深前端', 'Java专家', '算法工程师', '前端面试官老王', '算法专家李教授', '求职导师张老师', '字节跳动HR', '大厂HR小助手']
-  const timeOptions = ['5分钟前', '12分钟前', '28分钟前', '45分钟前', '1小时前', '2小时前', '3小时前', '4小时前', '6小时前', '8小时前']
-
-  const interviews = []
-  const usedJobs = new Set()
-
-  for (const [catName, catInfo] of Object.entries(categories)) {
-    const matchedJobs = jobData.filter(job => {
-      const name = (job.job_name || '').toLowerCase()
-      return catInfo.keywords.some(kw => name.includes(kw)) && !usedJobs.has(job.job_name)
-    })
-
-    if (matchedJobs.length === 0) continue
-
-    const numInterviews = Math.min(8, matchedJobs.length)
-    for (let i = 0; i < numInterviews; i++) {
-      const job = matchedJobs[Math.floor(Math.random() * matchedJobs.length)]
-      usedJobs.add(job.job_name)
-
-      // 从匹配该分类的作者池中随机选择，让更多作者有面经内容
-      const matchedAuthors = authors.filter(a => a.expertise === catName)
-      const author = matchedAuthors.length > 0
-        ? matchedAuthors[Math.floor(Math.random() * matchedAuthors.length)]
-        : authors[Math.floor(Math.random() * authors.length)]
-      const city = job.city || '未知城市'
-      const salary = formatSalary(job.salary_avg)
-      const techStack = catInfo.techStack
-      const topic1 = catInfo.topics[Math.floor(Math.random() * catInfo.topics.length)]
-      const topic2 = catInfo.topics[Math.floor(Math.random() * catInfo.topics.length)]
-      const tech1 = techStack[Math.floor(Math.random() * techStack.length)]
-      const tech2 = techStack[Math.floor(Math.random() * techStack.length)]
-
-      const commentCount = Math.floor(Math.random() * 200) + 30
-      const likeCount = Math.floor(Math.random() * 400) + 100
-      const viewCount = likeCount * Math.floor(Math.random() * 5 + 3)
-
-      const numComments = Math.floor(Math.random() * 3) + 2
-      const commentList = []
-      for (let j = 0; j < numComments; j++) {
-        const cAuthor = commentAuthors[Math.floor(Math.random() * commentAuthors.length)]
-        const questions = [
-          `${topic1}具体怎么考察的？`,
-          `${tech1}要掌握到什么程度？`,
-          `非科班能投这个方向吗？`,
-          `面试有几轮？难度如何？`,
-          `${city}的薪资水平怎么样？`,
-          `应届生投这个岗位有希望吗？`
-        ]
-        commentList.push({
-          author: cAuthor,
-          avatar: generateAvatar(cAuthor),
-          time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
-          content: questions[Math.floor(Math.random() * questions.length)],
-          likes: Math.floor(Math.random() * 80) + 10,
-          liked: false
-        })
-      }
-
-      interviews.push({
-        title: `${city} ${catName}岗位面试经验分享（薪资${salary}）`,
-        author: author.name,
-        avatar: generateAvatar(author.name),
-        time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
-        tags: [catName, city, tech1],
-        comments: commentCount,
-        likes: likeCount,
-        views: viewCount,
-        liked: Math.random() > 0.7,
-        collected: Math.random() > 0.8,
-        preview: `面试了${city}的${job.job_name}岗位，主要考察${topic1}和${topic2}，技术栈涉及${tech1}和${tech2}。分享一下面试流程和高频问题...`,
-        commentList
-      })
-    }
-  }
-
-  interviews.sort((a, b) => b.likes - a.likes)
-
-  // 保障：确保每个推荐用户至少有2条面经内容
-  recommendUsers.value.forEach(user => {
-    const userPostCount = interviews.filter(i => i.author === user.name).length
-    if (userPostCount < 2) {
-      const needCount = 2 - userPostCount
-      // 找到与该用户专长匹配的分类信息
-      const authorEntry = authors.find(a => a.name === user.name)
-      const catName = authorEntry ? authorEntry.expertise : '前端'
-      const catInfo = categories[catName] || categories['前端']
-      for (let n = 0; n < needCount; n++) {
-        const job = jobData[Math.floor(Math.random() * jobData.length)]
-        const city = job.city || '北京'
-        const salary = formatSalary(job.salary_avg || 15000)
-        const techStack = catInfo.techStack
-        const topic1 = catInfo.topics[Math.floor(Math.random() * catInfo.topics.length)]
-        const tech1 = techStack[Math.floor(Math.random() * techStack.length)]
-        const likeCount = Math.floor(Math.random() * 400) + 100
-        const viewCount = likeCount * Math.floor(Math.random() * 5 + 3)
-        interviews.push({
-          title: `${city} ${catName}岗位面试经验分享（薪资${salary}）`,
-          author: user.name,
-          avatar: generateAvatar(user.name),
-          time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
-          tags: [catName, city, tech1],
-          comments: Math.floor(Math.random() * 200) + 30,
-          likes: likeCount,
-          views: viewCount,
-          liked: false,
-          collected: false,
-          preview: `面试了${city}的${job.job_name || catName + '岗位'}，主要考察${topic1}，技术栈涉及${tech1}。分享一下面试流程和高频问题...`,
-          commentList: []
-        })
-      }
-    }
-  })
-
-  interviews.sort((a, b) => b.likes - a.likes)
-  hotInterviews.value = interviews
-}
-
 const qaList = ref([])
 
-const generateQAFromJobs = () => {
-  if (!jobData || jobData.length === 0) return
+// 小组：用户自建群 + 真实岗位数据聚合的技术分类
+const userCreatedGroups = ref([])
 
-  const cities = [...new Set(jobData.map(j => j.city))].filter(Boolean).slice(0, 15)
-  const jobTypes = ['前端', 'Java', 'Python', '算法', '测试', '运维', '计算机', '网络']
-
-  const qaTemplates = [
-    {
-      titleFn: (city, jobType) => `${city}的${jobType}岗位薪资水平怎么样？`,
-      tagsFn: (jobType) => [jobType, '薪资', '求职'],
-      previewFn: (city, jobType) => `看到${city}有不少${jobType}相关的岗位，想了解一下实际的薪资水平和福利待遇如何？`,
-      bestAnswerFn: (city, jobType) => `${city}的${jobType}岗位薪资因经验和学历不同差异较大。应届生一般在5-8K，1-3年经验在8-15K，3-5年经验在15-25K。建议多对比几个平台的薪资数据，面试时也要问清楚年终奖和公积金比例。`,
-      author: '薪资调查员'
-    },
-    {
-      titleFn: (city, jobType) => `${jobType}岗位面试都会问什么？求面经分享`,
-      tagsFn: (jobType) => [jobType, '面试', '经验'],
-      previewFn: (city, jobType) => `准备面试${jobType}相关岗位，想了解一下面试常考的技术点和项目经验要求？`,
-      bestAnswerFn: (city, jobType) => `${jobType}面试通常分技术面和HR面。技术面重点考察：1) 基础知识；2) 项目经验深挖；3) 手写代码；4) 系统设计。建议准备好2-3个有深度的项目，能讲清楚技术选型和难点解决。`,
-      author: '面试达人'
-    },
-    {
-      titleFn: (city, jobType) => `零基础想学${jobType}，有什么推荐的学习路线？`,
-      tagsFn: (jobType) => [jobType, '学习路线', '零基础'],
-      previewFn: (city, jobType) => `非计算机专业，想转行学${jobType}，不知道从哪里开始，求一份系统的学习路线。`,
-      bestAnswerFn: (city, jobType) => `零基础学习${jobType}建议分三步：1) 基础阶段（1-2个月）：学习编程基础和计算机常识；2) 进阶阶段（2-3个月）：学习${jobType}核心技术和框架；3) 实战阶段（1-2个月）：做2-3个完整项目。推荐先看免费教程入门，再报班或自学深入。`,
-      author: '学习导师'
-    },
-    {
-      titleFn: (city, jobType) => `${jobType}岗位的学历要求高吗？大专能投吗？`,
-      tagsFn: (jobType) => [jobType, '学历', '求职'],
-      previewFn: (city, jobType) => `看到很多${jobType}岗位要求本科以上，大专学历有机会吗？有没有成功上岸的分享？`,
-      bestAnswerFn: (city, jobType) => `大专学历确实会面临一些门槛，但并非没有机会。建议：1) 优先投递中小公司和初创企业；2) 用项目经验和作品集弥补学历不足；3) 考虑提升学历（专升本）；4) 积累2-3年工作经验后跳槽大厂。从数据来看，${jobType}岗位中约30%接受大专学历。`,
-      author: 'HR经理'
-    },
-    {
-      titleFn: (city, jobType) => `应届生第一次找${jobType}工作，需要注意什么？`,
-      tagsFn: (jobType) => ['应届生', jobType, '求职'],
-      previewFn: (city, jobType) => `2026届应届毕业生，想找${jobType}方向的工作，没有实习经验，求建议。`,
-      bestAnswerFn: (city, jobType) => `应届生求职${jobType}建议：1) 简历突出项目和技能，不要写空话；2) 先投中小公司练手，积累面试经验；3) 面试前研究公司业务和技术栈；4) 谈薪资要有依据，参考同行水平；5) 注意辨别坑公司，看准网查公司评价。`,
-      author: '求职导师'
-    },
-    {
-      titleFn: (city, jobType) => `${city}的IT行业就业环境怎么样？`,
-      tagsFn: (jobType, city) => [city, '就业', '城市'],
-      previewFn: (city, jobType) => `考虑去${city}发展，想了解一下当地的IT行业就业环境、薪资水平和生活成本。`,
-      bestAnswerFn: (city, jobType) => `${city}的IT行业就业环境各有特点。建议从以下几个维度评估：1) 岗位数量和类型分布；2) 平均薪资水平；3) 生活成本（房租、交通）；4) 行业发展前景；5) 落户政策。建议先在招聘平台搜索目标岗位数量，数量多说明需求大。`,
-      author: '城市分析师'
-    }
-  ]
-
-  const answerAuthors = [
-    { name: '资深前端', title: '前端专家' },
-    { name: '后端架构师', title: '架构师' },
-    { name: '算法工程师', title: 'AI专家' },
-    { name: '测试主管', title: 'QA Lead' },
-    { name: '运维总监', title: 'DevOps专家' },
-    { name: 'HR经理', title: '招聘专家' },
-    { name: '求职导师', title: '职业规划师' },
-    { name: '技术总监', title: 'CTO' },
-    // 推荐关注用户也加入问答作者池，确保他们有问答内容
-    { name: '前端面试官老王', title: '10年面试经验' },
-    { name: '算法专家李教授', title: 'AI/ML领域专家' },
-    { name: '求职导师张老师', title: '辅导500+学员拿offer' },
-    { name: '字节跳动HR', title: '字节官方招聘' },
-    { name: '大厂HR小助手', title: '每日发布校招信息' }
-  ]
-
-  const timeOptions = ['1小时前', '2小时前', '3小时前', '5小时前', '8小时前', '10小时前', '12小时前']
-  const qas = []
-
-  for (let i = 0; i < qaTemplates.length; i++) {
-    const template = qaTemplates[i]
-    // 每个模板生成5条问答，共30条
-    for (let k = 0; k < 5; k++) {
-    const city = cities[Math.floor(Math.random() * cities.length)]
-    const jobType = jobTypes[Math.floor(Math.random() * jobTypes.length)]
-
-    const answerAuthor = answerAuthors[Math.floor(Math.random() * answerAuthors.length)]
-    const numAnswers = Math.floor(Math.random() * 15) + 8
-    const bestAnswerLikes = Math.floor(Math.random() * 200) + 50
-
-    const answerList = []
-    const numAnswerList = Math.floor(Math.random() * 2) + 1
-    for (let j = 0; j < numAnswerList; j++) {
-      const aAuthor = answerAuthors[Math.floor(Math.random() * answerAuthors.length)]
-      const shortAnswers = [
-        `建议先打好基础，${jobType}方向需要扎实的技术功底。`,
-        `${city}的${jobType}岗位还是不少的，多投多面。`,
-        `学历不是唯一标准，项目经验更重要。`,
-        `可以看看招聘平台上的岗位要求，有针对性地准备。`
-      ]
-      answerList.push({
-        author: aAuthor.name,
-        avatar: generateAvatar(aAuthor.name),
-        time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
-        content: shortAnswers[Math.floor(Math.random() * shortAnswers.length)],
-        likes: Math.floor(Math.random() * 60) + 10,
-        liked: false
+const groupList = computed(() => {
+  // 从真实岗位数据聚合出的技术方向（保留，作为"官方"群）
+  const official = {}
+  if (realJobs.value.length > 0) {
+    realJobs.value.forEach(job => {
+      (job.tags || []).forEach(tag => {
+        if (!official[tag]) official[tag] = { name: tag, members: 0, posts: 0, joined: false }
+        official[tag].members++
       })
-    }
-
-    qas.push({
-      title: template.titleFn(city, jobType),
-      author: template.author,
-      avatar: generateAvatar(template.author),
-      time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
-      tags: template.tagsFn(jobType, city),
-      answers: numAnswers,
-      solved: Math.random() > 0.4,
-      preview: template.previewFn(city, jobType),
-      answerList,
-      bestAnswer: {
-        author: answerAuthor.name,
-        avatar: generateAvatar(answerAuthor.name),
-        time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
-        content: template.bestAnswerFn(city, jobType),
-        likes: bestAnswerLikes,
-        liked: false
-      }
     })
-    } // end for k
   }
+  const descMap = {
+    '前端': 'Vue/React/TypeScript 前端技术交流',
+    '后端': 'Java/Python/Go 后端架构讨论',
+    '算法': '机器学习/深度学习/推荐算法',
+    '测试': '自动化测试/性能测试/TestOps',
+    '运维': 'Docker/K8s/CI/CD 运维实践',
+    '计算机': '基础技术/通用问题讨论',
+    '网络': '网络协议/路由交换/安全'
+  }
+  const officialList = Object.values(official)
+    .filter(g => g.members >= 10)
+    .sort((a, b) => b.members - a.members)
+    .slice(0, 8)
+    .map(g => ({
+      ...g,
+      desc: descMap[g.name] || `${g.name}方向岗位讨论`,
+      joined: joinedGroupIds.value.has(g.name),
+      isUserCreated: false
+    }))
 
-  qaList.value = qas
+  // 合并用户自建群（用户自建排前面）
+  const merged = [
+    ...userCreatedGroups.value.map(g => ({
+      ...g,
+      joined: joinedGroupIds.value.has(g.name),
+      isUserCreated: true
+    })),
+    ...officialList.filter(o => !userCreatedGroups.value.some(u => u.name === o.name))
+  ]
+  return merged
+})
 
-  // 保障：确保每个推荐用户至少有2条问答内容（作为最佳回答者或在回答列表中）
-  recommendUsers.value.forEach(user => {
-    const userQACount = qas.filter(qa =>
-      (qa.bestAnswer && qa.bestAnswer.author === user.name) ||
-      qa.author === user.name ||
-      (qa.answerList && qa.answerList.some(ans => ans.author === user.name))
-    ).length
-    if (userQACount < 2) {
-      // 为该推荐用户补充问答数据
-      const needCount = 2 - userQACount
-      for (let n = 0; n < needCount; n++) {
-        const city = cities[Math.floor(Math.random() * cities.length)]
-        const jobType = jobTypes[Math.floor(Math.random() * jobTypes.length)]
-        const template = qaTemplates[Math.floor(Math.random() * qaTemplates.length)]
-        qas.push({
-          title: template.titleFn(city, jobType),
-          author: template.author,
-          avatar: generateAvatar(template.author),
-          time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
-          tags: template.tagsFn(jobType, city),
-          answers: Math.floor(Math.random() * 15) + 8,
-          solved: Math.random() > 0.4,
-          preview: template.previewFn(city, jobType),
-          answerList: [],
-          bestAnswer: {
-            author: user.name,
-            avatar: generateAvatar(user.name),
-            time: timeOptions[Math.floor(Math.random() * timeOptions.length)],
-            content: template.bestAnswerFn(city, jobType),
-            likes: Math.floor(Math.random() * 200) + 50,
-            liked: false
-          }
-        })
-      }
-    }
+// 在线用户：只有当前登录用户（没有多人实时在线系统）
+const onlineUsers = computed(() => {
+  const u = currentUser.value
+  if (!u || u.name === '加载中...') return []
+  return [{ name: u.name, avatar: u.avatar }]
+})
+
+// 热门话题：从真实岗位数据聚合出高频技术关键词
+const hotTopics = computed(() => {
+  if (!jobData || jobData.length === 0) return []
+  const allTags = []
+  realJobs.value.forEach(job => {
+    (job.tags || []).forEach(tag => allTags.push(tag))
   })
-  qaList.value = qas
-}
+  const counts = {}
+  allTags.forEach(t => { counts[t] = (counts[t] || 0) + 1 })
+  return Object.entries(counts)
+    .map(([name, count]) => ({ name, posts: count }))
+    .sort((a, b) => b.posts - a.posts)
+    .slice(0, 10)
+})
 
-const groupList = ref([
-  { name: '前端开发交流群', desc: 'Vue/React/Angular 技术交流', members: 5280, posts: 1290, joined: true },
-  { name: 'Java后端求职群', desc: 'Spring Boot/微服务/分布式', members: 4560, posts: 1150, joined: false },
-  { name: '算法工程师成长营', desc: '机器学习/深度学习/推荐系统', members: 3890, posts: 980, joined: false },
-  { name: '校招应届毕业生', desc: '校招信息/笔试/面试经验', members: 8560, posts: 2200, joined: true },
-  { name: '测试工程师之家', desc: '自动化测试/性能测试/TestOps', members: 2450, posts: 560, joined: false },
-  { name: 'DevOps运维圈', desc: 'Docker/K8s/CI/CD/SRE', members: 3450, posts: 890, joined: false },
-  { name: 'UI/UX设计师交流', desc: '产品设计/交互/视觉', members: 2890, posts: 670, joined: false },
-  { name: '转行IT互助联盟', desc: '非科班转行经验分享', members: 6120, posts: 1560, joined: false }
-])
+// 推荐关注：没有真实推荐系统，显示为空
+const recommendUsers = ref([])
 
-const onlineUsers = [
-  { name: '前端小李', avatar: generateAvatar('前端小李') },
-  { name: 'Java攻城狮', avatar: generateAvatar('Java攻城狮') },
-  { name: '算法工程师', avatar: generateAvatar('算法工程师') },
-  { name: '测试QA', avatar: generateAvatar('测试QA') },
-  { name: '运维SRE', avatar: generateAvatar('运维SRE') },
-  { name: '产品经理', avatar: generateAvatar('产品经理') },
-  { name: 'UI设计师', avatar: generateAvatar('UI设计师') },
-  { name: '求职导师', avatar: generateAvatar('求职导师') }
-]
-const hotTopics = ref([
-  { name: '2026秋招', posts: 3256, trend: '+25%', related: ['校招', '应届生', '笔试', '面试'] },
-  { name: 'Vue3', posts: 2180, trend: '+18%', related: ['前端', 'Vue', 'Composition API'] },
-  { name: '大模型', posts: 1890, trend: '+32%', related: ['算法', 'AI', 'LLM', 'NLP'] },
-  { name: 'Java面试', posts: 1543, trend: '+8%', related: ['后端', 'Java', 'Spring', 'JVM'] },
-  { name: '转行IT', posts: 2340, trend: '+15%', related: ['转行', '零基础', '职业规划'] },
-  { name: 'Kubernetes', posts: 980, trend: '+12%', related: ['运维', 'DevOps', '容器', '云原生'] }
-])
-const recommendUsers = ref([
-  { name: '字节跳动HR', title: '字节官方招聘', avatar: generateAvatar('字节跳动HR'), followed: true },
-  { name: '前端面试官老王', title: '10年面试经验', avatar: generateAvatar('前端面试官老王'), followed: false },
-  { name: '算法专家李教授', title: 'AI/ML领域专家', avatar: generateAvatar('算法专家李教授'), followed: false },
-  { name: '求职导师张老师', title: '辅导500+学员拿offer', avatar: generateAvatar('求职导师张老师'), followed: false },
-  { name: '大厂HR小助手', title: '每日发布校招信息', avatar: generateAvatar('大厂HR小助手'), followed: false }
-])
 const weeklyRank = computed(() => {
   const scoreMap = new Map()
   const addScore = (name, avatar, score) => {
@@ -1725,22 +1468,16 @@ const weeklyRank = computed(() => {
     if (!cur.avatar && avatar) cur.avatar = avatar
     scoreMap.set(name, cur)
   }
-  // 面经作者：点赞×1 + 评论×2 + 浏览÷10 + 发布奖励(仅首帖30分)
   hotInterviews.value.forEach(it => {
     const baseScore = (it.likes || 0) + (it.comments || 0) * 2 + Math.floor((it.views || 0) / 10)
     const publishBonus = it.isUserPublished ? 30 : 0
     addScore(it.author, it.avatar, baseScore + publishBonus)
   })
-  // 问答作者：回答数×5 + 最佳回答点赞×1
   qaList.value.forEach(qa => {
     addScore(qa.author, qa.avatar, (qa.answers || 0) * 5 + (qa.bestAnswer ? qa.bestAnswer.likes || 0 : 0))
     if (qa.bestAnswer) {
       addScore(qa.bestAnswer.author, qa.bestAnswer.avatar, qa.bestAnswer.likes || 0)
     }
-  })
-  // 推荐用户基础活跃分
-  recommendUsers.value.forEach(u => {
-    addScore(u.name, u.avatar, u.followed ? 200 : 100)
   })
   const ranked = Array.from(scoreMap.values())
     .sort((a, b) => b.score - a.score)
@@ -1748,11 +1485,21 @@ const weeklyRank = computed(() => {
   return ranked
 })
 
-const groupPosts = [
-  { title: '分享今天的面试经历', preview: '今天面试了XX公司，感觉表现不错...', author: '求职达人', time: '2小时前', comments: 12, likes: 34 },
-  { title: '求内推！', preview: '本人计算机专业，求各位大佬内推...', author: '应届生小李', time: '5小时前', comments: 8, likes: 15 },
-  { title: '聊聊薪资待遇', preview: '大家的薪资待遇怎么样？来聊聊...', author: '薪资讨论', time: '8小时前', comments: 45, likes: 67 }
-]
+// 群聊帖子：从真实帖子中筛选
+const groupPosts = computed(() => {
+  if (!hotInterviews.value.length) return []
+  return hotInterviews.value
+    .sort((a, b) => (b.likes || 0) - (a.likes || 0))
+    .slice(0, 3)
+    .map(p => ({
+      title: p.title,
+      preview: p.preview,
+      author: p.author,
+      time: p.time,
+      comments: p.comments || 0,
+      likes: p.likes || 0
+    }))
+})
 
 const filteredJobs = computed(() => {
   let result = realJobs.value
@@ -2081,20 +1828,22 @@ const getOnlineStatus = (author) => {
   return activeAuthors.includes(author) ? 'online' : 'offline'
 }
 
-const toggleLike = (item) => {
-  if (item.liked) {
-    item.likes--
-    item.liked = false
-  } else {
-    item.likes++
-    item.liked = true
-  }
+const toggleLike = async (item) => {
+  const username = currentUser.value?.name || 'guest'
+  const itemId = item.id || item._id || item.title
+  const liked = await toggleLikeApi(username, itemId, 'post')
+  item.liked = liked
+  item.likes = Math.max(0, (item.likes || 0) + (liked ? 1 : -1))
 }
 
-const toggleCollect = (item) => {
-  item.collected = !item.collected
+const toggleCollect = async (item) => {
+  const username = currentUser.value?.name || 'guest'
+  const itemId = item.id || item._id || item.title
+  const itemType = 'post'
+  const collected = await toggleCollectApi(username, itemId, itemType)
+  item.collected = collected
   persistCollectedPosts()
-  showToast(item.collected ? '已收藏到我的收藏' : '已取消收藏', 'success')
+  showToast(collected ? '已收藏到我的收藏' : '已取消收藏', 'success')
 }
 const handleMyPublishClick = (type, item) => {
   openDetail(type, item)
@@ -2399,11 +2148,10 @@ const toggleFollowQuestion = (qa) => {
 }
 
 const toggleJoin = (group) => {
-  group.joined = !group.joined
-  if (group.joined) {
-    joinedGroupIds.value.add(group.name)
-  } else {
+  if (joinedGroupIds.value.has(group.name)) {
     joinedGroupIds.value.delete(group.name)
+  } else {
+    joinedGroupIds.value.add(group.name)
   }
   persistJoinedGroups()
 }
@@ -2418,54 +2166,113 @@ const toggleFollow = (user) => {
   persistFollowedUsers()
 }
 
+// 私聊：从 communityStore 读取真实聊天记录
 const openChat = (user) => {
   chatTarget.value = user
-  chatMessages.value = [
-    { from: 'them', author: user.name, avatar: user.avatar, content: `你好！我是${user.name}，很高兴认识你～`, time: '刚刚' }
-  ]
+  chatMessages.value = getChats(currentUser.value.name, user.name)
+  if (chatMessages.value.length === 0) {
+    chatMessages.value = [] // 无历史消息，等用户发第一条
+  }
   showChat.value = true
 }
 
 const sendChatMessage = () => {
   if (!chatInput.value.trim()) return
-  chatMessages.value.push({
+  const msg = {
     from: 'me',
     author: currentUser.value.name,
     avatar: currentUser.value.avatar,
     content: chatInput.value,
     time: '刚刚'
-  })
+  }
+  chatMessages.value.push(msg)
+  addChatMessage(currentUser.value.name, chatTarget.value.name, msg)
   chatInput.value = ''
-  setTimeout(() => {
-    chatMessages.value.push({
-      from: 'them',
-      author: chatTarget.value.name,
-      avatar: chatTarget.value.avatar,
-      content: '收到你的消息啦！稍后回复你～',
-      time: '刚刚'
-    })
-  }, 1200)
 }
 
-const openGroupChat = (group) => {
+// 群聊：走后端 API（跨用户互通）
+const openGroupChat = async (group) => {
   groupChatTarget.value = group
-  groupChatMessages.value = [
-    { from: 'them', author: '群成员A', avatar: generateAvatar('群成员A'), content: `欢迎加入【${group.name}】！`, time: '10分钟前' },
-    { from: 'them', author: '群成员B', avatar: generateAvatar('群成员B'), content: '新人你好呀，有什么问题可以随时问', time: '5分钟前' }
-  ]
+  try {
+    const msgs = await fetchGroupMessages(group.name)
+    groupChatMessages.value = (msgs || []).map(m => ({
+      from: m.from,
+      author: m.author,
+      avatar: m.avatar,
+      content: m.content,
+      time: formatTime(m.timestamp)
+    }))
+  } catch (e) {
+    groupChatMessages.value = []
+  }
   showGroupChat.value = true
 }
 
-const sendGroupChatMessage = () => {
-  if (!groupChatInput.value.trim()) return
-  groupChatMessages.value.push({
+const formatTime = (ts) => {
+  const d = new Date(ts)
+  const now = new Date()
+  const diff = (now - d) / 1000
+  if (diff < 60) return '刚刚'
+  if (diff < 3600) return Math.floor(diff / 60) + '分钟前'
+  if (diff < 86400) return Math.floor(diff / 3600) + '小时前'
+  return `${d.getMonth() + 1}-${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+const sendGroupChatMessage = async () => {
+  if (!groupChatInput.value.trim() || !groupChatTarget.value) return
+  const payload = {
     from: 'me',
     author: currentUser.value.name,
     avatar: currentUser.value.avatar,
-    content: groupChatInput.value,
-    time: '刚刚'
-  })
+    content: groupChatInput.value.trim()
+  }
+  const saved = await sendGroupMessageApi(groupChatTarget.value.name, payload)
+  if (saved) {
+    groupChatMessages.value.push({
+      from: saved.from,
+      author: saved.author,
+      avatar: saved.avatar,
+      content: saved.content,
+      time: '刚刚'
+    })
+  }
   groupChatInput.value = ''
+}
+
+const handleCreateGroup = async () => {
+  const name = createGroupForm.value.name.trim()
+  if (!name) {
+    createGroupErr.value = '请输入群名称'
+    return
+  }
+  if (name.length > 12) {
+    createGroupErr.value = '群名称不能超过12字'
+    return
+  }
+  const result = await createGroupApi(name, createGroupForm.value.desc.trim(), currentUser.value.name)
+  if (!result.ok) {
+    createGroupErr.value = result.msg
+    return
+  }
+  // 刷新后端 API 列表
+  userCreatedGroups.value = await fetchGroups()
+  joinedGroupIds.value.add(name)
+  persistJoinedGroups()
+  createGroupForm.value = { name: '', desc: '' }
+  createGroupErr.value = ''
+  showCreateGroupModal.value = false
+  showToast('创建成功！现在所有登录用户都能看到这个群了~', 'success')
+}
+
+const handleDeleteGroup = async (group) => {
+  if (!confirm(`确定要删除群「${group.name}」吗？群聊消息也会一并删除。`)) return
+  const ok = await deleteGroupApi(group.name)
+  if (ok) {
+    userCreatedGroups.value = await fetchGroups()
+    joinedGroupIds.value.delete(group.name)
+    persistJoinedGroups()
+    showToast('已删除', 'success')
+  }
 }
 
 const addTag = () => {
@@ -2484,46 +2291,63 @@ const closePublishModal = () => {
   publishForm.value = { title: '', tags: [], tagInput: '', content: '' }
 }
 
-const submitPublish = () => {
-  if (!publishForm.value.title.trim() || !publishForm.value.content.trim()) {
-    console.warn('[发布经验] 标题或内容为空，发布取消')
+const isSubmitting = ref(false)
+
+const submitPublish = async () => {
+  if (isSubmitting.value) return
+  const title = publishForm.value.title.trim()
+  const content = publishForm.value.content.trim()
+  if (!title || !content) {
     alert('请填写标题和内容')
     return
   }
+
+  // 防重复：同一作者 + 同一标题 + 同一内容 视为重复发布
+  const author = currentUser.value.name
+  const dup = hotInterviews.value.find(p =>
+    p.author === author &&
+    (p.title || '').trim() === title &&
+    (p.content || '').trim() === content
+  )
+  if (dup) {
+    alert('你已经发布过一模一样的内容了，不要再重复发布啦~')
+    return
+  }
+
+  isSubmitting.value = true
   
   const newPost = {
-    title: publishForm.value.title,
-    author: currentUser.value.name,
+    title,
+    author,
     avatar: currentUser.value.avatar,
     time: '刚刚',
-    tags: publishForm.value.tags.length > 0 ? publishForm.value.tags : ['前端', '求职'],
+    tags: publishForm.value.tags.length > 0 ? publishForm.value.tags : [],
     comments: 0,
     likes: 0,
     views: 1,
     liked: false,
     collected: false,
-    preview: publishForm.value.content.slice(0, 100) + '...',
+    preview: content.slice(0, 100) + '...',
+    content,
     commentList: [],
-    isUserPublished: true,
-    publishScore: 30
+    isUserPublished: true
   }
   
-  console.log('[发布经验] 准备发布新帖子:', { title: newPost.title, author: newPost.author, tags: newPost.tags })
+  // 写入 communityStore（localStorage 持久化）
+  try {
+    await createPost(newPost)
+  } catch (e) {
+    console.warn('[发布] createPost 失败:', e.message)
+  }
   
   hotInterviews.value.unshift(newPost)
-  console.log('[发布经验] 已插入hotInterviews，当前列表长度:', hotInterviews.value.length)
-  
-  persistPublishedPosts()
-  console.log('[发布经验] 持久化完成，发布者:', currentUser.value.name)
   
   closePublishModal()
   activeTab.value = 'interview'
   filterType.value = 'latest'
+  isSubmitting.value = false
   
-  const userRank = weeklyRank.value.findIndex(r => r.name === currentUser.value.name)
-  console.log('[发布经验] 当前用户活跃榜排名:', userRank >= 0 ? `第${userRank + 1}名` : '未上榜')
-  
-  alert('发布成功！已为你切换到面经榜「最新」')
+  showToast('发布成功！已为你切换到面经榜「最新」', 'success')
 }
 
 const initBackground = () => {
@@ -2568,26 +2392,58 @@ const initBackground = () => {
 }
 
 onMounted(async () => {
-  // 加载当前用户信息
   loadCurrentUser()
   
+  // 从后端 API 加载帖子（跨用户互通）
+  try {
+    const posts = await fetchPosts()
+    if (posts && posts.length > 0) {
+      hotInterviews.value = posts.map(p => ({
+        ...p,
+        views: p.views || 0,
+        liked: typeof p.liked === 'boolean' ? p.liked : false,
+        collected: typeof p.collected === 'boolean' ? p.collected : false,
+        commentList: p.commentList || []
+      }))
+    } else {
+      hotInterviews.value = []
+    }
+  } catch (e) {
+    console.warn('[社区] 加载帖子失败:', e.message)
+    hotInterviews.value = []
+  }
+
+  try {
+    const qas = await fetchQAs()
+    qaList.value = qas || []
+  } catch (e) {
+    console.warn('[社区] 加载问答失败:', e.message)
+    qaList.value = []
+  }
+
+  // 加载岗位数据（仅用于岗位 tab + 热门话题/小组聚合）
   try {
     const response = await fetch('/data/all_cleaned_jobs.json')
     if (response.ok) {
       jobData = await response.json()
       dataTrigger.value++
-      generateInterviewsFromJobs()
-      generateQAFromJobs()
     }
   } catch (err) {
     console.warn('岗位数据加载失败:', err.message)
   }
+
   initBackground()
   loadPersistedState()
-  // 加载搜索历史
   const savedHistory = JSON.parse(localStorage.getItem(getUserScopedKey('jc_searchHistory')) || '[]')
   if (savedHistory.length > 0) {
     searchHistory.value = savedHistory
+  }
+
+  // 从后端 API 加载所有小组（跨用户互通）
+  try {
+    userCreatedGroups.value = await fetchGroups() || []
+  } catch (e) {
+    userCreatedGroups.value = []
   }
 })
 
@@ -3405,6 +3261,55 @@ onUnmounted(() => {
   background: linear-gradient(135deg, rgba(0, 255, 163, 0.45), rgba(0, 229, 255, 0.35));
   box-shadow: 0 0 18px rgba(0, 255, 163, 0.5);
 }
+.group-actions .delete-btn {
+  background: rgba(255, 71, 87, 0.15);
+  border-color: rgba(255, 71, 87, 0.45);
+  color: var(--red);
+  flex: 0.7;
+}
+.group-actions .delete-btn:hover {
+  background: rgba(255, 71, 87, 0.35);
+  box-shadow: 0 0 14px rgba(255, 71, 87, 0.5);
+}
+.user-group-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(255, 182, 72, 0.2);
+  color: var(--gold);
+  border: 1px solid rgba(255, 182, 72, 0.45);
+  margin-left: 6px;
+  vertical-align: middle;
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+}
+.create-group-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, rgba(0, 255, 163, 0.18), rgba(0, 229, 255, 0.18));
+  border: 1px solid rgba(0, 255, 163, 0.55);
+  border-radius: 14px;
+  color: var(--green);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 0 8px rgba(0, 255, 163, 0.25);
+}
+.create-group-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 163, 0.35), rgba(0, 229, 255, 0.35));
+  box-shadow: 0 0 16px rgba(0, 255, 163, 0.5);
+  transform: translateY(-1px);
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
 
 .content-right > div {
   background: var(--bg-card);
@@ -3431,8 +3336,6 @@ onUnmounted(() => {
   border-radius: 2px;
   box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
 }
-
-.online-users { }
 .avatar-stack { display: flex; }
 .mini-avatar {
   width: 38px; height: 38px; border-radius: 50%;
@@ -3446,9 +3349,6 @@ onUnmounted(() => {
   font-family: var(--font-mono);
   text-shadow: 0 0 8px rgba(0, 255, 163, 0.5);
 }
-
-.hot-topics { }
-.topic-list { }
 .topic-item {
   display: flex; align-items: center; gap: 12px; padding: 10px 0;
   border-bottom: 1px solid rgba(0, 229, 255, 0.12);
@@ -3469,9 +3369,6 @@ onUnmounted(() => {
   box-shadow: 0 0 10px rgba(196, 113, 255, 0.5);
 }
 .topic-name { font-size: 0.9rem; color: rgba(230, 241, 255, 0.75); }
-
-.recommend-users { }
-.user-list { }
 .user-item {
   display: flex; align-items: center; gap: 12px; padding: 12px 0;
   border-bottom: 1px solid rgba(0, 229, 255, 0.12);
@@ -3506,8 +3403,6 @@ onUnmounted(() => {
   color: #fff;
   box-shadow: 0 0 16px rgba(0, 229, 255, 0.55);
 }
-
-.weekly-rank { }
 .rank-rule-toggle {
   font-size: 0.7rem;
   color: rgba(0, 229, 255, 0.7);
@@ -3542,7 +3437,6 @@ onUnmounted(() => {
   padding: 2px 0;
   font-family: var(--font-mono);
 }
-.rank-list { }
 .rank-item {
   display: flex; align-items: center; gap: 12px; padding: 10px 6px;
   cursor: pointer;
@@ -3629,7 +3523,6 @@ onUnmounted(() => {
   transition: transform 0.25s;
 }
 .detail-avatar:hover { transform: scale(1.08); }
-.detail-author { }
 .detail-meta { display: flex; gap: 20px; margin-top: 10px; }
 .detail-meta span { font-size: 0.9rem; color: rgba(230, 241, 255, 0.55); font-family: var(--font-mono); }
 .detail-author-name {
@@ -3680,7 +3573,6 @@ onUnmounted(() => {
   box-shadow: 0 0 14px rgba(255, 71, 87, 0.4);
 }
 
-.comment-section { }
 .comment-section h3 {
   font-size: 1.3rem; font-weight: 600; color: #fff; margin-bottom: 20px;
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
@@ -3978,6 +3870,67 @@ onUnmounted(() => {
 .publish-submit:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 32px rgba(196, 113, 255, 0.65), 0 0 20px rgba(0, 229, 255, 0.4);
+}
+.publish-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 创建群聊弹窗 */
+.create-group-modal {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(2, 4, 10, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 1001; display: flex; align-items: center; justify-content: center;
+}
+.create-group-modal-content {
+  width: 90%; max-width: 460px;
+  background: rgba(12, 22, 48, 0.95);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(0, 255, 163, 0.5);
+  border-radius: 20px; padding: 32px; position: relative;
+  box-shadow: 0 0 32px rgba(0, 255, 163, 0.3), 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+.create-group-modal-content h3 {
+  font-size: 1.4rem; font-weight: 600; color: #fff; margin-bottom: 22px;
+  text-shadow: 0 0 14px rgba(0, 255, 163, 0.45);
+  letter-spacing: 0.5px;
+}
+.create-group-form .create-group-err {
+  color: var(--red);
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+  padding: 6px 10px;
+  background: rgba(255, 71, 87, 0.12);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+}
+.create-group-actions {
+  display: flex; gap: 12px; margin-top: 16px;
+}
+.create-group-actions .cancel-btn,
+.create-group-actions .submit-btn {
+  flex: 1; padding: 12px; border-radius: 12px;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  transition: all 0.25s;
+}
+.create-group-actions .cancel-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+}
+.create-group-actions .cancel-btn:hover { background: rgba(255, 255, 255, 0.12); }
+.create-group-actions .submit-btn {
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  border: none; color: #02040a;
+  box-shadow: 0 4px 16px rgba(0, 255, 163, 0.35);
+}
+.create-group-actions .submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(0, 255, 163, 0.55);
 }
 
 .topic-modal {

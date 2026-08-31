@@ -2,8 +2,23 @@
   "enabled": true,
   "cron_expression": "0 10 * * *",
   "time_description": "每天 10:00",
-  "next_run_time": "2026/8/31 10:00:00",
+  "next_run_time": "2026/9/1 10:00:00",
   "history": [
+    {
+      "time": "2026/8/31 10:01:14",
+      "type": "catch-up",
+      "status": "success",
+      "message": "检测到今日 定时（每天 10:00） 未执行，自动补爬",
+      "duration_seconds": 8764,
+      "reloaded": "+0 → 共 63784 条",
+      "finished_time": "2026/8/31 12:26:19"
+    },
+    {
+      "time": "2026/8/31 10:00:15",
+      "type": "scheduled",
+      "status": "started",
+      "python_executable": "D:\\python\\python.exe"
+    },
     {
       "time": "2026/8/30 14:38:32",
       "type": "scheduled",
@@ -44,6 +59,7 @@
       "message": "检测到今日 定时（每天 10:00） 未执行，自动补爬"
     }
   ],
-  "last_run_time": "2026/8/30 14:38:32",
-  "_lastCatchUpKey": "catchup_2026-7-30"
+  "last_run_time": "2026/8/31 10:00:15",
+  "_lastCatchUpKey": "catchup_2026-7-31",
+  "_lastFireKey": "2026-7-31-10-0"
 }

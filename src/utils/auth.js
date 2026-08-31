@@ -150,13 +150,23 @@ export function loginWithSocial(type, userInfo) {
 }
 
 export async function loginWithEmail(email, password) {
-  const user = await verifyLogin(email, password)
+  // 调后端 API（后端支持 username 或 email 登录）
+  const res = await fetch(`${API_BASE}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: email, password })
+  })
+  const data = await res.json()
+  if (!data.success) {
+    throw new Error(data.message)
+  }
   const info = {
     loginType: 'email',
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
+    userId: data.user.id,
+    username: data.user.username || '',
+    email: data.user.email || email,
+    name: data.user.username || email,
+    role: data.user.role || 'user',
     loginTime: Date.now()
   }
   setAuthInfo(info)
@@ -164,13 +174,24 @@ export async function loginWithEmail(email, password) {
 }
 
 export async function registerWithEmail(email, password, name) {
-  const user = await registerUser(email, password, name)
+  // 调后端 API 注册 + 自动登录
+  const username = name || email.split('@')[0]
+  const res = await fetch(`${API_BASE}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, email })
+  })
+  const data = await res.json()
+  if (!data.success) {
+    throw new Error(data.message)
+  }
   const info = {
     loginType: 'email',
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
+    userId: data.user.id,
+    username: data.user.username || username,
+    email: data.user.email || email,
+    name: name || username,
+    role: 'user',
     loginTime: Date.now()
   }
   setAuthInfo(info)

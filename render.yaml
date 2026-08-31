@@ -1,0 +1,23 @@
+# Render.com 免费部署配置
+# 使用方法：
+#   1. 把整个项目推到 GitHub
+#   2. 打开 https://render.com 注册/登录（免费）
+#   3. 点击 "New +" → "Blueprint" → 连接你的 GitHub 仓库
+#   4. Render 会自动识别这个 render.yaml 并部署
+#   5. 部署完成后会给你一个永久免费的 https://xxx.onrender.com 域名
+#
+# 注意：免费版 Render 750 小时/月，个人项目完全够用
+#       Render 休眠后首次访问可能慢几秒（冷启动）
+#       数据文件（backend/data/）存储在 Render 容器里，重启会清空
+#       如果要持久化数据，需要用 Render Disk（付费 3$/月）或改接外部数据库
+
+services:
+  - type: web
+    name: it-career-bigscreen
+    runtime: node
+    region: singapore
+    buildCommand: npm install && npm run build && cd backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: "18"

@@ -1,6 +1,14 @@
 import axios from 'axios'
+import { getAuthHeaders } from './auth'
 
 const API_BASE = '/api/community'
+
+// axios 默认带身份头（登录用户带 X-User-Id，游客带 X-Guest-Session）
+axios.interceptors.request.use(config => {
+  const auth = getAuthHeaders()
+  if (auth) config.headers = { ...config.headers, ...auth }
+  return config
+})
 
 const POSTS_KEY = 'community_posts'
 const QAS_KEY = 'community_qas'
@@ -8,6 +16,8 @@ const LIKES_KEY = 'community_likes'
 const COLLECTS_KEY = 'community_collects'
 const APPLIES_KEY = 'community_applies'
 const CHATS_KEY = 'community_chats'
+const GROUPS_KEY = 'community_groups'
+const GROUP_MSGS_KEY = 'community_group_msgs'
 const INIT_FLAG_KEY = 'community_initialized_v3'
 
 function readStore(key) {
@@ -353,4 +363,122 @@ export function clearCommunityData() {
   localStorage.removeItem(COLLECTS_KEY)
   localStorage.removeItem(APPLIES_KEY)
   localStorage.removeItem(CHATS_KEY)
+  localStorage.removeItem(GROUPS_KEY)
+  localStorage.removeItem(GROUP_MSGS_KEY)
+}
+
+// ==================== 群聊（用户自建） ====================
+
+export function getUserGroups() {
+  return readStore(GROUPS_KEY)
+}
+
+export function saveUserGroups(groups) {
+  writeStore(GROUPS_KEY, groups)
+}
+
+export function createGroup(name, desc, creator) {
+  const groups = readStore(GROUPS_KEY)
+  const exists = groups.find(g => g.name === name)
+  if (exists) return { ok: false, msg: '已存在同名小组' }
+  const group = {
+    name,
+    desc: desc || `${name}方向岗位讨论`,
+    members: 1,
+    posts: 0,
+    creator: creator || '匿名用户',
+    createdAt: new Date().toISOString(),
+    isUserCreated: true,
+    joined: true
+  }
+  groups.unshift(group)
+  writeStore(GROUPS_KEY, groups)
+  return { ok: true, group }
+}
+
+export function deleteGroup(name, creator) {
+  const groups = readStore(GROUPS_KEY)
+  const target = groups.find(g => g.name === name)
+  if (!target) return false
+  if (creator && target.creator !== creator) return false
+  writeStore(GROUPS_KEY, groups.filter(g => g.name !== name))
+  // 同时删掉该群的消息
+  const all = readStore(GROUP_MSGS_KEY)
+  writeStore(GROUP_MSGS_KEY, all.filter(m => m.groupName !== name))
+  return true
+}
+
+export function getGroupMessages(groupName) {
+  const all = readStore(GROUP_MSGS_KEY)
+  return all.filter(m => m.groupName === groupName).sort((a, b) => a.timestamp - b.timestamp)
+}
+
+export function addGroupMessage(groupName, message) {
+  const all = readStore(GROUP_MSGS_KEY)
+  const msg = {
+    id: 'gm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    groupName,
+    timestamp: Date.now(),
+    ...message
+  }
+  all.push(msg)
+  writeStore(GROUP_MSGS_KEY, all)
+  return msg
+}
+
+// ==================== 群聊 API（跨用户互通） ====================
+
+export async function fetchGroups() {
+  try {
+    const res = await axios.get(`${API_BASE}/groups`)
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('fetchGroups failed:', e.message)
+  }
+  return []
+}
+
+export async function createGroupApi(name, desc, creator) {
+  try {
+    const res = await axios.post(`${API_BASE}/groups`, { name, desc, creator })
+    if (res.data.success) return { ok: true, group: res.data.data }
+    return { ok: false, msg: res.data.message || '创建失败' }
+  } catch (e) {
+    if (e.response?.status === 409) return { ok: false, msg: e.response.data.message }
+    console.warn('createGroupApi failed:', e.message)
+    return { ok: false, msg: '服务器错误' }
+  }
+}
+
+export async function deleteGroupApi(name) {
+  try {
+    const res = await axios.delete(`${API_BASE}/groups/${encodeURIComponent(name)}`)
+    return res.data.success
+  } catch (e) {
+    console.warn('deleteGroupApi failed:', e.message)
+    return false
+  }
+}
+
+export async function fetchGroupMessages(groupName) {
+  try {
+    const res = await axios.get(`${API_BASE}/groups/${encodeURIComponent(groupName)}/messages`)
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('fetchGroupMessages failed:', e.message)
+  }
+  return []
+}
+
+export async function sendGroupMessageApi(groupName, message) {
+  try {
+    const res = await axios.post(
+      `${API_BASE}/groups/${encodeURIComponent(groupName)}/messages`,
+      message
+    )
+    if (res.data.success) return res.data.data
+  } catch (e) {
+    console.warn('sendGroupMessageApi failed:', e.message)
+  }
+  return null
 }
