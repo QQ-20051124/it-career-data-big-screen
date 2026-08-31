@@ -30,3 +30,9 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+# 临时测试脚本
+_test_script.js
+
+# 根目录爬虫输出 CSV
+/*.csv
