@@ -746,8 +746,8 @@
             </div>
             <span>求职社区</span>
           </div>
-          <div class="community-posts">
-            <div class="post-item" v-for="(post, index) in communityPosts" :key="index" @click="router.push('/job-community')">
+          <div class="community-posts" v-if="communityPosts.length > 0">
+            <div class="post-item" v-for="(post, index) in communityPosts.slice(0,5)" :key="post.id || index" @click="router.push('/job-community')">
               <div class="post-avatar">
                 <img :src="post.avatar" :alt="post.author"/>
               </div>
@@ -756,11 +756,16 @@
                 <div class="post-meta">
                   <span class="post-author">{{ post.author }}</span>
                   <span class="post-time">{{ post.time }}</span>
-                  <span class="post-comments">{{ post.comments }}评论</span>
+                  <span class="post-comments">{{ post.comments || 0 }}评论</span>
                 </div>
               </div>
               <div class="post-badge" v-if="post.hot">🔥</div>
             </div>
+          </div>
+          <div v-else class="community-empty">
+            <div class="community-empty-icon">📭</div>
+            <div class="community-empty-text">暂无社区内容</div>
+            <div class="community-empty-hint">去社区页发布第一篇帖子吧</div>
           </div>
           <div class="panel-footer" @click="router.push('/job-community')">
             <span>查看更多</span>
@@ -1329,6 +1334,7 @@ import { isCurrentUserAdmin } from '@/utils/userStore'
 import { useGuestMode } from '@/composables/useGuestMode'
 import { generateAvatar, generateGuestName, getRandomAvatar } from '@/utils/avatar'
 import { playMp4ViaMse } from '@/utils/msePlayer'
+import { fetchPosts } from '@/utils/communityStore'
 
 import carouselImg1 from '@/assets/carousel/slide1-jobs.jpg'
 import carouselImg2 from '@/assets/carousel/slide2-skills.jpg'
@@ -1963,50 +1969,45 @@ const goToVisualization = () => {
   router.push('/analytics')
 }
 
-const communitySourceData = [
-  { 
-    title: '分享计算机技术员面试经验', 
-    author: '求职者小王', 
-    time: '5分钟前', 
-    comments: 29, 
-    hot: false 
-  },
-  { 
-    title: '急招普工/操作工，薪资优厚', 
-    author: '技术达人', 
-    time: '12分钟前', 
-    comments: 148, 
-    hot: true 
-  },
-  { 
-    title: '计算机老师薪资待遇怎么样', 
-    author: 'HR小姐姐', 
-    time: '28分钟前', 
-    comments: 91, 
-    hot: true 
-  },
-  { 
-    title: '在计算机硬件维护工作是一种什么体验', 
-    author: '应届生小李', 
-    time: '45分钟前', 
-    comments: 210, 
-    hot: false 
-  },
-  { 
-    title: '计算机编程老师岗位推荐', 
-    author: '转行程序员', 
-    time: '1小时前', 
-    comments: 197, 
-    hot: true 
-  }
-]
+const communityPosts = ref([])
 
-const communityPosts = ref(
-  communitySourceData.map((post) => ({
-    ...post,
-    avatar: generateAvatar(post.author)
-  }))
-)
+// 时间格式化：把 ISO 时间变成 "X分钟前 / X小时前"
+function formatRelativeTime (isoDate) {
+  if (!isoDate) return '刚刚'
+  const t = new Date(isoDate).getTime()
+  if (isNaN(t)) return isoDate
+  const diff = Math.max(0, Date.now() - t)
+  const min = Math.floor(diff / 60000)
+  if (min < 1) return '刚刚'
+  if (min < 60) return min + '分钟前'
+  const hr = Math.floor(min / 60)
+  if (hr < 24) return hr + '小时前'
+  const day = Math.floor(hr / 24)
+  return day + '天前'
+}
+
+// 加载社区真实帖子（最多展示 5 条）
+async function loadCommunityPosts () {
+  try {
+    const posts = await fetchPosts({ sort: 'latest', limit: 5 })
+    if (!Array.isArray(posts) || posts.length === 0) {
+      communityPosts.value = []
+      return
+    }
+    communityPosts.value = posts.slice(0, 5).map(p => ({
+      id: p.id,
+      title: p.title,
+      author: p.author || '匿名用户',
+      avatar: p.avatar || generateAvatar(p.author || '匿名'),
+      time: formatRelativeTime(p.time || p.createdAt),
+      comments: p.comments ?? p.commentCount ?? 0,
+      hot: p.hot === true || (p.views || 0) > 500 || (p.likes || 0) > 50
+    }))
+  } catch (e) {
+    console.warn('加载社区帖子失败，显示空列表:', e.message)
+    communityPosts.value = []
+  }
+}
 
 const carouselSlides = ref([
   {
@@ -2381,6 +2382,7 @@ onMounted(async () => {
 
   fetchDataInfo()
   initBackground()
+  loadCommunityPosts()
   
   // 使用新的loadUserInfo函数加载用户资料
   loadUserInfo()
@@ -3765,6 +3767,28 @@ const CM = {
 
 .post-badge {
   font-size: 0.8rem;
+}
+
+.community-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 15px 25px;
+  gap: 8px;
+  min-height: 260px;
+}
+.community-empty-icon {
+  font-size: 44px;
+  opacity: 0.6;
+}
+.community-empty-text {
+  color: rgba(170, 200, 240, 0.55);
+  font-size: 0.9rem;
+}
+.community-empty-hint {
+  color: rgba(74, 158, 255, 0.4);
+  font-size: 0.75rem;
 }
 
 .panel-footer {

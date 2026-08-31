@@ -428,8 +428,9 @@
       </footer>
     </div>
 
-    <div v-if="showDetail" class="detail-modal" @click.self="closeDetail">
-      <div class="modal-content">
+    <teleport to="body">
+    <div v-if="showDetail" class="detail-modal jc-overlay" @click.self="closeDetail">
+      <div class="modal-content jc-modal-card">
         <button class="close-btn" @click="closeDetail">✕</button>
         <div v-if="detailType === 'interview'" class="detail-body">
           <div class="detail-header">
@@ -514,18 +515,19 @@
           <div class="detail-tags">
             <span v-for="skill in detailData.tags" :key="skill" class="detail-tag">{{ skill }}</span>
           </div>
+          <div class="job-highlights">
+            <div v-for="(h, idx) in (jobDetailContent.highlights || [])" :key="'jh-' + idx" class="job-highlight-item">
+              <span class="job-highlight-dot"></span>{{ h }}
+            </div>
+          </div>
           <div class="detail-content">
             <h3>岗位职责：</h3>
             <ul>
-              <li>负责相关技术开发工作</li>
-              <li>参与需求分析和技术方案设计</li>
-              <li>与团队协作完成项目交付</li>
+              <li v-for="(d, idx) in (jobDetailContent.duties || [])" :key="'duty-' + idx">{{ d }}</li>
             </ul>
             <h3>岗位要求：</h3>
             <ul>
-              <li>计算机相关专业，本科及以上学历</li>
-              <li>熟悉相关技术栈</li>
-              <li>良好的沟通能力和团队协作精神</li>
+              <li v-for="(r, idx) in (jobDetailContent.requirements || [])" :key="'req-' + idx">{{ r }}</li>
             </ul>
           </div>
           <div class="job-detail-actions">
@@ -623,9 +625,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showCommentModal" class="comment-modal" @click.self="closeCommentModal">
-      <div class="comment-modal-content">
+    <teleport to="body">
+    <div v-if="showCommentModal" class="comment-modal jc-overlay jc-overlay-sm" @click.self="closeCommentModal">
+      <div class="comment-modal-content jc-modal-card">
         <button class="close-btn" @click="closeCommentModal">✕</button>
         <h3>发表评论</h3>
         <textarea v-model="commentText" rows="4" placeholder="写下你的评论..." class="comment-textarea"></textarea>
@@ -635,9 +639,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showPublishModal" class="publish-modal" @click.self="closePublishModal">
-      <div class="publish-modal-content">
+    <teleport to="body">
+    <div v-if="showPublishModal" class="publish-modal jc-overlay jc-overlay-md" @click.self="closePublishModal">
+      <div class="publish-modal-content jc-modal-card">
         <button class="close-btn" @click="closePublishModal">✕</button>
         <h3>发布经验</h3>
         <div class="publish-form">
@@ -653,10 +659,12 @@
         </div>
       </div>
     </div>
+    </teleport>
 
     <!-- 创建群聊弹窗 -->
-    <div v-if="showCreateGroupModal" class="create-group-modal" @click.self="showCreateGroupModal = false">
-      <div class="create-group-modal-content">
+    <teleport to="body">
+    <div v-if="showCreateGroupModal" class="create-group-modal jc-overlay jc-overlay-sm" @click.self="showCreateGroupModal = false">
+      <div class="create-group-modal-content jc-modal-card">
         <button class="close-btn" @click="showCreateGroupModal = false">✕</button>
         <h3>创建群聊</h3>
         <div class="create-group-form">
@@ -670,9 +678,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showTopicDetail" class="topic-modal" @click.self="closeTopicDetail">
-      <div class="topic-modal-content">
+    <teleport to="body">
+    <div v-if="showTopicDetail" class="topic-modal jc-overlay jc-overlay-topic" @click.self="closeTopicDetail">
+      <div class="topic-modal-content jc-modal-card">
         <button class="close-btn" @click="closeTopicDetail">✕</button>
         <div class="topic-header">
           <h2>📌 {{ currentTopic?.name }}</h2>
@@ -710,10 +720,12 @@
         </div>
       </div>
     </div>
+    </teleport>
 
     <!-- 用户主页弹窗 -->
-    <div v-if="showUserProfile" class="publish-modal" @click.self="closeUserProfile">
-      <div class="modal-content user-profile-modal">
+    <teleport to="body">
+    <div v-if="showUserProfile" class="publish-modal jc-overlay jc-overlay-profile" @click.self="closeUserProfile">
+      <div class="modal-content user-profile-modal jc-modal-card">
         <button class="close-btn" @click="closeUserProfile">✕</button>
         <div v-if="userProfileData" class="user-profile-body">
           <div class="up-header">
@@ -788,9 +800,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showMyPublish" class="publish-modal" @click.self="showMyPublish = false">
-      <div class="modal-content">
+    <teleport to="body">
+    <div v-if="showMyPublish" class="publish-modal jc-overlay" @click.self="showMyPublish = false">
+      <div class="modal-content jc-modal-card">
         <div class="modal-header">
           <h2>📝 我的发布</h2>
           <button class="close-btn" @click="showMyPublish = false">×</button>
@@ -819,9 +833,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showProfile" class="publish-modal" @click.self="showProfile = false">
-      <div class="modal-content">
+    <teleport to="body">
+    <div v-if="showProfile" class="publish-modal jc-overlay jc-overlay-profile" @click.self="showProfile = false">
+      <div class="modal-content jc-modal-card">
         <div class="modal-header">
           <h2>👤 个人主页</h2>
           <button class="close-btn" @click="showProfile = false">×</button>
@@ -871,9 +887,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showMyCollect" class="publish-modal" @click.self="showMyCollect = false">
-      <div class="modal-content">
+    <teleport to="body">
+    <div v-if="showMyCollect" class="publish-modal jc-overlay" @click.self="showMyCollect = false">
+      <div class="modal-content jc-modal-card">
         <div class="modal-header">
           <h2>💾 我的收藏</h2>
           <button class="close-btn" @click="showMyCollect = false">×</button>
@@ -927,9 +945,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showMyApplies" class="publish-modal" @click.self="showMyApplies = false">
-      <div class="modal-content">
+    <teleport to="body">
+    <div v-if="showMyApplies" class="publish-modal jc-overlay" @click.self="showMyApplies = false">
+      <div class="modal-content jc-modal-card">
         <div class="modal-header">
           <h2>📋 我的投递</h2>
           <button class="close-btn" @click="showMyApplies = false">×</button>
@@ -958,9 +978,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showSettings" class="publish-modal" @click.self="showSettings = false">
-      <div class="modal-content">
+    <teleport to="body">
+    <div v-if="showSettings" class="publish-modal jc-overlay" @click.self="showSettings = false">
+      <div class="modal-content jc-modal-card">
         <div class="modal-header">
           <h2>⚙️ 设置</h2>
           <button class="close-btn" @click="showSettings = false">×</button>
@@ -1025,9 +1047,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showChat && chatTarget" class="chat-modal" @click.self="showChat = false">
-      <div class="chat-modal-content">
+    <teleport to="body">
+    <div v-if="showChat && chatTarget" class="chat-modal jc-overlay jc-overlay-chat" @click.self="showChat = false">
+      <div class="chat-modal-content jc-modal-card">
         <div class="chat-modal-header">
           <div class="chat-modal-peer">
             <img :src="chatTarget.avatar" class="chat-modal-avatar" />
@@ -1061,9 +1085,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
-    <div v-if="showGroupChat && groupChatTarget" class="group-chat-modal" @click.self="showGroupChat = false">
-      <div class="group-chat-modal-content">
+    <teleport to="body">
+    <div v-if="showGroupChat && groupChatTarget" class="group-chat-modal jc-overlay jc-overlay-group-chat" @click.self="showGroupChat = false">
+      <div class="group-chat-modal-content jc-modal-card">
         <div class="group-chat-modal-header">
           <div class="group-chat-modal-peer">
             <div class="group-chat-modal-icon">{{ groupChatTarget.name.charAt(0) }}</div>
@@ -1098,6 +1124,7 @@
         </div>
       </div>
     </div>
+    </teleport>
     <!-- Toast 通知 -->
     <div v-if="toast.show" class="toast-notification" :class="toast.type">
       <span class="toast-icon">{{ toast.type === 'success' ? '✅' : '❌' }}</span>
@@ -1173,6 +1200,70 @@ const showToast = (message, type = 'success') => {
   setTimeout(() => {
     toast.value.show = false
   }, 2000)
+}
+
+// ========== 弹窗 body 滚动锁 + 结构保障 ==========
+// 只要有任意 modal 打开，就锁死 body 滚动，避免页面跟随滚动、fixed 定位偏移
+const anyModalOpen = computed(() =>
+  showDetail.value || showCommentModal.value || showPublishModal.value ||
+  showMyPublish.value || showMyCollect.value || showMyApplies.value ||
+  showSettings.value || showProfile.value || showUserProfile.value ||
+  showTopicDetail.value || showChat.value || showGroupChat.value ||
+  showCreateGroupModal.value
+)
+let _bodyScrollLockCount = 0
+const _prevBodyOverflow = { overflow: '', overflowX: '', overflowY: '', position: '', top: '', width: '' }
+const lockBodyScroll = () => {
+  if (typeof document === 'undefined') return
+  _bodyScrollLockCount++
+  if (_bodyScrollLockCount === 1) {
+    const b = document.body
+    _prevBodyOverflow.overflow = b.style.overflow
+    _prevBodyOverflow.overflowX = b.style.overflowX
+    _prevBodyOverflow.overflowY = b.style.overflowY
+    _prevBodyOverflow.position = b.style.position
+    _prevBodyOverflow.top = b.style.top
+    _prevBodyOverflow.width = b.style.width
+    const scrollY = window.scrollY || window.pageYOffset || 0
+    // 锁定后页面不再会出现滚动条闪烁
+    b.dataset.scrollY = String(scrollY)
+    b.style.overflow = 'hidden'
+    b.style.overflowX = 'hidden'
+    b.style.overflowY = 'hidden'
+    b.style.position = 'fixed'
+    b.style.top = -scrollY + 'px'
+    b.style.width = '100%'
+  }
+}
+const unlockBodyScroll = () => {
+  if (typeof document === 'undefined') return
+  if (_bodyScrollLockCount <= 0) return
+  _bodyScrollLockCount--
+  if (_bodyScrollLockCount === 0) {
+    const b = document.body
+    const scrollY = Number(b.dataset.scrollY || 0) || 0
+    b.style.overflow = _prevBodyOverflow.overflow
+    b.style.overflowX = _prevBodyOverflow.overflowX
+    b.style.overflowY = _prevBodyOverflow.overflowY
+    b.style.position = _prevBodyOverflow.position
+    b.style.top = _prevBodyOverflow.top
+    b.style.width = _prevBodyOverflow.width
+    delete b.dataset.scrollY
+    // 恢复原先滚动位置，确保不会回到顶部
+    window.scrollTo(0, scrollY)
+  }
+}
+// 监听任何一个弹窗的开/关
+watch(anyModalOpen, (open) => {
+  if (open) lockBodyScroll()
+  else unlockBodyScroll()
+})
+// 兜底：组件离开时解锁
+const _jcOnUnmountedUnlock = () => {
+  if (_bodyScrollLockCount > 0) {
+    _bodyScrollLockCount = 1
+    unlockBodyScroll()
+  }
 }
 const followedQuestionIds = ref(new Set())
 const followedUsers = ref(new Set())
@@ -1327,16 +1418,237 @@ const extractTags = (jobName) => {
 const formatSalary = (salary) => {
   if (!salary) return '面议'
   let actualSalary = salary
-  // 如果薪资值过小（< 500），可能是以"百"为单位的数据，需要乘以100转换为元
   if (salary < 500) {
     actualSalary = salary * 100
   }
-  // 统一转换为K单位显示
   if (actualSalary >= 1000) {
     const k = actualSalary / 1000
     return (k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)) + 'K'
   }
   return actualSalary + ''
+}
+
+// 根据岗位真实信息生成匹配的职责与要求（不再使用"负责相关技术开发"之类的通用模板）
+const buildJobDescription = (job) => {
+  if (!job) return { duties: [], requirements: [], highlights: [] }
+  const title = (job.title || job.job_name || '').toString().toLowerCase()
+  const tags = Array.isArray(job.tags) ? job.tags.map(t => t.toString().toLowerCase()) : []
+  const isTeacher = title.includes('教师') || title.includes('老师') || title.includes('教学') || title.includes('教育') || tags.includes('教师')
+  const isFrontend = title.includes('前端') || title.includes('vue') || title.includes('react') || title.includes('html') || title.includes('javascript') || title.includes('h5') || tags.includes('前端')
+  const isBackend = title.includes('后端') || title.includes('java') || title.includes('python') || title.includes('node') || title.includes('go') || title.includes('php') || title.includes('服务端') || tags.includes('后端')
+  const isAlgo = title.includes('算法') || title.includes('ai') || title.includes('机器学习') || title.includes('深度学习') || title.includes('nlp') || title.includes('推荐') || tags.includes('算法')
+  const isTest = title.includes('测试') || title.includes('qa') || title.includes('自动化') || title.includes('质量') || tags.includes('测试')
+  const isOps = title.includes('运维') || title.includes('devops') || title.includes('docker') || title.includes('k8s') || title.includes('linux') || tags.includes('运维')
+  const isHardware = title.includes('硬件') || title.includes('维护') || title.includes('pc') || title.includes('电脑') || tags.includes('硬件')
+  const isNet = title.includes('网络') || title.includes('tcp') || title.includes('ip') || title.includes('路由器') || title.includes('交换') || tags.includes('网络')
+  const isFpga = title.includes('fpga') || title.includes('芯片') || title.includes('集成电路') || title.includes('ic设计')
+  const isData = title.includes('数据分析') || title.includes('数据挖掘') || title.includes('大数据') || title.includes('bi')
+  const isMobile = title.includes('android') || title.includes('安卓') || title.includes('ios') || title.includes('移动端') || title.includes('flutter')
+  const isTrainee = title.includes('应届') || title.includes('实习') || title.includes('校招') || title.includes('培训') || (job.experience && (job.experience + '').includes('经验不限'))
+  const expText = (job.experience || job.work_exp || '').toString()
+  const eduText = (job.education || '').toString()
+
+  // 通用亮点
+  const highlights = [
+    `工作地点：${job.city || '全国可协调'}`,
+    `经验要求：${expText || '不限'}`,
+    `学历要求：${eduText || '不限'}`,
+    `薪酬范围：${job.salary || '面议'}`
+  ]
+
+  let duties = []
+  let requirements = []
+
+  if (isTeacher) {
+    duties = [
+      '负责对应学科的课堂教学与课程设计，按照教学大纲完成授课任务',
+      '指导学生实验、项目实践与课程设计，参与学生作业批改与答疑辅导',
+      '参与教学研讨、教材编写与课程优化，推动教学方法改进',
+      '参与学生学业评估、考试命题及教学效果跟踪反馈，确保教学质量达标',
+      '配合学院完成学科建设、专业认证、招生宣讲等相关工作'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，${tags.length ? tags.join('/') : '计算机/教育学相关'}专业背景`,
+      '具备扎实的专业知识储备，熟悉对应方向的主流理论与实践方法',
+      '持有教师资格证或有教育培训行业经历者优先考虑',
+      '具备良好的表达沟通能力与课堂节奏把控能力，有责任心与耐心',
+      expText && !expText.includes('不限') ? `${expText}相关教学或企业实践经验` : '欢迎应届生、优秀在校硕士投递'
+    ]
+  } else if (isFrontend) {
+    duties = [
+      '负责公司 Web/H5 产品的前端页面开发，输出高质量、可维护的前端代码',
+      '使用 Vue / React 等框架完成组件封装、状态管理与性能优化',
+      '与 UI 设计师、后端工程师紧密协作，确保页面还原度与交互一致性',
+      '参与前端工程化建设：构建工具、代码规范、CI/CD 流程优化',
+      '跟进前端新技术与业界方案，推动团队技术能力持续升级'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，计算机/软件工程等相关专业`,
+      '扎实掌握 HTML/CSS/JavaScript，熟悉主流浏览器兼容机制',
+      `熟练掌握 ${tags.includes('Vue') ? 'Vue' : (tags.includes('React') ? 'React' : 'Vue 或 React')} 及相关生态`,
+      '熟悉 Webpack/Vite 等构建工具与常用调试工具',
+      expText && !expText.includes('不限') ? `${expText}前端实际项目开发经验` : '有完整项目经历优先'
+    ]
+  } else if (isBackend) {
+    duties = [
+      '负责公司业务系统的服务端设计、开发与优化，保障接口高可用与高性能',
+      '进行数据库建模、接口设计与缓存方案落地，支撑业务快速迭代',
+      '与前端、测试、运维团队协作，完成需求交付与线上问题排查',
+      '参与微服务架构、中间件选型、容灾方案等基础设施建设',
+      '进行代码评审、技术方案设计与文档沉淀，提升团队研发质量'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，计算机/软件工程等相关专业`,
+      `熟练掌握 ${tags.filter(t => ['Java','Python','Node','Go','PHP'].includes(t)).join('/') || 'Java / Python / Node / Go 至少一种'} 后端语言与主流框架`,
+      '熟悉 MySQL/Redis/MQ 等常用存储与中间件，具备基础 SQL 性能优化能力',
+      '了解常见设计模式、分布式基础与 HTTP/RESTful API 规范',
+      expText && !expText.includes('不限') ? `${expText}后端开发经验，有完整项目上线经历` : '有完整项目经历者优先'
+    ]
+  } else if (isAlgo) {
+    duties = [
+      '参与算法模型研发：数据清洗、特征工程、模型训练、效果评估与优化迭代',
+      '跟踪业界前沿研究成果（AI / NLP / CV / 推荐 / 大模型等方向）并结合业务落地',
+      '与工程团队协作完成模型部署、推理服务化与效果 AB 实验',
+      '解决实际业务问题：搜索排序、推荐召回、文本分析、CV识别等场景',
+      '沉淀技术文档、方案与可复用组件，提升团队算法能力'
+    ]
+    requirements = [
+      `${eduText || '硕士'}及以上学历，计算机/数学/统计学等相关专业优先`,
+      '熟练掌握 Python 与主流框架（PyTorch / TensorFlow / Scikit-learn 等）',
+      '扎实的机器学习/深度学习基础，熟悉常见算法原理与调优方法',
+      '熟悉至少一个细分方向：NLP / CV / 推荐系统 / 大模型微调',
+      '具备良好的数学基础与英文文献阅读能力'
+    ]
+  } else if (isTest) {
+    duties = [
+      '负责公司产品的功能测试、接口测试与自动化测试，保障交付质量',
+      '设计测试用例、搭建测试环境、执行回归测试并输出测试报告',
+      '定位产品缺陷，协助研发团队复现、跟踪并关闭问题',
+      '参与 CI/CD 流水线建设，落地自动化测试脚本提升效率',
+      '参与需求评审，输出可测性分析与测试风险评估'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，计算机相关专业`,
+      '熟悉软件测试理论与流程，能独立编写测试用例与测试报告',
+      '了解 HTTP、数据库基础，能独立进行接口测试（Postman / JMeter 等）',
+      '有自动化测试经验（Selenium / Appium / JUnit / Pytest）优先',
+      expText && !expText.includes('不限') ? `${expText}测试工作经验` : '欢迎热爱质量工作的应届生'
+    ]
+  } else if (isOps) {
+    duties = [
+      '负责公司线上服务的部署、监控、告警与故障处理，保障系统稳定运行',
+      '建设 DevOps 流水线：编译、打包、制品管理与自动发布',
+      '管理 Linux 服务器、容器（Docker / K8s）与网络基础设施',
+      '优化数据库、缓存、消息队列等中间件配置与性能',
+      '推进运维自动化工具与运维文档建设，降低人工成本与故障风险'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，计算机相关专业`,
+      '熟悉 Linux 系统及常用命令，具备 Shell / Python 脚本编写能力',
+      '了解 Docker / K8s 与 CI/CD 体系，有实际部署经验优先',
+      '熟悉 Nginx / MySQL / Redis / MQ 等常见服务的配置与运维',
+      '具备良好的故障诊断意识与抗压能力，能独立处理线上突发问题'
+    ]
+  } else if (isHardware) {
+    duties = [
+      '负责计算机及相关硬件设备的日常维护、故障排查与维修更换',
+      '进行办公电脑、打印机、网络设备的配置、安装与资产管理',
+      '协助进行机房环境、服务器与存储设备的巡检与维护',
+      '配合 IT 团队完成桌面支持与员工 IT 问题处理',
+      '记录并整理维护报告、资产清单与备品备件台账'
+    ]
+    requirements = [
+      `${eduText || '大专'}及以上学历，计算机/电子工程相关专业优先`,
+      '熟悉 PC 硬件组成，具备独立装机、故障定位与维修能力',
+      '了解 Windows 操作系统、常用办公软件与基础网络配置',
+      '动手能力强，耐心细致，具备良好的客户服务意识',
+      expText && !expText.includes('不限') ? `${expText}硬件维护/桌面运维经验` : '有计算机组装维修经历者优先'
+    ]
+  } else if (isData) {
+    duties = [
+      '根据业务需求完成数据提取、清洗、转换与可视化分析报告',
+      '搭建业务指标体系与 BI 看板，支持经营决策与业务监控',
+      '与数据仓库团队协作，参与数据模型与数据口径建设',
+      '通过数据分析发现业务问题，并提出可落地的优化建议',
+      '沉淀分析方法论、指标字典与数据资产文档'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，统计学/数学/计算机等相关专业优先`,
+      '熟练使用 SQL，具备复杂查询与性能调优能力',
+      '掌握至少一种数据分析工具：Python(Pandas) / R / Excel / BI(Tableau/FineBI)',
+      '具备良好的商业理解能力、逻辑思维与表达沟通能力',
+      '有数据分析项目实战经验者优先'
+    ]
+  } else if (isFpga) {
+    duties = [
+      '参与 FPGA / 芯片相关模块的设计、RTL 编码、仿真与验证',
+      '配合算法工程师完成模型落地、时序分析与资源优化',
+      '进行板级调试、问题定位与固件版本迭代',
+      '撰写设计文档、验证方案与测试报告，保障交付质量',
+      '跟进器件选型、与硬件团队协同完成方案评审'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，微电子/通信/计算机/电子工程等相关专业`,
+      '掌握 Verilog / VHDL，熟悉 FPGA 开发流程与常用工具（Vivado / Quartus / Modelsim 等）',
+      '了解时序约束、STA 分析与常见接口协议（AXI / DDR / PCIe / Ethernet 等）',
+      '有实际项目流片或板级调试经验者优先',
+      '具备良好的英文阅读能力与文档撰写习惯'
+    ]
+  } else if (isMobile) {
+    duties = [
+      '负责 Android/iOS 移动端 App 的开发、迭代与维护',
+      '实现 UI 页面、网络通信、数据存储与性能优化',
+      '与产品、设计、测试团队协作，保证交付质量与用户体验',
+      '参与移动端架构设计、组件化与工程化建设',
+      '跟进新技术调研、预研与落地实践'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，计算机相关专业`,
+      `熟练掌握 ${title.includes('android') || title.includes('安卓') ? 'Kotlin/Java + Android SDK' : (title.includes('ios') ? 'Swift/Objective-C + iOS SDK' : 'Android/iOS 任一方向')}`,
+      '熟悉移动端性能优化、版本管理与打包发布流程',
+      '了解常见移动端框架（Flutter/React Native）者优先',
+      expText && !expText.includes('不限') ? `${expText}移动端开发经验` : '有完整项目 App 上线经验优先'
+    ]
+  } else if (isNet) {
+    duties = [
+      '负责企业网络架构的设计、部署、运维与优化',
+      '配置与管理路由器、交换机、防火墙、无线等网络设备',
+      '进行网络监控、故障排查与应急响应，保障网络可用性',
+      '参与网络安全策略制定、加固与等保合规相关工作',
+      '输出网络架构文档、运维手册与变更记录'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，网络/通信/计算机相关专业优先`,
+      '熟悉 TCP/IP 协议、OSPF/BGP/VLAN/VPN/STP 等常见网络技术',
+      '有华为/华三/思科任一厂商设备配置经验，持有 HCIA/CCNA 及以上证书优先',
+      '了解网络安全基础、防火墙策略与常见攻击防范',
+      '具备独立分析与解决网络故障的能力'
+    ]
+  } else {
+    // 通用方向（按标题关键词组织）
+    const titleCore = job.title || job.job_name || '该岗位'
+    duties = [
+      `负责${titleCore}相关的需求分析、方案设计与交付实施工作`,
+      '与产品、上下游技术团队协作，确保项目按计划高质量推进',
+      `在${titleCore}方向进行问题定位、性能优化与稳定性保障`,
+      '参与相关模块的文档编写、代码评审与经验沉淀',
+      isTrainee ? '在导师指导下完成学习计划与成长目标，快速具备独立工作能力' : '持续关注领域内新技术，提出改进建议并推动落地'
+    ]
+    requirements = [
+      `${eduText || '本科'}及以上学历，${tags.length ? tags.join('/') : '计算机相关'}专业背景`,
+      `具备${titleCore}方向的基础知识与实践经验，理解行业常见技术方案`,
+      expText && !expText.includes('不限') ? `要求${expText}相关工作经验` : '欢迎优秀应届生、有项目实习经历者优先投递',
+      '良好的团队协作、沟通表达能力与问题分析能力',
+      '有责任感，能够独立推进任务并交付结果'
+    ]
+  }
+
+  // 应届生/实习加一条
+  if (isTrainee) {
+    requirements.push('提供转正机会 / 导师一对一辅导 / 定期技术分享与培训')
+  }
+
+  return { duties, requirements, highlights }
 }
 
 const realJobs = computed(() => {
@@ -1959,7 +2271,18 @@ const openDetail = (type, data) => {
   if (type === 'qa' && data && !data.answerList) {
     data.answerList = data.bestAnswer ? [{ ...data.bestAnswer }] : []
   }
+  // 打开弹窗后重置页面滚动，避免内容从半截开始
+  nextTick(() => {
+    const modalEl = document.querySelector('.detail-modal .modal-content')
+    if (modalEl) modalEl.scrollTop = 0
+  })
 }
+
+// 岗位详情的动态内容（根据岗位类型、经验、学历生成）
+const jobDetailContent = computed(() => {
+  if (detailType.value !== 'job' || !detailData.value) return { duties: [], requirements: [], highlights: [] }
+  return buildJobDescription(detailData.value)
+})
 
 // 从话题弹窗打开详情时，先关闭话题弹窗确保详情不被遮挡
 const openDetailFromTopic = (type, data) => {
@@ -2449,6 +2772,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', () => {})
+  _jcOnUnmountedUnlock()
 })
 </script>
 
@@ -3477,19 +3801,26 @@ onUnmounted(() => {
 .rank-item:hover .rank-view-hint { opacity: 1; }
 
 .detail-modal {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
   background: rgba(2, 4, 10, 0.85);
   backdrop-filter: blur(6px);
-  z-index: 1000; display: flex; align-items: center; justify-content: center;
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 99999; display: flex; align-items: center; justify-content: center;
+  padding: 3vh 3vw;
+  box-sizing: border-box;
 }
 .modal-content {
-  width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;
-  background: rgba(12, 22, 48, 0.92);
+  width: min(94%, 820px); max-height: 92vh; overflow-y: auto;
+  background: rgba(12, 22, 48, 0.95);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--cyan);
-  border-radius: 20px; padding: 35px; position: relative;
+  border-radius: 20px; padding: 32px 36px; position: relative;
   box-shadow: 0 0 32px rgba(0, 229, 255, 0.35), 0 24px 60px rgba(0, 0, 0, 0.6);
+  box-sizing: border-box;
+  margin: 0;
+  transform: none;
+  left: auto; top: auto;
 }
 .close-btn {
   width: 40px; height: 40px; border-radius: 50%;
@@ -3624,6 +3955,32 @@ onUnmounted(() => {
 .comment-submit:hover { transform: scale(1.03); box-shadow: 0 6px 24px rgba(0, 229, 255, 0.6); }
 
 .job-detail-actions { display: flex; gap: 20px; margin-top: 25px; }
+
+/* 岗位亮点条（真实薪资/城市/经验/学历汇总） */
+.job-highlights {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 18px;
+  padding: 16px 18px;
+  margin: 20px 0 6px;
+  background: rgba(0, 229, 255, 0.06);
+  border: 1px dashed rgba(0, 229, 255, 0.25);
+  border-radius: 14px;
+}
+.job-highlight-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.9rem; color: rgba(210, 230, 255, 0.82);
+  font-family: var(--font-mono);
+}
+.job-highlight-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .job-highlights { grid-template-columns: 1fr; }
+}
 .apply-btn-lg {
   flex: 1; padding: 16px; border-radius: 20px;
   background: linear-gradient(135deg, var(--cyan), var(--magenta));
@@ -4589,5 +4946,145 @@ onUnmounted(() => {
 @keyframes toast-slide-in {
   from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+</style>
+
+<!-- =========================================================
+     ⚠️ GLOBAL STYLE BLOCK FOR TELEPORTED MODALS（必须是全局，不能 scoped）
+     Vue <teleport to="body"> 的组件 DOM 渲染在 <body> 下，
+     外层 <style scoped> 的 data-v-hash 不会写到 body 子节点，
+     导致所有弹窗相关的 .*modal 样式之前全部没生效 —— 这就是
+     "弹窗偏在屏幕左侧/被切掉一半/遮罩只挡半边" 的真·根因。
+   ========================================================= -->
+<style>
+/* ===== 全局弹窗覆盖层（所有 Teleport 到 body 的遮罩统一） =====
+   注意：只加前缀 body > [job-]，避免污染 JobRecommend.vue 的弹窗样式 */
+body > .jc-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  /* 关键：不要写 width/height: 100vw/100vh，
+     它们会把纵向滚动条算进宽度并在 body{position:fixed} 下错算成 820px；
+     用 inset:0 即可严格铺满视口的 Initial Containing Block（永远精确） */
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(2, 4, 10, 0.84) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 99999 !important;
+  transform: none !important;
+}
+
+/* 弹窗内容 —— 统一锁定视口居中、永远不超边（任何分辨率都不会被裁切） */
+body > .jc-overlay > .jc-modal-card {
+  position: relative !important;
+  width: clamp(320px, 92vw, 880px) !important;
+  max-width: calc(100vw - 48px) !important;
+  height: auto !important;
+  max-height: calc(100vh - 48px) !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 28px 32px !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  box-sizing: border-box !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(0, 229, 255, 0.45);
+  background: rgba(12, 22, 48, 0.97);
+  box-shadow: 0 0 40px rgba(0, 229, 255, 0.35), 0 24px 64px rgba(0, 0, 0, 0.7);
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* 中小尺寸弹窗：评论 / 发布 / 创建群聊 */
+body > .jc-overlay.jc-overlay-sm > .jc-modal-card {
+  width: clamp(300px, 90vw, 560px) !important;
+}
+body > .jc-overlay.jc-overlay-md > .jc-modal-card {
+  width: clamp(320px, 92vw, 640px) !important;
+}
+body > .jc-overlay.jc-overlay-topic > .jc-modal-card {
+  width: clamp(320px, 92vw, 700px) !important;
+}
+body > .jc-overlay.jc-overlay-profile > .jc-modal-card {
+  width: clamp(320px, 92vw, 720px) !important;
+}
+
+/* 聊天 / 群聊 —— 固定比例的高型弹窗 */
+body > .jc-overlay.jc-overlay-chat > .jc-modal-card,
+body > .jc-overlay.jc-overlay-group-chat > .jc-modal-card {
+  width: clamp(300px, 90vw, 440px) !important;
+  height: clamp(420px, 84vh, 620px) !important;
+  max-height: calc(100vh - 48px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* 关闭按钮固定在弹窗卡片右上角，永远不跑偏 */
+body > .jc-overlay > .jc-modal-card > .jc-close,
+body > .jc-overlay .close-btn {
+  position: absolute !important;
+  top: 20px !important;
+  right: 24px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  line-height: 40px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: rgba(255, 71, 87, 0.22);
+  border: 1px solid rgba(255, 71, 87, 0.55);
+  color: #ff8a93;
+  font-size: 1.15rem;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 0 14px rgba(255, 71, 87, 0.35);
+  transition: all 0.25s ease;
+}
+body > .jc-overlay .close-btn:hover {
+  background: rgba(255, 71, 87, 0.4);
+  color: #fff;
+  transform: rotate(90deg);
+  box-shadow: 0 0 22px rgba(255, 71, 87, 0.65);
+}
+
+/* 岗位详情大标题 & 滚动条细化 */
+body > .jc-overlay .detail-body h2 {
+  font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 10px 0;
+  line-height: 1.35;
+  letter-spacing: 0.3px;
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.55);
+  word-break: break-word;
+  padding-right: 60px;
+}
+body > .jc-overlay > .jc-modal-card::-webkit-scrollbar { width: 8px; }
+body > .jc-overlay > .jc-modal-card::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.35); border-radius: 8px;
 }
 </style>

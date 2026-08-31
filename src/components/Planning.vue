@@ -44,6 +44,10 @@
           <div class="content-header">
             <h2>个人学习数据分析</h2>
             <p class="content-desc">实时追踪你的学习进度和成果</p>
+            <div class="header-actions">
+              <button class="action-btn ghost-sm" @click="recordStudyTime">⏱ 记录学习时长</button>
+              <button class="action-btn primary-sm" @click="punchInToday">📅 今日打卡</button>
+            </div>
           </div>
           <div class="stats-grid">
             <div class="stat-card">
@@ -80,14 +84,28 @@
             </div>
           </div>
           <div class="chart-section">
-            <h3 class="chart-title">📊 技能掌握进度</h3>
-            <div class="progress-list">
-              <div v-for="skill in topSkills" :key="skill.name" class="progress-item">
+            <div class="section-block-header">
+              <div class="section-block-title">
+                <span class="block-icon">📊</span>
+                <span>技能掌握进度</span>
+                <span class="block-divider"></span>
+                <span class="block-subtitle">点击进度条更新你的掌握程度</span>
+              </div>
+              <button class="action-btn primary-sm" @click="addSkillDialog = true">+ 添加技能</button>
+            </div>
+            <div v-if="mySkills.length === 0" class="empty-state inline">
+              <div class="empty-icon">🎯</div>
+              <h3>还没有记录任何技能</h3>
+              <p>手动添加你正在学的技能，并设置掌握进度，数据会保存在本机</p>
+              <button class="action-btn primary" @click="addSkillDialog = true">添加第一项技能</button>
+            </div>
+            <div v-else class="progress-list">
+              <div v-for="(skill, idx) in mySkills" :key="skill.name + idx" class="progress-item" @click="editSkillProgress(idx)">
                 <div class="progress-header">
                   <span class="progress-name">{{ skill.name }}</span>
                   <span class="progress-percent">{{ skill.progress }}%</span>
                 </div>
-                <div class="progress-bar">
+                <div class="progress-bar" title="点击修改进度">
                   <div class="progress-fill" :style="{ width: skill.progress + '%' }"></div>
                 </div>
               </div>
@@ -169,13 +187,18 @@
         <div v-else-if="currentNav === 'study-plan'" class="view-section">
           <div class="content-header">
             <h2>我的学习计划</h2>
-            <p class="content-desc">管理你的学习任务和目标</p>
+            <p class="content-desc">管理你的学习任务和目标，所有改动自动保存在本机</p>
+            <button class="action-btn primary-sm" @click="openAddPlan">+ 新建学习计划</button>
           </div>
           <div class="plan-list" v-if="studyPlans.length > 0">
-            <div v-for="plan in studyPlans" :key="plan.id" class="plan-item">
+            <div v-for="(plan, pIdx) in studyPlans" :key="plan.id" class="plan-item">
               <div class="plan-header">
                 <h4>{{ plan.title }}</h4>
-                <span class="plan-status" :class="plan.status">{{ plan.statusText }}</span>
+                <div class="plan-header-actions">
+                  <span class="plan-status" :class="plan.status">{{ plan.statusText }}</span>
+                  <button class="icon-btn" @click.stop="editPlanProgress(pIdx)" title="调整进度">📝</button>
+                  <button class="icon-btn danger" @click.stop="deletePlan(pIdx)" title="删除计划">🗑</button>
+                </div>
               </div>
               <p class="plan-desc">{{ plan.desc }}</p>
               <div class="plan-progress">
@@ -193,8 +216,8 @@
           <div v-else class="empty-state">
             <div class="empty-icon">📋</div>
             <h3>暂无学习计划</h3>
-            <p>选择岗位并开始学习，系统将为你自动生成学习计划</p>
-            <button class="action-btn primary" @click="currentNav = 'resource-lib'">前往选择岗位</button>
+            <p>点击右上角新建你自己的计划，系统不会再自动生成假数据</p>
+            <button class="action-btn primary" @click="openAddPlan">+ 新建第一项计划</button>
           </div>
         </div>
 
@@ -637,6 +660,53 @@
     </div>
     <!-- 登录弹窗（游客模式功能受限时唤起，页面内弹窗+蒙层，禁止底层滚动） -->
     <LoginModal />
+
+    <!-- 添加技能弹窗 -->
+    <div v-if="addSkillDialog" class="planning-modal-mask" @click.self="addSkillDialog = false">
+      <div class="planning-modal-dialog">
+        <button class="planning-close" @click="addSkillDialog = false">✕</button>
+        <h3 class="planning-modal-title">+ 添加技能</h3>
+        <p class="planning-modal-hint">记录你自己真实在学的技能和掌握进度（0-100）</p>
+        <label class="form-label">技能名称</label>
+        <input class="form-input" v-model="newSkillForm.name" placeholder="例如：Vue 3 / Java / 数据结构" maxlength="40" />
+        <label class="form-label">掌握进度：{{ Number(newSkillForm.progress) || 0 }}%</label>
+        <input type="range" min="0" max="100" class="form-range" v-model.number="newSkillForm.progress" />
+        <div class="range-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="planning-modal-actions">
+          <button class="action-btn ghost" @click="addSkillDialog = false">取消</button>
+          <button class="action-btn primary" @click="submitAddSkill">添加</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新建学习计划弹窗 -->
+    <div v-if="addPlanDialog" class="planning-modal-mask" @click.self="addPlanDialog = false">
+      <div class="planning-modal-dialog wide">
+        <button class="planning-close" @click="addPlanDialog = false">✕</button>
+        <h3 class="planning-modal-title">{{ editingPlanIdx >= 0 ? '编辑学习计划' : '+ 新建学习计划' }}</h3>
+        <p class="planning-modal-hint">完全由你自己定义，所有内容自动保存到本地</p>
+        <label class="form-label">计划标题 *</label>
+        <input class="form-input" v-model="planForm.title" placeholder="例如：Vue 3 基础入门" maxlength="60" />
+        <label class="form-label">计划描述</label>
+        <textarea class="form-textarea" v-model="planForm.desc" placeholder="简单描述一下你要学什么" rows="2" maxlength="200"></textarea>
+        <div class="form-row">
+          <div class="form-col">
+            <label class="form-label">截止日期</label>
+            <input type="date" class="form-input" v-model="planForm.deadline" />
+          </div>
+          <div class="form-col">
+            <label class="form-label">当前进度：{{ Number(planForm.progress) || 0 }}%</label>
+            <input type="range" min="0" max="100" class="form-range" v-model.number="planForm.progress" />
+          </div>
+        </div>
+        <label class="form-label">计划目标</label>
+        <input class="form-input" v-model="planForm.goal" placeholder="例如：完成 10 个核心技能学习" maxlength="60" />
+        <div class="planning-modal-actions">
+          <button class="action-btn ghost" @click="addPlanDialog = false">取消</button>
+          <button class="action-btn primary" @click="submitPlan">{{ editingPlanIdx >= 0 ? '保存修改' : '创建计划' }}</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -652,7 +722,7 @@ import LoginModal from '@/components/LoginModal.vue'
 
 const router = useRouter()
 const bgCanvas = ref(null)
-const currentNav = ref('resource-lib')
+const currentNav = ref('dashboard')
 const aiInput = ref('')
 const selectedPosition = ref('')
 
@@ -695,55 +765,238 @@ const resourceMap = ref({})         // 后端返回的按技能分组数据 { [s
 const loadingResources = ref(false)  // 加载状态（区域锁定，防止重复请求）
 const resourceError = ref(false)     // 错误标志（触发本地兜底，前端不弹报错）
 
-// 学习数据统计
-const learnedCount = ref(3)
-const totalHours = ref(12)
-const masteryRate = ref(68)
-const streakDays = ref(5)
+// ========== 用户真实学习数据（本地持久化，不再用假数据） ==========
+const LS_SKILLS = 'planning:my-skills'
+const LS_STATS = 'planning:study-stats'
+const LS_PLANS = 'planning:study-plans'
+const LS_PUNCH = 'planning:punch-days'
 
-// 技能进度列表
-const topSkills = computed(() => {
-  if (!selectedPosition.value || currentSkills.value.length === 0) {
-    return [
-      { name: 'HTML/CSS', progress: 85 },
-      { name: 'JavaScript', progress: 72 },
-      { name: 'Vue/React', progress: 60 },
-      { name: '工程化工具', progress: 45 }
-    ]
-  }
-  return currentSkills.value.slice(0, 6).map((skill, idx) => ({
-    name: skill.name,
-    progress: Math.max(30, 90 - idx * 12)
-  }))
-})
-
-// 学习计划列表
-const studyPlans = computed(() => {
-  if (!selectedPosition.value) return []
-  const positionLabel = selectedPositionLabel.value || '目标岗位'
-  return [
-    {
-      id: 1,
-      title: `${positionLabel}基础技能学习`,
-      desc: '掌握岗位所需的核心基础知识',
-      progress: 45,
-      status: 'ongoing',
-      statusText: '进行中',
-      deadline: '2026-08-30',
-      goal: '完成10个核心技能学习'
-    },
-    {
-      id: 2,
-      title: '实战项目训练',
-      desc: '通过实战项目巩固所学知识',
-      progress: 20,
-      status: 'pending',
-      statusText: '待开始',
-      deadline: '2026-09-15',
-      goal: '完成3个完整项目'
+// 技能列表：用户真实记录 [{name, progress}]
+const mySkills = ref([])
+const loadMySkills = () => {
+  try {
+    const raw = localStorage.getItem(LS_SKILLS)
+    if (raw) {
+      const arr = JSON.parse(raw)
+      mySkills.value = Array.isArray(arr) ? arr.filter(s => s && s.name) : []
+      return
     }
-  ]
+  } catch (e) {}
+  mySkills.value = []
+}
+const saveMySkills = () => {
+  try { localStorage.setItem(LS_SKILLS, JSON.stringify(mySkills.value)) } catch (e) {}
+}
+
+// 统计数据
+const studyStats = ref({ learnedCount: 0, totalHours: 0 })
+const punchDays = ref([])      // 打卡日期数组（YYYY-MM-DD 字符串，已排序去重）
+const todayStr = () => {
+  const d = new Date()
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+}
+const loadStudyStats = () => {
+  try {
+    const raw = localStorage.getItem(LS_STATS)
+    if (raw) {
+      const o = JSON.parse(raw) || {}
+      studyStats.value = {
+        learnedCount: Number(o.learnedCount) || 0,
+        totalHours: Number(o.totalHours) || 0
+      }
+    }
+    const raw2 = localStorage.getItem(LS_PUNCH)
+    if (raw2) {
+      const arr = JSON.parse(raw2)
+      punchDays.value = Array.isArray(arr) ? [...new Set(arr.filter(x => typeof x === 'string'))].sort() : []
+    }
+  } catch (e) {
+    studyStats.value = { learnedCount: 0, totalHours: 0 }
+    punchDays.value = []
+  }
+}
+const saveStudyStats = () => {
+  try {
+    localStorage.setItem(LS_STATS, JSON.stringify(studyStats.value))
+    localStorage.setItem(LS_PUNCH, JSON.stringify(punchDays.value))
+  } catch (e) {}
+}
+
+// 连续打卡天数：从今天或昨天有打卡的情况下开始往前数
+const calcStreakDays = () => {
+  if (punchDays.value.length === 0) return 0
+  const set = new Set(punchDays.value)
+  let streak = 0
+  const d = new Date()
+  // 如果今天没打卡，也允许昨天开始算（更符合直觉）
+  const today = todayStr()
+  if (!set.has(today)) {
+    d.setDate(d.getDate() - 1)
+  }
+  while (true) {
+    const s = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+    if (set.has(s)) {
+      streak++
+      d.setDate(d.getDate() - 1)
+    } else {
+      break
+    }
+  }
+  return streak
+}
+
+const learnedCount = computed(() => studyStats.value.learnedCount)
+const totalHours = computed(() => studyStats.value.totalHours)
+const masteryRate = computed(() => {
+  if (mySkills.value.length === 0) return 0
+  const sum = mySkills.value.reduce((acc, s) => acc + (Number(s.progress) || 0), 0)
+  return Math.round(sum / mySkills.value.length)
 })
+const streakDays = computed(() => calcStreakDays())
+
+// 打卡 & 记录时长
+const punchInToday = () => {
+  const t = todayStr()
+  if (!punchDays.value.includes(t)) {
+    punchDays.value.push(t)
+    punchDays.value = [...new Set(punchDays.value)].sort()
+    saveStudyStats()
+    alert('今日打卡成功 🎉（连续打卡 ' + streakDays.value + ' 天）')
+  } else {
+    alert('你今天已经打过卡啦 ✅')
+  }
+}
+const recordStudyTime = () => {
+  const input = prompt('请输入你今天学习的时长（单位：小时，可填小数，例如 1.5）', '1')
+  if (input === null) return
+  const n = Number(input)
+  if (!(n >= 0)) {
+    alert('请输入一个有效的数字')
+    return
+  }
+  // 同时累计一次"已学资源"（简化处理：每记录1小时算一个资源）
+  studyStats.value.totalHours = Math.round((studyStats.value.totalHours + n) * 10) / 10
+  if (n > 0) studyStats.value.learnedCount = Math.max(studyStats.value.learnedCount, Math.ceil(studyStats.value.totalHours))
+  saveStudyStats()
+  alert('已记录 ' + n + ' 小时学习时长 ✅')
+}
+
+// 添加技能弹窗
+const addSkillDialog = ref(false)
+const newSkillForm = ref({ name: '', progress: 20 })
+const submitAddSkill = () => {
+  const name = (newSkillForm.value.name || '').trim()
+  if (!name) return alert('请填写技能名称')
+  const p = Math.max(0, Math.min(100, Number(newSkillForm.value.progress) || 0))
+  mySkills.value.push({ name, progress: p })
+  saveMySkills()
+  newSkillForm.value = { name: '', progress: 20 }
+  addSkillDialog.value = false
+}
+const editSkillProgress = (idx) => {
+  const skill = mySkills.value[idx]
+  if (!skill) return
+  const input = prompt('把「' + skill.name + '」的掌握进度改成多少？（0-100）', String(skill.progress))
+  if (input === null) return
+  const p = Math.round(Number(input))
+  if (!(p >= 0 && p <= 100)) return alert('请输入 0-100 的数字')
+  skill.progress = p
+  saveMySkills()
+}
+const removeSkill = (idx) => {
+  if (!confirm('确定删除技能「' + mySkills.value[idx]?.name + '」吗？')) return
+  mySkills.value.splice(idx, 1)
+  saveMySkills()
+}
+
+// 学习计划：完全用户自建
+const studyPlans = ref([])
+const addPlanDialog = ref(false)
+const editingPlanIdx = ref(-1)
+const planForm = ref({ title: '', desc: '', progress: 0, deadline: '', goal: '' })
+const loadPlans = () => {
+  try {
+    const raw = localStorage.getItem(LS_PLANS)
+    if (raw) {
+      const arr = JSON.parse(raw)
+      studyPlans.value = Array.isArray(arr) ? arr : []
+      return
+    }
+  } catch (e) {}
+  studyPlans.value = []
+}
+const savePlans = () => {
+  try { localStorage.setItem(LS_PLANS, JSON.stringify(studyPlans.value)) } catch (e) {}
+}
+const statusFromProgress = (p) => {
+  const prog = Number(p) || 0
+  if (prog >= 100) return { status: 'done', statusText: '已完成' }
+  if (prog <= 0) return { status: 'pending', statusText: '待开始' }
+  return { status: 'ongoing', statusText: '进行中' }
+}
+watch(studyPlans, (list) => {
+  for (const plan of list) {
+    const s = statusFromProgress(plan.progress)
+    plan.status = s.status
+    plan.statusText = s.statusText
+  }
+  savePlans()
+}, { deep: true })
+const openAddPlan = () => {
+  editingPlanIdx.value = -1
+  // 默认截止日期：30 天后
+  const d = new Date(Date.now() + 30 * 24 * 3600 * 1000)
+  planForm.value = {
+    title: '',
+    desc: '',
+    progress: 0,
+    deadline: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'),
+    goal: ''
+  }
+  addPlanDialog.value = true
+}
+const submitPlan = () => {
+  const title = (planForm.value.title || '').trim()
+  if (!title) return alert('请填写计划标题')
+  const prog = Math.max(0, Math.min(100, Number(planForm.value.progress) || 0))
+  const s = statusFromProgress(prog)
+  const payload = {
+    id: editingPlanIdx.value >= 0 ? studyPlans.value[editingPlanIdx.value]?.id : ('plan-' + Date.now()),
+    title,
+    desc: (planForm.value.desc || '').trim() || '（暂无描述）',
+    progress: prog,
+    deadline: planForm.value.deadline || '未设置',
+    goal: (planForm.value.goal || '').trim() || '完成该计划',
+    status: s.status,
+    statusText: s.statusText
+  }
+  if (editingPlanIdx.value >= 0) {
+    studyPlans.value.splice(editingPlanIdx.value, 1, payload)
+  } else {
+    studyPlans.value.unshift(payload)
+  }
+  addPlanDialog.value = false
+  editingPlanIdx.value = -1
+}
+const editPlanProgress = (idx) => {
+  const plan = studyPlans.value[idx]
+  if (!plan) return
+  const input = prompt('把「' + plan.title + '」的进度改成多少？（0-100）', String(plan.progress))
+  if (input === null) return
+  const p = Math.round(Number(input))
+  if (!(p >= 0 && p <= 100)) return alert('请输入 0-100 的数字')
+  plan.progress = p
+  const s = statusFromProgress(p)
+  plan.status = s.status
+  plan.statusText = s.statusText
+  savePlans()
+}
+const deletePlan = (idx) => {
+  const plan = studyPlans.value[idx]
+  if (!confirm('确定删除学习计划「' + plan.title + '」吗？')) return
+  studyPlans.value.splice(idx, 1)
+  savePlans()
+}
 
 // AI聊天相关变量
 const AI_HISTORY_KEY = 'ai-chat-history'
@@ -2857,6 +3110,11 @@ onMounted(async () => {
   if (isGuestMode.value) {
     refreshAuthState()
   }
+  // 真实学习数据：优先从 localStorage 加载（没有则为 0 / 空）
+  loadMySkills()
+  loadStudyStats()
+  loadPlans()
+
   const saved = localStorage.getItem('selectedPosition')
   if (saved) {
     selectedPosition.value = saved
@@ -5319,6 +5577,131 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.85);
   font-size: 0.85rem;
   white-space: nowrap;
+}
+
+.planning-modal-mask {
+  position: fixed; inset: 0;
+  background: rgba(2, 4, 10, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 999999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 4vh 3vw;
+}
+.planning-modal-dialog {
+  position: relative;
+  width: min(92%, 520px);
+  max-height: 92vh;
+  overflow: auto;
+  background: rgba(10, 18, 40, 0.96);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 16px;
+  padding: 28px 30px 22px;
+  box-sizing: border-box;
+  box-shadow: 0 0 32px rgba(0, 229, 255, 0.25), 0 24px 60px rgba(0,0,0,0.6);
+}
+.planning-modal-dialog.wide { width: min(94%, 640px); }
+.planning-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid rgba(255, 71, 87, 0.45);
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff7788; font-size: 14px; cursor: pointer;
+}
+.planning-close:hover { background: rgba(255, 71, 87, 0.3); }
+.planning-modal-title {
+  margin: 0 0 6px; color: #fff; font-size: 1.25rem;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+.planning-modal-hint {
+  margin: 0 0 18px; color: rgba(210, 225, 255, 0.65); font-size: 0.85rem;
+}
+.form-label {
+  display: block; margin: 10px 0 6px;
+  font-size: 0.88rem; color: rgba(215, 230, 255, 0.82);
+}
+.form-input, .form-textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  background: rgba(0, 229, 255, 0.05);
+  color: #eaf2ff; font-size: 0.95rem;
+  outline: none;
+  font-family: inherit;
+}
+.form-input:focus, .form-textarea:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15);
+}
+.form-textarea { resize: vertical; min-height: 60px; }
+.form-range { width: 100%; margin-top: 4px; }
+.range-ticks {
+  display: flex; justify-content: space-between;
+  font-size: 0.75rem; color: rgba(210, 225, 255, 0.45);
+  margin-top: 2px;
+}
+.form-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.form-col { min-width: 0; }
+.planning-modal-actions {
+  display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px;
+}
+.header-actions {
+  display: flex; gap: 10px; align-items: center; flex-shrink: 0;
+}
+.action-btn.ghost-sm, .action-btn.primary-sm {
+  padding: 7px 12px; border-radius: 10px; font-size: 0.82rem;
+  border: 1px solid transparent; cursor: pointer;
+}
+.action-btn.primary-sm {
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  color: #fff; box-shadow: 0 4px 14px rgba(0, 229, 255, 0.25);
+}
+.action-btn.ghost-sm {
+  background: rgba(0, 229, 255, 0.06);
+  color: #c6e0ff; border-color: rgba(0, 229, 255, 0.2);
+}
+.empty-state.inline {
+  padding: 40px 18px;
+}
+.plan-header-actions {
+  display: flex; gap: 10px; align-items: center;
+}
+.icon-btn {
+  width: 30px; height: 30px; border-radius: 8px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  background: rgba(0, 229, 255, 0.06);
+  cursor: pointer; font-size: 14px;
+}
+.icon-btn:hover { border-color: var(--cyan); }
+.icon-btn.danger {
+  border-color: rgba(255, 71, 87, 0.3);
+  background: rgba(255, 71, 87, 0.06);
+}
+.icon-btn.danger:hover { background: rgba(255, 71, 87, 0.18); }
+.section-block-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.section-block-title {
+  display: flex; align-items: center; gap: 10px;
+  color: #e8f2ff; font-weight: 600;
+}
+.section-block-title .block-divider {
+  width: 1px; height: 14px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 229, 255, 0.6), transparent);
+  margin: 0 4px;
+}
+.section-block-title .block-subtitle {
+  font-size: 0.82rem; color: rgba(210, 225, 255, 0.55);
+}
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .planning-modal-dialog { padding: 22px 18px; }
+  .header-actions { flex-wrap: wrap; }
 }
 
 @media (max-width: 1200px) {

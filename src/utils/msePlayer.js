@@ -1,4 +1,12 @@
-import MP4Box from 'mp4box'
+// 按需加载 mp4box，若未安装则失败时回退到普通播放（不影响构建）
+let MP4Box = null
+try {
+  // eslint-disable-next-line
+  MP4Box = require('mp4box')
+} catch (e) {
+  // 运行环境缺依赖：build/dev 都不报错，调用 playMp4ViaMse 时自动回退
+  MP4Box = null
+}
 
 /**
  * MSE（MediaSource）直喂数据播放器。
@@ -23,6 +31,7 @@ export function playMp4ViaMse (videoEl, arrayBuffer) {
 
     try {
       if (!window.MediaSource || typeof MediaSource.isTypeSupported !== 'function') return fallback('no-mse-api')
+      if (!MP4Box || typeof MP4Box.createFile !== 'function') return fallback('mp4box-missing')
 
       // mp4box 要求输入 buffer 带 fileStart 标记
       const buf = arrayBuffer
